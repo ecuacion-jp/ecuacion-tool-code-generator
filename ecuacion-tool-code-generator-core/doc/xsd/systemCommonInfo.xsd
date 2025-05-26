@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="root">
+		<xsd:complexType>
+			<xsd:attribute name="basePackage" type="xsd:string"/>
+			<xsd:attribute name="projectType" type="xsd:string"/>
+			<xsd:attribute name="characterEncoding" type="xsd:string"/>
+			<xsd:attribute name="prohibitedCharacters" type="xsd:string"/>
+			<xsd:attribute name="defaultLang" type="xsd:string"/>
+			<xsd:attribute name="supportLang1" type="xsd:string"/>
+			<xsd:attribute name="supportLang2" type="xsd:string"/>
+			<xsd:attribute name="supportLang3" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

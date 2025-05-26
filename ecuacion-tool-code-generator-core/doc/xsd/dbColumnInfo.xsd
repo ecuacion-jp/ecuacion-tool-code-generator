@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="root">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="column" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="table" type="xsd:string" />
+							<xsd:element name="dispName" type="xsd:string" />
+							<xsd:element name="dataType" type="xsd:string" />
+							<xsd:element name="pk" type="xsd:string" />
+							<xsd:element name="nullable" type="xsd:string" />
+							<xsd:element name="autoIncrement" type="xsd:string" />
+							<xsd:element name="forcedIncrement" type="xsd:string" />
+							<xsd:element name="autoUpdate" type="xsd:string" />
+							<xsd:element name="forcedUpdate" type="xsd:string" />
+							<xsd:element name="valueChangeMethod" type="xsd:string" />
+							<xsd:element name="updatedValue" type="xsd:string" />
+							<xsd:element name="optLock" type="xsd:string" />
+							<xsd:element name="index1" type="xsd:string" />
+							<xsd:element name="index2" type="xsd:string" />
+							<xsd:element name="index3" type="xsd:string" />
+							<xsd:element name="dispNameAddLang1" type="xsd:string" />
+							<xsd:element name="dispNameAddLang2" type="xsd:string" />
+							<xsd:element name="dispNameAddLang3" type="xsd:string" />
+						</xsd:sequence>
+						<xsd:attribute name="name" type="xsd:string" />
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+			<xsd:attribute name="defaultLang" type="xsd:string"/>
+			<xsd:attribute name="addLang1" type="xsd:string"/>
+			<xsd:attribute name="addLang2" type="xsd:string"/>
+			<xsd:attribute name="addLang3" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

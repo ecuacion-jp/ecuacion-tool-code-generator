@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="root">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="table" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="dispName" type="xsd:string" />
+							<xsd:element name="hasConsistencyCheck" type="xsd:string" />
+							<xsd:element name="consistencyCheckJavadoc" type="xsd:string" />
+						</xsd:sequence>
+						<xsd:attribute name="name" type="xsd:string" />
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+</xsd:element>
+</xsd:schema>
