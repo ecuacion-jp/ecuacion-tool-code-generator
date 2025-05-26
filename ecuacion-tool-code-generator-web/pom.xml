@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>ecuacion-tool-code-generator</artifactId>
+	<packaging>war</packaging>
+	<parent>
+		<groupId>jp.ecuacion.tool.ecuacion-tool-code-generator</groupId>
+		<artifactId>ecuacion-tool-code-generator-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+	<properties>
+		<altDeploymentRepository>ecuacion-repo-sftp-private::${repository.ecuacion-repo-sftp-private-root}/profile-${mvn.prof-id}</altDeploymentRepository>
+	</properties>
+	
+	<build>
+		<plugins>
+
+			<!-- for web / rest -->
+			<!-- Sets "failOnMissingWebXml = false" by the definition in ecuacion-splib-parent -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+			</plugin>
+
+			<!-- maven-source-plugin (outputs a jar of source) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+
+			<!-- checkstyle -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+			</plugin>
+			
+			<!-- spotbugs -->
+			<!--
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+			</plugin>
+			-->
+			
+		</plugins>
+		<resources>
+			<resource><directory>src/main/resources</directory></resource>
+			<resource>
+				<directory>src/envs/${mvn.prof-id}/resources</directory>
+				<includes><include>**/*.*</include></includes>
+			</resource>
+			<resource>
+				<directory>src/main/java</directory>
+				<excludes><exclude>**/*.java</exclude></excludes>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+		</testResources>
+	</build>
+	<dependencies>
+		
+		<!-- spring boot -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- ecuacion-splib -->
+		<dependency>
+			<groupId>jp.ecuacion.splib</groupId>
+			<artifactId>ecuacion-splib-web</artifactId>
+		</dependency>
+
+		<!-- dependent modules in the same project -->
+		<dependency>
+			<groupId>jp.ecuacion.tool.${app.name}</groupId>
+			<artifactId>${app.name}-core</artifactId>
+		</dependency>
+
+		<!-- zip -->
+		<dependency>
+			<groupId>net.lingala.zip4j</groupId>
+			<artifactId>zip4j</artifactId>
+			<version>2.11.5</version>
+		</dependency>
+	</dependencies>
+</project>

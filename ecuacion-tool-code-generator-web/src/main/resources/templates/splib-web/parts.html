@@ -1,0 +1,49 @@
+<!--
+
+    Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+</head>
+<body>
+
+	<!--/* navBarOfLoginStateNone */-->
+	<div th:fragment="nav-bar-public" th:remove="tag">
+		<a class="navbar-brand" th:href="@{/public/home/page}">
+			<span th:text="#{NAVBAR_TITLE}"></span>
+		</a>
+
+		<div class="container">
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarText">
+				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+					<li th:replace="~{bootstrap/components :: navBarMenuItem(@{/public/show/page?id=introduction}, #{NAVBAR_L1_INTRODUCTION}, '')}"></li>
+					<li th:replace="~{bootstrap/components :: navBarMenuItem(@{/public/sourceDownload/page}, #{NAVBAR_L1_SOURCE_DOWNLOAD}, '')}"></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div th:fragment="footer-string" th:remove="tag">
+			© [[${#temporals.year(#temporals.createNow())}]] ecuacion consulting  All rights reserved.
+	</div>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="root">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="datatype" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="kata" type="xsd:string" />
+							<xsd:element name="minLength" type="xsd:string" />
+							<xsd:element name="maxLength" type="xsd:string" />
+							<xsd:element name="stringDataPtn" type="xsd:string" />
+							<xsd:element name="stringRegEx" type="xsd:string" />
+							<xsd:element name="allowsProhibitedCharacters" type="xsd:string" />
+							<xsd:element name="numMinVal" type="xsd:string" />
+							<xsd:element name="numMaxVal" type="xsd:string" />
+							<xsd:element name="numDigitInteger" type="xsd:string" />
+							<xsd:element name="numDigitFraction" type="xsd:string" />
+							<xsd:element name="enumCodeLength" type="xsd:string" />
+							<xsd:element name="notNeedsTimezone" type="xsd:string" />
+							<xsd:element name="isDeprecated" type="xsd:string" />
+							<xsd:element name="javadoc" type="xsd:string" />
+						</xsd:sequence>
+						<xsd:attribute name="name" type="xsd:string" />
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

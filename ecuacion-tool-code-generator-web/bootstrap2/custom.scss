@@ -1,0 +1,234 @@
+/******************
+ * 基本色設定
+ ******************/
+
+//テーマカラーの設定
+$primary:       rgb(100, 149, 21);
+$secondary:     rgb(73, 73, 73);
+$success:       rgb(2, 48, 3);
+$info:          rgb(23, 117, 90);
+$warning:       rgb(85, 100, 13);
+$danger:        rgb(170, 62, 64);
+$light:         rgb(170, 255, 177);
+$dark:          rgb(20, 61, 3);
+
+//追加カラー。本ファイルの下のほうで既存カラーに追加しているので行追加時は忘れずに。
+//（色の値は、#990のように独自の値を入れても$primaryのように上の変数を指定してもOK）
+$color-navbar:    $primary;
+$color-subtitle:  $primary;
+$color-btn:       $primary;
+$color-btn-danger:$danger;
+$color-footer:    $secondary;
+$color-paging-btn:$secondary;
+$color-tbl-header:$secondary;
+
+$color-msg-success-bg: #f0f0f0;
+$color-msg-error-bg:   #fff0f0;
+
+//リンクの文字色
+$link-color:      $dark;
+
+//bodyの背景、文字色
+//$body-bg:       #fff;
+//$body-color:    #212529;
+
+//input type=textなどの内側の背景色
+$input-bg: rgb(245, 245, 255);
+
+//input-groupのaddonの背景色
+$input-group-addon-bg: #e9ecef;
+
+
+
+/******************
+ * フォント関連設定
+ ******************/
+
+//フォントファミリーの設定
+//$font-family-sans-serif: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+$font-family-sans-serif: "ヒラギノ丸ゴ Pro W4", "ヒラギノ丸ゴ Pro", "Hiragino Maru Gothic Pro", "HG丸ｺﾞｼｯｸM-PRO", "HGMaruGothicMPRO", sans-serif;
+$font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !default;
+
+//基本のフォントサイズの設定 1rem = 16px
+$font-size-base: 1rem;
+
+//見出しフォントの太さ
+// $headings-font-weight: 500;
+$headings-font-weight: 300;
+
+
+
+/******************
+ * 各種componentのカスタマイズ
+ ******************/
+ 
+ //ボーダーの太さ。tableの枠線及びbuttonなどの外枠のサイズに反映。1pxが無難。
+$border-width: 1px;
+
+//tableの枠線の色に反映。
+$border-color: #dee2e6;
+
+//角丸の設定 true=有効 false=無効。falseだとbuttonなどがガチガチの四角なので見た目悪い。
+$enable-rounded:              true;
+
+//角丸の大きさの設定
+$border-radius:               .8rem;
+$border-radius-sm:            .6rem;
+$border-radius-lg:            .9rem;
+$border-radius-pill:          100rem;
+
+
+ 
+/******************
+ * その他
+ ******************/
+ 
+//アラートの背景、ボーダー、文字の色 テーマカラーとの差
+//$alert-bg-scale:     -80%;
+//$alert-border-scale: -70%;
+//$alert-color-scale:  40%;
+
+
+//行間の設定
+//$line-height-base: 1.5;
+//$line-height-sm:   1.25;
+//$line-height-lg:   2;
+
+/*
+//影の設定 true=有効 false=無効
+$enable-shadows:              true;
+
+//影の色や大きさの設定
+$box-shadow:                  0 .5rem 1rem rgba(#000, .15);
+$box-shadow-sm:               0 .125rem .25rem rgba(#000, .075);
+$box-shadow-lg:               0 1rem 3rem rgba(#000, .175);
+$box-shadow-inset:            inset 0 1px 2px rgba(#000, .075);
+
+//コンポーネント別の影の設定
+$card-box-shadow:             $box-shadow; //初期値:null
+$btn-box-shadow:              $box-shadow; //初期値:inset 0 1px 0 rgba($white, .15), 0 1px 1px rgba($black, .075);
+$btn-active-box-shadow:       $box-shadow; //初期値:inset 0 3px 5px rgba($black, .125)
+$input-box-shadow:            $box-shadow; //初期値:$box-shadow-inset
+$form-select-box-shadow:      $box-shadow; //初期値:$box-shadow-inset
+
+
+//スペーサーの広さの設定
+$spacer: 1rem;
+
+//段落とアラートの下のマージン設定
+$paragraph-margin-bottom: 1rem;
+$alert-margin-bottom:     1rem;
+
+//テーブルセルのパディング
+$table-cell-padding-y:        .5rem;
+$table-cell-padding-x:        .5rem;
+$table-cell-padding-y-sm:     .25rem;
+$table-cell-padding-x-sm:     .25rem;
+
+//インプット、ボタンのパディング
+$input-btn-padding-y:         .375rem;
+$input-btn-padding-x:         .75rem;
+$input-btn-padding-y-sm:      .25rem;
+$input-btn-padding-x-sm:      .5rem;
+$input-btn-padding-y-lg:      .5rem;
+$input-btn-padding-x-lg:      1rem;
+
+//バッジのパディング
+$badge-padding-y:             .35em;
+$badge-padding-x:             .65em;
+
+
+//グラデーションの設定 true=有効 false=無効
+$enable-gradients: true;
+
+//グラデーションの強さの設定
+$gradient: linear-gradient(180deg, rgba(#fff, .15), rgba(#fff, 0));
+*/
+
+
+
+/*!
+ * Bootstrap v5.0.2 (https://getbootstrap.com/)
+ * Copyright 2011-2021 The Bootstrap Authors
+ * Copyright 2011-2021 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+ */
+
+// scss-docs-start import-stack
+// Configuration
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/functions";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/variables";
+
+
+//部品に対する色指定を追加
+$custom-colors: (
+  "color-navbar": $color-navbar,
+  "color-subtitle": $color-subtitle,
+  "color-btn": $color-btn,
+  "color-btn-danger": $color-btn-danger,
+  "color-footer": $color-footer,
+  "color-paging-btn": $color-paging-btn,
+  "color-tbl-header": $color-tbl-header,
+  "color-msg-success-bg": $color-msg-success-bg,
+  "color-msg-error-bg": $color-msg-error-bg,
+);
+$theme-colors: map-merge($theme-colors, $custom-colors);
+
+//spacer defaultは5で$spacer * 3なのだが、大きすぎるのともう少し種類が欲しいのでカスタマイズ
+$spacer: 1rem;
+$custom-spacers: (
+  0: 0,
+  1: $spacer * .25,
+  2: $spacer * .5,
+  3: $spacer,
+  4: $spacer * 1.5,
+  5: $spacer * 2,
+  6: $spacer * 2.5,
+  7: $spacer * 3,
+  8: $spacer * 3.5,
+  9: $spacer * 4,
+);
+$spacers: map-merge($spacers, $custom-spacers);
+
+
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/mixins";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/utilities";
+
+// Layout & components
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/root";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/reboot";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/type";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/images";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/containers";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/grid";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/tables";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/forms";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/buttons";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/transitions";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/dropdown";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/button-group";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/nav";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/navbar";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/card";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/accordion";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/breadcrumb";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/pagination";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/badge";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/alert";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/progress";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/list-group";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/close";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/toasts";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/modal";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/tooltip";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/popover";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/carousel";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/spinners";
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/offcanvas";
+
+// Helpers
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/helpers";
+
+// Utilities
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/utilities/api";
+// scss-docs-end import-stack

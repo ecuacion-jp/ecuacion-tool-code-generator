@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="root">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="enum" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="dataTypeName" type="xsd:string" />
+							<xsd:element name="isDeprecated-class" type="xsd:string" />
+							<xsd:element name="javadoc-class" type="xsd:string" />
+							<xsd:element name="code" type="xsd:string" />
+							<xsd:element name="varName" type="xsd:string" />
+							<xsd:element name="dispName" type="xsd:string" />
+							<xsd:element name="isDeprecated-value" type="xsd:string" />
+							<xsd:element name="javadoc-value" type="xsd:string" />
+							<xsd:element name="dispNameAddLang1" type="xsd:string" />
+							<xsd:element name="dispNameAddLang2" type="xsd:string" />
+							<xsd:element name="dispNameAddLang3" type="xsd:string" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+			<xsd:attribute name="defaultLang" type="xsd:string"/>
+			<xsd:attribute name="addLang1" type="xsd:string"/>
+			<xsd:attribute name="addLang2" type="xsd:string"/>
+			<xsd:attribute name="addLang3" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

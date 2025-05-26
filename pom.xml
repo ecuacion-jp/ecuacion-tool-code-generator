@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>jp.ecuacion.tool.ecuacion-tool-code-generator</groupId>
+	<artifactId>ecuacion-tool-code-generator-parent</artifactId>
+	<packaging>pom</packaging>
+	<parent>
+		<groupId>jp.ecuacion.splib</groupId>
+		<artifactId>ecuacion-splib-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../ecuacion-splib</relativePath>
+	</parent>
+	<properties>
+		<!-- deploy to private repository-->
+		<altDeploymentRepository>ecuacion-repo-sftp-private::${repository.ecuacion-repo-sftp-private-root}/profile-none</altDeploymentRepository>
+
+		<app.name>ecuacion-tool-code-generator</app.name>
+		<app.version>0.0.1-SNAPSHOT</app.version>
+	</properties>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				
+				<!-- checkstyle: setting "private-apps" suppression filter file -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+					<configuration>
+						<propertiesLocation>${checkstyle.config.site}/checkstyle-for-private-apps.properties</propertiesLocation>
+					</configuration>
+				</plugin>
+			
+			</plugins>
+		</pluginManagement>
+	</build>
+	
+	<dependencyManagement>
+		<dependencies>
+
+			<!-- dependent modules in the same project -->
+			<dependency>
+				<groupId>jp.ecuacion.tool.${app.name}</groupId>
+				<artifactId>${app.name}-core</artifactId>
+				<version>${app.version}</version>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+	<!-- mvn versions plugin can't understand parameterized module name like ${app.name}-core... -->
+	<modules>
+		<module>ecuacion-tool-code-generator-core</module>
+		<module>ecuacion-tool-code-generator-batch</module>
+		<module>ecuacion-tool-code-generator-web</module>
+	</modules>
+
+</project>

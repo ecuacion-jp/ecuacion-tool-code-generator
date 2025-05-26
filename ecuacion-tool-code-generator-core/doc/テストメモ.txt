@@ -1,0 +1,15 @@
+本メモは、ecuacion-framework-code-generatorのテストの全体を記載する。
+
+試験は、以下に分割されている。
+1.入力自挙動チェック
+2.ファイル出力結果差分チェック
+3.ファイル出力結果挙動チェック
+
+1.については、単体試験をecuacion-framework-code-generatorのテストソースで全て実施する。
+　 （単体テスト、結合テストを含む）
+3.については、ecuacion-framework-code-generator-testappのテストソースで全て実施する。
+　 （単体テスト。PJ内結合テスト、PJ間結合（ecuacion-framework-commonとの）を含む）
+
+2.については、生成されたソースをecuacion-framework-code-generator-testappに配置する際に、
+　毎回変更前後でdiffを取ることを以て試験とする。
+　★☆★☆　これは、テストコードの実行以外で要実施事項

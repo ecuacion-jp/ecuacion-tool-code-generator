@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="root">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="column" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="groupSerial" type="xsd:string" />
+							<xsd:element name="refFromTable" type="xsd:string" />
+							<xsd:element name="refFromColumn" type="xsd:string" />
+							<xsd:element name="refToTable" type="xsd:string" />
+							<xsd:element name="refToColumn" type="xsd:string" />
+							<xsd:element name="refKind" type="xsd:string" />
+							<xsd:element name="refDirection" type="xsd:string" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
