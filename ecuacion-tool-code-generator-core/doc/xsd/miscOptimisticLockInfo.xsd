@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="root">
+		<xsd:complexType>
+			<xsd:attribute name="columnName" type="xsd:string"/>
+			<xsd:attribute name="dataTypeName" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

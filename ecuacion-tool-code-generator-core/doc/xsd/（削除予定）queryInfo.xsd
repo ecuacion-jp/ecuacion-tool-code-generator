@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="root">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="conditionOfQuery" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="dataTypeName" type="xsd:string" />
+							<xsd:element name="column" type="xsd:string" />
+							<xsd:element name="attribute" type="xsd:string" />
+							<xsd:element name="defaultValue" type="xsd:string" />
+							<xsd:element name="addsQueryThatUpdatesThisColumn" type="xsd:string" />
+							<xsd:element name="queryNameThatUpdatesThisColumn" type="xsd:string" />
+							<xsd:element name="valueWithWhichQueryUpdatesThisColumn" type="xsd:string" />
+							<xsd:element name="makesAnotherBaseSetWithoutGroupedQuery" type="xsd:string" />
+							<xsd:element name="makesAnotherBaseSetWithoutGroupedQueryForDaoOnly" type="xsd:string" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
