@@ -11,7 +11,7 @@ import java.util.List;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
-import jp.ecuacion.tool.codegenerator.core.controller.CodeGeneratorAction;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeRootInfo;
@@ -31,7 +31,7 @@ public class PreparerForDbAndDataType {
   private Info info;
 
   public PreparerForDbAndDataType() {
-    this.info = CodeGeneratorAction.tlInfo.get();
+    this.info = MainController.tlInfo.get();
   }
 
   public void prepare() throws AppException {
