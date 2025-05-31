@@ -17,8 +17,8 @@ public class SourceDownloadRecord extends SplibRecord implements RecordInterface
   }
 
   @Override
-  public HtmlItem[] getHtmlFields() {
-    return mergeHtmlFields(htmlItems, Constants.COMMON_HTML_ITEMS);
+  public HtmlItem[] getHtmlItems() {
+    return mergeHtmlItems(htmlItems, Constants.COMMON_HTML_ITEMS);
   }
 
   public MultipartFile getFileToUpload() {
