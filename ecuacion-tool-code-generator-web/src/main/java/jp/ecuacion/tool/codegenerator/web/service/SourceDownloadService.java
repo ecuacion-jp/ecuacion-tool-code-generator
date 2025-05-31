@@ -12,7 +12,7 @@ import jp.ecuacion.lib.core.exception.checked.AppExceptionItemIds;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.splib.web.service.SplibGeneral1FormService;
-import jp.ecuacion.tool.codegenerator.core.controller.CodeGeneratorAction;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.web.form.SourceDownloadForm;
 import net.lingala.zip4j.ZipFile;
 import org.springframework.context.annotation.Scope;
@@ -59,7 +59,7 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
     Path path = Paths.get(inputDir + "/" + originalFileName);
     Files.write(path, multipartFile.getBytes());
 
-    new CodeGeneratorAction().execute(inputDir, outputDir);
+    new MainController().execute(inputDir, outputDir);
 
     // outputDirから###work###以外のディレクトリを取得し、それをzip化
     String dirName = "";
