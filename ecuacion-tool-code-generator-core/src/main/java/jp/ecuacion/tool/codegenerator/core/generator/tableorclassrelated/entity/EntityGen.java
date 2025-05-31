@@ -11,7 +11,7 @@ import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.tool.codegenerator.core.controller.CodeGeneratorAction;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.BidirectionalRelationInfo;
@@ -287,8 +287,8 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
           } else {
             MiscSoftDeleteRootInfo softDeleteInfo =
-                CodeGeneratorAction.tlInfo.get().removedDataRootInfo;
-            MiscGroupRootInfo groupInfo = CodeGeneratorAction.tlInfo.get().groupRootInfo;
+                MainController.tlInfo.get().removedDataRootInfo;
+            MiscGroupRootInfo groupInfo = MainController.tlInfo.get().groupRootInfo;
             if (softDeleteInfo.isDefined()) {
               sb.append(T1 + "@Filter(name = \"softDeleteFilter\")" + RT);
             }

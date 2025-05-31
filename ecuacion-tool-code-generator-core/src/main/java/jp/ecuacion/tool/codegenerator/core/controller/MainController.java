@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.tool.codegenerator.core.blf.GenerationBlf;
+import jp.ecuacion.tool.codegenerator.core.blf.InputFileReadBlf;
 import jp.ecuacion.tool.codegenerator.core.checker.FileLevelConsistencyChecker;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
@@ -26,17 +28,21 @@ import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 import jp.ecuacion.tool.codegenerator.core.preparer.PrepareManager;
 
-public class CodeGeneratorAction {
+public class MainController {
 
-  /** web対応も可能とするようthreadLocalで保持する。 */
+  /** 
+   * Store Info as threadLocal to adapt to multithread accesses.
+   */
   public static ThreadLocal<Info> tlInfo = new ThreadLocal<>();
 
   /**
-   * 本処理がcoreモジュールにおけるentrypoint。 <br>
-   * mainメソッドの流れは以下。<br>
-   * 1.使用するexcelファイルたちを読み込み（同一ファイル内のチェック、データ補完処理を含む）<br>
-   * 2.同一プロジェクト内の複数RootInfo間におけるチェック・情報補完<br>
-   * 3.generate source
+   * Is the entrypoint of the core module.
+   * 
+   * <p>The flow of it is as follows:<br>
+   * 1. Read and validate excel formats, and complement data.<br>
+   * 2. Check data by compare multiple RootInfos.<br>
+   * 3. Generate source.
+   * </p>
    */
   public void execute(String inputDir, String outputDir) throws Exception {
 
@@ -51,14 +57,13 @@ public class CodeGeneratorAction {
 
     new File(inputDir).mkdirs();
 
-    // 1.使用するexcelファイルたちを読み込み（同一ファイル内のチェック、データ補完処理を含む）
+    // 1. Read and validate excel formats, and complement data.
     Logger.log(this, "READ_EXCELS");
     HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> systemMap =
-        new InputFileReader().makeFileList(info.inputDir);
-    // infoに登録
+        new InputFileReadBlf().makeFileList(info.inputDir);
     info.setCommonUnitValues(systemMap);
 
-    // 2.同一プロジェクト内の複数RootInfo間におけるチェック・情報補完
+    // 2. Check data by compare multiple RootInfos
     Logger.log(this, "CHECK_AND_COMPLEMENT_DATA");
     checksAndComplements(systemMap);
 
@@ -78,7 +83,7 @@ public class CodeGeneratorAction {
       throws Exception {
 
     for (String sysName : systemMap.keySet()) {
-      final GeneratingController genCon = new GeneratingController(info, outputDir);
+      final GenerationBlf genCon = new GenerationBlf(info, outputDir);
 
       // Infoに値を格納
       info.setRootInfoUnitValues(sysName);

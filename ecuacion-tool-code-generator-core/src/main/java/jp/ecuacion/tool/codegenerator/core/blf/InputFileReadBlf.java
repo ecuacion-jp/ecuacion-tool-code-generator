@@ -1,4 +1,4 @@
-package jp.ecuacion.tool.codegenerator.core.controller;
+package jp.ecuacion.tool.codegenerator.core.blf;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import org.apache.poi.EncryptedDocumentException;
 /**
  * @author 庸介
  */
-public class InputFileReader {
+public class InputFileReadBlf {
   private DetailLogger detailLog = new DetailLogger(this);
 
   /**
@@ -126,12 +126,12 @@ public class InputFileReader {
   private boolean shouldSkip(File file, String extension) {
     // ディレクトリの場合はスキップ
     if (file.isDirectory()) {
-      Logger.log(InputFileReader.class, "MSG_INFO_DIRECTORY_INCLUDED", file.getName());
+      Logger.log(InputFileReadBlf.class, "MSG_INFO_DIRECTORY_INCLUDED", file.getName());
       return true;
 
     } else if (!file.getName().endsWith("." + extension)) {
       // xml / excelでない場合はスキップ
-      Logger.log(InputFileReader.class, "MSG_INFO_NON_XML_FILE_INCLUDED", file.getName());
+      Logger.log(InputFileReadBlf.class, "MSG_INFO_NON_XML_FILE_INCLUDED", file.getName());
       return true;
 
     } else if (file.getName().startsWith("~$")) {
