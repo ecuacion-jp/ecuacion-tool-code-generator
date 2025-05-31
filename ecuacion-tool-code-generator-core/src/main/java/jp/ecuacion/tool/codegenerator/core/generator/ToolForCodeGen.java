@@ -1,6 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator;
 
-import jp.ecuacion.tool.codegenerator.core.controller.CodeGeneratorAction;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 
 /**
  * 各種Generatorはこれを継承して作成する。 このクラスは単なるツールなのだが、頻度の高い定数をここに定義しておくと、クラス名.T1のように 書かなくても済むので非常に楽。
@@ -22,7 +22,7 @@ public abstract class ToolForCodeGen {
   protected Info info;
   
   public ToolForCodeGen() {
-    this.info = CodeGeneratorAction.tlInfo.get();
+    this.info = MainController.tlInfo.get();
   }
   
 

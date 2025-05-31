@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
-import jp.ecuacion.tool.codegenerator.core.controller.CodeGeneratorAction;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.NotEmptyGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.ValidatorGen;
@@ -226,7 +226,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   /** Settings側も加味した上でgroupの項目か否かを返す。 */
   public boolean isGroupColumn() {
-    String groupColumnName = CodeGeneratorAction.tlInfo.get().groupRootInfo.getColumnName();
+    String groupColumnName = MainController.tlInfo.get().groupRootInfo.getColumnName();
     return (groupColumnName != null && groupColumnName.equals(columnName)) || isCustomGroupColumn();
   }
 
