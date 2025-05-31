@@ -1,7 +1,7 @@
 package jp.ecuacion.tool.codegenerator.batch.tasklet;
 
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
-import jp.ecuacion.tool.codegenerator.core.controller.CodeGeneratorAction;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -15,7 +15,7 @@ public class BatchStarterTasklet implements Tasklet {
   public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext)
       throws Exception {
     
-    new CodeGeneratorAction().execute(Constants.DIR_INFO_EXCELS_DEFAULT, "./products/");
+    new MainController().execute(Constants.DIR_INFO_EXCELS_DEFAULT, "./products/");
     
     return RepeatStatus.FINISHED;
   }

@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.tool.codegenerator.core.blf.GenerationBlf;
+import jp.ecuacion.tool.codegenerator.core.blf.InputFileReadBlf;
 import jp.ecuacion.tool.codegenerator.core.checker.FileLevelConsistencyChecker;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
@@ -26,7 +28,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 import jp.ecuacion.tool.codegenerator.core.preparer.PrepareManager;
 
-public class CodeGeneratorAction {
+public class MainController {
 
   /** web対応も可能とするようthreadLocalで保持する。 */
   public static ThreadLocal<Info> tlInfo = new ThreadLocal<>();
@@ -54,7 +56,7 @@ public class CodeGeneratorAction {
     // 1.使用するexcelファイルたちを読み込み（同一ファイル内のチェック、データ補完処理を含む）
     Logger.log(this, "READ_EXCELS");
     HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> systemMap =
-        new InputFileReader().makeFileList(info.inputDir);
+        new InputFileReadBlf().makeFileList(info.inputDir);
     // infoに登録
     info.setCommonUnitValues(systemMap);
 
@@ -78,7 +80,7 @@ public class CodeGeneratorAction {
       throws Exception {
 
     for (String sysName : systemMap.keySet()) {
-      final GeneratingController genCon = new GeneratingController(info, outputDir);
+      final GenerationBlf genCon = new GenerationBlf(info, outputDir);
 
       // Infoに値を格納
       info.setRootInfoUnitValues(sysName);
