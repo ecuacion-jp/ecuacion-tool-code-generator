@@ -30,15 +30,19 @@ import jp.ecuacion.tool.codegenerator.core.preparer.PrepareManager;
 
 public class MainController {
 
-  /** web対応も可能とするようthreadLocalで保持する。 */
+  /** 
+   * Store Info as threadLocal to adapt to multithread accesses.
+   */
   public static ThreadLocal<Info> tlInfo = new ThreadLocal<>();
 
   /**
-   * 本処理がcoreモジュールにおけるentrypoint。 <br>
-   * mainメソッドの流れは以下。<br>
-   * 1.使用するexcelファイルたちを読み込み（同一ファイル内のチェック、データ補完処理を含む）<br>
-   * 2.同一プロジェクト内の複数RootInfo間におけるチェック・情報補完<br>
-   * 3.generate source
+   * Is the entrypoint of the core module.
+   * 
+   * <p>The flow of it is as follows:<br>
+   * 1. Read and validate excel formats, and complement data.<br>
+   * 2. Check data by compare multiple RootInfos.<br>
+   * 3. Generate source.
+   * </p>
    */
   public void execute(String inputDir, String outputDir) throws Exception {
 
@@ -53,14 +57,13 @@ public class MainController {
 
     new File(inputDir).mkdirs();
 
-    // 1.使用するexcelファイルたちを読み込み（同一ファイル内のチェック、データ補完処理を含む）
+    // 1. Read and validate excel formats, and complement data.
     Logger.log(this, "READ_EXCELS");
     HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> systemMap =
         new InputFileReadBlf().makeFileList(info.inputDir);
-    // infoに登録
     info.setCommonUnitValues(systemMap);
 
-    // 2.同一プロジェクト内の複数RootInfo間におけるチェック・情報補完
+    // 2. Check data by compare multiple RootInfos
     Logger.log(this, "CHECK_AND_COMPLEMENT_DATA");
     checksAndComplements(systemMap);
 
