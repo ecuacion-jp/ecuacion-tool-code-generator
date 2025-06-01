@@ -22,9 +22,6 @@ public class EnumClassInfo extends StringExcelTableBean {
   @Pattern(regexp = Constants.REG_EX_DT_NAME)
   private String dataTypeName;
 
-  @Size(min = 1, max = 10000)
-  private String javadocClass;
-
   private DataTypeInfo dtInfo;
 
   //@formatter:off
@@ -49,11 +46,6 @@ public class EnumClassInfo extends StringExcelTableBean {
   @Size(min = 1, max = 50)
   public String getEnumName() {
     return StringGenUtil.dataTypeNameToUppperCamel(dataTypeName) + "Enum";
-  }
-
-  // javadocClass
-  public String getJavadocClass() {
-    return javadocClass;
   }
 
   public DataTypeInfo getDtInfo() {
