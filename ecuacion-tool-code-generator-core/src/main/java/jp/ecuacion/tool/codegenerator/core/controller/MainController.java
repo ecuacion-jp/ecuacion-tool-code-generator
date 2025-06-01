@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.tool.codegenerator.core.blf.ExcelFormatReadBlf;
 import jp.ecuacion.tool.codegenerator.core.blf.GenerationBlf;
-import jp.ecuacion.tool.codegenerator.core.blf.InputFileReadBlf;
 import jp.ecuacion.tool.codegenerator.core.checker.FileLevelConsistencyChecker;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
@@ -46,21 +46,20 @@ public class MainController {
    */
   public void execute(String inputDir, String outputDir) throws Exception {
 
-    // 前回作成したファイルをproductsフォルダごと削除
+    // Delete previously created files.
     Logger.log(this, "DELETE_LAST_TIME_FILE");
     delete(new File(outputDir));
 
+    // Create and set Info.
     Info info = new Info();
     tlInfo.set(info);
     info.inputDir = inputDir;
     info.outputDir = outputDir;
 
-    new File(inputDir).mkdirs();
-
     // 1. Read and validate excel formats, and complement data.
     Logger.log(this, "READ_EXCELS");
     HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> systemMap =
-        new InputFileReadBlf().makeFileList(info.inputDir);
+        new ExcelFormatReadBlf().read(info.inputDir);
     info.setCommonUnitValues(systemMap);
 
     // 2. Check data by compare multiple RootInfos
