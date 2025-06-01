@@ -98,14 +98,6 @@ public abstract class AbstractGen extends ToolForCodeGen {
   // Javadoc関連
   // ==============
 
-  protected String genJavadocClassFromXml(String javadocClass) {
-    return genJavadocFromXml(javadocClass, false);
-  }
-
-  protected String genJavadocValueFromXml(String javadocValue) {
-    return genJavadocFromXml(javadocValue, true);
-  }
-
   protected String genJavadocFromXml(String javadoc, boolean isIndented) {
     String indent = (isIndented) ? T1 : "";
     return indent + JD_ST + RT + genJavadocPartFromXml(javadoc, isIndented) + indent + JD_END + RT;
