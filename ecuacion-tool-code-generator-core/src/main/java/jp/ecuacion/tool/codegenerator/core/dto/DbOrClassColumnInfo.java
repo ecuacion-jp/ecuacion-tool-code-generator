@@ -9,6 +9,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalEmpty;
+import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
@@ -21,6 +24,16 @@ import jp.ecuacion.tool.codegenerator.core.validation.StrPk;
 import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 
+@ConditionalNotEmpty(
+    field = {"relationDirection", "relationFieldName", "relationRefTable", "relationRefCol"},
+    conditionField = "relationKind",
+    conditionPattern = ConditionPattern.valueOfConditionFieldIsNotEmpty,
+    emptyWhenConditionNotSatisfied = true)
+@ConditionalEmpty(field = "relationRefFieldName", conditionField = "relationDirection",
+    conditionPattern = ConditionPattern.stringValueOfConditionFieldIsNotEqualTo,
+    conditionValueString = "bidirectional")
+@ConditionalEmpty(field = "relationIsEager", conditionField = "relationKind",
+    conditionPattern = ConditionPattern.valueOfConditionFieldIsEmpty)
 public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   private List<BidirectionalRelationInfo> bidirectionalInfo = new ArrayList<>();
@@ -46,17 +59,25 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   private String isJavaOnly;
   @StrPk
   private String pkKind;
+  @StrBoolean
   private String isNullable;
+  @StrBoolean
   private String isAutoIncrement;
+  @StrBoolean
   private String isForcedIncrement;
+  @StrBoolean
   private String isAutoUpdate;
+  @StrBoolean
   private String isForcedUpdate;
+  @StrBoolean
   private String isCustomGroupColumn;
+  @Pattern(regexp = "^CB|CD|LB|LD$")
   private String springAuditing;
 
   // private String valueChangeMethod;
   private String updatedValue;
 
+  @Pattern(regexp = "^@ManyToOne|@OneToOne$")
   private String relationKind;
   private String relationDirection;
   private String relationFieldName;
@@ -350,8 +371,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     public String getEmptyConsideredFieldNameToReferFromTable() {
       String fieldNamePostfix = (relationKind == RelationKindEnum.ONE_TO_ONE) ? "" : "List";
       return StringUtils.isEmpty(fieldNameToReferFromTable)
-          ? StringUtil.getLowerCamelFromSnake(referFromTableName)
-              + fieldNamePostfix
+          ? StringUtil.getLowerCamelFromSnake(referFromTableName) + fieldNamePostfix
           : fieldNameToReferFromTable;
     }
   }

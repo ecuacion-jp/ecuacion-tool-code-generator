@@ -25,9 +25,9 @@ import jp.ecuacion.util.poi.excel.table.reader.concrete.StringOneLineHeaderExcel
 import org.apache.poi.EncryptedDocumentException;
 
 /**
- * @author 庸介
+ * Reads Excel Format and returns read data.
  */
-public class InputFileReadBlf {
+public class ExcelFormatReadBlf {
   private DetailLogger detailLog = new DetailLogger(this);
 
   /**
@@ -35,8 +35,10 @@ public class InputFileReadBlf {
    * それぞれのxmlMapには、xmlファイル名をキーとして、そのrooList（SuperRootInfo型）がセットで納められている
    * ※SuperRootInfoには複数の実装がある（enumRootInfoなど）
    */
-  public HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> makeFileList(String infoExcelDir)
+  public HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> read(String infoExcelDir)
       throws Exception {
+
+    new File(infoExcelDir).mkdirs();
 
     HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> systemMap = new HashMap<>();
 
@@ -49,12 +51,6 @@ public class InputFileReadBlf {
 
     // ファイルがなくてもrootInfoは作成しておく処理（必要なもののみ）。個別アプリ（base）以外は不要のため作成しない
     for (Entry<String, HashMap<DataKindEnum, AbstractRootInfo>> entry : systemMap.entrySet()) {
-      // boolean isFw =
-      // !((SystemCommonRootInfo) systemMap.get(system).get(Constants.XML_POST_FIX_SYSTEM_COMMON))
-      // .getProjectType().equals("base");
-      // if (isFw) {
-      // continue;
-      // }
 
       HashMap<DataKindEnum, AbstractRootInfo> fileMap = systemMap.get(entry.getKey());
       putEmptyRootInfo(fileMap, DataKindEnum.MISC_REMOVED_DATA, new MiscSoftDeleteRootInfo());
@@ -92,14 +88,10 @@ public class InputFileReadBlf {
           (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON);
 
       // dataType
-      String[] headerLabels = new String[] {"DataType名", "型", "長さ最小", "長さ最大", "データパターン（日本語）",
-          "データパターン", "禁則文字チェック除外", "正規表現", "パターン説明（デフォルト言語）", "パターン説明（追加言語1）", "パターン説明（追加言語2）",
-          "パターン説明（追加言語3）", "最小値", "最大値", "整数部桁数", "小数部桁数", "コードの長さ", "timezoneなし", "備考"};
-      rootInfoMap
-          .put(DataKindEnum.DATA_TYPE,
-              new DataTypeRootInfo(new StringOneLineHeaderExcelTableToBeanReader<DataTypeInfo>(
-                  DataTypeInfo.class, "dataType定義", headerLabels, null, 1, null)
-                      .readToBean(file.getAbsolutePath())));
+      rootInfoMap.put(DataKindEnum.DATA_TYPE,
+          new DataTypeRootInfo(new StringOneLineHeaderExcelTableToBeanReader<DataTypeInfo>(
+              DataTypeInfo.class, "dataType定義", DataTypeInfo.HEADER_LABELS, null, 1, null)
+                  .readToBean(file.getAbsolutePath())));
 
       rootInfoMap.putAll(new ExcelEnumReader(sysCmnRootInfo).readAndGetMap(file.getAbsolutePath()));
       rootInfoMap.putAll(new ExcelDbReader(sysCmnRootInfo).readAndGetMap(file.getAbsolutePath()));
@@ -126,12 +118,12 @@ public class InputFileReadBlf {
   private boolean shouldSkip(File file, String extension) {
     // ディレクトリの場合はスキップ
     if (file.isDirectory()) {
-      Logger.log(InputFileReadBlf.class, "MSG_INFO_DIRECTORY_INCLUDED", file.getName());
+      Logger.log(ExcelFormatReadBlf.class, "MSG_INFO_DIRECTORY_INCLUDED", file.getName());
       return true;
 
     } else if (!file.getName().endsWith("." + extension)) {
       // xml / excelでない場合はスキップ
-      Logger.log(InputFileReadBlf.class, "MSG_INFO_NON_XML_FILE_INCLUDED", file.getName());
+      Logger.log(ExcelFormatReadBlf.class, "MSG_INFO_NON_XML_FILE_INCLUDED", file.getName());
       return true;
 
     } else if (file.getName().startsWith("~$")) {
