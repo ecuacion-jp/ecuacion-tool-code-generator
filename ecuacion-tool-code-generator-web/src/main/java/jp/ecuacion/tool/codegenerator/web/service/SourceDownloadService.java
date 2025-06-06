@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import jp.ecuacion.lib.core.exception.checked.AppExceptionItemIds;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.splib.web.service.SplibGeneral1FormService;
@@ -102,8 +101,8 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
   private void check(String originalFileName) throws BizLogicAppException {
     if (originalFileName.equals("")) {
       // ファイル指定なしでsubmitされた
-      throw new BizLogicAppException(new AppExceptionItemIds("fileToUpload"),
-          "SOURCE_DOWNLOAD_MESSAGE_FILE_NOT_DESIGNATED");
+      throw new BizLogicAppException("SOURCE_DOWNLOAD_MESSAGE_FILE_NOT_DESIGNATED")
+          .itemPropertyPaths("fileToUpload");
     }
 
     if (!originalFileName.endsWith(".xlsx")) {
