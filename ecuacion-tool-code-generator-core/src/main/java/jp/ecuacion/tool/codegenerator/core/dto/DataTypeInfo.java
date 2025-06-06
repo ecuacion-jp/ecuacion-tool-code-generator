@@ -1,5 +1,7 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionFieldIsNotEqualTo;
+
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -10,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.exception.checked.AppException;
+import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalEmpty;
 import jp.ecuacion.lib.core.jakartavalidation.validator.EnumElement;
 import jp.ecuacion.lib.core.jakartavalidation.validator.IntegerString;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -27,7 +30,33 @@ import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
 
+@ConditionalEmpty(
+    field = {"minLength", "maxLength", "stringDataPtn", "stringAllowsProhibitedCharacters",
+        "stringRegEx", "stringRegExDescLangDefault", "stringRegExDescLangSupport01",
+        "stringRegExDescLangSupport02", "stringRegExDescLangSupport03"},
+    conditionField = "kata", conditionPattern = stringValueOfConditionFieldIsNotEqualTo,
+    conditionValueString = "STRING")
+@ConditionalEmpty(field = {"numMinVal", "numMaxVal"}, conditionField = "kata",
+    conditionPattern = stringValueOfConditionFieldIsNotEqualTo,
+    conditionValueString = {"SHORT", "INTEGER", "LONG", "FLOAT", "DOUBLE", "BIG_INTEGER",
+        "BIG_DECIMAL"})
+@ConditionalEmpty(field = {"numDigitInteger"}, conditionField = "kata",
+    conditionPattern = stringValueOfConditionFieldIsNotEqualTo,
+    conditionValueString = {"SHORT", "INTEGER", "LONG", "BIG_INTEGER", "BIG_DECIMAL"})
+@ConditionalEmpty(field = {"numDigitFraction"}, conditionField = "kata",
+    conditionPattern = stringValueOfConditionFieldIsNotEqualTo,
+    conditionValueString = {"BIG_DECIMAL"})
+@ConditionalEmpty(field = {"enumCodeLength"}, conditionField = "kata",
+    conditionPattern = stringValueOfConditionFieldIsNotEqualTo, conditionValueString = {"ENUM"})
+@ConditionalEmpty(field = {"notNeedsTimezone"}, conditionField = "kata",
+    conditionPattern = stringValueOfConditionFieldIsNotEqualTo,
+    conditionValueString = {"DATE_TIME", "TIMESTAMP"})
 public class DataTypeInfo extends StringExcelTableBean {
+
+  public static String[] HEADER_LABELS =
+      new String[] {"DataType名", "型", "長さ最小", "長さ最大", "データパターン（日本語）", "データパターン", "禁則文字チェック除外",
+          "正規表現", "パターン説明（デフォルト言語）", "パターン説明（追加言語1）", "パターン説明（追加言語2）", "パターン説明（追加言語3）", "最小値",
+          "最大値", "整数部桁数", "小数部桁数", "コードの長さ", "timezoneなし", "備考"};
 
   @NotEmpty
   @Size(min = 0, max = 50)
@@ -41,14 +70,14 @@ public class DataTypeInfo extends StringExcelTableBean {
   private String maxLength;
   @EnumElement(enumClass = DataTypeStringDataPtnEnum.class)
   private String stringDataPtn;
+  @Size(max = 50)
+  private String stringAllowsProhibitedCharacters;
   @Size(max = 100)
   private String stringRegEx;
   private String stringRegExDescLangDefault;
   private String stringRegExDescLangSupport01;
   private String stringRegExDescLangSupport02;
   private String stringRegExDescLangSupport03;
-  @Size(max = 50)
-  private String stringAllowsProhibitedCharacters;
   @IntegerString
   @Size(max = 50)
   private String numMinVal;
@@ -102,18 +131,6 @@ public class DataTypeInfo extends StringExcelTableBean {
     return maxLength == null ? null : toInteger(maxLength);
   }
 
-  // private DataTypeStringDataPtnEnum getStringDataPtn() {
-  // return DataTypeStringDataPtnEnum.getEnumFromName(stringDataPtn);
-  // }
-
-  // public boolean getStringAllowsProhibitedCharacters() {
-  // return BoolUtil.boolStrToBoolean(stringAllowsProhibitedCharacters);
-  // }
-
-  // public String getStringRegEx() {
-  // return stringRegEx;
-  // }
-
   public String getStringRegExDescLangDefault() {
     return stringRegExDescLangDefault;
   }
@@ -129,10 +146,6 @@ public class DataTypeInfo extends StringExcelTableBean {
   public String getStringRegExDescLangSupport03() {
     return stringRegExDescLangSupport03;
   }
-
-  // private String getNumMaxVal() {
-  // return numMaxVal;
-  // }
 
   private Integer getNumDigitInteger() {
     return numDigitInteger == null ? null : toInteger(numDigitInteger);
@@ -241,7 +254,7 @@ public class DataTypeInfo extends StringExcelTableBean {
     return map.get(lang);
   }
 
-  /** ただの文字列を、それらの文字を含む文字列がNGとなる正規表現に変更。 */
+  /* ただの文字列を、それらの文字を含む文字列がNGとなる正規表現に変更。 */
   private String changeNgCharsToRegEx(String str) {
 
     // 指定されていない場合は、最も厳しい制限とする（記号がすべてNG）

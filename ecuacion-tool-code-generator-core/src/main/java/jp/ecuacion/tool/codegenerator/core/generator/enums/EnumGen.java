@@ -61,8 +61,6 @@ public class EnumGen extends AbstractGen {
     importMgr.add(EclibCoreConstants.PKG + ".util.PropertyFileUtil");
     sb.append(importMgr.outputStr() + RT);
 
-    sb.append(genJavadocClassFromXml(enumClassInfo.getJavadocClass()));
-
     sb.append("public enum " + enumName + " {" + RT2);
 
     boolean isFirst = true;
@@ -78,8 +76,6 @@ public class EnumGen extends AbstractGen {
       } else {
         sb.append("," + RT2);
       }
-
-      sb.append(genJavadocValueFromXml(enumValueInfo.getJavadocValue()));
 
       sb.append(T1 + varName + "(\"" + code + "\")");
     }
