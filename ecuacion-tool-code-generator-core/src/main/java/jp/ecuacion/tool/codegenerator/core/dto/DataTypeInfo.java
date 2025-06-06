@@ -1,6 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionFieldIsNotEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsNotEqualTo;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
@@ -31,25 +31,27 @@ import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
 
 @ConditionalEmpty(
-    field = {"minLength", "maxLength", "stringDataPtn", "stringAllowsProhibitedCharacters",
+    propertyPath = {"minLength", "maxLength", "stringDataPtn", "stringAllowsProhibitedCharacters",
         "stringRegEx", "stringRegExDescLangDefault", "stringRegExDescLangSupport01",
         "stringRegExDescLangSupport02", "stringRegExDescLangSupport03"},
-    conditionField = "kata", conditionPattern = stringValueOfConditionFieldIsNotEqualTo,
+    conditionPropertyPath = "kata",
+    conditionPattern = stringValueOfConditionPropertyPathIsNotEqualTo,
     conditionValueString = "STRING")
-@ConditionalEmpty(field = {"numMinVal", "numMaxVal"}, conditionField = "kata",
-    conditionPattern = stringValueOfConditionFieldIsNotEqualTo,
+@ConditionalEmpty(propertyPath = {"numMinVal", "numMaxVal"}, conditionPropertyPath = "kata",
+    conditionPattern = stringValueOfConditionPropertyPathIsNotEqualTo,
     conditionValueString = {"SHORT", "INTEGER", "LONG", "FLOAT", "DOUBLE", "BIG_INTEGER",
         "BIG_DECIMAL"})
-@ConditionalEmpty(field = {"numDigitInteger"}, conditionField = "kata",
-    conditionPattern = stringValueOfConditionFieldIsNotEqualTo,
+@ConditionalEmpty(propertyPath = {"numDigitInteger"}, conditionPropertyPath = "kata",
+    conditionPattern = stringValueOfConditionPropertyPathIsNotEqualTo,
     conditionValueString = {"SHORT", "INTEGER", "LONG", "BIG_INTEGER", "BIG_DECIMAL"})
-@ConditionalEmpty(field = {"numDigitFraction"}, conditionField = "kata",
-    conditionPattern = stringValueOfConditionFieldIsNotEqualTo,
+@ConditionalEmpty(propertyPath = {"numDigitFraction"}, conditionPropertyPath = "kata",
+    conditionPattern = stringValueOfConditionPropertyPathIsNotEqualTo,
     conditionValueString = {"BIG_DECIMAL"})
-@ConditionalEmpty(field = {"enumCodeLength"}, conditionField = "kata",
-    conditionPattern = stringValueOfConditionFieldIsNotEqualTo, conditionValueString = {"ENUM"})
-@ConditionalEmpty(field = {"notNeedsTimezone"}, conditionField = "kata",
-    conditionPattern = stringValueOfConditionFieldIsNotEqualTo,
+@ConditionalEmpty(propertyPath = {"enumCodeLength"}, conditionPropertyPath = "kata",
+    conditionPattern = stringValueOfConditionPropertyPathIsNotEqualTo,
+    conditionValueString = {"ENUM"})
+@ConditionalEmpty(propertyPath = {"notNeedsTimezone"}, conditionPropertyPath = "kata",
+    conditionPattern = stringValueOfConditionPropertyPathIsNotEqualTo,
     conditionValueString = {"DATE_TIME", "TIMESTAMP"})
 public class DataTypeInfo extends StringExcelTableBean {
 
