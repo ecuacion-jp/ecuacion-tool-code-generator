@@ -25,15 +25,16 @@ import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 
 @ConditionalNotEmpty(
-    field = {"relationDirection", "relationFieldName", "relationRefTable", "relationRefCol"},
-    conditionField = "relationKind",
-    conditionPattern = ConditionPattern.valueOfConditionFieldIsNotEmpty,
+    propertyPath = {"relationDirection", "relationFieldName", "relationRefTable", "relationRefCol"},
+    conditionPropertyPath = "relationKind",
+    conditionPattern = ConditionPattern.valueOfConditionPropertyPathIsNotEmpty,
     emptyWhenConditionNotSatisfied = true)
-@ConditionalEmpty(field = "relationRefFieldName", conditionField = "relationDirection",
-    conditionPattern = ConditionPattern.stringValueOfConditionFieldIsNotEqualTo,
+@ConditionalEmpty(propertyPath = "relationRefFieldName",
+    conditionPropertyPath = "relationDirection",
+    conditionPattern = ConditionPattern.stringValueOfConditionPropertyPathIsNotEqualTo,
     conditionValueString = "bidirectional")
-@ConditionalEmpty(field = "relationIsEager", conditionField = "relationKind",
-    conditionPattern = ConditionPattern.valueOfConditionFieldIsEmpty)
+@ConditionalEmpty(propertyPath = "relationIsEager", conditionPropertyPath = "relationKind",
+    conditionPattern = ConditionPattern.valueOfConditionPropertyPathIsEmpty)
 public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   private List<BidirectionalRelationInfo> bidirectionalInfo = new ArrayList<>();
