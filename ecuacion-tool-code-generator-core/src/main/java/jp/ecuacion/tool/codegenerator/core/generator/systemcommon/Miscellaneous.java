@@ -23,15 +23,6 @@ public class Miscellaneous extends AbstractGen {
     generateMessagesBaseProperties(info.sysCmnRootInfo);
   }
 
-  // /** PropertyFileUtilが使用するために必要な設定ファイルを生成。 */
-  // private void generatePropertyFileUtilProperties(SystemCommonRootInfo sysCmnRootInfo)
-  // throws IOException, InterruptedException, BizLogicAppException {
-  // LinkedHashMap<String, String> map = new LinkedHashMap<>();
-  // map.put("DEFAULT_LOCALE", sysCmnRootInfo.getDefaultLang());
-  // PropertiesFileGen gen = new PropertiesFileGen();
-  // gen.writeMapToPropFile(map, "application_for_property-file-util", null);
-  // }
-
   /**
    * code-generatorで生成したソースの中にあるBizLogicAppExceptionに設定するメッセージファイルを生成
    * BizLogicAppExceptionのメッセージ。ユーザが見るメッセージではなく開発者が見るもの。
