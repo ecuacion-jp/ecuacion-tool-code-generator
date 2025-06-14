@@ -23,9 +23,10 @@ public class ConfigGen extends AbstractGen {
     ImportGenUtil importMgr = new ImportGenUtil();
     importMgr.add("org.springframework.context.annotation.ComponentScan",
         "org.springframework.context.annotation.Configuration",
-        "org.springframework.boot.autoconfigure.domain.EntityScan", 
-        "java.time.OffsetDateTime", "java.time.temporal.TemporalAccessor",
-        "java.util.Optional", "org.springframework.context.annotation.Bean",
+        "org.springframework.boot.autoconfigure.domain.EntityScan", "java.time.OffsetDateTime",
+        "java.time.temporal.TemporalAccessor", "java.util.Optional",
+        "org.springframework.context.annotation.Bean",
+        "org.springframework.context.annotation.PropertySource",
         "org.springframework.data.jpa.repository.config.*", "org.springframework.data.auditing.*");
     sb.append(importMgr.outputStr() + RT);
 
@@ -36,9 +37,10 @@ public class ConfigGen extends AbstractGen {
     sb.append(T2 + "+ \"," + rootBasePackage + ".base.advice\"" + RT);
     sb.append(T2 + "+ \"," + rootBasePackage + ".base.util\"" + RT);
     sb.append(T2 + ")" + RT);
+    sb.append("@PropertySource(value = \"classpath:application_base.properties\")" + RT);
 
     sb.append("public class BaseConfig {" + RT2);
-    
+
     sb.append(T1 + "@Bean" + RT);
     sb.append(T1 + "DateTimeProvider dateTimeProvider() {" + RT);
     sb.append(T2 + "return new DateTimeProvider() {" + RT);
