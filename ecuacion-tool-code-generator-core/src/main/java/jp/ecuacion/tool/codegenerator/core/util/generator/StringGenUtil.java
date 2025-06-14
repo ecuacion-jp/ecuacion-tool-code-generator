@@ -1,7 +1,7 @@
 package jp.ecuacion.tool.codegenerator.core.util.generator;
 
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.tool.codegenerator.core.controller.CodeGeneratorAction;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
@@ -10,7 +10,7 @@ public class StringGenUtil {
   private Info info;
 
   public StringGenUtil() {
-    this.info = CodeGeneratorAction.tlInfo.get();
+    this.info = MainController.tlInfo.get();
   }
 
   /** Account.mailAddress の形式の文字列を生成. */
