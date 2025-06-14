@@ -9,9 +9,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalEmpty;
+import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
-import jp.ecuacion.tool.codegenerator.core.controller.CodeGeneratorAction;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.NotEmptyGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.ValidatorGen;
@@ -21,6 +24,17 @@ import jp.ecuacion.tool.codegenerator.core.validation.StrPk;
 import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 
+@ConditionalNotEmpty(
+    propertyPath = {"relationDirection", "relationFieldName", "relationRefTable", "relationRefCol"},
+    conditionPropertyPath = "relationKind",
+    conditionPattern = ConditionPattern.valueOfConditionPropertyPathIsNotEmpty,
+    emptyWhenConditionNotSatisfied = true)
+@ConditionalEmpty(propertyPath = "relationRefFieldName",
+    conditionPropertyPath = "relationDirection",
+    conditionPattern = ConditionPattern.stringValueOfConditionPropertyPathIsNotEqualTo,
+    conditionValueString = "bidirectional")
+@ConditionalEmpty(propertyPath = "relationIsEager", conditionPropertyPath = "relationKind",
+    conditionPattern = ConditionPattern.valueOfConditionPropertyPathIsEmpty)
 public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   private List<BidirectionalRelationInfo> bidirectionalInfo = new ArrayList<>();
@@ -46,17 +60,25 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   private String isJavaOnly;
   @StrPk
   private String pkKind;
+  @StrBoolean
   private String isNullable;
+  @StrBoolean
   private String isAutoIncrement;
+  @StrBoolean
   private String isForcedIncrement;
+  @StrBoolean
   private String isAutoUpdate;
+  @StrBoolean
   private String isForcedUpdate;
+  @StrBoolean
   private String isCustomGroupColumn;
+  @Pattern(regexp = "^CB|CD|LB|LD$")
   private String springAuditing;
 
   // private String valueChangeMethod;
   private String updatedValue;
 
+  @Pattern(regexp = "^@ManyToOne|@OneToOne$")
   private String relationKind;
   private String relationDirection;
   private String relationFieldName;
@@ -226,7 +248,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   /** Settings側も加味した上でgroupの項目か否かを返す。 */
   public boolean isGroupColumn() {
-    String groupColumnName = CodeGeneratorAction.tlInfo.get().groupRootInfo.getColumnName();
+    String groupColumnName = MainController.tlInfo.get().groupRootInfo.getColumnName();
     return (groupColumnName != null && groupColumnName.equals(columnName)) || isCustomGroupColumn();
   }
 
@@ -350,8 +372,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     public String getEmptyConsideredFieldNameToReferFromTable() {
       String fieldNamePostfix = (relationKind == RelationKindEnum.ONE_TO_ONE) ? "" : "List";
       return StringUtils.isEmpty(fieldNameToReferFromTable)
-          ? StringUtil.getLowerCamelFromSnake(referFromTableName)
-              + fieldNamePostfix
+          ? StringUtil.getLowerCamelFromSnake(referFromTableName) + fieldNamePostfix
           : fieldNameToReferFromTable;
     }
   }

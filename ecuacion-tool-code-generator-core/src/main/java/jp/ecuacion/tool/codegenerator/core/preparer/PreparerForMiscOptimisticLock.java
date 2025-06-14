@@ -1,7 +1,7 @@
 package jp.ecuacion.tool.codegenerator.core.preparer;
 
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
-import jp.ecuacion.tool.codegenerator.core.controller.CodeGeneratorAction;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
@@ -14,7 +14,7 @@ public class PreparerForMiscOptimisticLock {
   private Info info;
   
   public PreparerForMiscOptimisticLock() {
-    this.info = CodeGeneratorAction.tlInfo.get();
+    this.info = MainController.tlInfo.get();
   }
 
   public void prepare() throws BizLogicAppException {

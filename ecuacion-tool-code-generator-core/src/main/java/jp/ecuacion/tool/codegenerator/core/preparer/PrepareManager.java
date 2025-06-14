@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.tool.codegenerator.core.controller.CodeGeneratorAction;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
@@ -13,7 +13,7 @@ public class PrepareManager {
 
   public void prepare() throws AppException {
 
-    Info info = CodeGeneratorAction.tlInfo.get();
+    Info info = MainController.tlInfo.get();
 
     // DBInfo、DbCommonInfoの中で、bidirectionalなrelationがあるものについて、参照先側での追加実装のために参照先側の情報として登録しておく
     List<DbOrClassColumnInfo.BidirectionalRelationInfo> bidirectionalInfoList = new ArrayList<>();
