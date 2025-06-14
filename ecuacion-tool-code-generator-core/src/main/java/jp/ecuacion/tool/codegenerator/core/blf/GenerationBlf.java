@@ -1,8 +1,9 @@
-package jp.ecuacion.tool.codegenerator.core.controller;
+package jp.ecuacion.tool.codegenerator.core.blf;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
@@ -25,12 +26,12 @@ import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.record.
 import jp.ecuacion.tool.codegenerator.core.generator.util.UtilGen;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
-public class GeneratingController {
+public class GenerationBlf {
   
   private Info info;
 
-  public GeneratingController(Info info, String outputDir) {
-    this.info = CodeGeneratorAction.tlInfo.get();
+  public GenerationBlf(Info info, String outputDir) {
+    this.info = MainController.tlInfo.get();
   }
 
   // xmlファイルの種類ごとに必要なファイルを作成

@@ -9,17 +9,4 @@ import org.springframework.context.annotation.Configuration;
     )
 public class AppConfig {
   
-//  public static final String SESSION_KEY_LOGIN_USER_ID = "loginUserId";
-  
-//  @Bean
-//  public AuditorAware<Long> auditorAware(HttpServletRequest request) {
-//    return new AuditorAware<Long>() {
-//      @Override
-//      public Optional<Long> getCurrentAuditor() {
-//
-//        Long accId = (Long) request.getSession().getAttribute(SESSION_KEY_LOGIN_USER_ID);
-//        return Optional.of(accId);
-//      }
-//    };
-//  }
 }

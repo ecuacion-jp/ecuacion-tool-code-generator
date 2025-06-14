@@ -27,8 +27,6 @@ public class EnumValueInfo extends StringExcelTableBean {
   private String dispNameDefaultLang;
   // 多言語に対応するため、dispNameをMapで持つ。キーは言語（jaなど）。
   private Map<String, String> dispNameMap = new HashMap<String, String>();
-  @Size(min = 1, max = 10000)
-  private String javadocValue;
   private String dispNameLang1;
   private String dispNameLang2;
   private String dispNameLang3;
@@ -84,10 +82,6 @@ public class EnumValueInfo extends StringExcelTableBean {
 
   public void getDisplayName(String localeString, String displayName) {
     dispNameMap.put(localeString, displayName);
-  }
-
-  public String getJavadocValue() {
-    return javadocValue;
   }
 
   @Override
