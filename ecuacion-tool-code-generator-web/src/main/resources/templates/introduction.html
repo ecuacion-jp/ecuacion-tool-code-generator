@@ -25,10 +25,8 @@
 		">
 <body>
 	<div layout:fragment="base-content" th:remove="tag">
-		<div th:replace="~{bootstrap/components :: subtitle(#{INTRODUCTION_SUBTITLE_SUMMARY}, '')}"></div>
-		<div th:replace="~{bootstrap/components :: subtitleDesc(#{INTRODUCTION_SUBTITLE_SUMMARY_DESC}, '')}"></div>
-		<div th:replace="~{bootstrap/components :: subtitle(#{INTRODUCTION_SUBTITLE_HOW_TO_USE}, '')}"></div>
-		<div th:replace="~{bootstrap/components :: subtitleDesc(#{INTRODUCTION_SUBTITLE_HOW_TO_USE_DESC}, '')}"></div>
+		<div th:replace="~{bootstrap/components :: paragraphWithSubtitle('INTRODUCTION_SUBTITLE_SUMMARY', 'INTRODUCTION_SUBTITLE_SUMMARY_DESC', '')}"></div>
+		<div th:replace="~{bootstrap/components :: paragraphWithSubtitle('INTRODUCTION_SUBTITLE_HOW_TO_USE', 'INTRODUCTION_SUBTITLE_HOW_TO_USE_DESC', '')}"></div>
 	</div>
 </body>
 </html>
