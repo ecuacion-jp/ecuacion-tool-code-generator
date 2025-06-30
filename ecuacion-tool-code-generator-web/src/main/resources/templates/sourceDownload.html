@@ -28,8 +28,7 @@
 </head>
 <body>
 	<div layout:fragment="form-content" th:remove="tag">
-		<div th:replace="~{bootstrap/components :: subtitle(#{SOURCE_DOWNLOAD_SUBTITLE_SUMMARY}, '')}"></div>
-		<div th:replace="~{bootstrap/components :: subtitleDesc(#{SOURCE_DOWNLOAD_SUBTITLE_SUMMARY_DESC}, '')}"></div>
+		<div th:replace="~{bootstrap/components :: paragraphWithSubtitle(#{SOURCE_DOWNLOAD_SUBTITLE_SUMMARY}, 'SOURCE_DOWNLOAD_SUBTITLE_SUMMARY_DESC', '')}"></div>
 		<div th:replace="~{bootstrap/components :: subtitle(#{SOURCE_DOWNLOAD_SUBTITLE_HOW_TO_USE}, '')}"></div>
 		<div th:replace="~{bootstrap/components :: inputFile('fileToUpload', 'width=half')}"></div>
 		<div style="text-align: center">
