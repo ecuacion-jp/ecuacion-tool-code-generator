@@ -31,8 +31,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
 
     // Entity別のbaseDao / baseRepositoryImplを作成
     for (DbOrClassTableInfo tableInfo : getTableList()) {
-      String entityNameCp =
-          StringUtil.getUpperCamelFromSnake(tableInfo.getTableName());
+      String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getTableName());
 
       super.makePkList(tableInfo);
 
@@ -173,9 +172,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
           }
 
           sb.append(T4 + comma + "new QueryCondition(" + "\""
-              + StringUtil.getLowerCamelFromSnake(ci.getColumnName()) + "\""
-              + ", " + StringUtil.getLowerCamelFromSnake(ci.getColumnName())
-              + ")" + RT);
+              + StringUtil.getLowerCamelFromSnake(ci.getColumnName()) + "\"" + ", "
+              + StringUtil.getLowerCamelFromSnake(ci.getColumnName()) + ")" + RT);
         }
       }
       sb.append(T2 + "};" + RT);
@@ -197,8 +195,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     sb.append(
         T1 + "public Long selectCountByPk" + "(EntityManager em, Object pkValue" + ") {" + RT);
     sb.append(T2 + "return selectCountForBaseDao(em, \"selectCountByPk" + "\", getParamMapFromPk(\""
-        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getColumnName())
-        + "\", pkValue));" + RT);
+        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getColumnName()) + "\", pkValue));"
+        + RT);
     sb.append(T1 + "}" + RT2);
 
     sb.append(T1 + "/** （グループが定義されていればグループ内で）全件カウント。*/" + RT);
@@ -262,7 +260,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     sb.append(importMgr.outputStr() + RT);
 
     sb.append("public interface " + tableNameCp + "BaseRepository"
-        + " extends SystemCommonBaseRepository<" + tableNameCp + ", Long> {" + RT2);
+        + " extends SystemCommonBaseRepository<" + tableNameCp
+        + ", Long>, JpaSpecificationExecutor<" + tableNameCp + "> {" + RT2);
 
     sb.append(T1 + "/** spring data jpa標準の基本crud（findById）ではfilterが動作しないためjpql形式で定義. */" + RT);
     sb.append(
@@ -397,8 +396,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     sb.append(T1 + "protected String getLogicalDeleteFlagFieldInfo() {" + RT);
     sb.append(T2 + "return \""
         + ((delFlgInfo.isDefined())
-            ? StringUtil.getLowerCamelFromSnake(delFlgInfo.getColumnName())
-                + "\""
+            ? StringUtil.getLowerCamelFromSnake(delFlgInfo.getColumnName()) + "\""
             : "null")
         + ";" + RT);
     sb.append(T1 + "}" + RT2);
@@ -423,8 +421,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
       sb.append(T1 + "public void " + delFlgInfo.getRemoveMethodName() + "(EntityManager em, T e) {"
           + RT);
       sb.append(T2 + "try {" + RT);
-      sb.append(T3 + "e.set"
-          + StringUtil.getUpperCamelFromSnake(delFlgInfo.getColumnName())
+      sb.append(T3 + "e.set" + StringUtil.getUpperCamelFromSnake(delFlgInfo.getColumnName())
           + "(true);" + RT);
       sb.append(T3 + "super.logicalDeleteByPk(em, e);" + RT);
       sb.append(T2 + "} catch (Exception ex) {" + RT);
