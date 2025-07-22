@@ -240,7 +240,10 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     if (tableInfo.hasUniqueConstraint()) {
       for (DbOrClassColumnInfo ci : tableInfo.columnList) {
         DataTypeInfo dtInfo = ci.getDtInfo();
-        importMgr.add(getHelper(dtInfo.getKata()).getNeededImports(ci));
+        // dateは対象外（java.time.*をimportするが未使用）
+        if (dtInfo.getKata() != DataTypeKataEnum.DATE) {
+          importMgr.add(getHelper(dtInfo.getKata()).getNeededImports(ci));
+        }
       }
     }
 
