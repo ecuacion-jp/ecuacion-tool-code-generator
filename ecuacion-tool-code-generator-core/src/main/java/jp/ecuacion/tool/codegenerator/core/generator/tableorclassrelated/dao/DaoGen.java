@@ -279,8 +279,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     }
 
     if (tableInfo.hasSoftDeleteFieldInludingSystemCommon()) {
-      String commonComment =
-          "/** 共通処理用. soft delete済みレコードを検索するためnative queryで定義. 共通処理での使用の簡便化のため引数をentityとする. */";
+      String commonComment = "/** Used for procedures in libraries. "
+          + "Native query is used to search soft deleted records. */";
       sb.append(T1 + commonComment + RT);
       sb.append(T1 + "@Query(nativeQuery = true, " + RT);
       sb.append(T3 + "value = \"select * from " + tableInfo.getTableName() + " where "
@@ -290,10 +290,17 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
           + "(@Param(\"entity\") " + tableNameCp + " entity);" + RT2);
 
       sb.append(T1 + commonComment + RT);
+      if (!tableInfo.hasUniqueConstraint()) {
+        sb.append(T1 + "/** The entity doesn't have a natural key. "
+            + "Unsatisfied condition is used in the where clause. It not called from library. */"
+            + RT);
+      }
       sb.append(T1 + "@Query(nativeQuery = true, " + RT);
       sb.append(T3 + "value = \"select * from " + tableInfo.getTableName() + " where "
-          + partNaturalKeyEntityParamSql.get(tableInfo.getTableName()) + " and "
-          + util.softDeleteColLowerSnake() + " = true\")" + RT);
+          + (tableInfo.hasUniqueConstraint()
+              ? partNaturalKeyEntityParamSql.get(tableInfo.getTableName())
+              : "1 = 2")
+          + " and " + util.softDeleteColLowerSnake() + " = true\")" + RT);
       sb.append(
           T1 + "Optional<" + tableNameCp + "> findByNaturalKeyAndSoftDeleteFieldTrueFromAllGroups"
               + "(@Param(\"entity\") " + tableNameCp + " entity);" + RT2);
