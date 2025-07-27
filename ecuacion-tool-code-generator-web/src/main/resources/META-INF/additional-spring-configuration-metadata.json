@@ -5,8 +5,8 @@
     "description": "A description for 'app.work-root-dir'"
   },
   {
-    "name": "jp.ecuacion.splib.web.system-error.go-to-path",
+    "name": "jp.ecuacion.splib.web.home-page",
     "type": "java.lang.String",
-    "description": "A description for 'jp.ecuacion.splib.web.system-error.go-to-path'"
+    "description": "A description for 'jp.ecuacion.splib.web.home-page'"
   }
 ]}
