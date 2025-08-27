@@ -1,15 +1,10 @@
-// fnctions needs to be imported first.
-@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/functions";
-
-// vvv updatable vvv 
-
 /******************
- * Basic Color Settings
+ * 基本色設定
  ******************/
 
-// Theme Color Settings
-$primary:       rgb(115, 51, 83);
-$secondary:     rgb(94, 94, 94);
+//テーマカラーの設定
+$primary:       rgb(255, 164, 0);
+$secondary:     rgb(145, 145, 145);
 $success:       rgb(2, 48, 3);
 $info:          rgb(0, 142, 0);
 $warning:       rgb(85, 100, 13);
@@ -17,82 +12,54 @@ $danger:        rgb(170, 62, 64);
 $light:         rgb(170, 255, 177);
 $dark:          rgb(20, 61, 3);
 
-// ecuacion-splib-web Standadrd Colors.
-$color-navbar:     $primary;
-$color-subtitle:   $primary;
-$color-btn:        $primary;
-$color-btn-danger: $danger;
-$color-footer:     $secondary;
-$color-paging-btn: $secondary;
-$color-tbl-header: $secondary;
+//追加カラー。本ファイルの下のほうで既存カラーに追加しているので行追加時は忘れずに。
+//（色の値は、#990のように独自の値を入れても$primaryのように上の変数を指定してもOK）
+$color-navbar:    $primary;
+$color-subtitle:  $primary;
+$color-btn:       $primary;
+$color-btn-danger:$danger;
+$color-footer:    $secondary;
+$color-paging-btn:$secondary;
+$color-tbl-header:$secondary;
 
 $color-msg-success-bg: #f0f0f0;
 $color-msg-error-bg:   #fff0f0;
 
-// Color of URL Links
+//リンクの文字色
 $link-color:      $dark;
 
-// Background Color in input html controls
+//bodyの背景、文字色
+//$body-bg:       #fff;
+//$body-color:    #212529;
+
+//input type=textなどの内側の背景色
 $input-bg: rgb(255, 255, 245);
 
-// Background Color for input-group addon
+//input-groupのaddonの背景色
 $input-group-addon-bg: #e9ecef;
 
 
 
-
-
-$theme-colors: (
-  "primary":    $primary,
-  "secondary":  $secondary,
-  "success":    $success,
-  "info":       $info,
-  "warning":    $warning,
-  "danger":     $danger,
-  "light":      $light,
-  "dark":       $dark
-);
-
-// Colors for Components
-$custom-colors: (
-  "color-navbar": $color-navbar,
-  "color-subtitle": $color-subtitle,
-  "color-btn": $color-btn,
-  "color-btn-danger": $color-btn-danger,
-  "color-footer": $color-footer,
-  "color-paging-btn": $color-paging-btn,
-  "color-tbl-header": $color-tbl-header,
-  "color-msg-success-bg": $color-msg-success-bg,
-  "color-msg-error-bg": $color-msg-error-bg,
-);
-$theme-colors: map-merge($theme-colors, $custom-colors);
-
-
-
-
-
-
-
 /******************
- * Font Settings
+ * フォント関連設定
  ******************/
 
-// Font Family Settings
+//フォントファミリーの設定
 //$font-family-sans-serif: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
 $font-family-sans-serif: "ヒラギノ丸ゴ Pro W4", "ヒラギノ丸ゴ Pro", "Hiragino Maru Gothic Pro", "HG丸ｺﾞｼｯｸM-PRO", "HGMaruGothicMPRO", sans-serif;
 $font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !default;
 
-// Default Font Size Settings : 1rem = 16px
+//基本のフォントサイズの設定 1rem = 16px
 $font-size-base: 1rem;
 
-// Title font weight
+//見出しフォントの太さ
 // $headings-font-weight: 500;
 $headings-font-weight: 300;
 
 
 
 /******************
- * Customization for components
+ * 各種componentのカスタマイズ
  ******************/
  
  //ボーダーの太さ。tableの枠線及びbuttonなどの外枠のサイズに反映。1pxが無難。
@@ -178,14 +145,36 @@ $enable-gradients: true;
 $gradient: linear-gradient(180deg, rgba(#fff, .15), rgba(#fff, 0));
 */
 
-// ^^^ updatable ^^^ 
+
+
+/*!
+ * Bootstrap v5.0.2 (https://getbootstrap.com/)
+ * Copyright 2011-2021 The Bootstrap Authors
+ * Copyright 2011-2021 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+ */
 
 // scss-docs-start import-stack
 // Configuration
+@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/functions";
 @import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/variables";
-@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/variables-dark";
 
-// Spacer: Customized because the default size seems a little large.
+
+//部品に対する色指定を追加
+$custom-colors: (
+  "color-navbar": $color-navbar,
+  "color-subtitle": $color-subtitle,
+  "color-btn": $color-btn,
+  "color-btn-danger": $color-btn-danger,
+  "color-footer": $color-footer,
+  "color-paging-btn": $color-paging-btn,
+  "color-tbl-header": $color-tbl-header,
+  "color-msg-success-bg": $color-msg-success-bg,
+  "color-msg-error-bg": $color-msg-error-bg,
+);
+$theme-colors: map-merge($theme-colors, $custom-colors);
+
+//spacer defaultは5で$spacer * 3なのだが、大きすぎるのともう少し種類が欲しいのでカスタマイズ
 $spacer: 1rem;
 $custom-spacers: (
   0: 0,
@@ -201,7 +190,7 @@ $custom-spacers: (
 );
 $spacers: map-merge($spacers, $custom-spacers);
 
-@import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/maps";
+
 @import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/mixins";
 @import "../../../ecuacion-internal-utils/ecuacion-util-bootstrap/lib/bootstrap/scss/utilities";
 
