@@ -24,21 +24,11 @@
 
 	<!--/* navBarOfLoginStateNone */-->
 	<div th:fragment="nav-bar-public" th:remove="tag">
-		<a class="navbar-brand" th:href="@{/public/home/page}">
-			<span th:text="#{NAVBAR_TITLE}"></span>
-		</a>
-
-		<div class="container">
-			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="navbarText">
-				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-					<li th:replace="~{bootstrap/components :: navBarMenuItem(@{/public/show/page?id=introduction}, #{NAVBAR_L1_INTRODUCTION}, '')}"></li>
-					<li th:replace="~{bootstrap/components :: navBarMenuItem(@{/public/sourceDownload/page}, #{NAVBAR_L1_SOURCE_DOWNLOAD}, '')}"></li>
-				</ul>
-			</div>
-		</div>
+		<li th:replace="~{bootstrap/components :: navbarMenuItem(@{/public/show/page?id=introduction}, #{NAVBAR_L1_INTRODUCTION}, '')}"></li>
+		<li th:replace="~{bootstrap/components :: navbarMenuItem(@{/public/sourceDownload/page}, #{NAVBAR_L1_SOURCE_DOWNLOAD}, '')}"></li>
+	</div>
+	
+	<div th:fragment="nav-bar-public-right" th:remove="tag">
 	</div>
 
 	<div th:fragment="footer-string" th:remove="tag">

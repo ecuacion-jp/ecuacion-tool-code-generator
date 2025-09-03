@@ -3,10 +3,10 @@
  ******************/
 
 //テーマカラーの設定
-$primary:       rgb(100, 149, 21);
-$secondary:     rgb(73, 73, 73);
+$primary:       rgb(255, 164, 0);
+$secondary:     rgb(145, 145, 145);
 $success:       rgb(2, 48, 3);
-$info:          rgb(23, 117, 90);
+$info:          rgb(0, 142, 0);
 $warning:       rgb(85, 100, 13);
 $danger:        rgb(170, 62, 64);
 $light:         rgb(170, 255, 177);
@@ -33,7 +33,7 @@ $link-color:      $dark;
 //$body-color:    #212529;
 
 //input type=textなどの内側の背景色
-$input-bg: rgb(245, 245, 255);
+$input-bg: rgb(255, 255, 245);
 
 //input-groupのaddonの背景色
 $input-group-addon-bg: #e9ecef;
