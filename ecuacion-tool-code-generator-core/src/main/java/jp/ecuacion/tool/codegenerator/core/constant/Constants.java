@@ -55,7 +55,7 @@ public class Constants {
 
   /** デフォルトの~info.xmlファイルの配置場所。テストのために、変更可能としておく。 */
   public static final String DIR_INFO_EXCELS_DEFAULT =
-      "../ecuacion-tool-code-generator-batch/excel-format";
+      "../ecuacion-tool-code-generator-batch/ecuacion-tool-code-generator-excel-format";
 
   // 型関連のString取得
 
