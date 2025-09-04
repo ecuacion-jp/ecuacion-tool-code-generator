@@ -40,7 +40,7 @@ public class SystemCommonEntityGen extends EntityGen {
       ImportGenUtil importMgr = new ImportGenUtil();
       importMgr.add(EclibCoreConstants.PKG + ".jpa.entity.EclibEntity");
       importMgr.add("jakarta.persistence.*", "java.io.Serializable");
-      importMgr.add(rootBasePackage + ".base.dto.record.SystemCommonBaseRecord");
+      importMgr.add(rootBasePackage + ".base.record.SystemCommonBaseRecord");
       sb.append(importMgr.outputStr() + RT);
       // クラス定義
       sb.append("@MappedSuperclass" + RT);
