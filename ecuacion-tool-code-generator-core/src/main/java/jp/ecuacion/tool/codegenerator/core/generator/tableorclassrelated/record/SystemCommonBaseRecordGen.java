@@ -3,7 +3,6 @@ package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.record
 import java.util.List;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -40,14 +39,14 @@ public class SystemCommonBaseRecordGen extends BaseRecordGen {
 
     sb.append("}" + RT);
 
-    outputFile(sb, getFilePath("dto" + Constants.PATH_SEPARATOR + "record"),
+    outputFile(sb, getFilePath("record"),
         "SystemCommonBaseRecord.java");
   }
 
   /**
    */
   public void createHeader(DbOrClassTableInfo tableInfo) {
-    sb.append("package " + rootBasePackage + ".base.dto.record;" + RT2);
+    sb.append("package " + rootBasePackage + ".base.record;" + RT2);
 
     ImportGenUtil importMgr = new ImportGenUtil();
 

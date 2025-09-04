@@ -144,7 +144,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY) {
       // 親entityは同一パッケージ内にいるのでimport不要
       // baseRecord
-      importMgr.add(rootBasePackage + ".base.dto.record." + tableNameCp + "BaseRecord");
+      importMgr.add(rootBasePackage + ".base.record." + tableNameCp + "BaseRecord");
 
       importMgr.add("jakarta.annotation.Nonnull");
 
@@ -152,7 +152,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
       for (DbOrClassColumnInfo ci : tableInfo.columnList) {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
-            importMgr.add(rootBasePackage + ".base.dto.record."
+            importMgr.add(rootBasePackage + ".base.record."
                 + StringUtil.getUpperCamelFromSnake(info.getReferFromTableName()) + "BaseRecord");
           }
         }
@@ -162,7 +162,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
       // 親entity
       importMgr.add(EclibCoreConstants.PKG_PARENT + ".jpa.entity.EclibEntity");
       // baseRecord
-      importMgr.add(rootBasePackage + ".base.dto.record.SystemCommonBaseRecord");
+      importMgr.add(rootBasePackage + ".base.record.SystemCommonBaseRecord");
       // auditing. springの場合のみ。本当はsystemCommon決め打ちではないのだが、簡易的にこうしておく
       importMgr.add("org.springframework.data.jpa.domain.support.*");
     }
