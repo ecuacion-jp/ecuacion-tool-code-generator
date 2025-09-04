@@ -19,7 +19,6 @@ import java.lang.annotation.ElementType;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.BidirectionalRelationInfo;
@@ -57,13 +56,13 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
       sb.append("}" + RT);
 
-      outputFile(sb, getFilePath("dto" + Constants.PATH_SEPARATOR + "record"),
+      outputFile(sb, getFilePath("record"),
           tableNameCp + "BaseRecord.java");
     }
   }
 
   public void createHeader(DbOrClassTableInfo tableInfo, String tableNameCp) throws AppException {
-    sb.append("package " + rootBasePackage + ".base.dto.record;" + RT2);
+    sb.append("package " + rootBasePackage + ".base.record;" + RT2);
 
     ImportGenUtil importMgr = new ImportGenUtil();
 
