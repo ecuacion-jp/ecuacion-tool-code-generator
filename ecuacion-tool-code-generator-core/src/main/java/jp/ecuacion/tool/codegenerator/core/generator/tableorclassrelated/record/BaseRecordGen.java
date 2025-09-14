@@ -373,9 +373,10 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
             String refEntityNameUp = StringUtils.capitalize(refEntityNameLw);
             String fieldName = info.getEmptyConsideredFieldNameToReferFromTable();
             if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
-              sb.append(T3 + refEntityNameLw + " = (e.get" + refEntityNameUp
+              String refFieldNameUc = StringUtils.capitalize(info.getFieldNameToReferFromTable());
+              sb.append(T3 + info.getFieldNameToReferFromTable() + " = (e.get" + refFieldNameUc
                   + "() == null) ? null : new " + refEntityNameUp + "BaseRecord(e.get"
-                  + refEntityNameUp + "(), params) {};" + RT);
+                  + refFieldNameUc + "(), params) {};" + RT);
 
             } else {
               sb.append(
@@ -493,7 +494,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
           // 現時点では、bidirectionalで参照される側はentity名をそのままfield名としているので、field名にもentity名を渡す
           String entityName = StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
-          createAccessorForRelation(entityName, entityName, info);
+          createAccessorForRelation(entityName, info.getFieldNameToReferFromTable(), info);
         }
       }
     }
