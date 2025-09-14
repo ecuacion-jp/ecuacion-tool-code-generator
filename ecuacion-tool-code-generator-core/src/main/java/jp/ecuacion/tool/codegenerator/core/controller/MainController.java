@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.tool.codegenerator.core.blf.ExcelFormatReadBlf;
@@ -27,6 +28,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 import jp.ecuacion.tool.codegenerator.core.preparer.PrepareManager;
+import org.apache.commons.lang3.StringUtils;
 
 public class MainController {
 
@@ -62,7 +64,7 @@ public class MainController {
         new ExcelFormatReadBlf().read(info.inputDir);
     info.setCommonUnitValues(systemMap);
 
-    // 2. Check data by compare multiple RootInfos
+    // 2. Check data
     Logger.log(this, "CHECK_AND_COMPLEMENT_DATA");
     checksAndComplements(systemMap);
 
@@ -127,6 +129,10 @@ public class MainController {
       // 複数RootInfoの中で、RootInfoの存在有無の整合性チェックと補完
       new FileLevelConsistencyChecker().check(entry.getKey(), systemMap);
 
+      // inside tables
+      checkForChildTable(systemCommon.getSystemName(),
+          (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB));
+
       // tableの親子間
       checkAndComplementForParentAndChildTable(
           (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON),
@@ -177,6 +183,37 @@ public class MainController {
           if (grpInfo.isDefined()) {
             grpInfo.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, grpInfo.getDataTypeName(),
                 info.systemName, "grouping column: " + grpInfo.getColumnName()));
+          }
+        }
+      }
+    }
+  }
+
+  private void checkForChildTable(String sysName, DbOrClassRootInfo dbOrClassRootInfo)
+      throws BizLogicAppException {
+    List<String> tableNameSet =
+        dbOrClassRootInfo.tableList.stream().map(e -> e.getTableName()).toList();
+
+    for (DbOrClassTableInfo ti : dbOrClassRootInfo.tableList) {
+      for (DbOrClassColumnInfo ci : ti.columnList) {
+        if (StringUtils.isNotEmpty(ci.getRelationRefTable())) {
+
+          // relation: refering to table name existence check
+          if (!tableNameSet.contains(ci.getRelationRefTable())) {
+            throw new BizLogicAppException("MSG_ERR_DB_REFER_TO_TABLE_NAME_NOT_FOUND", sysName,
+                ti.getTableName(), ci.getColumnName(), ci.getRelationRefTable());
+          }
+
+          DbOrClassTableInfo refTi = dbOrClassRootInfo.tableList.stream()
+              .collect(Collectors.toMap(e -> e.getTableName(), e -> e))
+              .get(ci.getRelationRefTable());
+
+          // relation: refering to column name existence check
+          List<String> refTiColNameList =
+              refTi.columnList.stream().map(e -> e.getColumnName()).toList();
+          if (!refTiColNameList.contains(ci.getRelationRefCol())) {
+            throw new BizLogicAppException("MSG_ERR_DB_REFER_TO_COLUMN_NAME_NOT_FOUND", sysName,
+                ti.getTableName(), ci.getColumnName(), ci.getRelationRefCol());
           }
         }
       }
