@@ -226,8 +226,8 @@ public class PreparerForDbAndDataType {
     if (dbCommonRootInfo != null && dbCommonRootInfo.tableList.size() > 0) {
       for (DbOrClassColumnInfo col : dbCommonRootInfo.tableList.get(0).columnList) {
         if (dbCommonColSet.contains(col.getColumnName())) {
-          throw new BizLogicAppException("MSG_ERR_SAME_COL_DEFINED_TWICE",
-              info.systemName + DataKindEnum.DB_COMMON, "（なし）", col.getColumnName());
+          throw new BizLogicAppException("MSG_ERR_SAME_COL_DEFINED_TWICE", info.systemName,
+              DataKindEnum.DB_COMMON.getLabel(), "（なし）", col.getColumnName());
         }
         dbCommonColSet.add(col.getColumnName());
       }
@@ -257,8 +257,8 @@ public class PreparerForDbAndDataType {
 
         for (DbOrClassColumnInfo col : ti.columnList) {
           if (dbColSet.contains(col.getColumnName())) {
-            throw new BizLogicAppException("MSG_ERR_SAME_COL_DEFINED_TWICE",
-                systemName + dataKind.getLabel(), ti.getTableName(), col.getColumnName());
+            throw new BizLogicAppException("MSG_ERR_SAME_COL_DEFINED_TWICE", systemName,
+                dataKind.getLabel(), ti.getTableName(), col.getColumnName());
           }
 
           // dbCommonに存在する項目の場合はエラー
