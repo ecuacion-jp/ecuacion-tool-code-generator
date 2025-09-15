@@ -56,8 +56,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
       sb.append("}" + RT);
 
-      outputFile(sb, getFilePath("record"),
-          tableNameCp + "BaseRecord.java");
+      outputFile(sb, getFilePath("record"), tableNameCp + "BaseRecord.java");
     }
   }
 
@@ -178,8 +177,8 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
               + info.getEmptyConsideredFieldNameToReferFromTable() + ";" + RT);
 
         } else {
-          sb.append(T1 + "protected List<" + StringUtils.capitalize(entityNameLw)
-              + "BaseRecord> " + info.getEmptyConsideredFieldNameToReferFromTable()
+          sb.append(T1 + "protected List<" + StringUtils.capitalize(entityNameLw) + "BaseRecord> "
+              + info.getEmptyConsideredFieldNameToReferFromTable()
               + (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY ? " = new ArrayList<>()"
                   : "")
               + ";" + RT);
@@ -368,26 +367,25 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       for (DbOrClassColumnInfo ci : tableInfo.columnList) {
         if (ci.hasBidirectionalInfo()) {
           for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
-            String refEntityNameLw =
+            String refEntityNameLc =
                 StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
-            String refEntityNameUp = StringUtils.capitalize(refEntityNameLw);
-            String fieldName = info.getEmptyConsideredFieldNameToReferFromTable();
+            String refEntityNameUc = StringUtils.capitalize(refEntityNameLc);
+            String refFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
+            String refFieldNameUc = StringUtils.capitalize(refFieldName);
+
             if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
-              String refFieldNameUc = StringUtils.capitalize(info.getFieldNameToReferFromTable());
-              sb.append(T3 + info.getFieldNameToReferFromTable() + " = (e.get" + refFieldNameUc
-                  + "() == null) ? null : new " + refEntityNameUp + "BaseRecord(e.get"
+              sb.append(T3 + refFieldName + " = (e.get" + refFieldNameUc
+                  + "() == null) ? null : new " + refEntityNameUc + "BaseRecord(e.get"
                   + refFieldNameUc + "(), params) {};" + RT);
 
             } else {
               sb.append(
-                  T3 + "if (e.get" + StringUtils.capitalize(fieldName) + "() != null) {" + RT);
-              sb.append(T4 + fieldName + ".addAll(e.get" + StringUtils.capitalize(fieldName)
-                  + "().stream().map(en -> new " + refEntityNameUp
+                  T3 + "if (e.get" + StringUtils.capitalize(refFieldName) + "() != null) {" + RT);
+              sb.append(T4 + refFieldName + ".addAll(e.get" + StringUtils.capitalize(refFieldName)
+                  + "().stream().map(en -> new " + refEntityNameUc
                   + "BaseRecord(en, params) {}).toList());" + RT);
               sb.append(T3 + "}" + RT);
             }
-
-
           }
         }
       }
@@ -494,7 +492,8 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
           // 現時点では、bidirectionalで参照される側はentity名をそのままfield名としているので、field名にもentity名を渡す
           String entityName = StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
-          createAccessorForRelation(entityName, info.getFieldNameToReferFromTable(), info);
+          createAccessorForRelation(entityName, info.getEmptyConsideredFieldNameToReferFromTable(),
+              info);
         }
       }
     }
