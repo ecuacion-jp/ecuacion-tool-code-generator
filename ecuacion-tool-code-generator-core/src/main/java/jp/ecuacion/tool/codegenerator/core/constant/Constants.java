@@ -24,21 +24,24 @@ public class Constants {
   public static final String REG_EX_AL_NUM_HY = "^[A-Za-z0-9\\-]*$";
   public static final String REG_EX_AL_NUM_US_CM_DOT = "^[A-Za-z0-9_,\\.]*$";
 
-  public static final String PROJECT_TYPE = "base";
-
-  /** libのパッケージ共通部分. */
-  public static final String STR_TOOL_PKG = "jp.ecuacion.tool";
-
+  public static final int OBJECT_CONSTRUCTION_COUNT = 3;
+  
   // **
   // ** パッケージ関連
   // **
 
+  public static final String PROJECT_TYPE = "base";
+
+  /** libのパッケージ共通部分. */
+  public static final String STR_TOOL_PKG = "jp.ecuacion.tool";
+  
   /** code-generator自身のbase package。 */
   public static final String STR_PACKAGE_HOME = STR_TOOL_PKG + ".codegenerator";
 
   public static final String PKG_STANDARD_VALIDATOR = "jakarta.validation.constraints.*";
   public static final String PKG_CUSTOM_VALIDATOR =
       EclibCoreConstants.PKG + ".jakartavalidation.validator.*";
+  
   // **
   // ** ディレクトリ関連
   // **
