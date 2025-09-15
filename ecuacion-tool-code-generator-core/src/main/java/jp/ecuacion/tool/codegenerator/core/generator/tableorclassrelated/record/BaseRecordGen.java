@@ -19,6 +19,7 @@ import java.lang.annotation.ElementType;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.BidirectionalRelationInfo;
@@ -216,7 +217,8 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     sb.append(T1 + "public " + tableNameCp + "BaseRecord() {" + RT);
 
     boolean bl = needsBidirectionalLoopConsideredConstructor(tableInfo);
-    sb.append(T2 + (bl ? "this(true)" : "super()") + ";" + RT);
+    sb.append(
+        T2 + (bl ? "this(" + Constants.OBJECT_CONSTRUCTION_COUNT + ")" : "super()") + ";" + RT);
 
     if (!bl) {
       insideConstA(tableInfo);
@@ -230,7 +232,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       return;
     }
 
-    sb.append(T1 + "public " + tableNameCp + "BaseRecord(boolean constructsRelation) {" + RT);
+    sb.append(T1 + "public " + tableNameCp + "BaseRecord(int count) {" + RT);
     sb.append(T2 + "super();" + RT2);
 
     insideConstA(tableInfo);
