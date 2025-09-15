@@ -284,61 +284,6 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     sb.append(T1 + "}" + RT2);
   }
 
-  protected void insideConstB(DbOrClassTableInfo tableInfo, boolean isCalledFromB2) {
-    for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
-        .toList()) {
-      String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
-      String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
-      DataTypeInfo dtInfo = ci.getDtInfo();
-      String getPk = "";
-
-      if (ci.isRelationColumn()) {
-        String refEntityNameUp = StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable());
-        String relFieldNameUp = StringUtils.capitalize(ci.getRelationFieldName());
-        if (isCalledFromB2) {
-          sb.append(T2 + "if (constructsRelation) {" + RT);
-        }
-        sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getRelationFieldName() + " = new "
-            + refEntityNameUp + "BaseRecord(e.get" + relFieldNameUp + "(), params"
-            + (ci.isRelationBidirectinal() ? ", false" : "") + ") {};" + RT);
-        if (isCalledFromB2) {
-          sb.append(T2 + "}" + RT);
-        }
-
-      } else {
-        if (dtInfo.getKata() == STRING || dtInfo.getKata() == BOOLEAN) {
-          sb.append(
-              T2 + "this." + fieldNameLc + " = e" + getPk + ".get" + fieldNameUc + "();" + RT);
-        } else if (dtInfo.getKata() == ENUM) {
-          sb.append(T2 + "this." + fieldNameLc + " = (e" + getPk + ".get" + fieldNameUc
-              + "() == null) ? \"\" : e" + getPk + ".get" + fieldNameUc + "().getCode();" + RT);
-        } else if (dtInfo.getKata() == INTEGER || dtInfo.getKata() == SHORT
-            || dtInfo.getKata() == LONG || dtInfo.getKata() == FLOAT
-            || dtInfo.getKata() == DOUBLE) {
-          String kata = StringUtils.capitalize((dtInfo.getKata().getName().toLowerCase()));
-          sb.append(T2 + "this." + fieldNameLc + " = (e" + getPk + ".get" + fieldNameUc
-              + "() == null) ? \"\" : " + kata + ".toString(e" + getPk + ".get" + fieldNameUc
-              + "());" + RT);
-
-        } else if (dtInfo.getKata() == DATE || dtInfo.getKata() == TIME
-            || dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME) {
-          String forTimeZone = dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME
-              ? ".withOffsetSameInstant(params.getZoneOffset())"
-              : "";
-          sb.append(T2 + "this." + fieldNameLc + " = e.get" + fieldNameUc
-              + "() == null ? \"\" : e.get" + fieldNameUc + "()" + forTimeZone
-              + ".format(DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
-              + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "Format()));"
-              + RT);
-
-        } else {
-          sb.append(T2 + "this." + fieldNameLc + " = e" + getPk + ".get" + fieldNameUc
-              + "().toString();" + RT);
-        }
-      }
-    }
-  }
-
   /**
    * このコンストラクタは、relationを持つrecord（以下A）がentityを引数にしたコンストラクタを呼ばれた際に、
    * Aにはentityの内容を格納するし、Aのrelation先のrecord（以下B）にもBに対応するentityの内容を格納するが、
@@ -394,6 +339,61 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     }
 
     sb.append(T1 + "}" + RT2);
+  }
+
+  protected void insideConstB(DbOrClassTableInfo tableInfo, boolean isCalledFromB2) {
+    for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
+        .toList()) {
+      String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
+      String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
+      DataTypeInfo dtInfo = ci.getDtInfo();
+      String getPk = "";
+
+      if (ci.isRelationColumn()) {
+        String refEntityNameUp = StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable());
+        String relFieldNameUp = StringUtils.capitalize(ci.getRelationFieldName());
+        if (isCalledFromB2) {
+          sb.append(T2 + "if (constructsRelation) {" + RT);
+        }
+        sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getRelationFieldName() + " = new "
+            + refEntityNameUp + "BaseRecord(e.get" + relFieldNameUp + "(), params"
+            + (ci.isRelationBidirectinal() ? ", false" : "") + ") {};" + RT);
+        if (isCalledFromB2) {
+          sb.append(T2 + "}" + RT);
+        }
+
+      } else {
+        if (dtInfo.getKata() == STRING || dtInfo.getKata() == BOOLEAN) {
+          sb.append(
+              T2 + "this." + fieldNameLc + " = e" + getPk + ".get" + fieldNameUc + "();" + RT);
+        } else if (dtInfo.getKata() == ENUM) {
+          sb.append(T2 + "this." + fieldNameLc + " = (e" + getPk + ".get" + fieldNameUc
+              + "() == null) ? \"\" : e" + getPk + ".get" + fieldNameUc + "().getCode();" + RT);
+        } else if (dtInfo.getKata() == INTEGER || dtInfo.getKata() == SHORT
+            || dtInfo.getKata() == LONG || dtInfo.getKata() == FLOAT
+            || dtInfo.getKata() == DOUBLE) {
+          String kata = StringUtils.capitalize((dtInfo.getKata().getName().toLowerCase()));
+          sb.append(T2 + "this." + fieldNameLc + " = (e" + getPk + ".get" + fieldNameUc
+              + "() == null) ? \"\" : " + kata + ".toString(e" + getPk + ".get" + fieldNameUc
+              + "());" + RT);
+
+        } else if (dtInfo.getKata() == DATE || dtInfo.getKata() == TIME
+            || dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME) {
+          String forTimeZone = dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME
+              ? ".withOffsetSameInstant(params.getZoneOffset())"
+              : "";
+          sb.append(T2 + "this." + fieldNameLc + " = e.get" + fieldNameUc
+              + "() == null ? \"\" : e.get" + fieldNameUc + "()" + forTimeZone
+              + ".format(DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
+              + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "Format()));"
+              + RT);
+
+        } else {
+          sb.append(T2 + "this." + fieldNameLc + " = e" + getPk + ".get" + fieldNameUc
+              + "().toString();" + RT);
+        }
+      }
+    }
   }
 
   public void createConstC(DbOrClassTableInfo tableInfo, String tableNameCp, boolean isNotEntity)
