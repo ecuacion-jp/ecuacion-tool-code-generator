@@ -178,7 +178,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
               + info.getEmptyConsideredFieldNameToReferFromTable() + ";" + RT);
 
         } else {
-          sb.append(T1 + "protected List<? extends " + StringUtils.capitalize(entityNameLw)
+          sb.append(T1 + "protected List<" + StringUtils.capitalize(entityNameLw)
               + "BaseRecord> " + info.getEmptyConsideredFieldNameToReferFromTable()
               + (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY ? " = new ArrayList<>()"
                   : "")
@@ -381,9 +381,9 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
             } else {
               sb.append(
                   T3 + "if (e.get" + StringUtils.capitalize(fieldName) + "() != null) {" + RT);
-              sb.append(T4 + fieldName + " = e.get" + StringUtils.capitalize(fieldName)
+              sb.append(T4 + fieldName + ".addAll(e.get" + StringUtils.capitalize(fieldName)
                   + "().stream().map(en -> new " + refEntityNameUp
-                  + "BaseRecord(en, params) {}).toList();" + RT);
+                  + "BaseRecord(en, params) {}).toList());" + RT);
               sb.append(T3 + "}" + RT);
             }
 
@@ -505,7 +505,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     String relDataType = StringUtils.capitalize(relEntityNameLw) + "BaseRecord";
     if (info != null && info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
       relFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
-      relDataType = "List<? extends " + relDataType + ">";
+      relDataType = "List<" + relDataType + ">";
     }
 
     sb.append(
