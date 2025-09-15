@@ -101,7 +101,7 @@ public abstract class AbstractTableOrClassRelatedGen extends AbstractGen {
         String colNameUc = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
         String colNameLc = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
         String colNameUcRelUnderscore = !ci.isRelationColumn() ? colNameUc
-            : StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable()) + "_"
+            : StringUtil.getUpperCamelFromSnake(ci.getRelationFieldName()) + "_"
                 + StringUtil.getUpperCamelFromSnake(ci.getRelationRefCol());
 
         if (ci.isUniqueConstraint()) {
