@@ -331,8 +331,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     private String dstTableName;
     private String dstColumnName;
     private String dstFieldNameToReferOrgTable;
-    private String orgFromTableName;
-    private String orgFromFieldName;
+    private String orgTableName;
+    private String orgFieldName;
     private String orgFieldNameToReferDst;
 
     public BidirectionalRelationInfo(RelationKindEnum relationKind, String dstTableName,
@@ -342,8 +342,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
       this.dstTableName = dstTableName;
       this.dstColumnName = dstColumnName;
       this.dstFieldNameToReferOrgTable = dstFieldNameToReferOrgTable;
-      this.orgFromTableName = orgTableName;
-      this.orgFromFieldName = orgFieldName;
+      this.orgTableName = orgTableName;
+      this.orgFieldName = orgFieldName;
       this.orgFieldNameToReferDst = orgFieldNameToReferDst;
     }
 
@@ -351,24 +351,24 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
       return relationKind;
     }
 
-    public String getTableName() {
+    public String getDstTableName() {
       return dstTableName;
     }
 
-    public String getColumnName() {
+    public String getDstColumnName() {
       return dstColumnName;
     }
 
-    public String getFieldNameToReferFromTable() {
+    public String getDstFieldNameToReferOrgTable() {
       return dstFieldNameToReferOrgTable;
     }
 
-    public String getReferFromTableName() {
-      return orgFromTableName;
+    public String getOrgTableName() {
+      return orgTableName;
     }
 
-    public String getReferFromFieldName() {
-      return orgFromFieldName;
+    public String getOrgFieldName() {
+      return orgFieldName;
     }
 
     public String getOrgFieldNameToReferDst() {
@@ -378,7 +378,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     public String getEmptyConsideredFieldNameToReferFromTable() {
       String fieldNamePostfix = (relationKind == RelationKindEnum.ONE_TO_ONE) ? "" : "List";
       return StringUtils.isEmpty(dstFieldNameToReferOrgTable)
-          ? StringUtil.getLowerCamelFromSnake(orgFromTableName) + fieldNamePostfix
+          ? StringUtil.getLowerCamelFromSnake(orgTableName) + fieldNamePostfix
           : dstFieldNameToReferOrgTable;
     }
   }
