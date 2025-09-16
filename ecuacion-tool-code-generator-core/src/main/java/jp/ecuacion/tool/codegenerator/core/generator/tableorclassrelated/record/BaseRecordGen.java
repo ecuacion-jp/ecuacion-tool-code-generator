@@ -89,11 +89,14 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
     boolean isAnyColumnEnumDataType = false;
     boolean isAnyColumnBooleanDataType = false;
+
+    // column dependent import
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       DataTypeInfo dtInfo = ci.getDtInfo();
 
       // 項目の型別にimport必須のものを取り込む
       importMgr.add(getHelper(dtInfo.getKata()).getNeededImports(ci));
+
       // timestampの場合はセットでDateTimeFormatterも必要になるので追加しておく。
       // （metamodel作成時もgetNeededImports()が呼ばれるがその場合はDateTimeFormatterは不要なので分けて記載）
       if (dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME || dtInfo.getKata() == DATE
@@ -113,6 +116,15 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
       if (dtInfo.getKata() == BOOLEAN) {
         isAnyColumnBooleanDataType = true;
+      }
+
+      if (ci.hasBidirectionalInfo()) {
+        for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
+          if (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
+            importMgr.add(rootBasePackage + ".base.entity."
+                + StringUtil.getUpperCamelFromSnake(info.getOrgTableName()));
+          }
+        }
       }
     }
 
@@ -140,14 +152,6 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       importMgr.add("java.util.List", "java.util.Locale", "java.util.ArrayList",
           EclibCoreConstants.PKG + ".util.PropertyFileUtil");
     }
-
-    for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-      DataTypeInfo info = ci.getDtInfo();
-      if (info.getKata() == TIMESTAMP || info.getKata() == DATE_TIME) {
-        importMgr.add("java.time.format.DateTimeFormatter");
-        break;
-      }
-    }
   }
 
   protected void fieldDefinition(String tableName, DbOrClassColumnInfo ci) {
@@ -172,7 +176,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     // bidirectional relationで参照される側の場合は追加でfieldが必要
     if (ci.isReferedByBidirectionalRelation()) {
       for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
-        String entityNameLw = StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
+        String entityNameLw = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
         sb.append(T1 + "@Valid" + RT);
         if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
           sb.append(T1 + "protected " + StringUtils.capitalize(entityNameLw) + "BaseRecord "
@@ -260,7 +264,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       // bidirectional relationで参照される側になっている場合は追加で定義
       if (ci.isReferedByBidirectionalRelation()) {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
-          String relEntityNameSm = StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
+          String relEntityNameSm = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
           // sb.append(T2 + "if (constructsRelation) {" + RT);
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
             sb.append(T3 + info.getEmptyConsideredFieldNameToReferFromTable() + " = new "
@@ -324,8 +328,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       for (DbOrClassColumnInfo ci : tableInfo.columnList) {
         if (ci.hasBidirectionalInfo()) {
           for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
-            String refEntityNameLc =
-                StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
+            String refEntityNameLc = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
             String refEntityNameUc = StringUtils.capitalize(refEntityNameLc);
             String refFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
             String refFieldNameUc = StringUtils.capitalize(refFieldName);
@@ -338,9 +341,12 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
             } else {
               sb.append(
                   T3 + "if (e.get" + StringUtils.capitalize(refFieldName) + "() != null) {" + RT);
-              sb.append(T4 + refFieldName + ".addAll(e.get" + StringUtils.capitalize(refFieldName)
-                  + "().stream().map(en -> new " + refEntityNameUc
-                  + "BaseRecord(en, params) {}).toList());" + RT);
+              sb.append(T4 + "for (" + refEntityNameUc + " en : e.get"
+                  + StringUtils.capitalize(refFieldName) + "()) {" + RT);
+              sb.append(T5 + refFieldName + ".add(new " + refEntityNameUc + "BaseRecord(en, params"
+                  + (hasTableAnyRelationsOrRefs(info.getOrgTableName()) ? ", count" : "") + ") {});"
+                  + RT);
+              sb.append(T4 + "}" + RT);
               sb.append(T3 + "}" + RT);
             }
           }
@@ -504,7 +510,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       if (ci.isReferedByBidirectionalRelation()) {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
           // 現時点では、bidirectionalで参照される側はentity名をそのままfield名としているので、field名にもentity名を渡す
-          String entityName = StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
+          String entityName = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
           createAccessorForRelation(entityName, info.getEmptyConsideredFieldNameToReferFromTable(),
               info);
         }

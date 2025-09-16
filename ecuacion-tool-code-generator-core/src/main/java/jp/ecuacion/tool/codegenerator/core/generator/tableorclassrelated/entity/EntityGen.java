@@ -153,7 +153,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
             importMgr.add(rootBasePackage + ".base.record."
-                + StringUtil.getUpperCamelFromSnake(info.getReferFromTableName()) + "BaseRecord");
+                + StringUtil.getUpperCamelFromSnake(info.getOrgTableName()) + "BaseRecord");
           }
         }
       }
@@ -274,7 +274,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
           sb.append(
               T1 + info.getRelationKind().getName() + "(cascade=CascadeType.REMOVE, mappedBy = \""
                   + info.getOrgFieldNameToReferDst() + "\")" + RT);
-          String refEntityNameLw = StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
+          String refEntityNameLw = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
 
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
             sb.append(T1 + "protected " + StringUtils.capitalize(refEntityNameLw) + " "
@@ -518,14 +518,14 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     // bidirectional relationの参照先カラムの場合はそのfieldの代入も追加
     if (ci.isReferedByBidirectionalRelation()) {
       for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
-        String entityNameUc = StringUtil.getUpperCamelFromSnake(info.getReferFromTableName());
+        String entityNameUc = StringUtil.getUpperCamelFromSnake(info.getOrgTableName());
         String entityNameLc = StringUtils.uncapitalize(entityNameUc);
 
         String bidirFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
         String bidirFieldNameUc = StringUtils.capitalize(bidirFieldName);
         if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
           sb.append(T2 + bidirFieldName + " = rec.get" + bidirFieldNameUc + "() == null || rec.get"
-              + bidirFieldNameUc + "().get" + StringUtils.capitalize(info.getReferFromFieldName())
+              + bidirFieldNameUc + "().get" + StringUtils.capitalize(info.getOrgFieldName())
               + "() == null ? null : new " + StringUtils.capitalize(entityNameLc) + "(rec.get"
               + bidirFieldNameUc + "());" + RT);
 
@@ -579,7 +579,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
       if (ci.isReferedByBidirectionalRelation()) {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
           appendAccessorForRelation(sb,
-              StringUtil.getLowerCamelFromSnake(info.getReferFromTableName()),
+              StringUtil.getLowerCamelFromSnake(info.getOrgTableName()),
               info.getEmptyConsideredFieldNameToReferFromTable(), true, info);
         }
       }
