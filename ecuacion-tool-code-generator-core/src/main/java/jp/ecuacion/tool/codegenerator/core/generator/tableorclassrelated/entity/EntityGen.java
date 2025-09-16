@@ -273,7 +273,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
           sb.append(
               T1 + info.getRelationKind().getName() + "(cascade=CascadeType.REMOVE, mappedBy = \""
-                  + StringUtil.getLowerCamelFromSnake(tableInfo.getTableName()) + "\")" + RT);
+                  + info.getOrgFieldNameToReferDst() + "\")" + RT);
           String refEntityNameLw = StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
 
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
