@@ -26,7 +26,7 @@ public class PrepareManager {
           bidirectionalInfoList.add(new DbOrClassColumnInfo.BidirectionalRelationInfo(
               ci.getRelationKind().getInverse(), ci.getRelationRefTable(), ci.getRelationRefCol(),
               ci.getRelationRefFieldName(), ti.getTableName(),
-              StringUtil.getLowerCamelFromSnake(ci.getColumnName())));
+              StringUtil.getLowerCamelFromSnake(ci.getColumnName()), ci.getRelationFieldName()));
         }
       }
     }
