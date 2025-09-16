@@ -51,6 +51,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       createConstB(tableInfo, tableNameCp, false);
       createConstB2(tableInfo, tableNameCp, false);
       createConstC(tableInfo, tableNameCp, false);
+      createConstC2(tableInfo, tableNameCp, false);
       // createGetValue(tableInfo, tableNameCp);
       createAccessor(tableInfo, tableNameCp);
       // createLengthGetter(tableInfo, tableNameCp);
@@ -118,7 +119,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
         isAnyColumnBooleanDataType = true;
       }
 
-      if (ci.hasBidirectionalInfo()) {
+      if (ci.isReferedByBidirectionalRelation()) {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
             importMgr.add(rootBasePackage + ".base.entity."
@@ -326,7 +327,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       sb.append(T2 + "if (count > 0) {" + RT);
 
       for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-        if (ci.hasBidirectionalInfo()) {
+        if (ci.isReferedByBidirectionalRelation()) {
           for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
             String refEntityNameLc = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
             String refEntityNameUc = StringUtils.capitalize(refEntityNameLc);
@@ -428,21 +429,53 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     sb.append(
         T1 + "public " + tableNameCp + "BaseRecord(" + tableNameCp + "BaseRecord rec) {" + RT);
 
-    // containerを受ける場合は親がいないのでこの行は出力しない
-    if (!isNotEntity) {
-      sb.append(T2 + "super(rec);" + RT);
+    boolean bl = tableInfo.hasAnyRelationsOrRefs();
+    sb.append(T2 + (bl ? "this(rec, " + Constants.OBJECT_CONSTRUCTION_COUNT + ")" : "super(rec)")
+        + ";" + RT);
+
+    if (!bl) {
+      insideConstC(tableInfo);
     }
 
+    sb.append(T1 + "}" + RT2);
+  }
+
+  public void createConstC2(DbOrClassTableInfo tableInfo, String tableNameCp, boolean isNotEntity)
+      throws AppException {
+
+    sb.append(T1 + JD_ST + RT);
+    sb.append(T1 + " * clone目的で使用するconstructor。" + RT);
+    sb.append(T1
+        + " * JSFで一覧からデータ選択した際、選択した行のrecが、recListの中の要素をそのまま渡されるので、cloneしないとrecList側が書き換わってしまうので使用。"
+        + RT);
+    sb.append(T1 + " * abstractクラスにはclone()を実装できないので、代わりにコンストラクタでの実装とした。" + RT);
+    sb.append(T1 + JD_END + RT);
+    sb.append(T1 + "public " + tableNameCp + "BaseRecord(" + tableNameCp
+        + "BaseRecord rec, int count) {" + RT);
+
+    sb.append(T2 + "super(rec);" + RT2);
+    sb.append(T2 + "count--;" + RT2);
+
     insideConstC(tableInfo);
+
     sb.append(T1 + "}" + RT2);
   }
 
   protected void insideConstC(DbOrClassTableInfo tableInfo) {
+    if (!tableInfo.hasAnyRelationsOrRefs()) {
+      return;
+    }
+
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       String columnNameCp = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
       String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
       String lefthand = "rec.get" + columnNameCp + "()";
 
+      if (ci.isRelationColumn()) {
+        sb.append(T2 + "this." + ci.getRelationFieldName() + " = new "
+            + StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable()) + "BaseRecord("
+            + (hasTableAnyRelationsOrRefs(ci.getRelationRefTable()) ? "count" : "") + ") {};" + RT);
+      }
       sb.append(T2 + "this." + (ci.isRelationColumn() ? "set" + columnNameCp + "(" + lefthand + ")"
           : columnNameSm + " = " + lefthand) + ";" + RT);
     }
