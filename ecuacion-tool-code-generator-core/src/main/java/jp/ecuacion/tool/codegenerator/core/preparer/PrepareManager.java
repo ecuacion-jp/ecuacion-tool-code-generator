@@ -38,8 +38,8 @@ public class PrepareManager {
       // 参照先にcommonを使うことは流石にないと思われるのでdbInfoでloop
       for (DbOrClassTableInfo ti : info.dbRootInfo.tableList) {
         for (DbOrClassColumnInfo ci : ti.columnList) {
-          if (ti.getTableName().equals(bdInfo.getTableName())
-              && ci.getColumnName().equals(bdInfo.getColumnName())) {
+          if (ti.getTableName().equals(bdInfo.getDstTableName())
+              && ci.getColumnName().equals(bdInfo.getDstColumnName())) {
             ci.getBidirectionalInfo().add(bdInfo);
             found = true;
           }
@@ -47,8 +47,8 @@ public class PrepareManager {
       }
 
       if (!found) {
-        throw new RuntimeException("not found : tableName = " + bdInfo.getTableName()
-            + ", columnName = " + bdInfo.getColumnName());
+        throw new RuntimeException("not found : tableName = " + bdInfo.getDstTableName()
+            + ", columnName = " + bdInfo.getDstColumnName());
       }
     }
 
