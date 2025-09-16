@@ -97,7 +97,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
         && info.removedDataRootInfo.isDefined()) {
       // bidirectionalの参照先側になる場合
       for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-        if (ci.hasBidirectionalInfo()) {
+        if (ci.isReferedByBidirectionalRelation()) {
           importMgr.add("org.hibernate.annotations.Filter");
         }
       }

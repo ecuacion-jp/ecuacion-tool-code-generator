@@ -159,11 +159,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   public boolean isReferedByBidirectionalRelation() {
-    return bidirectionalInfo.size() != 0;
-  }
-
-  public boolean hasBidirectionalInfo() {
-    return bidirectionalInfo != null && bidirectionalInfo.size() > 0;
+    return bidirectionalInfo != null && bidirectionalInfo.size() != 0;
   }
 
   // columnName
@@ -323,6 +319,10 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   // supportedLang3
   public String getSupportedLang3() {
     return supportedLang3;
+  }
+  
+  public boolean hasAnyRelationsOrRefs() {
+    return isRelationColumn() || isReferedByBidirectionalRelation();
   }
 
   public static class BidirectionalRelationInfo {
