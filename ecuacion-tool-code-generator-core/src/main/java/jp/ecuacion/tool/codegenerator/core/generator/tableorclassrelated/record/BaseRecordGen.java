@@ -335,9 +335,11 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
             String refFieldNameUc = StringUtils.capitalize(refFieldName);
 
             if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
-              sb.append(T3 + refFieldName + " = (e.get" + refFieldNameUc
-                  + "() == null) ? null : new " + refEntityNameUc + "BaseRecord(e.get"
-                  + refFieldNameUc + "(), params) {};" + RT);
+              sb.append(
+                  T3 + refFieldName + " = (e.get" + refFieldNameUc + "() == null) ? null : new "
+                      + refEntityNameUc + "BaseRecord(e.get" + refFieldNameUc + "(), params"
+                      + (hasTableAnyRelationsOrRefs(info.getOrgTableName()) ? ", count" : "")
+                      + ") {};" + RT);
 
             } else {
               sb.append(
