@@ -9,6 +9,6 @@ public enum DataKindEnum {
   //@formatter:on
 
   public String getLabel() {
-    return PropertyFileUtil.getItemName(this.getClass().getSimpleName() + "." + this.toString());
+    return PropertyFileUtil.getEnumName(this.getClass().getSimpleName() + "." + this.toString());
   }
 }
