@@ -159,11 +159,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   public boolean isReferedByBidirectionalRelation() {
-    return bidirectionalInfo.size() != 0;
-  }
-
-  public boolean hasBidirectionalInfo() {
-    return bidirectionalInfo != null && bidirectionalInfo.size() > 0;
+    return bidirectionalInfo != null && bidirectionalInfo.size() != 0;
   }
 
   // columnName
@@ -324,56 +320,66 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   public String getSupportedLang3() {
     return supportedLang3;
   }
+  
+  public boolean hasAnyRelationsOrRefs() {
+    return isRelationColumn() || isReferedByBidirectionalRelation();
+  }
 
   public static class BidirectionalRelationInfo {
 
     private RelationKindEnum relationKind;
-    private String tableName;
-    private String columnName;
-    private String fieldNameToReferFromTable;
-    private String referFromTableName;
-    private String referFromFieldName;
+    private String dstTableName;
+    private String dstColumnName;
+    private String dstFieldNameToReferOrgTable;
+    private String orgTableName;
+    private String orgFieldName;
+    private String orgFieldNameToReferDst;
 
-    public BidirectionalRelationInfo(RelationKindEnum relationKind, String tableName,
-        String columnName, String fieldNameToReferFromTable, String referFromTableName,
-        String referFromFieldName) {
+    public BidirectionalRelationInfo(RelationKindEnum relationKind, String dstTableName,
+        String dstColumnName, String dstFieldNameToReferOrgTable, String orgTableName,
+        String orgFieldName, String orgFieldNameToReferDst) {
       this.relationKind = relationKind;
-      this.tableName = tableName;
-      this.columnName = columnName;
-      this.fieldNameToReferFromTable = fieldNameToReferFromTable;
-      this.referFromTableName = referFromTableName;
-      this.referFromFieldName = referFromFieldName;
+      this.dstTableName = dstTableName;
+      this.dstColumnName = dstColumnName;
+      this.dstFieldNameToReferOrgTable = dstFieldNameToReferOrgTable;
+      this.orgTableName = orgTableName;
+      this.orgFieldName = orgFieldName;
+      this.orgFieldNameToReferDst = orgFieldNameToReferDst;
     }
 
     public RelationKindEnum getRelationKind() {
       return relationKind;
     }
 
-    public String getTableName() {
-      return tableName;
+    public String getDstTableName() {
+      return dstTableName;
     }
 
-    public String getColumnName() {
-      return columnName;
+    public String getDstColumnName() {
+      return dstColumnName;
     }
 
-    public String getFieldNameToReferFromTable() {
-      return fieldNameToReferFromTable;
+    public String getDstFieldNameToReferOrgTable() {
+      return dstFieldNameToReferOrgTable;
     }
 
-    public String getReferFromTableName() {
-      return referFromTableName;
+    public String getOrgTableName() {
+      return orgTableName;
     }
 
-    public String getReferFromFieldName() {
-      return referFromFieldName;
+    public String getOrgFieldName() {
+      return orgFieldName;
+    }
+
+    public String getOrgFieldNameToReferDst() {
+      return orgFieldNameToReferDst;
     }
 
     public String getEmptyConsideredFieldNameToReferFromTable() {
       String fieldNamePostfix = (relationKind == RelationKindEnum.ONE_TO_ONE) ? "" : "List";
-      return StringUtils.isEmpty(fieldNameToReferFromTable)
-          ? StringUtil.getLowerCamelFromSnake(referFromTableName) + fieldNamePostfix
-          : fieldNameToReferFromTable;
+      return StringUtils.isEmpty(dstFieldNameToReferOrgTable)
+          ? StringUtil.getLowerCamelFromSnake(orgTableName) + fieldNamePostfix
+          : dstFieldNameToReferOrgTable;
     }
   }
 
