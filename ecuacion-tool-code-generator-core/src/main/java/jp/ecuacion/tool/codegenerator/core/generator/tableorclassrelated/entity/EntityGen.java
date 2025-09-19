@@ -97,7 +97,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
         && info.removedDataRootInfo.isDefined()) {
       // bidirectionalの参照先側になる場合
       for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-        if (ci.hasBidirectionalInfo()) {
+        if (ci.isReferedByBidirectionalRelation()) {
           importMgr.add("org.hibernate.annotations.Filter");
         }
       }
@@ -153,7 +153,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
             importMgr.add(rootBasePackage + ".base.record."
-                + StringUtil.getUpperCamelFromSnake(info.getReferFromTableName()) + "BaseRecord");
+                + StringUtil.getUpperCamelFromSnake(info.getOrgTableName()) + "BaseRecord");
           }
         }
       }
@@ -273,12 +273,12 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
           sb.append(
               T1 + info.getRelationKind().getName() + "(cascade=CascadeType.REMOVE, mappedBy = \""
-                  + StringUtil.getLowerCamelFromSnake(tableInfo.getTableName()) + "\")" + RT);
-          String refEntityNameLw = StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
+                  + info.getOrgFieldNameToReferDst() + "\")" + RT);
+          String refEntityNameLw = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
 
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
             sb.append(T1 + "protected " + StringUtils.capitalize(refEntityNameLw) + " "
-                + refEntityNameLw + ";" + RT2);
+                + info.getEmptyConsideredFieldNameToReferFromTable() + ";" + RT2);
 
           } else {
             MiscSoftDeleteRootInfo softDeleteInfo = MainController.tlInfo.get().removedDataRootInfo;
@@ -518,22 +518,25 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     // bidirectional relationの参照先カラムの場合はそのfieldの代入も追加
     if (ci.isReferedByBidirectionalRelation()) {
       for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
-        String entityNameUc = StringUtil.getUpperCamelFromSnake(info.getReferFromTableName());
+        String entityNameUc = StringUtil.getUpperCamelFromSnake(info.getOrgTableName());
         String entityNameLc = StringUtils.uncapitalize(entityNameUc);
+
+        String bidirFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
+        String bidirFieldNameUc = StringUtils.capitalize(bidirFieldName);
         if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
-          sb.append(T2 + entityNameLc + " = rec.get" + entityNameUc + "() == null || rec.get"
-              + entityNameUc + "().get" + StringUtils.capitalize(info.getReferFromFieldName())
+          sb.append(T2 + bidirFieldName + " = rec.get" + bidirFieldNameUc + "() == null || rec.get"
+              + bidirFieldNameUc + "().get" + StringUtils.capitalize(info.getOrgFieldName())
               + "() == null ? null : new " + StringUtils.capitalize(entityNameLc) + "(rec.get"
-              + entityNameUc + "());" + RT);
+              + bidirFieldNameUc + "());" + RT);
 
         } else {
-          String fieldName = info.getEmptyConsideredFieldNameToReferFromTable();
-          sb.append(T2 + "if (rec.get" + StringUtils.capitalize(fieldName) + "() != null) {" + RT);
-          sb.append(T3 + fieldName + " = new ArrayList<>();" + RT);
-          sb.append(T3 + "for (" + entityNameUc + "BaseRecord " + entityNameLc + "Rec : rec.get"
-              + StringUtils.capitalize(fieldName) + "()) {" + RT);
           sb.append(
-              T4 + fieldName + ".add(new " + entityNameUc + "(" + entityNameLc + "Rec));" + RT);
+              T2 + "if (rec.get" + StringUtils.capitalize(bidirFieldName) + "() != null) {" + RT);
+          sb.append(T3 + bidirFieldName + " = new ArrayList<>();" + RT);
+          sb.append(T3 + "for (" + entityNameUc + "BaseRecord " + entityNameLc + "Rec : rec.get"
+              + StringUtils.capitalize(bidirFieldName) + "()) {" + RT);
+          sb.append(T4 + bidirFieldName + ".add(new " + entityNameUc + "(" + entityNameLc + "Rec));"
+              + RT);
           sb.append(T3 + "}" + RT);
           sb.append(T2 + "}" + RT);
         }
@@ -576,8 +579,8 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
       if (ci.isReferedByBidirectionalRelation()) {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
           appendAccessorForRelation(sb,
-              StringUtil.getLowerCamelFromSnake(info.getReferFromTableName()),
-              ci.getRelationFieldName(), true, info);
+              StringUtil.getLowerCamelFromSnake(info.getOrgTableName()),
+              info.getEmptyConsideredFieldNameToReferFromTable(), true, info);
         }
       }
     }
@@ -586,22 +589,20 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
   private void appendAccessorForRelation(StringBuilder sb, String relEntityName,
       String relFieldName, boolean isReferedByBidirectionalRelation,
       BidirectionalRelationInfo info) {
-    // field名として、relationの元側はrelFieldNameを、先側でbidirectionalの場合はrelEntityNameを使用する
-    String fieldName = isReferedByBidirectionalRelation ? relEntityName : relFieldName;
     // bidirectionの参照先の場合で、かつoneToManyの場合、それを考慮したfieldName, relEntityNameの値に変更
     if (info != null && info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
-      fieldName = info.getEmptyConsideredFieldNameToReferFromTable();
+      relFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
       relEntityName = "List<" + StringUtils.capitalize(relEntityName) + ">";
     }
 
     sb.append(T1 + "public " + StringUtils.capitalize(relEntityName) + " get"
-        + StringUtils.capitalize(fieldName) + "() {" + RT);
-    sb.append(T2 + "return " + fieldName + ";" + RT);
+        + StringUtils.capitalize(relFieldName) + "() {" + RT);
+    sb.append(T2 + "return " + relFieldName + ";" + RT);
     sb.append(T1 + "}" + RT2);
 
-    sb.append(T1 + "public void set" + StringUtils.capitalize(fieldName) + "("
-        + StringUtils.capitalize(relEntityName) + " " + fieldName + ") {" + RT);
-    sb.append(T2 + "this." + fieldName + " = " + fieldName + ";" + RT);
+    sb.append(T1 + "public void set" + StringUtils.capitalize(relFieldName) + "("
+        + StringUtils.capitalize(relEntityName) + " " + relFieldName + ") {" + RT);
+    sb.append(T2 + "this." + relFieldName + " = " + relFieldName + ";" + RT);
     sb.append(T1 + "}" + RT2);
   }
 

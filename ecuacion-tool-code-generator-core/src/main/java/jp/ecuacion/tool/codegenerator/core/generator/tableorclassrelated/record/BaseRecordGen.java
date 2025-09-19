@@ -16,9 +16,11 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.STRING;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIME;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIMESTAMP;
 import java.lang.annotation.ElementType;
+import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.BidirectionalRelationInfo;
@@ -49,6 +51,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       createConstB(tableInfo, tableNameCp, false);
       createConstB2(tableInfo, tableNameCp, false);
       createConstC(tableInfo, tableNameCp, false);
+      createConstC2(tableInfo, tableNameCp, false);
       // createGetValue(tableInfo, tableNameCp);
       createAccessor(tableInfo, tableNameCp);
       // createLengthGetter(tableInfo, tableNameCp);
@@ -56,8 +59,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
       sb.append("}" + RT);
 
-      outputFile(sb, getFilePath("record"),
-          tableNameCp + "BaseRecord.java");
+      outputFile(sb, getFilePath("record"), tableNameCp + "BaseRecord.java");
     }
   }
 
@@ -88,11 +90,14 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
     boolean isAnyColumnEnumDataType = false;
     boolean isAnyColumnBooleanDataType = false;
+
+    // column dependent import
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       DataTypeInfo dtInfo = ci.getDtInfo();
 
       // 項目の型別にimport必須のものを取り込む
       importMgr.add(getHelper(dtInfo.getKata()).getNeededImports(ci));
+
       // timestampの場合はセットでDateTimeFormatterも必要になるので追加しておく。
       // （metamodel作成時もgetNeededImports()が呼ばれるがその場合はDateTimeFormatterは不要なので分けて記載）
       if (dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME || dtInfo.getKata() == DATE
@@ -112,6 +117,15 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
       if (dtInfo.getKata() == BOOLEAN) {
         isAnyColumnBooleanDataType = true;
+      }
+
+      if (ci.isReferedByBidirectionalRelation()) {
+        for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
+          if (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
+            importMgr.add(rootBasePackage + ".base.entity."
+                + StringUtil.getUpperCamelFromSnake(info.getOrgTableName()));
+          }
+        }
       }
     }
 
@@ -139,14 +153,6 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       importMgr.add("java.util.List", "java.util.Locale", "java.util.ArrayList",
           EclibCoreConstants.PKG + ".util.PropertyFileUtil");
     }
-
-    for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-      DataTypeInfo info = ci.getDtInfo();
-      if (info.getKata() == TIMESTAMP || info.getKata() == DATE_TIME) {
-        importMgr.add("java.time.format.DateTimeFormatter");
-        break;
-      }
-    }
   }
 
   protected void fieldDefinition(String tableName, DbOrClassColumnInfo ci) {
@@ -171,15 +177,15 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     // bidirectional relationで参照される側の場合は追加でfieldが必要
     if (ci.isReferedByBidirectionalRelation()) {
       for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
-        String entityNameLw = StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
+        String entityNameLw = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
         sb.append(T1 + "@Valid" + RT);
         if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
           sb.append(T1 + "protected " + StringUtils.capitalize(entityNameLw) + "BaseRecord "
               + info.getEmptyConsideredFieldNameToReferFromTable() + ";" + RT);
 
         } else {
-          sb.append(T1 + "protected List<? extends " + StringUtils.capitalize(entityNameLw)
-              + "BaseRecord> " + info.getEmptyConsideredFieldNameToReferFromTable()
+          sb.append(T1 + "protected List<" + StringUtils.capitalize(entityNameLw) + "BaseRecord> "
+              + info.getEmptyConsideredFieldNameToReferFromTable()
               + (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY ? " = new ArrayList<>()"
                   : "")
               + ";" + RT);
@@ -189,8 +195,9 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     }
   }
 
-  private boolean needsBidirectionalLoopConsideredConstructor(DbOrClassTableInfo tableInfo) {
-    return tableInfo.hasBidirectionalRelationRef();
+  private boolean hasTableAnyRelationsOrRefs(String tableName) {
+    return getTableList().stream().collect(Collectors.toMap(e -> e.getTableName(), e -> e))
+        .get(tableName).hasAnyRelationsOrRefs();
   }
 
   public void createStaticInitializer(DbOrClassTableInfo tableInfo, String tableNameCp) {
@@ -216,8 +223,9 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
   public void createConstA(DbOrClassTableInfo tableInfo, String tableNameCp) {
     sb.append(T1 + "public " + tableNameCp + "BaseRecord() {" + RT);
 
-    boolean bl = needsBidirectionalLoopConsideredConstructor(tableInfo);
-    sb.append(T2 + (bl ? "this(true)" : "super()") + ";" + RT);
+    boolean bl = tableInfo.hasAnyRelationsOrRefs();
+    sb.append(
+        T2 + (bl ? "this(" + Constants.OBJECT_CONSTRUCTION_COUNT + ")" : "super()") + ";" + RT);
 
     if (!bl) {
       insideConstA(tableInfo);
@@ -227,59 +235,128 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
   }
 
   private void createConstA2(DbOrClassTableInfo tableInfo, String tableNameCp) {
-    if (!needsBidirectionalLoopConsideredConstructor(tableInfo)) {
+    if (!tableInfo.hasAnyRelationsOrRefs()) {
       return;
     }
 
-    sb.append(T1 + "public " + tableNameCp + "BaseRecord(boolean constructsRelation) {" + RT);
+    sb.append(T1 + "public " + tableNameCp + "BaseRecord(int count) {" + RT);
     sb.append(T2 + "super();" + RT2);
+    sb.append(T2 + "count--;" + RT2);
 
     insideConstA(tableInfo);
     sb.append(T1 + "}" + RT2);
   }
 
   protected void insideConstA(DbOrClassTableInfo tableInfo) {
+    if (!tableInfo.hasAnyRelationsOrRefs()) {
+      return;
+    }
+
+    sb.append(T2 + "if (count > 0) {" + RT);
+
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       if (ci.isRelationColumn()) {
         String relEntityNameSm = StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
-        sb.append(
-            T2 + ci.getRelationFieldName() + " = new " + StringUtils.capitalize(relEntityNameSm)
-                + "BaseRecord(" + (ci.isRelationBidirectinal() ? "false" : "") + ") {};" + RT);
-
+        sb.append(T3 + ci.getRelationFieldName() + " = new "
+            + StringUtils.capitalize(relEntityNameSm) + "BaseRecord("
+            + (hasTableAnyRelationsOrRefs(ci.getRelationRefTable()) ? "count" : "") + ") {};" + RT);
       }
 
       // bidirectional relationで参照される側になっている場合は追加で定義
       if (ci.isReferedByBidirectionalRelation()) {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
-          String relEntityNameSm = StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
-          sb.append(T2 + "if (constructsRelation) {" + RT);
+          String relEntityNameSm = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
+          // sb.append(T2 + "if (constructsRelation) {" + RT);
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
             sb.append(T3 + info.getEmptyConsideredFieldNameToReferFromTable() + " = new "
-                + StringUtils.capitalize(relEntityNameSm) + "BaseRecord() {};" + RT);
+                + StringUtils.capitalize(relEntityNameSm) + "BaseRecord(count) {};" + RT);
           } else {
             // sb.append(T3 + info.getEmptyConsideredFieldNameToReferFromTable()
             // + " = new ArrayList<>();" + RT);
           }
-          sb.append(T2 + "}" + RT);
         }
       }
     }
+    sb.append(T2 + "}" + RT);
   }
 
   public void createConstB(DbOrClassTableInfo tableInfo, String tableNameCp, boolean isNotEntity)
       throws AppException {
-    boolean bl = needsBidirectionalLoopConsideredConstructor(tableInfo);
+    boolean bl = tableInfo.hasAnyRelationsOrRefs();
 
     sb.append(T1 + "public " + tableNameCp + "BaseRecord(" + tableNameCp
         + " e, DatetimeFormatParameters params) {" + RT);
 
     // containerを受ける場合は親がいないのでこの行は出力しない
     if (!isNotEntity) {
-      sb.append(T2 + (bl ? "this(e, params, true)" : "super(e, params)") + ";" + RT);
+      sb.append(T2 + (bl ? "this(e, params, " + Constants.OBJECT_CONSTRUCTION_COUNT + ")"
+          : "super(e, params)") + ";" + RT);
 
       if (!bl) {
         insideConstB(tableInfo, false);
       }
+    }
+
+    sb.append(T1 + "}" + RT2);
+  }
+
+  /**
+   * このコンストラクタは、relationを持つrecord（以下A）がentityを引数にしたコンストラクタを呼ばれた際に、
+   * Aにはentityの内容を格納するし、Aのrelation先のrecord（以下B）にもBに対応するentityの内容を格納するが、
+   * Bに紐づくAには値を登録しない、という機能を提供するために使用。 その実現方法として、Aのコンストラクタは普通に呼ばれるのだが、Aのコンストラクタの中からBのコンストラクタを呼ぶ際に、
+   * BのrelationであるAには値を代入しないコンストラクタを呼ぶ、というもの。 よって、このメソッドが必要なのは、bidirectionalなrelationを持つか、
+   * bidirectionalなrelationの参照先に指定されている場合のみ出力
+   */
+  private void createConstB2(DbOrClassTableInfo tableInfo, String tableNameCp,
+      boolean isNotEntity) {
+
+    if (!tableInfo.hasAnyRelationsOrRefs()) {
+      return;
+    }
+
+    sb.append(T1 + "public " + tableNameCp + "BaseRecord(" + tableNameCp
+        + " e, DatetimeFormatParameters params, int count) {" + RT);
+    sb.append(T2 + "super(e, params);" + RT2);
+    sb.append(T2 + "count--;" + RT2);
+
+    insideConstB(tableInfo, true);
+
+    // 以下はbidirectionalで参照される側の場合のみ出力
+    if (tableInfo.hasBidirectionalRelationRef()) {
+      sb.append(RT);
+      sb.append(T2 + "if (count > 0) {" + RT);
+
+      for (DbOrClassColumnInfo ci : tableInfo.columnList) {
+        if (ci.isReferedByBidirectionalRelation()) {
+          for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
+            String refEntityNameLc = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
+            String refEntityNameUc = StringUtils.capitalize(refEntityNameLc);
+            String refFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
+            String refFieldNameUc = StringUtils.capitalize(refFieldName);
+
+            if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
+              sb.append(
+                  T3 + refFieldName + " = (e.get" + refFieldNameUc + "() == null) ? null : new "
+                      + refEntityNameUc + "BaseRecord(e.get" + refFieldNameUc + "(), params"
+                      + (hasTableAnyRelationsOrRefs(info.getOrgTableName()) ? ", count" : "")
+                      + ") {};" + RT);
+
+            } else {
+              sb.append(
+                  T3 + "if (e.get" + StringUtils.capitalize(refFieldName) + "() != null) {" + RT);
+              sb.append(T4 + "for (" + refEntityNameUc + " en : e.get"
+                  + StringUtils.capitalize(refFieldName) + "()) {" + RT);
+              sb.append(T5 + refFieldName + ".add(new " + refEntityNameUc + "BaseRecord(en, params"
+                  + (hasTableAnyRelationsOrRefs(info.getOrgTableName()) ? ", count" : "") + ") {});"
+                  + RT);
+              sb.append(T4 + "}" + RT);
+              sb.append(T3 + "}" + RT);
+            }
+          }
+        }
+      }
+
+      sb.append(T2 + "}" + RT);
     }
 
     sb.append(T1 + "}" + RT2);
@@ -297,11 +374,12 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
         String refEntityNameUp = StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable());
         String relFieldNameUp = StringUtils.capitalize(ci.getRelationFieldName());
         if (isCalledFromB2) {
-          sb.append(T2 + "if (constructsRelation) {" + RT);
+          sb.append(T2 + "if (count > 0) {" + RT);
         }
         sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getRelationFieldName() + " = new "
             + refEntityNameUp + "BaseRecord(e.get" + relFieldNameUp + "(), params"
-            + (ci.isRelationBidirectinal() ? ", false" : "") + ") {};" + RT);
+            + (hasTableAnyRelationsOrRefs(ci.getRelationRefTable()) ? ", count" : "") + ") {};"
+            + RT);
         if (isCalledFromB2) {
           sb.append(T2 + "}" + RT);
         }
@@ -340,63 +418,6 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     }
   }
 
-  /**
-   * このコンストラクタは、relationを持つrecord（以下A）がentityを引数にしたコンストラクタを呼ばれた際に、
-   * Aにはentityの内容を格納するし、Aのrelation先のrecord（以下B）にもBに対応するentityの内容を格納するが、
-   * Bに紐づくAには値を登録しない、という機能を提供するために使用。 その実現方法として、Aのコンストラクタは普通に呼ばれるのだが、Aのコンストラクタの中からBのコンストラクタを呼ぶ際に、
-   * BのrelationであるAには値を代入しないコンストラクタを呼ぶ、というもの。 よって、このメソッドが必要なのは、bidirectionalなrelationを持つか、
-   * bidirectionalなrelationの参照先に指定されている場合のみ出力
-   */
-  private void createConstB2(DbOrClassTableInfo tableInfo, String tableNameCp,
-      boolean isNotEntity) {
-
-    if (!needsBidirectionalLoopConsideredConstructor(tableInfo)) {
-      return;
-    }
-
-    sb.append(T1 + "public " + tableNameCp + "BaseRecord(" + tableNameCp
-        + " e, DatetimeFormatParameters params, boolean constructsRelation) {" + RT);
-    sb.append(T2 + "super(e, params);" + RT2);
-
-    insideConstB(tableInfo, true);
-
-    // 以下はbidirectionalで参照される側の場合のみ出力
-    if (tableInfo.hasBidirectionalRelationRef()) {
-      sb.append(RT);
-      sb.append(T2 + "if (constructsRelation) {" + RT);
-
-      for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-        if (ci.hasBidirectionalInfo()) {
-          for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
-            String refEntityNameLw =
-                StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
-            String refEntityNameUp = StringUtils.capitalize(refEntityNameLw);
-            String fieldName = info.getEmptyConsideredFieldNameToReferFromTable();
-            if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
-              sb.append(T3 + refEntityNameLw + " = (e.get" + refEntityNameUp
-                  + "() == null) ? null : new " + refEntityNameUp + "BaseRecord(e.get"
-                  + refEntityNameUp + "(), params) {};" + RT);
-
-            } else {
-              sb.append(
-                  T3 + "if (e.get" + StringUtils.capitalize(fieldName) + "() != null) {" + RT);
-              sb.append(T4 + fieldName + " = e.get" + StringUtils.capitalize(fieldName)
-                  + "().stream().map(en -> new " + refEntityNameUp
-                  + "BaseRecord(en, params) {}).toList();" + RT);
-              sb.append(T3 + "}" + RT);
-            }
-
-
-          }
-        }
-      }
-
-      sb.append(T2 + "}" + RT);
-    }
-
-    sb.append(T1 + "}" + RT2);
-  }
-
   public void createConstC(DbOrClassTableInfo tableInfo, String tableNameCp, boolean isNotEntity)
       throws AppException {
 
@@ -410,21 +431,53 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     sb.append(
         T1 + "public " + tableNameCp + "BaseRecord(" + tableNameCp + "BaseRecord rec) {" + RT);
 
-    // containerを受ける場合は親がいないのでこの行は出力しない
-    if (!isNotEntity) {
-      sb.append(T2 + "super(rec);" + RT);
+    boolean bl = tableInfo.hasAnyRelationsOrRefs();
+    sb.append(T2 + (bl ? "this(rec, " + Constants.OBJECT_CONSTRUCTION_COUNT + ")" : "super(rec)")
+        + ";" + RT);
+
+    if (!bl) {
+      insideConstC(tableInfo);
     }
 
+    sb.append(T1 + "}" + RT2);
+  }
+
+  public void createConstC2(DbOrClassTableInfo tableInfo, String tableNameCp, boolean isNotEntity)
+      throws AppException {
+
+    sb.append(T1 + JD_ST + RT);
+    sb.append(T1 + " * clone目的で使用するconstructor。" + RT);
+    sb.append(T1
+        + " * JSFで一覧からデータ選択した際、選択した行のrecが、recListの中の要素をそのまま渡されるので、cloneしないとrecList側が書き換わってしまうので使用。"
+        + RT);
+    sb.append(T1 + " * abstractクラスにはclone()を実装できないので、代わりにコンストラクタでの実装とした。" + RT);
+    sb.append(T1 + JD_END + RT);
+    sb.append(T1 + "public " + tableNameCp + "BaseRecord(" + tableNameCp
+        + "BaseRecord rec, int count) {" + RT);
+
+    sb.append(T2 + "super(rec);" + RT2);
+    sb.append(T2 + "count--;" + RT2);
+
     insideConstC(tableInfo);
+
     sb.append(T1 + "}" + RT2);
   }
 
   protected void insideConstC(DbOrClassTableInfo tableInfo) {
+    if (!tableInfo.hasAnyRelationsOrRefs()) {
+      return;
+    }
+
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       String columnNameCp = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
       String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
       String lefthand = "rec.get" + columnNameCp + "()";
 
+      if (ci.isRelationColumn()) {
+        sb.append(T2 + "this." + ci.getRelationFieldName() + " = new "
+            + StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable()) + "BaseRecord("
+            + (hasTableAnyRelationsOrRefs(ci.getRelationRefTable()) ? "count" : "") + ") {};" + RT);
+      }
       sb.append(T2 + "this." + (ci.isRelationColumn() ? "set" + columnNameCp + "(" + lefthand + ")"
           : columnNameSm + " = " + lefthand) + ";" + RT);
     }
@@ -492,8 +545,9 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       if (ci.isReferedByBidirectionalRelation()) {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
           // 現時点では、bidirectionalで参照される側はentity名をそのままfield名としているので、field名にもentity名を渡す
-          String entityName = StringUtil.getLowerCamelFromSnake(info.getReferFromTableName());
-          createAccessorForRelation(entityName, entityName, info);
+          String entityName = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
+          createAccessorForRelation(entityName, info.getEmptyConsideredFieldNameToReferFromTable(),
+              info);
         }
       }
     }
@@ -504,7 +558,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     String relDataType = StringUtils.capitalize(relEntityNameLw) + "BaseRecord";
     if (info != null && info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
       relFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
-      relDataType = "List<? extends " + relDataType + ">";
+      relDataType = "List<" + relDataType + ">";
     }
 
     sb.append(
