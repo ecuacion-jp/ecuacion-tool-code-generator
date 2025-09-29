@@ -1,5 +1,9 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.notEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.empty;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
+
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -11,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalEmpty;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
-import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
@@ -26,15 +29,13 @@ import org.apache.commons.lang3.StringUtils;
 
 @ConditionalNotEmpty(
     propertyPath = {"relationDirection", "relationFieldName", "relationRefTable", "relationRefCol"},
-    conditionPropertyPath = "relationKind",
-    conditionPattern = ConditionPattern.valueOfConditionPropertyPathIsNotEmpty,
-    emptyWhenConditionNotSatisfied = true)
+    conditionPropertyPath = "relationKind", conditionPattern = empty,
+    conditionOperator = notEqualTo, emptyWhenConditionNotSatisfied = true)
 @ConditionalEmpty(propertyPath = "relationRefFieldName",
-    conditionPropertyPath = "relationDirection",
-    conditionPattern = ConditionPattern.stringValueOfConditionPropertyPathIsNotEqualTo,
-    conditionValueString = "bidirectional")
+    conditionPropertyPath = "relationDirection", conditionPattern = string,
+    conditionOperator = notEqualTo, conditionValueString = "bidirectional")
 @ConditionalEmpty(propertyPath = "relationIsEager", conditionPropertyPath = "relationKind",
-    conditionPattern = ConditionPattern.valueOfConditionPropertyPathIsEmpty)
+    conditionPattern = empty)
 public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   private List<BidirectionalRelationInfo> bidirectionalInfo = new ArrayList<>();
@@ -320,7 +321,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   public String getSupportedLang3() {
     return supportedLang3;
   }
-  
+
   public boolean hasAnyRelationsOrRefs() {
     return isRelationColumn() || isReferedByBidirectionalRelation();
   }
