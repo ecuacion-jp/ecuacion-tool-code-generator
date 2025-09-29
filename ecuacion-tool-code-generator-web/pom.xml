@@ -10,7 +10,7 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<properties>
-		<altDeploymentRepository>ecuacion-repo-sftp-private::${repository.ecuacion-repo-sftp-private-root}/profile-${mvn.prof-id}</altDeploymentRepository>
+		<altDeploymentRepository>ecuacion-repo-sftp-private::${repository.ecuacion-repo-sftp-root}</altDeploymentRepository>
 	</properties>
 	
 	<build>
