@@ -11,9 +11,6 @@
 		<relativePath>../ecuacion-splib</relativePath>
 	</parent>
 	<properties>
-		<!-- deploy to private repository-->
-		<altDeploymentRepository>ecuacion-repo-sftp-private::${repository.ecuacion-repo-sftp-private-root}/profile-none</altDeploymentRepository>
-
 		<app.name>ecuacion-tool-code-generator</app.name>
 		<app.version>0.0.1-SNAPSHOT</app.version>
 	</properties>
