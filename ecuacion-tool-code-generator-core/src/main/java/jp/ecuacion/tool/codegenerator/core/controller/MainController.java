@@ -164,7 +164,7 @@ public class MainController {
           // DbOrClassRootInfo
           for (DbOrClassTableInfo ti : ((DbOrClassRootInfo) rootInfo).tableList) {
             for (DbOrClassColumnInfo ci : ti.columnList) {
-              ci.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, ci.getDataType(), info.systemName,
+              ci.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, ci.getDataType(), entry.getKey(),
                   "tableName = " + ti.getTableName() + ", columnName = " + ci.getColumnName()));
             }
           }
@@ -172,7 +172,7 @@ public class MainController {
         } else if (rootInfo instanceof EnumRootInfo) {
           // EnumRootInfo
           for (EnumClassInfo ei : ((EnumRootInfo) rootInfo).enumClassList) {
-            ei.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, ei.getDataTypeName(), info.systemName,
+            ei.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, ei.getDataTypeName(), entry.getKey(),
                 "enumName = " + ei.getEnumName()));
           }
 
@@ -182,7 +182,7 @@ public class MainController {
 
           if (grpInfo.isDefined()) {
             grpInfo.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, grpInfo.getDataTypeName(),
-                info.systemName, "grouping column: " + grpInfo.getColumnName()));
+                entry.getKey(), "grouping column: " + grpInfo.getColumnName()));
           }
         }
       }
@@ -225,7 +225,7 @@ public class MainController {
     DataTypeInfo dtInfo = dtMap.get(dataTypeName);
     if (dtInfo == null) {
       throw new BizLogicAppException("MSG_ERR_DESIGNATED_DT_NOT_EXIST_IN_DT_INFO", dataTypeName,
-          info.systemName, placeInfo);
+          systemName, placeInfo);
     }
 
     return dtInfo;
