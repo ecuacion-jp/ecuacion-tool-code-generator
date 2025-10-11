@@ -52,7 +52,7 @@ public class SystemCommonBaseRecordGen extends BaseRecordGen {
 
     createHeaderCommon(importMgr, tableInfo);
 
-    importMgr.add("jp.ecuacion.splib.core.form.record.SplibRecord");
+    importMgr.add("jp.ecuacion.splib.core.record.SplibRecord");
     importMgr.add(rootBasePackage + ".base.entity.SystemCommonEntity");
     importMgr.add("jp.ecuacion.splib.core.container.*");
 
