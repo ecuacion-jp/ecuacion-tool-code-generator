@@ -1,6 +1,6 @@
 package jp.ecuacion.tool.codegenerator.web.form.record;
 
-import jp.ecuacion.splib.core.form.record.SplibRecord;
+import jp.ecuacion.splib.core.record.SplibRecord;
 import jp.ecuacion.splib.web.bean.HtmlItem;
 import jp.ecuacion.splib.web.form.record.RecordInterface;
 import jp.ecuacion.tool.codegenerator.web.constant.Constants;
