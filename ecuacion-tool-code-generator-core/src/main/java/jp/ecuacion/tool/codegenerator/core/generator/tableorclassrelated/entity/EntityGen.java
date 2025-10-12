@@ -523,9 +523,14 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
         String bidirFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
         String bidirFieldNameUc = StringUtils.capitalize(bidirFieldName);
+
+        // ID column of ref-from table
+        String pkColumnInOrgTable = MainController.tlInfo.get().dbRootInfo.tableList.stream()
+            .filter(tbl -> tbl.getTableName().equals(info.getOrgTableName())).toList().get(0)
+            .getPkColumn().getColumnName();
         if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
           sb.append(T2 + bidirFieldName + " = rec.get" + bidirFieldNameUc + "() == null || rec.get"
-              + bidirFieldNameUc + "().get" + StringUtils.capitalize(info.getOrgFieldName())
+              + bidirFieldNameUc + "().get" + StringUtil.getUpperCamelFromSnake(pkColumnInOrgTable)
               + "() == null ? null : new " + StringUtils.capitalize(entityNameLc) + "(rec.get"
               + bidirFieldNameUc + "());" + RT);
 
@@ -578,8 +583,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
       if (ci.isReferedByBidirectionalRelation()) {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
-          appendAccessorForRelation(sb,
-              StringUtil.getLowerCamelFromSnake(info.getOrgTableName()),
+          appendAccessorForRelation(sb, StringUtil.getLowerCamelFromSnake(info.getOrgTableName()),
               info.getEmptyConsideredFieldNameToReferFromTable(), true, info);
         }
       }
