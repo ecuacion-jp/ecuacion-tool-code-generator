@@ -1,12 +1,12 @@
 package jp.ecuacion.tool.codegenerator.web.form.record;
 
 import jp.ecuacion.splib.core.record.SplibRecord;
-import jp.ecuacion.splib.web.bean.HtmlItem;
-import jp.ecuacion.splib.web.form.record.RecordInterface;
+import jp.ecuacion.splib.web.item.HtmlItem;
+import jp.ecuacion.splib.web.item.HtmlItemContainer;
 import jp.ecuacion.tool.codegenerator.web.constant.Constants;
 import org.springframework.web.multipart.MultipartFile;
 
-public class SourceDownloadRecord extends SplibRecord implements RecordInterface {
+public class SourceDownloadRecord extends SplibRecord implements HtmlItemContainer {
 
   private MultipartFile fileToUpload;
 
