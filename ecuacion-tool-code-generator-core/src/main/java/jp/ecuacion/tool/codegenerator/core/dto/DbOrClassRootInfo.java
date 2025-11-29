@@ -5,12 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.item.EclibItem;
+import jp.ecuacion.lib.core.item.EclibItemContainer;
 import jp.ecuacion.lib.core.util.ValidationUtil;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 
-public class DbOrClassRootInfo extends AbstractRootInfo {
-
+public class DbOrClassRootInfo extends AbstractRootInfo implements EclibItemContainer {
+  @Override
+  public EclibItem[] getItems() {
+    return new EclibItem[] {};
+  }
+  
   @Valid
   public List<DbOrClassTableInfo> tableList = new ArrayList<DbOrClassTableInfo>();
 
@@ -89,6 +95,5 @@ public class DbOrClassRootInfo extends AbstractRootInfo {
         }
       }
     }
-
   }
 }
