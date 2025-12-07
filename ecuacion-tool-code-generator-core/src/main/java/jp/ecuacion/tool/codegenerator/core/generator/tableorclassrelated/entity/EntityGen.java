@@ -96,11 +96,11 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     } else if (info.sysCmnRootInfo.isFrameworkKindSpring()
         && info.removedDataRootInfo.isDefined()) {
       // bidirectionalの参照先側になる場合
-      for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-        if (ci.isReferedByBidirectionalRelation()) {
-          importMgr.add("org.hibernate.annotations.Filter");
-        }
-      }
+      // for (DbOrClassColumnInfo ci : tableInfo.columnList) {
+      // if (ci.isReferedByBidirectionalRelation()) {
+      // importMgr.add("org.hibernate.annotations.Filter");
+      // }
+      // }
     }
 
     // @Filterを使用する場合はimport
@@ -271,9 +271,9 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
       if (ci.isReferedByBidirectionalRelation()) {
         for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
-          sb.append(
-              T1 + info.getRelationKind().getName() + "(cascade=CascadeType.REMOVE, mappedBy = \""
-                  + info.getOrgFieldNameToReferDst() + "\")" + RT);
+          sb.append(T1 + info.getRelationKind().getName()
+              + "(cascade={CascadeType.DETACH, CascadeType.REMOVE}, mappedBy = \""
+              + info.getOrgFieldNameToReferDst() + "\")" + RT);
           String refEntityNameLw = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
 
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
@@ -309,7 +309,8 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     if (ci.isRelationColumn()) {
       sb.append(T1 + "@Valid" + RT);
       sb.append(T1 + ci.getRelationKind().getName() + "(fetch = FetchType."
-          + (ci.getRelationIsEager() ? "EAGER" : "LAZY") + ")" + RT);
+          + (ci.getRelationIsEager() ? "EAGER" : "LAZY") + ", cascade = {CascadeType.DETACH})"
+          + RT);
       sb.append(T1 + "@OnDelete(action = OnDeleteAction.CASCADE)" + RT);
       sb.append(T1 + "@JoinColumn(name = \"" + ci.getColumnName() + "\", referencedColumnName = \""
           + ci.getRelationRefCol() + "\", nullable = " + (ci.isNullable() ? "true" : "false") + ")"
@@ -552,7 +553,6 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
   protected void appendAccessor(StringBuilder sb, DbOrClassTableInfo tableInfo) {
     for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
         .toList()) {
-      // if (createsField(ci, tableInfo.isSurrogateKeyStorategy())) {
       String columnNameCp = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
       String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
       final String relEntityName = ci.getRelationRefTable() == null ? null
@@ -562,7 +562,9 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
       sb.append(T1 + "public " + getEnumConsideredKata(ci) + " get" + columnNameCp + "() {" + RT);
       sb.append(T2 + "return "
-          + (ci.isRelationColumn() ? ci.getRelationFieldName() + ".get" + relFieldName + "()"
+          + (ci.isRelationColumn()
+              ? ci.getRelationFieldName() + " == null ? null : " + ci.getRelationFieldName()
+                  + ".get" + relFieldName + "()"
               : columnNameSm)
           + ";" + RT);
       sb.append(T1 + "}" + RT2);
@@ -633,13 +635,6 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
     // // SystemCommonに持つ項目（例えばcreateTime)に対しても、SystemCommon.createTimeに加えて
     // // Acc.createTimeも作成する必要があるのでそれも含めたlistを保持
-    // List<DbOrClassColumnInfo> commonColumnList = new ArrayList<>(tableInfo.columnList);
-    // if (entityKind == EntityGenKindEnum.ENTITY_BODY) {
-    // commonColumnList.addAll(info.dbCommonRootInfo.tableList.get(0).columnList);
-    // }
-
-    // List<DbOrClassColumnInfo> allList = new ArrayList<>(tableInfo.columnList);
-    // allList.addAll(commonColumnList);
 
     for (DbOrClassColumnInfo columnInfo : tableInfo.columnList) {
       String entityName = StringUtil.getUpperCamelFromSnake(tableInfo.getTableName());
