@@ -77,18 +77,13 @@ public class EntityBodyGen extends EntityGen {
 
     // 各種コンストラクタ定義
     appendDefaultConstructor(sb, entityNameCp);
-    // appendPkConstructor(sb, tableInfo, entityNameCp);
     appendRecConstructor(sb, tableInfo, entityNameCp);
     if (tableInfo.hasUniqueConstraint()) {
       appendNaturalKeyConstructor(sb, tableInfo, entityNameCp);
     }
 
     // accessor
-    // appendPkAccessor(tableInfo, commonColumnList, entityNameCp);
     appendAccessor(sb, tableInfo);
-
-    // getValueMap
-    // appendValueMap(sb, tableInfo, false);
 
     // prePersist
     appendAutoInsertOrUpdateGen(sb, tableInfo, false, false);
@@ -99,10 +94,6 @@ public class EntityBodyGen extends EntityGen {
 
     // hasSoftDeleteField
     appendHasSoftDeleteFieldGen(sb, tableInfo, false);
-    // hasNaturalKey
-    // sb.append(T1 + "public boolean hasNaturalKey() {" + RT);
-    // sb.append(T2 + "return " + tableInfo.hasUniqueConstraint() + ";" + RT);
-    // sb.append(T1 + "}" + RT);
 
     sb.append("}" + RT);
   }
@@ -133,7 +124,6 @@ public class EntityBodyGen extends EntityGen {
     sb.append(
         T1 + "// 将来的には他のunique keyも設定できるようにする。（でないとinsert時に論理削除済レコードが残っていた場合の自動削除ができない）" + RT);
 
-
     sb.append(T1 + "@Nonnull" + RT);
     sb.append(T1 + "public Set<List<String>> getSetOfUniqueConstraintFieldList() {" + RT);
     sb.append(T2 + "Set<List<String>> rtnSet = new HashSet<>();" + RT);
@@ -144,16 +134,4 @@ public class EntityBodyGen extends EntityGen {
     sb.append(T2 + "return rtnSet;" + RT);
     sb.append(T1 + "}" + RT2);
   }
-
-  // public void createMetaModelSource(DbOrClassTableInfo tableInfo) throws AppException {
-  // // ヘッダ情報定義
-  // appendPackage(sb);
-  // appendMetaModelImport(sb, tableInfo);
-  // // class定義
-  // appendMetaModelClass(sb, tableInfo, EntityGenKindEnum.ENTITY_BODY);
-  // // field定義
-  // appendMetaModelField(sb, tableInfo, EntityGenKindEnum.ENTITY_BODY);
-  //
-  // sb.append("}" + RT);
-  // }
 }
