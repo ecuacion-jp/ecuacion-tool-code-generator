@@ -62,7 +62,6 @@ public class Constants {
 
   // 型関連のString取得
 
-  @SuppressWarnings("serial")
   public static final HashMap<DataTypeKataEnum, String> JAVA_KATA_MAP =
       new HashMap<DataTypeKataEnum, String>() {
         {
