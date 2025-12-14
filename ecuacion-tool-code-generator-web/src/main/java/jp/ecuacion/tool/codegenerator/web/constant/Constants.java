@@ -1,6 +1,6 @@
 package jp.ecuacion.tool.codegenerator.web.constant;
 
-import jp.ecuacion.splib.web.bean.HtmlItem;
+import jp.ecuacion.splib.web.item.HtmlItem;
 
 public class Constants {
 

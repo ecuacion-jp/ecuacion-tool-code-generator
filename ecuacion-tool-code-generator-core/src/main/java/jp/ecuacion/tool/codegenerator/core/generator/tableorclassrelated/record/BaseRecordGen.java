@@ -52,9 +52,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       createConstB2(tableInfo, tableNameCp, false);
       createConstC(tableInfo, tableNameCp, false);
       createConstC2(tableInfo, tableNameCp, false);
-      // createGetValue(tableInfo, tableNameCp);
       createAccessor(tableInfo, tableNameCp);
-      // createLengthGetter(tableInfo, tableNameCp);
       createListsForHtmlSelect(tableInfo);
 
       sb.append("}" + RT);
@@ -499,7 +497,9 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
       sb.append(T1 + "public " + recKata + " get" + fieldNameUc + "() {" + RT);
       sb.append(T2 + "return "
-          + (ci.isRelationColumn() ? ci.getRelationFieldName() + ".get" + relFieldNameUc + "()"
+          + (ci.isRelationColumn()
+              ? ci.getRelationFieldName() + " == null ? null : " + ci.getRelationFieldName()
+                  + ".get" + relFieldNameUc + "()"
               : fieldNameLc)
           + ";" + RT);
       sb.append(T1 + "}" + RT2);
