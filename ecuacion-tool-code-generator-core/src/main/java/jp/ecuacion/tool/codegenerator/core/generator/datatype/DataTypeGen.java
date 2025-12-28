@@ -8,8 +8,8 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.StringGenUtil;
 
 public class DataTypeGen extends AbstractGen {
 
@@ -23,7 +23,7 @@ public class DataTypeGen extends AbstractGen {
 
     sb = new StringBuilder();
 
-    dataTypeName = StringGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName());
+    dataTypeName = CodeGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName());
     kata = dtInfo.getKata().getName();
 
     this.dtInfo = dtInfo;
