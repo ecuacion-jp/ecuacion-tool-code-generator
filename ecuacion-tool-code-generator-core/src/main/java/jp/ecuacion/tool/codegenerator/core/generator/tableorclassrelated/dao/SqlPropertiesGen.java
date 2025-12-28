@@ -34,7 +34,7 @@ public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
 
     for (DbOrClassTableInfo tableInfo : getTableList()) {
       final String tableNameCp =
-          StringUtil.getUpperCamelFromSnake(tableInfo.getTableName());
+          StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
       makePkList(tableInfo);
       makeParts();
@@ -43,7 +43,7 @@ public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
       // insertAll
       sqlInfoArrForNativeSqlProp.add(getInsertAllSqlInfo(tableInfo));
       // truncate
-      sqlInfoArrForNativeSqlProp.add(getTruncateSqlInfo(tableInfo.getTableName()));
+      sqlInfoArrForNativeSqlProp.add(getTruncateSqlInfo(tableInfo.getName()));
 
       // propertiesファイルはクラスごとに書き出し
       outputFileForSqlProperties(sqlInfoArrForNativeSqlProp, getFilePath(postfixSm),
@@ -72,12 +72,12 @@ public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
     boolean isFirst = true;
     for (DbOrClassColumnInfo ci : pkList) {
       if (isFirst) {
-        sbWhere.append(ci.getColumnName() + " = ?");
-        sbOrder.append(ci.getColumnName());
+        sbWhere.append(ci.getName() + " = ?");
+        sbOrder.append(ci.getName());
         isFirst = false;
       } else {
-        sbWhere.append(sqlRt + RT + T2 + "and " + ci.getColumnName() + " = ?");
-        sbOrder.append(", " + ci.getColumnName());
+        sbWhere.append(sqlRt + RT + T2 + "and " + ci.getName() + " = ?");
+        sbOrder.append(", " + ci.getName());
       }
     }
     sbWhereAndRem.append(sbWhere + sqlRt + RT + T2 + "and REM_FLG = '0'");
@@ -88,11 +88,11 @@ public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
     String insertCommonSqlPart = insertCommonSqlPart(tableInfo);
 
     // insertAll 1行目と後半
-    sql.append("insert into " + tableInfo.getTableName() + " (" + sqlRt + RT);
+    sql.append("insert into " + tableInfo.getName() + " (" + sqlRt + RT);
     sql.append(insertCommonSqlPart);
-    sql.append("{+insertAll ? } returning " + tableInfo.getPkColumn().getColumnName());
+    sql.append("{+insertAll ? } returning " + tableInfo.getPkColumn().getName());
 
-    return new SqlInfo(tableInfo.getTableName(), "insert", SqlKind.NATIVE_SQL,
+    return new SqlInfo(tableInfo.getName(), "insert", SqlKind.NATIVE_SQL,
         SqlFileKind.NATIVE_SQL_PROPERTIES, sql.toString());
   }
 
@@ -101,11 +101,11 @@ public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
     String insertCommonSqlPart = insertCommonSqlPart(tableInfo);
 
     // insertAll 1行目と後半
-    sql.append("insert into " + tableInfo.getTableName() + " (" + sqlRt + RT);
+    sql.append("insert into " + tableInfo.getName() + " (" + sqlRt + RT);
     sql.append(insertCommonSqlPart);
     sql.append("{+insertAll ? } ");
 
-    return new SqlInfo(tableInfo.getTableName(), "insertAll", SqlKind.NATIVE_SQL,
+    return new SqlInfo(tableInfo.getName(), "insertAll", SqlKind.NATIVE_SQL,
         SqlFileKind.NATIVE_SQL_PROPERTIES, sql.toString());
   }
 
@@ -125,7 +125,7 @@ public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
           comma = ", ";
         }
 
-        sbInsert.append(T2 + comma + ci.getColumnName() + sqlRt + RT);
+        sbInsert.append(T2 + comma + ci.getName() + sqlRt + RT);
       }
     }
     if (commonTableList != null) {
@@ -136,7 +136,7 @@ public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
           DataTypeKataEnum kata = ci.getDtInfo().getKata();
           if (!(ci.isAutoIncrement()
               && (kata == DataTypeKataEnum.INTEGER || kata == DataTypeKataEnum.LONG))) {
-            sbInsert.append(T2 + ", " + ci.getColumnName() + sqlRt + RT);
+            sbInsert.append(T2 + ", " + ci.getName() + sqlRt + RT);
           }
         }
       }

@@ -31,7 +31,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
 
     // Entity別のbaseDao / baseRepositoryImplを作成
     for (DbOrClassTableInfo tableInfo : getTableList()) {
-      String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getTableName());
+      String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
       super.makePkList(tableInfo);
 
@@ -138,7 +138,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     sb.append(T1 + "public " + entityNameCp + " selectEntityByPk"
         + "(EntityManager em, Object pkValue" + ") {" + RT);
     sb.append(T2 + "return selectEntityByPkForBaseDao(em, \"selectEntityByPk" + "\", \""
-        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getColumnName())
+        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getName())
         + "\", pkValue, false);" + RT);
     sb.append(T1 + "}" + RT2);
 
@@ -148,7 +148,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     sb.append(T1 + "public " + entityNameCp + " selectEntityByPkForUpdate"
         + "(EntityManager em, Object pkValue" + ") {" + RT);
     sb.append(T2 + "return selectEntityByPkForBaseDao(em, \"selectEntityByPkForUpdate" + "\", \""
-        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getColumnName())
+        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getName())
         + "\", pkValue, true);" + RT);
     sb.append(T1 + "}" + RT2);
 
@@ -157,8 +157,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
       sb.append(T1 + " * surrogateKeyを使用している場合に、naturalKeyでselect。" + RT);
       sb.append(T1 + " */" + RT);
       sb.append(T1 + "public " + entityNameCp + " selectEntityBy"
-          + partNaturalKeySmCamel.get(ti.getTableName()) + "(EntityManager em," + RT);
-      sb.append(T3 + partNaturalKeyArgs.get(ti.getTableName()) + ") {" + RT);
+          + partNaturalKeySmCamel.get(ti.getName()) + "(EntityManager em," + RT);
+      sb.append(T3 + partNaturalKeyArgs.get(ti.getName()) + ") {" + RT);
       sb.append(T2 + "QueryCondition[] queryConditions = new QueryCondition[] {" + RT);
       boolean is1st = true;
       for (DbOrClassColumnInfo ci : ti.columnList) {
@@ -172,8 +172,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
           }
 
           sb.append(T4 + comma + "new QueryCondition(" + "\""
-              + StringUtil.getLowerCamelFromSnake(ci.getColumnName()) + "\"" + ", "
-              + StringUtil.getLowerCamelFromSnake(ci.getColumnName()) + ")" + RT);
+              + StringUtil.getLowerCamelFromSnake(ci.getName()) + "\"" + ", "
+              + StringUtil.getLowerCamelFromSnake(ci.getName()) + ")" + RT);
         }
       }
       sb.append(T2 + "};" + RT);
@@ -195,7 +195,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     sb.append(
         T1 + "public Long selectCountByPk" + "(EntityManager em, Object pkValue" + ") {" + RT);
     sb.append(T2 + "return selectCountForBaseDao(em, \"selectCountByPk" + "\", getParamMapFromPk(\""
-        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getColumnName()) + "\", pkValue));"
+        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getName()) + "\", pkValue));"
         + RT);
     sb.append(T1 + "}" + RT2);
 
@@ -219,12 +219,12 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     String idColumnName = null;
     for (DbOrClassColumnInfo ci : list) {
       if (ci.isPk()) {
-        idColumnName = ci.getColumnName();
+        idColumnName = ci.getName();
       }
     }
 
     if (idColumnName == null) {
-      throw new RuntimeException("idColumnName is null: " + tableInfo.getTableName());
+      throw new RuntimeException("idColumnName is null: " + tableInfo.getName());
     }
 
     final String idFieldName = StringUtil.getLowerCamelFromSnake(idColumnName);
@@ -274,8 +274,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     if (tableInfo.hasUniqueConstraint()) {
       sb.append(T1 + "/** natural keyのqueryを自動生成 */" + RT);
       sb.append(T1 + "Optional<" + tableNameCp + "> findBy"
-          + partNaturalKeySmCamelRelConsidered.get(tableInfo.getTableName()) + "(" + RT);
-      sb.append(T3 + partNaturalKeyArgs.get(tableInfo.getTableName()) + ");" + RT2);
+          + partNaturalKeySmCamelRelConsidered.get(tableInfo.getName()) + "(" + RT);
+      sb.append(T3 + partNaturalKeyArgs.get(tableInfo.getName()) + ");" + RT2);
     }
 
     if (tableInfo.hasSoftDeleteFieldInludingSystemCommon()) {
@@ -283,7 +283,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
           + "Native query is used to search soft deleted records. */";
       sb.append(T1 + commonComment + RT);
       sb.append(T1 + "@Query(nativeQuery = true, " + RT);
-      sb.append(T3 + "value = \"select * from " + tableInfo.getTableName() + " where "
+      sb.append(T3 + "value = \"select * from " + tableInfo.getName() + " where "
           + idColumnName + " = :#{#entity." + idFieldName + "} and "
           + util.softDeleteColLowerSnake() + " = true\")" + RT);
       sb.append(T1 + "Optional<" + tableNameCp + "> findByIdAndSoftDeleteFieldTrueFromAllGroups"
@@ -296,9 +296,9 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
             + RT);
       }
       sb.append(T1 + "@Query(nativeQuery = true, " + RT);
-      sb.append(T3 + "value = \"select * from " + tableInfo.getTableName() + " where "
+      sb.append(T3 + "value = \"select * from " + tableInfo.getName() + " where "
           + (tableInfo.hasUniqueConstraint()
-              ? partNaturalKeyEntityParamSql.get(tableInfo.getTableName())
+              ? partNaturalKeyEntityParamSql.get(tableInfo.getName())
               : "1 = 2")
           + " and " + util.softDeleteColLowerSnake() + " = true\")" + RT);
       sb.append(
@@ -308,7 +308,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
       sb.append(T1 + commonComment + RT);
       sb.append(T1 + "@Modifying" + RT);
       sb.append(T1 + "@Query(nativeQuery = true, " + RT);
-      sb.append(T3 + "value = \"delete from " + tableInfo.getTableName() + " where " + idColumnName
+      sb.append(T3 + "value = \"delete from " + tableInfo.getName() + " where " + idColumnName
           + " = :#{#entity." + idFieldName + "} and " + util.softDeleteColLowerSnake()
           + " = true\")" + RT);
       sb.append(T1 + "void deleteByIdAndSoftDeleteFieldTrueFromAllGroups(@Param(\"entity\") "
