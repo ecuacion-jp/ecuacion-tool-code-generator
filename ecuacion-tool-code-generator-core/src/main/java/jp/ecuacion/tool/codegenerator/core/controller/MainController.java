@@ -165,7 +165,7 @@ public class MainController {
           for (DbOrClassTableInfo ti : ((DbOrClassRootInfo) rootInfo).tableList) {
             for (DbOrClassColumnInfo ci : ti.columnList) {
               ci.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, ci.getDataType(), entry.getKey(),
-                  "tableName = " + ti.getTableName() + ", columnName = " + ci.getColumnName()));
+                  "tableName = " + ti.getName() + ", columnName = " + ci.getName()));
             }
           }
 
@@ -192,7 +192,7 @@ public class MainController {
   private void checkForChildTable(String sysName, DbOrClassRootInfo dbOrClassRootInfo)
       throws BizLogicAppException {
     List<String> tableNameSet =
-        dbOrClassRootInfo.tableList.stream().map(e -> e.getTableName()).toList();
+        dbOrClassRootInfo.tableList.stream().map(e -> e.getName()).toList();
 
     for (DbOrClassTableInfo ti : dbOrClassRootInfo.tableList) {
       for (DbOrClassColumnInfo ci : ti.columnList) {
@@ -201,19 +201,19 @@ public class MainController {
           // relation: refering to table name existence check
           if (!tableNameSet.contains(ci.getRelationRefTable())) {
             throw new BizLogicAppException("MSG_ERR_DB_REFER_TO_TABLE_NAME_NOT_FOUND", sysName,
-                ti.getTableName(), ci.getColumnName(), ci.getRelationRefTable());
+                ti.getName(), ci.getName(), ci.getRelationRefTable());
           }
 
           DbOrClassTableInfo refTi = dbOrClassRootInfo.tableList.stream()
-              .collect(Collectors.toMap(e -> e.getTableName(), e -> e))
+              .collect(Collectors.toMap(e -> e.getName(), e -> e))
               .get(ci.getRelationRefTable());
 
           // relation: refering to column name existence check
           List<String> refTiColNameList =
-              refTi.columnList.stream().map(e -> e.getColumnName()).toList();
+              refTi.columnList.stream().map(e -> e.getName()).toList();
           if (!refTiColNameList.contains(ci.getRelationRefCol())) {
             throw new BizLogicAppException("MSG_ERR_DB_REFER_TO_COLUMN_NAME_NOT_FOUND", sysName,
-                ti.getTableName(), ci.getColumnName(), ci.getRelationRefCol());
+                ti.getName(), ci.getName(), ci.getRelationRefCol());
           }
         }
       }
@@ -262,8 +262,8 @@ public class MainController {
       }
 
       // PKは必須。SystemCommonだけは特別扱い。
-      if (!tableInfo.getTableName().equals("SYSTEM_COMMON") && !hasS) {
-        throw new BizLogicAppException("MSG_ERR_PK_REQUIRED", tableInfo.getTableName());
+      if (!tableInfo.getName().equals("SYSTEM_COMMON") && !hasS) {
+        throw new BizLogicAppException("MSG_ERR_PK_REQUIRED", tableInfo.getName());
       }
 
       tableInfo.setHasUniqueConstraint(hasU);
@@ -314,8 +314,8 @@ public class MainController {
     for (DbOrClassTableInfo ti : dbRootInfo.tableList) {
       if (ti.hasCustomGroupColumn()) {
         numOfCustomGroupColumns++;
-        customGroupTableName = ti.getTableName();
-        customGroupColumnName = ti.getCustomGroupColumn().getColumnName();
+        customGroupTableName = ti.getName();
+        customGroupColumnName = ti.getCustomGroupColumn().getName();
         if (numOfCustomGroupColumns > 1) {
           throw new BizLogicAppException("MSG_ERR_MULTIPLE_CUSTOM_GROUP_COLUMN_CANNOT_EXIST",
               systemName);

@@ -75,7 +75,7 @@ public abstract class AbstractColAttrRootInfo extends AbstractRootInfo {
       String dataTypeName) {
     for (DbOrClassColumnInfo info : tableInfo.columnList) {
       // カラム名と、dataTypeNameが同一であることを確認
-      if (info.getColumnName().equals(colName) && info.getDataType().equals(dataTypeName)) {
+      if (info.getName().equals(colName) && info.getDataType().equals(dataTypeName)) {
         return true;
       }
     }
