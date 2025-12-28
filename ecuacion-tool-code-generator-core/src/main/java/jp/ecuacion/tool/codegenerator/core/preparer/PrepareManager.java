@@ -25,8 +25,8 @@ public class PrepareManager {
         if (ci.isRelationColumn() && ci.isRelationBidirectinal()) {
           bidirectionalInfoList.add(new DbOrClassColumnInfo.BidirectionalRelationInfo(
               ci.getRelationKind().getInverse(), ci.getRelationRefTable(), ci.getRelationRefCol(),
-              ci.getRelationRefFieldName(), ti.getTableName(),
-              StringUtil.getLowerCamelFromSnake(ci.getColumnName()), ci.getRelationFieldName()));
+              ci.getRelationRefFieldName(), ti.getName(),
+              StringUtil.getLowerCamelFromSnake(ci.getName()), ci.getRelationFieldName()));
         }
       }
     }
@@ -38,8 +38,8 @@ public class PrepareManager {
       // 参照先にcommonを使うことは流石にないと思われるのでdbInfoでloop
       for (DbOrClassTableInfo ti : info.dbRootInfo.tableList) {
         for (DbOrClassColumnInfo ci : ti.columnList) {
-          if (ti.getTableName().equals(bdInfo.getDstTableName())
-              && ci.getColumnName().equals(bdInfo.getDstColumnName())) {
+          if (ti.getName().equals(bdInfo.getDstTableName())
+              && ci.getName().equals(bdInfo.getDstColumnName())) {
             ci.getBidirectionalInfo().add(bdInfo);
             found = true;
           }

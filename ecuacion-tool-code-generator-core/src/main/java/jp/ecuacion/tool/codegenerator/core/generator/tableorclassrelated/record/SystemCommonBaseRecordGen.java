@@ -26,7 +26,7 @@ public class SystemCommonBaseRecordGen extends BaseRecordGen {
     // if (tableList != null) {
     DbOrClassTableInfo tableInfo = tableList.get(0);
     final String tableNameCp =
-        StringUtil.getUpperCamelFromSnake(tableInfo.getTableName());
+        StringUtil.getUpperCamelFromSnake(tableInfo.getName());
     sb = new StringBuilder();
 
     createHeader(tableInfo);
@@ -63,7 +63,7 @@ public class SystemCommonBaseRecordGen extends BaseRecordGen {
     // sb.append(T1 +"protected HttpServletRequestUtil ru;" + RT2);
 
     for (DbOrClassColumnInfo columnInfo : tableInfo.columnList) {
-      fieldDefinition(tableInfo.getTableName(), columnInfo);
+      fieldDefinition(tableInfo.getName(), columnInfo);
     }
 
     sb.append(RT);

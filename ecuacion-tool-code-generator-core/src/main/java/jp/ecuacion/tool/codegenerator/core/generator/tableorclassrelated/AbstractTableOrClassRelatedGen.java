@@ -98,8 +98,8 @@ public abstract class AbstractTableOrClassRelatedGen extends AbstractGen {
       boolean isFirst = true;
       for (DbOrClassColumnInfo ci : tableInfo.columnList) {
         DataTypeInfo dtInfo = ci.getDtInfo();
-        String colNameUc = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
-        String colNameLc = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
+        String colNameUc = StringUtil.getUpperCamelFromSnake(ci.getName());
+        String colNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
         String colNameUcRelUnderscore = !ci.isRelationColumn() ? colNameUc
             : StringUtil.getUpperCamelFromSnake(ci.getRelationFieldName()) + "_"
                 + StringUtil.getUpperCamelFromSnake(ci.getRelationRefCol());
@@ -118,29 +118,29 @@ public abstract class AbstractTableOrClassRelatedGen extends AbstractGen {
           }
 
           sbPartNaturalKeyArgs.append((getEnumConsideredKata(dtInfo)) + " "
-              + StringUtil.getLowerCamelFromSnake(ci.getColumnName()));
+              + StringUtil.getLowerCamelFromSnake(ci.getName()));
           sbPartNaturalKeyEntityFields.append("e.get"
-              + StringUtil.getUpperCamelFromSnake(ci.getColumnName()) + "()");
+              + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()");
           sbPartNaturalKeySmCamel
               .append((isFirst ? StringUtils.uncapitalize(colNameUc) : colNameUc));
           sbPartNaturalKeySmCamelRelationConsidered
               .append((isFirst ? StringUtils.uncapitalize(colNameUcRelUnderscore)
                   : colNameUcRelUnderscore));
-          sbPartNaturalKeyjpql.append(ci.getColumnName().toLowerCase() + " = :" + colNameLc);
-          sbPartNaturalKeyEntityParamSql.append(ci.getColumnName().toLowerCase() + " = :#{#entity."
-              + StringUtil.getLowerCamelFromSnake(ci.getColumnName())
+          sbPartNaturalKeyjpql.append(ci.getName().toLowerCase() + " = :" + colNameLc);
+          sbPartNaturalKeyEntityParamSql.append(ci.getName().toLowerCase() + " = :#{#entity."
+              + StringUtil.getLowerCamelFromSnake(ci.getName())
               + (ci.getDtInfo().getKata() == DataTypeKataEnum.ENUM ? ".code" : "") + "}");
         }
       }
 
-      partNaturalKeyArgs.put(tableInfo.getTableName(), sbPartNaturalKeyArgs.toString());
-      partNaturalKeyEntityFields.put(tableInfo.getTableName(),
+      partNaturalKeyArgs.put(tableInfo.getName(), sbPartNaturalKeyArgs.toString());
+      partNaturalKeyEntityFields.put(tableInfo.getName(),
           sbPartNaturalKeyEntityFields.toString());
-      partNaturalKeySmCamel.put(tableInfo.getTableName(), sbPartNaturalKeySmCamel.toString());
-      partNaturalKeySmCamelRelConsidered.put(tableInfo.getTableName(),
+      partNaturalKeySmCamel.put(tableInfo.getName(), sbPartNaturalKeySmCamel.toString());
+      partNaturalKeySmCamelRelConsidered.put(tableInfo.getName(),
           sbPartNaturalKeySmCamelRelationConsidered.toString());
-      partNaturalKeyjpql.put(tableInfo.getTableName(), sbPartNaturalKeyjpql.toString());
-      partNaturalKeyEntityParamSql.put(tableInfo.getTableName(),
+      partNaturalKeyjpql.put(tableInfo.getName(), sbPartNaturalKeyjpql.toString());
+      partNaturalKeyEntityParamSql.put(tableInfo.getName(),
           sbPartNaturalKeyEntityParamSql.toString());
     }
 
