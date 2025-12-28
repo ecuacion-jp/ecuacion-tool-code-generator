@@ -73,7 +73,7 @@ public class SystemCommonEntityGen extends EntityGen {
   public void createSource(DbOrClassTableInfo tableInfo) throws AppException {
 
     final String entityNameCp =
-        StringUtil.getUpperCamelFromSnake(tableInfo.getTableName());
+        StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
     // ヘッダ情報定義
     appendPackage(sb);

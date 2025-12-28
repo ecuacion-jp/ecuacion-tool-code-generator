@@ -55,7 +55,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
   protected void appendImport(StringBuilder sb, DbOrClassTableInfo tableInfo) throws AppException {
     ImportGenUtil importMgr = new ImportGenUtil();
-    final String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getTableName());
+    final String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
     // import必須のもの
     // java標準
@@ -116,8 +116,8 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
         }
 
       } else {
-        if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY && !info.groupRootInfo
-            .getTableNamesWithoutGrouping().contains(tableInfo.getTableName())) {
+        if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY
+            && !info.groupRootInfo.getTableNamesWithoutGrouping().contains(tableInfo.getName())) {
 
           importMgr.add("org.hibernate.annotations.Filter");
 
@@ -261,12 +261,12 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
       List<DbOrClassColumnInfo> colInfoList) {
 
     for (DbOrClassColumnInfo ci : colInfoList.stream().filter(e -> !e.getIsJavaOnly()).toList()) {
-      createFieldInternal(sb, tableInfo.getTableName(), ci);
+      createFieldInternal(sb, tableInfo.getName(), ci);
 
       // colが@Idでかつrelationの場合、@MapsIdのために通常の@Idカラムも必要
       if (ci.isPk() && ci.isRelationColumn()) {
         DbOrClassColumnInfo ci2 = DbOrClassColumnInfo.cloneWithoutRelationRelated(ci);
-        createFieldInternal(sb, tableInfo.getTableName(), ci2);
+        createFieldInternal(sb, tableInfo.getName(), ci2);
       }
 
       if (ci.isReferedByBidirectionalRelation()) {
@@ -299,7 +299,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
   private void createFieldInternal(StringBuilder sb, String tableName, DbOrClassColumnInfo ci) {
 
-    String columnName = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
+    String columnName = StringUtil.getLowerCamelFromSnake(ci.getName());
     String kata = getEnumConsideredKata(ci);
 
     // 第二引数は、CommonInfoの場合nullなので、nullを考慮
@@ -312,7 +312,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
           + (ci.getRelationIsEager() ? "EAGER" : "LAZY") + ", cascade = {CascadeType.DETACH})"
           + RT);
       sb.append(T1 + "@OnDelete(action = OnDeleteAction.CASCADE)" + RT);
-      sb.append(T1 + "@JoinColumn(name = \"" + ci.getColumnName() + "\", referencedColumnName = \""
+      sb.append(T1 + "@JoinColumn(name = \"" + ci.getName() + "\", referencedColumnName = \""
           + ci.getRelationRefCol() + "\", nullable = " + (ci.isNullable() ? "true" : "false") + ")"
           + RT);
       if (ci.isPk()) {
@@ -340,8 +340,8 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     sb.append(T1 + "// ID" + RT);
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
         .toList()) {
-      sb.append(T1 + "public static final String FIELD_" + colInfo.getColumnName() + " = \""
-          + StringUtil.getLowerCamelFromSnake(colInfo.getColumnName()) + "\";" + RT);
+      sb.append(T1 + "public static final String FIELD_" + colInfo.getName() + " = \""
+          + StringUtil.getLowerCamelFromSnake(colInfo.getName()) + "\";" + RT);
     }
 
     sb.append(RT);
@@ -383,7 +383,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
           sb.append(", ");
         }
 
-        sb.append("\"" + StringUtil.getLowerCamelFromSnake(ci.getColumnName()) + "\"");
+        sb.append("\"" + StringUtil.getLowerCamelFromSnake(ci.getName()) + "\"");
       }
     }
 
@@ -403,7 +403,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     // BaseRecordの前の部分に"Pk"が入らないように、あえてPkがつかない名前を取得している
     sb.append(T1 + "public " + entityNameCp + "("
         + (this instanceof SystemCommonEntityGen ? "SystemCommon"
-            : StringUtil.getUpperCamelFromSnake(tableInfo.getTableName()))
+            : StringUtil.getUpperCamelFromSnake(tableInfo.getName()))
         + "BaseRecord rec) throws MultipleAppException {" + RT);
     sb.append(T2 + "super("
         + ((getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY) ? "rec" : "") + ");" + RT);
@@ -440,7 +440,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
       }
 
       sb.append(comma + getEnumConsideredKata(ci) + " "
-          + StringUtil.getLowerCamelFromSnake(ci.getColumnName()));
+          + StringUtil.getLowerCamelFromSnake(ci.getName()));
     }
     sb.append(") {" + RT);
     sb.append(T2 + "this();" + RT);
@@ -449,8 +449,8 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
         continue;
       }
 
-      sb.append(T2 + "set" + StringUtil.getUpperCamelFromSnake(ci.getColumnName()) + "("
-          + StringUtil.getLowerCamelFromSnake(ci.getColumnName()) + ");" + RT);
+      sb.append(T2 + "set" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "("
+          + StringUtil.getLowerCamelFromSnake(ci.getName()) + ");" + RT);
     }
     sb.append(T1 + "}" + RT2);
   }
@@ -458,10 +458,10 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
   protected void substituteFieldsFromRecordToEntity(StringBuilder sb, DbOrClassColumnInfo ci,
       boolean usesRec) {
     // if (createsField(ci)) {
-    String leftHandSide = "set" + StringUtil.getUpperCamelFromSnake(ci.getColumnName()) + "(";
+    String leftHandSide = "set" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "(";
     DataTypeInfo dtInfo = ci.getDtInfo();
-    String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
-    String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
+    String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getName());
+    String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
     String kataUc = getEnumConsideredKata(dtInfo);
 
     // relationがある場合は、インスタンス生成を行う
@@ -486,8 +486,8 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
       } else if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
         String obtainedValue =
-            ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getColumnName()) + "()"
-                : StringUtil.getLowerCamelFromSnake(ci.getColumnName()));
+            ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
+                : StringUtil.getLowerCamelFromSnake(ci.getName()));
         sb.append(T2 + leftHandSide + obtainedValue + " == null ? null : EnumUtil.getEnumFromCode("
             + CodeGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName()) + "Enum.class, "
             + obtainedValue + "));" + RT);
@@ -503,15 +503,15 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
       } else if (dtInfo.getKata() == DataTypeKataEnum.BOOLEAN) {
         // booleanは、record上ではBooleanで保持されているため、Stringから読み込む場合（userRec ==
         // falseの場合）のみBoolean.valueOfを付加
-        sb.append(T2 + leftHandSide + ((usesRec)
-            ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getColumnName()) + "()"
-            : ("Boolean.valueOf(" + StringUtil.getLowerCamelFromSnake(ci.getColumnName())) + ")")
+        sb.append(T2 + leftHandSide
+            + ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
+                : ("Boolean.valueOf(" + StringUtil.getLowerCamelFromSnake(ci.getName())) + ")")
             + ");" + RT);
 
       } else {
         sb.append(T2 + leftHandSide
-            + ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getColumnName()) + "()"
-                : StringUtil.getLowerCamelFromSnake(ci.getColumnName()))
+            + ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
+                : StringUtil.getLowerCamelFromSnake(ci.getName()))
             + ");" + RT);
       }
     }
@@ -527,8 +527,8 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
         // ID column of ref-from table
         String pkColumnInOrgTable = MainController.tlInfo.get().dbRootInfo.tableList.stream()
-            .filter(tbl -> tbl.getTableName().equals(info.getOrgTableName())).toList().get(0)
-            .getPkColumn().getColumnName();
+            .filter(tbl -> tbl.getName().equals(info.getOrgTableName())).toList().get(0)
+            .getPkColumn().getName();
         if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
           sb.append(T2 + bidirFieldName + " = rec.get" + bidirFieldNameUc + "() == null || rec.get"
               + bidirFieldNameUc + "().get" + StringUtil.getUpperCamelFromSnake(pkColumnInOrgTable)
@@ -552,11 +552,11 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
   protected void appendUpdate(StringBuilder sb, DbOrClassTableInfo tableInfo)
       throws BizLogicAppException {
-    sb.append(T1 + "public void update(" + code.baseRecDef(tableInfo.getTableName()) + ") {" + RT);
+    sb.append(T1 + "public void update(" + code.baseRecDef(tableInfo.getName()) + ") {" + RT);
     for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
         .filter(e -> !e.isPk()).toList()) {
-      sb.append(T2 + code.recGetIfNotNull(ci.getColumnName())
-          + code.set(ci.getColumnName(), code.recGet(ci.getColumnName())) + ";" + RT);
+      sb.append(T2 + code.ifRecGetIsNotNull(ci.getName())
+          + code.set(ci.getName(), code.recGet(ci.getName())) + ";" + RT);
     }
 
     sb.append(T1 + "}" + RT2);
@@ -565,8 +565,8 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
   protected void appendAccessor(StringBuilder sb, DbOrClassTableInfo tableInfo) {
     for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
         .toList()) {
-      String columnNameCp = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
-      String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
+      String columnNameCp = StringUtil.getUpperCamelFromSnake(ci.getName());
+      String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getName());
       final String relEntityName = ci.getRelationRefTable() == null ? null
           : StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
       String relFieldName = ci.getRelationRefCol() == null ? null
@@ -649,8 +649,8 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     // // Acc.createTimeも作成する必要があるのでそれも含めたlistを保持
 
     for (DbOrClassColumnInfo columnInfo : tableInfo.columnList) {
-      String entityName = StringUtil.getUpperCamelFromSnake(tableInfo.getTableName());
-      String varName = StringUtil.getLowerCamelFromSnake(columnInfo.getColumnName());
+      String entityName = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
+      String varName = StringUtil.getLowerCamelFromSnake(columnInfo.getName());
       String dispName = columnInfo.getDisplayNameMap().get(lang);
       map.put(entityName + "." + varName, dispName);
 
@@ -709,7 +709,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     }
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList) {
       DataTypeInfo dtInfo = colInfo.getDtInfo();
-      String fieldName = StringUtil.getLowerCamelFromSnake(colInfo.getColumnName());
+      String fieldName = StringUtil.getLowerCamelFromSnake(colInfo.getName());
       boolean isForced =
           !isUpdate && colInfo.isForcedIncrement() || isUpdate && colInfo.isForcedUpdate();
 
@@ -774,14 +774,14 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     boolean isFirst = true;
 
     for (DbOrClassColumnInfo ci : getMergedColumnList(tableInfo, commonColumnList)) {
-      String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
+      String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getName());
       if (ci.isPk()) {
         DataTypeInfo dtInfo = ci.getDtInfo();
         String comma = (isFirst) ? "" : ", ";
         String tmpKata = StringUtil.getUpperCamelFromSnake(dtInfo.getKata().getName());
         String kata = (areAllArgsString) ? "String "
             : (Objects.requireNonNull(tmpKata).equals("Enum")
-                ? StringUtil.getUpperCamelFromSnake(ci.getColumnName())
+                ? StringUtil.getUpperCamelFromSnake(ci.getName())
                 : "") + tmpKata;
         lclSb.append(comma + kata + " " + columnNameSm);
         if (isFirst) {
@@ -825,7 +825,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
         .getColumnName();
     boolean usesSoftDelete = colName != null && !colName.equals("");
 
-    boolean containsSoftDeleteField = (tableInfo.columnList.stream().map(e -> e.getColumnName())
+    boolean containsSoftDeleteField = (tableInfo.columnList.stream().map(e -> e.getName())
         .collect(Collectors.toList()).contains(colName));
 
     if (usesSoftDelete && !containsSoftDeleteField) {
@@ -876,7 +876,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     auditingAnnotation(annotationGenList, colInfo.getSpringAuditing(), "LD", "LastModifiedDate");
 
     // Column
-    if (ColumnGen.needsValidator(colInfo.getColumnName())) {
+    if (ColumnGen.needsValidator(colInfo.getName())) {
       annotationGenList.add(new ColumnGen(ElementType.FIELD, colInfo));
     }
 
@@ -884,10 +884,9 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
     // GeneratedValue
     if (GeneratedValueGen.needsValidator(colInfo)) {
-      annotationGenList
-          .add(new GeneratedValueGen(ElementType.FIELD, tableName, colInfo.getColumnName()));
+      annotationGenList.add(new GeneratedValueGen(ElementType.FIELD, tableName, colInfo.getName()));
       annotationGenList.add(new SequenceGeneratorGen(ElementType.FIELD, colInfo.getDtInfo(),
-          tableName, colInfo.getColumnName(), entityGenKindEnum));
+          tableName, colInfo.getName(), entityGenKindEnum));
     }
 
     // 文字列出力
