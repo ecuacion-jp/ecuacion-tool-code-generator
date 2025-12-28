@@ -41,7 +41,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
   @Override
   public void generate() throws AppException {
     for (DbOrClassTableInfo tableInfo : getTableList()) {
-      String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getTableName());
+      String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
       sb = new StringBuilder();
 
       createHeader(tableInfo, tableNameCp);
@@ -78,7 +78,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       // field定義
-      fieldDefinition(tableInfo.getTableName(), ci);
+      fieldDefinition(tableInfo.getName(), ci);
     }
 
     sb.append(RT);
@@ -154,7 +154,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
   }
 
   protected void fieldDefinition(String tableName, DbOrClassColumnInfo ci) {
-    String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
+    String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getName());
     String refEntityNameLw = ci.getRelationRefTable() == null ? null
         : StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
     DataTypeInfo dtInfo = ci.getDtInfo();
@@ -194,7 +194,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
   }
 
   private boolean hasTableAnyRelationsOrRefs(String tableName) {
-    return getTableList().stream().collect(Collectors.toMap(e -> e.getTableName(), e -> e))
+    return getTableList().stream().collect(Collectors.toMap(e -> e.getName(), e -> e))
         .get(tableName).hasAnyRelationsOrRefs();
   }
 
@@ -210,7 +210,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
           || dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME) {
 
         sb.append(T2 + "getStringLengthMap().put(\""
-            + StringUtil.getLowerCamelFromSnake(ci.getColumnName()) + "\", " + dtInfo.getMaxLength()
+            + StringUtil.getLowerCamelFromSnake(ci.getName()) + "\", " + dtInfo.getMaxLength()
             + ");" + RT);
       }
     }
@@ -363,8 +363,8 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
   protected void insideConstB(DbOrClassTableInfo tableInfo, boolean isCalledFromB2) {
     for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
         .toList()) {
-      String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
-      String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
+      String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getName());
+      String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
       DataTypeInfo dtInfo = ci.getDtInfo();
       String getPk = "";
 
@@ -467,8 +467,8 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     }
 
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-      String columnNameCp = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
-      String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
+      String columnNameCp = StringUtil.getUpperCamelFromSnake(ci.getName());
+      String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getName());
       String lefthand = "rec.get" + columnNameCp + "()";
 
       if (ci.isRelationColumn()) {
@@ -483,8 +483,8 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
   protected void createAccessor(DbOrClassTableInfo tableInfo, String tableNameCp) {
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-      String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getColumnName());
-      String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
+      String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
+      String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getName());
       final String relEntityNameLc = ci.getRelationRefTable() == null ? null
           : StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
       String relFieldNameUc = ci.getRelationRefCol() == null ? null
@@ -580,7 +580,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
   protected void createListsForHtmlSelect(DbOrClassTableInfo tableInfo) {
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       DataTypeInfo dtInfo = ci.getDtInfo();
-      String capitalizedName = StringUtil.getUpperCamelFromSnake(ci.getColumnName());
+      String capitalizedName = StringUtil.getUpperCamelFromSnake(ci.getName());
       String name = StringUtils.uncapitalize(capitalizedName);
 
       // enumに対しlistを取得
