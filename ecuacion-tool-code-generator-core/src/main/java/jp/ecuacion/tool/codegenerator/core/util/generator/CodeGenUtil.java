@@ -22,7 +22,7 @@ public class CodeGenUtil {
   /** Account.mailAddress の形式の文字列を生成. */
   public String classDotField(String tableName, DbOrClassColumnInfo columnInfo) {
     return StringUtil.getUpperCamelFromSnake(tableName) + "."
-        + StringUtil.getLowerCamelFromSnake(columnInfo.getColumnName());
+        + StringUtil.getLowerCamelFromSnake(columnInfo.getName());
   }
 
   public String softDeleteColCaptalCamel() {
@@ -120,11 +120,15 @@ public class CodeGenUtil {
     return "rec.get" + capitalizedCamel(fieldOrColumnName) + "()";
   }
 
-  public String recGetNotNull(String fieldOrColumnName) throws BizLogicAppException {
+  public String recGetIsNull(String fieldOrColumnName) throws BizLogicAppException {
+    return recGet(fieldOrColumnName) + " == null";
+  }
+
+  public String recGetIsNotNull(String fieldOrColumnName) throws BizLogicAppException {
     return recGet(fieldOrColumnName) + " != null";
   }
 
-  public String recGetIfNotNull(String fieldOrColumnName) throws BizLogicAppException {
+  public String ifRecGetIsNotNull(String fieldOrColumnName) throws BizLogicAppException {
     return "if (" + recGet(fieldOrColumnName) + " != null) ";
   }
 }

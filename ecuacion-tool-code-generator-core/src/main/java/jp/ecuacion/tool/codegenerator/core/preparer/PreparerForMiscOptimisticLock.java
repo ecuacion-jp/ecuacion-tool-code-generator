@@ -39,16 +39,16 @@ public class PreparerForMiscOptimisticLock {
     if (dbRootInfo != null) {
       for (DbOrClassTableInfo ti : dbRootInfo.tableList) {
         for (DbOrClassColumnInfo ci : ti.columnList) {
-          if (ci.getColumnName() == null) {
+          if (ci.getName() == null) {
             System.out.println("here!");
           }
-          if (ci.getColumnName().equals(lockInfo.getColumnName())) {
+          if (ci.getName().equals(lockInfo.getColumnName())) {
             if (ci.getDataType().equals(lockInfo.getDataTypeName())) {
               ci.setOptLock(true);
             } else {
               // カラム名が一緒なのにDataTypeが異なる場合はエラー扱いとする
               throw new BizLogicAppException("MSG_ERR_DT_OF_COL_FOR_OPT_LOCK_DIFFER",
-                  info.systemName, ti.getTableName(), ci.getColumnName(), ci.getDataType(),
+                  info.systemName, ti.getName(), ci.getName(), ci.getDataType(),
                   lockInfo.getDataTypeName());
             }
           }
