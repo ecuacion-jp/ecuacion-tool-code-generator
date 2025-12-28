@@ -81,6 +81,9 @@ public class EntityBodyGen extends EntityGen {
     if (tableInfo.hasUniqueConstraint()) {
       appendNaturalKeyConstructor(sb, tableInfo, entityNameCp);
     }
+    
+    // update with record
+    appendUpdate(sb, tableInfo);
 
     // accessor
     appendAccessor(sb, tableInfo);

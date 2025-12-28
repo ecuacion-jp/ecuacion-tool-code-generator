@@ -35,13 +35,13 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Versio
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.AbstractTableOrClassRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.StringGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
-  private StringGenUtil util = new StringGenUtil();
+  private CodeGenUtil code = new CodeGenUtil();
 
   public EntityGen(DataKindEnum dataKind) {
     super(dataKind);
@@ -181,12 +181,12 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
         importMgr.add("jp.ecuacion.lib.core.util.EnumUtil");
 
         String importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-            + ".base.enums." + StringGenUtil.dataTypeNameToUppperCamel(dataType) + "Enum";
+            + ".base.enums." + CodeGenUtil.dataTypeNameToUppperCamel(dataType) + "Enum";
         importMgr.add(importClassStr);
         // batch（javaSE環境）だと@ConverterにautoApply =
         // trueをつけても無視され、明示的に@Convertタグを書く必要がある関係で、Converterのimportが必要
         importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-            + ".base.converter." + StringGenUtil.dataTypeNameToUppperCamel(dataType) + "Converter";
+            + ".base.converter." + CodeGenUtil.dataTypeNameToUppperCamel(dataType) + "Converter";
         importMgr.add(importClassStr);
       }
     }
@@ -304,7 +304,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
     // 第二引数は、CommonInfoの場合nullなので、nullを考慮
     sb.append(getEntityFieldAnnotations(getEntityGenKindEnum(), tableName, ci,
-        util.classDotField(tableName, ci)));
+        code.classDotField(tableName, ci)));
 
     if (ci.isRelationColumn()) {
       sb.append(T1 + "@Valid" + RT);
@@ -489,7 +489,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
             ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getColumnName()) + "()"
                 : StringUtil.getLowerCamelFromSnake(ci.getColumnName()));
         sb.append(T2 + leftHandSide + obtainedValue + " == null ? null : EnumUtil.getEnumFromCode("
-            + StringGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName()) + "Enum.class, "
+            + CodeGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName()) + "Enum.class, "
             + obtainedValue + "));" + RT);
 
       } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
@@ -548,6 +548,18 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
         }
       }
     }
+  }
+
+  protected void appendUpdate(StringBuilder sb, DbOrClassTableInfo tableInfo)
+      throws BizLogicAppException {
+    sb.append(T1 + "public void update(" + code.baseRecDef(tableInfo.getTableName()) + ") {" + RT);
+    for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
+        .filter(e -> !e.isPk()).toList()) {
+      sb.append(T2 + code.recGetIfNotNull(ci.getColumnName())
+          + code.set(ci.getColumnName(), code.recGet(ci.getColumnName())) + ";" + RT);
+    }
+
+    sb.append(T1 + "}" + RT2);
   }
 
   protected void appendAccessor(StringBuilder sb, DbOrClassTableInfo tableInfo) {
