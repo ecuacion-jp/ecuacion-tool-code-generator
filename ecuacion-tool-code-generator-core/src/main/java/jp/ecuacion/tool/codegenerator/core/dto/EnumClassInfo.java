@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
-import jp.ecuacion.tool.codegenerator.core.util.generator.StringGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
 
 public class EnumClassInfo extends StringExcelTableBean {
@@ -45,7 +45,7 @@ public class EnumClassInfo extends StringExcelTableBean {
   @NotEmpty
   @Size(min = 1, max = 50)
   public String getEnumName() {
-    return StringGenUtil.dataTypeNameToUppperCamel(dataTypeName) + "Enum";
+    return CodeGenUtil.dataTypeNameToUppperCamel(dataTypeName) + "Enum";
   }
 
   public DataTypeInfo getDtInfo() {

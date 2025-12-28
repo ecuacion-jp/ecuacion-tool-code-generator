@@ -16,7 +16,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity.genhelper.GenHelperKata;
-import jp.ecuacion.tool.codegenerator.core.util.generator.StringGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -220,7 +220,7 @@ public abstract class AbstractTableOrClassRelatedGen extends AbstractGen {
     String rtn = null;
 
     if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-      rtn = StringGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName())
+      rtn = CodeGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName())
           + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString());
 
     } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP

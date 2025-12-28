@@ -15,12 +15,12 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.AbstractTableOrClassRelatedGen;
+import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.StringGenUtil;
 
 public class DaoGen extends AbstractTableOrClassRelatedGen {
 
-  private StringGenUtil util = new StringGenUtil();
+  private CodeGenUtil util = new CodeGenUtil();
 
   public DaoGen(DataKindEnum xmlFilePostFix) {
     super(xmlFilePostFix);
@@ -83,7 +83,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
         DataTypeInfo dtInfo = colInfo.getDtInfo();
         if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
           String importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-              + ".base.enums." + StringGenUtil.dataTypeNameToUppperCamel(dataType) + "Enum";
+              + ".base.enums." + CodeGenUtil.dataTypeNameToUppperCamel(dataType) + "Enum";
           importMgr.add(importClassStr);
         }
       }
@@ -254,7 +254,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
         DataTypeInfo dtInfo = colInfo.getDtInfo();
         if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
           String importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-              + ".base.enums." + StringGenUtil.dataTypeNameToUppperCamel(dataType) + "Enum";
+              + ".base.enums." + CodeGenUtil.dataTypeNameToUppperCamel(dataType) + "Enum";
           importMgr.add(importClassStr);
         }
       }
