@@ -103,7 +103,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   @Override
   protected @Nonnull String[] getFieldNameArray() {
     return new String[] {
-        null, "userFriendlyName", "columnName", "dataType", null, 
+        null, "userFriendlyName", "name", "dataType", null, 
         "isJavaOnly", "pkKind", "isNullable", "isAutoIncrement", "isForcedIncrement", 
         "isAutoUpdate", "isForcedUpdate", "isCustomGroupColumn", "springAuditing", "relationKind", 
         "relationDirection", 
