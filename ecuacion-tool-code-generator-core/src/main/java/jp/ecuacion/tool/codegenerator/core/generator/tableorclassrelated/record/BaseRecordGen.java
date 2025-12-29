@@ -3,7 +3,6 @@ package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.record
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BIG_DECIMAL;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BIG_INTEGER;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BOOLEAN;
-import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BYTE;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.DATE;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.DATE_TIME;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.DOUBLE;
@@ -29,6 +28,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.AbstractTableOrClassRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -209,9 +209,9 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
           || dtInfo.getKata() == BIG_INTEGER || dtInfo.getKata() == BIG_DECIMAL
           || dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME) {
 
-        sb.append(T2 + "getStringLengthMap().put(\""
-            + StringUtil.getLowerCamelFromSnake(ci.getName()) + "\", " + dtInfo.getMaxLength()
-            + ");" + RT);
+        sb.append(
+            T2 + "getStringLengthMap().put(\"" + StringUtil.getLowerCamelFromSnake(ci.getName())
+                + "\", " + dtInfo.getMaxLength() + ");" + RT);
       }
     }
 
@@ -514,21 +514,22 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       sb.append(T1 + "}" + RT2);
 
       // entityとの連携のために、entityのデータ型でデータ取得するgetterを追加
-      if (!ci.isRelationColumn() && (dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE
-          || dtInfo.getKata() == TIME || dtInfo.getKata() == DATE_TIME || dtInfo.getKata() == BYTE
-          || dtInfo.getKata() == SHORT || dtInfo.getKata() == INTEGER
-          || dtInfo.getKata() == LONG)) {
+      if (!ci.isRelationColumn()
+          && (CodeGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata()))) {
 
         sb.append(T1 + "public " + javaKata + " get" + fieldNameUc + "OfEntityDataType() {" + RT);
         sb.append(T2 + "return (" + fieldNameLc + " == null || " + fieldNameLc
             + ".equals(\"\")) ? null :" + RT);
 
-        if (dtInfo.getKata() == DATE || dtInfo.getKata() == TIME || dtInfo.getKata() == TIMESTAMP
-            || dtInfo.getKata() == DATE_TIME) {
+        if (CodeGenUtil.dateTimeDataTypeList.contains(dtInfo.getKata())) {
           sb.append(T4 + javaKata + ".parse(" + fieldNameLc
               + ", DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
               + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "Format()));"
               + RT);
+
+        } else if (dtInfo.getKata() == ENUM) {
+          sb.append(
+              T4 + "EnumUtil.getEnumFromCode(" + javaKata + ".class, " + fieldNameLc + ");" + RT);
 
         } else {
           sb.append(T4 + javaKata + ".valueOf(" + fieldNameLc + ".replaceAll(\",\", \"\"));" + RT);
