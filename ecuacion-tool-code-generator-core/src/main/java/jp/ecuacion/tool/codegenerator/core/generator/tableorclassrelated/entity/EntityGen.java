@@ -484,20 +484,16 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
                     : "(" + fieldNameLc + ")")
                 + ");" + RT);
 
-      } else if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-        String obtainedValue =
-            ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
-                : StringUtil.getLowerCamelFromSnake(ci.getName()));
-        sb.append(T2 + leftHandSide + obtainedValue + " == null ? null : EnumUtil.getEnumFromCode("
-            + CodeGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName()) + "Enum.class, "
-            + obtainedValue + "));" + RT);
+        // } else if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
+        // String obtainedValue =
+        // ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
+        // : StringUtil.getLowerCamelFromSnake(ci.getName()));
+        // sb.append(T2 + leftHandSide + obtainedValue + " == null ? null :
+        // EnumUtil.getEnumFromCode("
+        // + CodeGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName()) + "Enum.class, "
+        // + obtainedValue + "));" + RT);
 
-      } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
-          || dtInfo.getKata() == DataTypeKataEnum.DATE_TIME
-          || dtInfo.getKata() == DataTypeKataEnum.DATE || dtInfo.getKata() == DataTypeKataEnum.TIME
-          || dtInfo.getKata() == DataTypeKataEnum.BYTE || dtInfo.getKata() == DataTypeKataEnum.SHORT
-          || dtInfo.getKata() == DataTypeKataEnum.INTEGER
-          || dtInfo.getKata() == DataTypeKataEnum.LONG) {
+      } else if (CodeGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata())) {
         sb.append(T2 + fieldNameLc + " = rec.get" + fieldNameUc + "OfEntityDataType();" + RT);
 
       } else if (dtInfo.getKata() == DataTypeKataEnum.BOOLEAN) {
@@ -556,7 +552,8 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
         .filter(e -> !e.isPk()).toList()) {
       sb.append(T2 + code.ifRecGetIsNotNull(ci.getName())
-          + code.set(ci.getName(), code.recGet(ci.getName())) + ";" + RT);
+          + code.set(ci.getName(), code.recGetOfEntityType(ci.getName(), ci.getDtInfo().getKata())) + ";" + RT);
+      
     }
 
     sb.append(T1 + "}" + RT2);
