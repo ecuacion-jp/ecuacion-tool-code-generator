@@ -1,11 +1,16 @@
 package jp.ecuacion.tool.codegenerator.core.util.generator;
 
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
+import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -14,6 +19,18 @@ import org.apache.commons.lang3.StringUtils;
 public class CodeGenUtil {
 
   private Info info;
+
+  public static final List<DataTypeKataEnum> numberDataTypeList =
+      Arrays.asList(new DataTypeKataEnum[] {DataTypeKataEnum.BYTE, DataTypeKataEnum.SHORT,
+          DataTypeKataEnum.INTEGER, DataTypeKataEnum.LONG});
+
+  public static final List<DataTypeKataEnum> dateTimeDataTypeList =
+      Arrays.asList(new DataTypeKataEnum[] {DataTypeKataEnum.TIMESTAMP, DataTypeKataEnum.DATE,
+          DataTypeKataEnum.TIME, DataTypeKataEnum.DATE_TIME});
+
+  public static final List<DataTypeKataEnum> ofEntityTypeMethodAvailableDataTypeList =
+      ListUtils.union(ListUtils.union(numberDataTypeList, dateTimeDataTypeList),
+          Arrays.asList(new DataTypeKataEnum[] {DataTypeKataEnum.ENUM}));
 
   public CodeGenUtil() {
     this.info = MainController.tlInfo.get();
@@ -116,6 +133,10 @@ public class CodeGenUtil {
     return uc + "BaseRecord rec";
   }
 
+  /*
+   * recGet
+   */
+
   public String recGet(String fieldOrColumnName) throws BizLogicAppException {
     return "rec.get" + capitalizedCamel(fieldOrColumnName) + "()";
   }
@@ -130,5 +151,12 @@ public class CodeGenUtil {
 
   public String ifRecGetIsNotNull(String fieldOrColumnName) throws BizLogicAppException {
     return "if (" + recGet(fieldOrColumnName) + " != null) ";
+  }
+
+  public String recGetOfEntityType(DbOrClassColumnInfo ci) throws BizLogicAppException {
+    String postfix = ofEntityTypeMethodAvailableDataTypeList.contains(ci.getDtInfo().getKata())
+        ? "OfEntityDataType"
+        : "";
+    return "rec.get" + capitalizedCamel(ci.getName()) + postfix + "()";
   }
 }
