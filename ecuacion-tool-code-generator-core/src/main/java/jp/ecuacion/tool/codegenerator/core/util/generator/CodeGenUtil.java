@@ -18,8 +18,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class CodeGenUtil {
 
-  private Info info;
-
   public static final List<DataTypeKataEnum> numberDataTypeList =
       Arrays.asList(new DataTypeKataEnum[] {DataTypeKataEnum.BYTE, DataTypeKataEnum.SHORT,
           DataTypeKataEnum.INTEGER, DataTypeKataEnum.LONG});
@@ -32,33 +30,10 @@ public class CodeGenUtil {
       ListUtils.union(ListUtils.union(numberDataTypeList, dateTimeDataTypeList),
           Arrays.asList(new DataTypeKataEnum[] {DataTypeKataEnum.ENUM}));
 
+  private Info info;
+
   public CodeGenUtil() {
     this.info = MainController.tlInfo.get();
-  }
-
-  /** Account.mailAddress の形式の文字列を生成. */
-  public String classDotField(String tableName, DbOrClassColumnInfo columnInfo) {
-    return StringUtil.getUpperCamelFromSnake(tableName) + "."
-        + StringUtil.getLowerCamelFromSnake(columnInfo.getName());
-  }
-
-  public String softDeleteColCaptalCamel() {
-    return StringUtil.getUpperCamelFromSnake(info.removedDataRootInfo.getColumnName());
-  }
-
-  public String softDeleteColUpperSnake() {
-    return info.removedDataRootInfo.getColumnName().toUpperCase();
-  }
-
-  public String softDeleteColLowerSnake() {
-    return info.removedDataRootInfo.getColumnName().toLowerCase();
-  }
-
-  /**
-   * changeForDataTypeについて すべて"DT_"で始まるが、そこは不要なので、ひとまずはずし、あとはchangiInitCaptalと同じ。
-   */
-  public static String dataTypeNameToUppperCamel(String str) {
-    return StringUtil.getUpperCamelFromSnake(str.substring(3));
   }
 
   /**
@@ -102,16 +77,20 @@ public class CodeGenUtil {
     return false;
   }
 
-  // private String uncapitalizedCamel(String camelOrSnakeString) throws BizLogicAppException {
-  // if (isSnake(camelOrSnakeString)) {
-  // return StringUtil.getLowerCamelFromSnake(camelOrSnakeString);
-  //
-  // } else {
-  // return StringUtils.uncapitalize(camelOrSnakeString);
-  // }
-  // }
+  /*
+   * cases
+   */
 
-  private String capitalizedCamel(String camelOrSnakeString) throws BizLogicAppException {
+  public String uncapitalCamel(String camelOrSnakeString) throws BizLogicAppException {
+    if (isSnake(camelOrSnakeString)) {
+      return StringUtil.getLowerCamelFromSnake(camelOrSnakeString);
+
+    } else {
+      return StringUtils.uncapitalize(camelOrSnakeString);
+    }
+  }
+
+  public String capitalCamel(String camelOrSnakeString) throws BizLogicAppException {
     if (isSnake(camelOrSnakeString)) {
       return StringUtil.getUpperCamelFromSnake(camelOrSnakeString);
 
@@ -120,16 +99,28 @@ public class CodeGenUtil {
     }
   }
 
+  /*
+   * var
+   */
+
+  public String varIsNotNull(String formattedString) throws BizLogicAppException {
+    return formattedString + " != null";
+  }
+
+  public String ifVarIsNotNull(String formattedString) throws BizLogicAppException {
+    return "if (" + formattedString + " != null) ";
+  }
+  
   public String set(String fieldOrColumnName, String argString) throws BizLogicAppException {
-    return "set" + capitalizedCamel(fieldOrColumnName) + "(" + argString + ")";
+    return "set" + capitalCamel(fieldOrColumnName) + "(" + argString + ")";
   }
 
   public String baseRec(String entityOrTableName) throws BizLogicAppException {
-    return capitalizedCamel(entityOrTableName) + "BaseRecord";
+    return capitalCamel(entityOrTableName) + "BaseRecord";
   }
 
   public String baseRecDef(String entityOrTableName) throws BizLogicAppException {
-    String uc = capitalizedCamel(entityOrTableName);
+    String uc = capitalCamel(entityOrTableName);
     return uc + "BaseRecord rec";
   }
 
@@ -138,7 +129,7 @@ public class CodeGenUtil {
    */
 
   public String recGet(String fieldOrColumnName) throws BizLogicAppException {
-    return "rec.get" + capitalizedCamel(fieldOrColumnName) + "()";
+    return "rec.get" + capitalCamel(fieldOrColumnName) + "()";
   }
 
   public String recGetIsNull(String fieldOrColumnName) throws BizLogicAppException {
@@ -146,7 +137,7 @@ public class CodeGenUtil {
   }
 
   public String recGetIsNotNull(String fieldOrColumnName) throws BizLogicAppException {
-    return recGet(fieldOrColumnName) + " != null";
+    return varIsNotNull(recGet(fieldOrColumnName));
   }
 
   public String ifRecGetIsNotNull(String fieldOrColumnName) throws BizLogicAppException {
@@ -157,6 +148,31 @@ public class CodeGenUtil {
     String postfix = ofEntityTypeMethodAvailableDataTypeList.contains(ci.getDtInfo().getKata())
         ? "OfEntityDataType"
         : "";
-    return "rec.get" + capitalizedCamel(ci.getName()) + postfix + "()";
+    return "rec.get" + capitalCamel(ci.getName()) + postfix + "()";
+  }
+
+  /** Account.mailAddress の形式の文字列を生成. */
+  public String classDotField(String tableName, DbOrClassColumnInfo columnInfo) {
+    return StringUtil.getUpperCamelFromSnake(tableName) + "."
+        + StringUtil.getLowerCamelFromSnake(columnInfo.getName());
+  }
+
+  public String softDeleteColCaptalCamel() {
+    return StringUtil.getUpperCamelFromSnake(info.removedDataRootInfo.getColumnName());
+  }
+
+  public String softDeleteColUpperSnake() {
+    return info.removedDataRootInfo.getColumnName().toUpperCase();
+  }
+
+  public String softDeleteColLowerSnake() {
+    return info.removedDataRootInfo.getColumnName().toLowerCase();
+  }
+
+  /**
+   * changeForDataTypeについて すべて"DT_"で始まるが、そこは不要なので、ひとまずはずし、あとはchangiInitCaptalと同じ。
+   */
+  public static String dataTypeNameToUppperCamel(String str) {
+    return StringUtil.getUpperCamelFromSnake(str.substring(3));
   }
 }

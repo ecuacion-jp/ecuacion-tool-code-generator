@@ -92,15 +92,6 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     if (info.sysCmnRootInfo.isFrameworkKindSpring() && info.removedDataRootInfo.isDefined()
         && tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
       importMgr.add("org.hibernate.annotations.Filter", "org.hibernate.annotations.FilterDef");
-
-    } else if (info.sysCmnRootInfo.isFrameworkKindSpring()
-        && info.removedDataRootInfo.isDefined()) {
-      // bidirectionalの参照先側になる場合
-      // for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-      // if (ci.isReferedByBidirectionalRelation()) {
-      // importMgr.add("org.hibernate.annotations.Filter");
-      // }
-      // }
     }
 
     // @Filterを使用する場合はimport
@@ -178,7 +169,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
       String dataType = colInfo.getDataType();
       DataTypeInfo dtInfo = colInfo.getDtInfo();
       if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-        importMgr.add("jp.ecuacion.lib.core.util.EnumUtil");
+        // importMgr.add("jp.ecuacion.lib.core.util.EnumUtil");
 
         String importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
             + ".base.enums." + CodeGenUtil.dataTypeNameToUppperCamel(dataType) + "Enum";
@@ -548,12 +539,23 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
   protected void appendUpdate(StringBuilder sb, DbOrClassTableInfo tableInfo)
       throws BizLogicAppException {
-    sb.append(T1 + "public void update(" + code.baseRecDef(tableInfo.getName()) + ") {" + RT);
-    for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
-        .filter(e -> !e.isPk()).toList()) {
-      sb.append(T2 + code.ifRecGetIsNotNull(ci.getName())
-          + code.set(ci.getName(), code.recGetOfEntityType(ci.getName(), ci.getDtInfo().getKata())) + ";" + RT);
-      
+    sb.append(T1 + "public void update(" + code.baseRecDef(tableInfo.getName())
+        + ", String... skipUpdateFields) {" + RT);
+
+    // Remove groupColumn to avoid the data to be moved to other group (=normally other customer's
+    // dara realm).
+    List<DbOrClassColumnInfo> ciList =
+        tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> !e.isPk())
+            .filter(e -> !e.isRelationColumn()).filter(e -> !e.isGroupColumn()).toList();
+    if (ciList.size() > 0) {
+      sb.append(T2 + "List<String> skipUpdateFieldList = Arrays.asList(skipUpdateFields);" + RT2);
+    }
+
+    for (DbOrClassColumnInfo ci : ciList) {
+      String name = code.uncapitalCamel(ci.getName());
+      sb.append(
+          T2 + "if (" + code.recGet(name) + " != null && !skipUpdateFieldList.contains(" + "FIELD_"
+              + ci.getName() + ")) " + code.set(name, code.recGetOfEntityType(ci)) + ";" + RT);
     }
 
     sb.append(T1 + "}" + RT2);
