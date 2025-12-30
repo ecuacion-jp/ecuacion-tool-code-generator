@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
@@ -49,15 +50,15 @@ public class CodeGenUtil {
    *
    * @throws BizLogicAppException BizLogicAppException
    */
-  private boolean isSnake(String camelOrSnakeString) throws BizLogicAppException {
+  private boolean isSnake(String camelOrSnakeString) {
     if (camelOrSnakeString.contains("_")) {
       // It's snake if the string contains "_"
       // Throw an exception when a snake case string contains uppercase and lowercase characters.
       boolean isAllUc = Pattern.compile("[A-Z0-9_].*").matcher(camelOrSnakeString).find();
       boolean isAllLc = Pattern.compile("[a-z0-9_].*").matcher(camelOrSnakeString).find();
       if (!isAllUc && !isAllLc) {
-        throw new BizLogicAppException("MSG_ERR_STRING_NEITHER_CAMEL_NOR_SNAKE",
-            camelOrSnakeString);
+        throw new UncheckedAppException(
+            new BizLogicAppException("MSG_ERR_STRING_NEITHER_CAMEL_NOR_SNAKE", camelOrSnakeString));
       }
 
       return true;
@@ -81,7 +82,7 @@ public class CodeGenUtil {
    * cases
    */
 
-  public String uncapitalCamel(String camelOrSnakeString) throws BizLogicAppException {
+  public String uncapitalCamel(String camelOrSnakeString) {
     if (isSnake(camelOrSnakeString)) {
       return StringUtil.getLowerCamelFromSnake(camelOrSnakeString);
 
@@ -90,7 +91,7 @@ public class CodeGenUtil {
     }
   }
 
-  public String capitalCamel(String camelOrSnakeString) throws BizLogicAppException {
+  public String capitalCamel(String camelOrSnakeString) {
     if (isSnake(camelOrSnakeString)) {
       return StringUtil.getUpperCamelFromSnake(camelOrSnakeString);
 
@@ -110,7 +111,7 @@ public class CodeGenUtil {
   public String ifVarIsNotNull(String formattedString) throws BizLogicAppException {
     return "if (" + formattedString + " != null) ";
   }
-  
+
   public String set(String fieldOrColumnName, String argString) throws BizLogicAppException {
     return "set" + capitalCamel(fieldOrColumnName) + "(" + argString + ")";
   }
