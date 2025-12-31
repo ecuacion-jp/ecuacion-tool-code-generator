@@ -539,23 +539,34 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
 
   protected void appendUpdate(StringBuilder sb, DbOrClassTableInfo tableInfo)
       throws BizLogicAppException {
-    sb.append(T1 + "public void update(" + code.baseRecDef(tableInfo.getName())
+    List<DbOrClassColumnInfo> baseList =
+        tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> !e.isPk())
+            .filter(e -> !e.isGroupColumn()).toList();
+
+    StringBuilder relString = new StringBuilder();
+    baseList.stream().filter(e -> e.isRelationColumn()).forEach(ci -> relString.append(
+        ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
+    sb.append(T1 + "public void update(" + code.baseRecDef(tableInfo.getName()) + relString
         + ", String... skipUpdateFields) {" + RT);
 
     // Remove groupColumn to avoid the data to be moved to other group (=normally other customer's
     // dara realm).
-    List<DbOrClassColumnInfo> ciList =
-        tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> !e.isPk())
-            .filter(e -> !e.isRelationColumn()).filter(e -> !e.isGroupColumn()).toList();
-    if (ciList.size() > 0) {
+    if (baseList.stream().filter(ci -> !ci.isRelationColumn()).toList().size() > 0) {
       sb.append(T2 + "List<String> skipUpdateFieldList = Arrays.asList(skipUpdateFields);" + RT2);
     }
 
-    for (DbOrClassColumnInfo ci : ciList) {
-      String name = code.uncapitalCamel(ci.getName());
-      sb.append(
-          T2 + "if (" + code.recGet(name) + " != null && !skipUpdateFieldList.contains(" + "FIELD_"
-              + ci.getName() + ")) " + code.set(name, code.recGetOfEntityType(ci)) + ";" + RT);
+    for (DbOrClassColumnInfo ci : baseList) {
+      if (ci.isRelationColumn()) {
+        String name = ci.getRelationFieldName();
+        sb.append(T2 + "if (" + name + " != null) set"
+            + StringUtils.capitalize(ci.getRelationFieldName()) + "(" + name + ");" + RT);
+
+      } else {
+        String name = code.uncapitalCamel(ci.getName());
+        sb.append(T2 + "if (" + code.recGet(name) + " != null && !skipUpdateFieldList.contains("
+            + "FIELD_" + ci.getName() + ")) " + code.set(name, code.recGetOfEntityType(ci)) + ";"
+            + RT);
+      }
     }
 
     sb.append(T1 + "}" + RT2);
