@@ -20,7 +20,7 @@ import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
 public class DaoGen extends AbstractTableOrClassRelatedGen {
 
-  private CodeGenUtil util = new CodeGenUtil();
+  private CodeGenUtil code = new CodeGenUtil();
 
   public DaoGen(DataKindEnum xmlFilePostFix) {
     super(xmlFilePostFix);
@@ -65,31 +65,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     // 宣言とコンストラクタ
     sb.append("package " + rootBasePackage + ".base." + postfixSm + ";" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
-    importMgr.add("java.util.*", "jakarta.persistence.EntityManager",
-        rootBasePackage + ".base.entity." + entityNameCp);
-    if (ti.hasUniqueConstraint()) {
-      importMgr.add("jp.ecuacion.util.jpa.dao.query.QueryCondition");
-      for (DbOrClassColumnInfo ci : ti.columnList) {
-        DataTypeInfo dtInfo = ci.getDtInfo();
-        importMgr.add(getHelper(dtInfo.getKata()).getNeededImports(ci));
-      }
-    }
-
-    // 使用するenumクラスをimport
-    for (DbOrClassColumnInfo colInfo : ti.columnList) {
-      if (colInfo.isUniqueConstraint() || colInfo.isPk()) {
-        String dataType = colInfo.getDataType();
-        DataTypeInfo dtInfo = colInfo.getDtInfo();
-        if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-          String importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-              + ".base.enums." + CodeGenUtil.dataTypeNameToUppperCamel(dataType) + "Enum";
-          importMgr.add(importClassStr);
-        }
-      }
-    }
-
-    sb.append(importMgr.outputStr() + RT);
+    createBaseDaoImport(ti, entityNameCp);
 
     MiscGroupRootInfo groupInfo = info.groupRootInfo;
 
@@ -138,8 +114,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     sb.append(T1 + "public " + entityNameCp + " selectEntityByPk"
         + "(EntityManager em, Object pkValue" + ") {" + RT);
     sb.append(T2 + "return selectEntityByPkForBaseDao(em, \"selectEntityByPk" + "\", \""
-        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getName())
-        + "\", pkValue, false);" + RT);
+        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getName()) + "\", pkValue, false);"
+        + RT);
     sb.append(T1 + "}" + RT2);
 
     sb.append(T1 + "/** " + RT);
@@ -148,8 +124,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     sb.append(T1 + "public " + entityNameCp + " selectEntityByPkForUpdate"
         + "(EntityManager em, Object pkValue" + ") {" + RT);
     sb.append(T2 + "return selectEntityByPkForBaseDao(em, \"selectEntityByPkForUpdate" + "\", \""
-        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getName())
-        + "\", pkValue, true);" + RT);
+        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getName()) + "\", pkValue, true);"
+        + RT);
     sb.append(T1 + "}" + RT2);
 
     if (ti.hasUniqueConstraint()) {
@@ -195,8 +171,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     sb.append(
         T1 + "public Long selectCountByPk" + "(EntityManager em, Object pkValue" + ") {" + RT);
     sb.append(T2 + "return selectCountForBaseDao(em, \"selectCountByPk" + "\", getParamMapFromPk(\""
-        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getName()) + "\", pkValue));"
-        + RT);
+        + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getName()) + "\", pkValue));" + RT);
     sb.append(T1 + "}" + RT2);
 
     sb.append(T1 + "/** （グループが定義されていればグループ内で）全件カウント。*/" + RT);
@@ -209,10 +184,42 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     outputFile(sb, getFilePath(postfixSm), entityNameCp + "Base" + postfixCp + ".java");
   }
 
+  private void createBaseDaoImport(DbOrClassTableInfo ti, String entityNameCp) throws AppException {
+    ImportGenUtil importMgr = new ImportGenUtil();
+    importMgr.add("java.util.*", "jakarta.persistence.EntityManager",
+        rootBasePackage + ".base.entity." + entityNameCp);
+    if (ti.hasUniqueConstraint()) {
+      importMgr.add("jp.ecuacion.util.jpa.dao.query.QueryCondition");
+      for (DbOrClassColumnInfo ci : ti.columnList) {
+        DataTypeInfo dtInfo = ci.getDtInfo();
+        importMgr.add(getHelper(dtInfo.getKata()).getNeededImports(ci));
+      }
+    }
+
+    // 使用するenumクラスをimport
+    for (DbOrClassColumnInfo colInfo : ti.columnList) {
+      if (colInfo.isUniqueConstraint() || colInfo.isPk()) {
+        String dataType = colInfo.getDataType();
+        DataTypeInfo dtInfo = colInfo.getDtInfo();
+        if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
+          String importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
+              + ".base.enums." + CodeGenUtil.dataTypeNameToUppperCamel(dataType) + "Enum";
+          importMgr.add(importClassStr);
+        }
+      }
+    }
+
+    sb.append(importMgr.outputStr() + RT);
+  }
+
   private void createBaseRepository(DbOrClassTableInfo tableInfo, String tableNameCp,
       MiscGroupRootInfo groupInfo) throws AppException {
 
     sb = new StringBuilder();
+
+    final List<DbOrClassColumnInfo> relFieldList =
+        tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> !e.isPk())
+            .filter(e -> e.isRelationColumn()).toList();
 
     List<DbOrClassColumnInfo> list = new ArrayList<>(tableInfo.columnList);
     list.addAll(info.dbCommonRootInfo.tableList.get(0).columnList);
@@ -232,6 +239,70 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     // 宣言とコンストラクタ
     sb.append("package " + rootBasePackage + ".base.repository;" + RT2);
 
+    // import
+    createBaseRepositoryImport(tableInfo, tableNameCp, relFieldList);
+
+    sb.append("public interface " + tableNameCp + "BaseRepository"
+        + " extends SystemCommonBaseRepository<" + tableNameCp
+        + ", Long>, JpaSpecificationExecutor<" + tableNameCp + "> {" + RT2);
+
+    sb.append(T1 + "/** spring data jpa標準の基本crud（findById）ではfilterが動作しないためjpql形式で定義. */" + RT);
+    sb.append(
+        T1 + "@Query(value = \"from " + tableNameCp + " where " + idFieldName + " = :id\")" + RT);
+    sb.append(T1 + "Optional<" + tableNameCp + "> findById(Long id);" + RT2);
+
+    if (tableInfo.hasUniqueConstraint()) {
+      sb.append(T1 + "/** natural keyのqueryを自動生成 */" + RT);
+      sb.append(T1 + "Optional<" + tableNameCp + "> findBy"
+          + partNaturalKeySmCamelRelConsidered.get(tableInfo.getName()) + "(" + RT);
+      sb.append(T3 + partNaturalKeyArgs.get(tableInfo.getName()) + ");" + RT2);
+    }
+
+    if (tableInfo.hasSoftDeleteFieldInludingSystemCommon()) {
+      String commonComment = "/** Used for procedures in libraries. "
+          + "Native query is used to search soft deleted records. */";
+      sb.append(T1 + commonComment + RT);
+      sb.append(T1 + "@Query(nativeQuery = true, " + RT);
+      sb.append(T3 + "value = \"select * from " + tableInfo.getName() + " where " + idColumnName
+          + " = :#{#entity." + idFieldName + "} and " + code.softDeleteColLowerSnake()
+          + " = true\")" + RT);
+      sb.append(T1 + "Optional<" + tableNameCp + "> findByIdAndSoftDeleteFieldTrueFromAllGroups"
+          + "(@Param(\"entity\") " + tableNameCp + " entity);" + RT2);
+
+      sb.append(T1 + commonComment + RT);
+      if (!tableInfo.hasUniqueConstraint()) {
+        sb.append(T1 + "/** The entity doesn't have a natural key. "
+            + "Unsatisfied condition is used in the where clause. It not called from library. */"
+            + RT);
+      }
+      sb.append(T1 + "@Query(nativeQuery = true, " + RT);
+      sb.append(T3 + "value = \"select * from " + tableInfo.getName() + " where "
+          + (tableInfo.hasUniqueConstraint() ? partNaturalKeyEntityParamSql.get(tableInfo.getName())
+              : "1 = 2")
+          + " and " + code.softDeleteColLowerSnake() + " = true\")" + RT);
+      sb.append(
+          T1 + "Optional<" + tableNameCp + "> findByNaturalKeyAndSoftDeleteFieldTrueFromAllGroups"
+              + "(@Param(\"entity\") " + tableNameCp + " entity);" + RT2);
+
+      sb.append(T1 + commonComment + RT);
+      sb.append(T1 + "@Modifying" + RT);
+      sb.append(T1 + "@Query(nativeQuery = true, " + RT);
+      sb.append(T3 + "value = \"delete from " + tableInfo.getName() + " where " + idColumnName
+          + " = :#{#entity." + idFieldName + "} and " + code.softDeleteColLowerSnake()
+          + " = true\")" + RT);
+      sb.append(T1 + "void deleteByIdAndSoftDeleteFieldTrueFromAllGroups(@Param(\"entity\") "
+          + tableNameCp + " entity);" + RT2);
+    }
+
+    createInsertOrUpdate(sb, tableInfo, relFieldList);
+
+    sb.append("}" + RT);
+
+    outputFile(sb, getFilePath("repository"), tableNameCp + "BaseRepository.java");
+  }
+
+  private void createBaseRepositoryImport(DbOrClassTableInfo tableInfo, String tableNameCp,
+      List<DbOrClassColumnInfo> relFieldList) throws AppException {
     ImportGenUtil importMgr = new ImportGenUtil();
     importMgr.add("java.util.*", rootBasePackage + ".base.entity." + tableNameCp,
         "org.springframework.data.jpa.repository.*",
@@ -260,64 +331,45 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
       }
     }
 
+    importMgr.add(
+        rootBasePackage + ".base.record." + code.capitalCamel(tableInfo.getName()) + "BaseRecord");
+    relFieldList.stream().forEach(ci -> importMgr
+        .add(rootBasePackage + ".base.entity." + code.capitalCamel(ci.getRelationRefTable())));
+    // importMgr.add("jp.ecuacion.lib.core.exception.checked.MultipleAppException");
     sb.append(importMgr.outputStr() + RT);
+  }
 
-    sb.append("public interface " + tableNameCp + "BaseRepository"
-        + " extends SystemCommonBaseRepository<" + tableNameCp
-        + ", Long>, JpaSpecificationExecutor<" + tableNameCp + "> {" + RT2);
+  private void createInsertOrUpdate(StringBuilder sb, DbOrClassTableInfo ti,
+      List<DbOrClassColumnInfo> relFieldList) {
 
-    sb.append(T1 + "/** spring data jpa標準の基本crud（findById）ではfilterが動作しないためjpql形式で定義. */" + RT);
-    sb.append(
-        T1 + "@Query(value = \"from " + tableNameCp + " where " + idFieldName + " = :id\")" + RT);
-    sb.append(T1 + "Optional<" + tableNameCp + "> findById(Long id);" + RT2);
+    final String idField = code.capitalCamel(ti.getPkColumn().getName());
 
-    if (tableInfo.hasUniqueConstraint()) {
-      sb.append(T1 + "/** natural keyのqueryを自動生成 */" + RT);
-      sb.append(T1 + "Optional<" + tableNameCp + "> findBy"
-          + partNaturalKeySmCamelRelConsidered.get(tableInfo.getName()) + "(" + RT);
-      sb.append(T3 + partNaturalKeyArgs.get(tableInfo.getName()) + ");" + RT2);
-    }
+    sb.append(T1 + "/** Is a utility to insert or update an entity. */" + RT);
+    StringBuilder relString = new StringBuilder();
+    relFieldList.stream().forEach(ci -> relString.append(
+        ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
+    sb.append(T1 + "default void insertOrUpdate(" + code.capitalCamel(ti.getName())
+        + "BaseRecord recForInsert, " + code.capitalCamel(ti.getName()) + " entityForUpdate"
+        + relString + ", String... skipUpdateFields) {" + RT);
+    sb.append(T2 + code.capitalCamel(ti.getName()) + " e = null;" + RT);
+    sb.append(T2 + "boolean isInsert = recForInsert.get" + idField
+        + "() == null || recForInsert.get" + idField + "().equals(\"\");" + RT2);
 
-    if (tableInfo.hasSoftDeleteFieldInludingSystemCommon()) {
-      String commonComment = "/** Used for procedures in libraries. "
-          + "Native query is used to search soft deleted records. */";
-      sb.append(T1 + commonComment + RT);
-      sb.append(T1 + "@Query(nativeQuery = true, " + RT);
-      sb.append(T3 + "value = \"select * from " + tableInfo.getName() + " where "
-          + idColumnName + " = :#{#entity." + idFieldName + "} and "
-          + util.softDeleteColLowerSnake() + " = true\")" + RT);
-      sb.append(T1 + "Optional<" + tableNameCp + "> findByIdAndSoftDeleteFieldTrueFromAllGroups"
-          + "(@Param(\"entity\") " + tableNameCp + " entity);" + RT2);
-
-      sb.append(T1 + commonComment + RT);
-      if (!tableInfo.hasUniqueConstraint()) {
-        sb.append(T1 + "/** The entity doesn't have a natural key. "
-            + "Unsatisfied condition is used in the where clause. It not called from library. */"
-            + RT);
-      }
-      sb.append(T1 + "@Query(nativeQuery = true, " + RT);
-      sb.append(T3 + "value = \"select * from " + tableInfo.getName() + " where "
-          + (tableInfo.hasUniqueConstraint()
-              ? partNaturalKeyEntityParamSql.get(tableInfo.getName())
-              : "1 = 2")
-          + " and " + util.softDeleteColLowerSnake() + " = true\")" + RT);
-      sb.append(
-          T1 + "Optional<" + tableNameCp + "> findByNaturalKeyAndSoftDeleteFieldTrueFromAllGroups"
-              + "(@Param(\"entity\") " + tableNameCp + " entity);" + RT2);
-
-      sb.append(T1 + commonComment + RT);
-      sb.append(T1 + "@Modifying" + RT);
-      sb.append(T1 + "@Query(nativeQuery = true, " + RT);
-      sb.append(T3 + "value = \"delete from " + tableInfo.getName() + " where " + idColumnName
-          + " = :#{#entity." + idFieldName + "} and " + util.softDeleteColLowerSnake()
-          + " = true\")" + RT);
-      sb.append(T1 + "void deleteByIdAndSoftDeleteFieldTrueFromAllGroups(@Param(\"entity\") "
-          + tableNameCp + " entity);" + RT2);
-    }
-
-    sb.append("}" + RT);
-
-    outputFile(sb, getFilePath("repository"), tableNameCp + "BaseRepository.java");
+    sb.append(T2 + "if (isInsert) {" + RT);
+    sb.append(T3 + "e = new " + code.capitalCamel(ti.getName()) + "(recForInsert);" + RT);
+    relFieldList.stream()
+        .forEach(ci -> sb.append(T3 + "e.set" + code.capitalCamel(ci.getRelationFieldName()) + "("
+            + code.uncapitalCamel(ci.getRelationFieldName()) + ");" + RT));
+    sb.append(RT);
+    sb.append(T2 + "} else {" + RT);
+    sb.append(T3 + "e = entityForUpdate;" + RT);
+    StringBuilder relString2 = new StringBuilder();
+    relFieldList.stream().filter(ci -> !ci.isGroupColumn())
+        .forEach(ci -> relString2.append(", " + ci.getRelationFieldName()));
+    sb.append(T3 + "e.update(recForInsert" + relString2 + ");" + RT);
+    sb.append(T2 + "}" + RT2);
+    sb.append(T2 + "save(e);" + RT);
+    sb.append(T1 + "}" + RT);
   }
 
   private void createSystemCommonBaseDao() {
