@@ -66,8 +66,6 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     importMgr.add("java.io.Serializable");
     // persistence
     importMgr.add("jakarta.persistence.*");
-    // ecuacion-lib
-    importMgr.add(EclibCoreConstants.PKG + ".exception.checked.*");
 
     // validationを使う場合は追加
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
@@ -390,12 +388,13 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
   protected void appendRecConstructor(StringBuilder sb, DbOrClassTableInfo tableInfo,
       String entityNameCp) {
     // recを引数としたコンストラクタ
-    sb.append(T1 + "/** recordを引数にとるコンストラクタ */" + RT);
+    sb.append(T1 + "/** A constructor with record argument */" + RT);
     // BaseRecordの前の部分に"Pk"が入らないように、あえてPkがつかない名前を取得している
-    sb.append(T1 + "public " + entityNameCp + "("
-        + (this instanceof SystemCommonEntityGen ? "SystemCommon"
-            : StringUtil.getUpperCamelFromSnake(tableInfo.getName()))
-        + "BaseRecord rec) throws MultipleAppException {" + RT);
+    sb.append(
+        T1 + "public " + entityNameCp + "("
+            + (this instanceof SystemCommonEntityGen ? "SystemCommon"
+                : StringUtil.getUpperCamelFromSnake(tableInfo.getName()))
+            + "BaseRecord rec) {" + RT);
     sb.append(T2 + "super("
         + ((getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY) ? "rec" : "") + ");" + RT);
 
