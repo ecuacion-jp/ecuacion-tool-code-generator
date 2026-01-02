@@ -563,8 +563,8 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
       } else {
         String name = code.uncapitalCamel(ci.getName());
         sb.append(T2 + "if (" + code.recGet(name) + " != null && !skipUpdateFieldList.contains("
-            + "FIELD_" + ci.getName() + ")) rec." + code.set(name, code.getFromEntityToRec(ci))
-            + ";" + RT);
+            + "FIELD_" + ci.getName() + ")) "
+            + code.set(name, "rec." + code.getOfEntityDataType(ci)) + ";" + RT);
       }
     }
 
