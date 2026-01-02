@@ -17,6 +17,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.AbstractTableOrClassRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
+import org.apache.commons.lang3.StringUtils;
 
 public class DaoGen extends AbstractTableOrClassRelatedGen {
 
@@ -296,6 +297,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
 
     createInsertOrUpdate(sb, tableInfo, relFieldList);
 
+    naturalKeyDuplicatedCheck(sb, tableInfo, relFieldList);
+
     sb.append("}" + RT);
 
     outputFile(sb, getFilePath("repository"), tableNameCp + "BaseRepository.java");
@@ -335,7 +338,10 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
         rootBasePackage + ".base.record." + code.capitalCamel(tableInfo.getName()) + "BaseRecord");
     relFieldList.stream().forEach(ci -> importMgr
         .add(rootBasePackage + ".base.entity." + code.capitalCamel(ci.getRelationRefTable())));
-    // importMgr.add("jp.ecuacion.lib.core.exception.checked.MultipleAppException");
+    if (tableInfo.hasUniqueConstraint()) {
+      importMgr.add("jp.ecuacion.lib.core.exception.checked.BizLogicAppException");
+    }
+    
     sb.append(importMgr.outputStr() + RT);
   }
 
@@ -369,6 +375,40 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     sb.append(T3 + "e.update(recForInsert" + relString2 + ");" + RT);
     sb.append(T2 + "}" + RT2);
     sb.append(T2 + "save(e);" + RT);
+    sb.append(T1 + "}" + RT2);
+  }
+
+  private void naturalKeyDuplicatedCheck(StringBuilder sb, DbOrClassTableInfo ti,
+      List<DbOrClassColumnInfo> relFieldList) {
+    if (!ti.hasUniqueConstraint()) {
+      return;
+    }
+    
+    String entityName = code.capitalCamel(ti.getName());
+    sb.append(T1 + "default void naturalKeyDuplicatedCheck(" + entityName
+        + "BaseRecord rec) throws BizLogicAppException {" + RT);
+    sb.append(T2 + "Optional<" + entityName + "> optional = findBy"
+        + StringUtils.capitalize(partNaturalKeySmCamelRelConsidered.get(ti.getName())) + "(");
+
+    boolean is1st = true;
+    for (DbOrClassColumnInfo ci : ti.columnList) {
+      if (ci.isUniqueConstraint()) {
+        if (is1st) {
+          is1st = false;
+          
+        } else {
+          sb.append(", ");
+        }
+
+        sb.append("rec." + code.getOfEntityDataType(ci));
+      }
+    }
+
+    sb.append(");" + RT2);
+    sb.append(T2 + "if (optional.isPresent()) {" + RT);
+    sb.append(
+        T3 + "throw new BizLogicAppException(\"jp\");" + RT);
+    sb.append(T2 + "}" + RT);
     sb.append(T1 + "}" + RT);
   }
 
