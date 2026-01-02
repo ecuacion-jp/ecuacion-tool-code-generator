@@ -31,11 +31,7 @@ public class CodeGenUtil {
       ListUtils.union(ListUtils.union(numberDataTypeList, dateTimeDataTypeList),
           Arrays.asList(new DataTypeKataEnum[] {DataTypeKataEnum.ENUM}));
 
-  private Info info;
-
-  public CodeGenUtil() {
-    this.info = MainController.tlInfo.get();
-  }
+  private Info info = MainController.tlInfo.get();
 
   /**
    * Returns true when the argument string is snake format.
@@ -100,6 +96,79 @@ public class CodeGenUtil {
     }
   }
 
+  /**
+   * Changes data type name format: "DT_XXX" to capitalized camel case.
+   */
+  public static String dataTypeNameToUppperCamel(String str) {
+    return StringUtil.getUpperCamelFromSnake(str.substring(3));
+  }
+
+  public String getFromEntityToRec(DbOrClassColumnInfo ci) {
+    if (ci.getDtInfo().getKata() == DataTypeKataEnum.ENUM) {
+      return "get" + capitalCamel(ci.getName()) + "()" + ".getCode()";
+
+    } else if (numberDataTypeList.contains(ci.getDtInfo().getKata())) {
+      String getter = "get" + capitalCamel(ci.getName()) + "()";
+      return getter + " == null ? null : " + getter + ".toString()";
+
+    } else {
+      return "get" + capitalCamel(ci.getName()) + "()";
+    }
+  }
+
+  /**
+   * Record: ofEntityDataType
+   */
+  public String getOfEntityDataType(DbOrClassColumnInfo ci) {
+    return createStringFromColumnInfo(ci, FormatType.GET_CONNECTED_OF_ENTITY_DATA_TYPE);
+  }
+
+  public String createStringFromColumnInfo(DbOrClassColumnInfo ci, FormatType formatType) {
+    StringBuilder sb = new StringBuilder();
+    boolean is1st = true;
+
+    DbOrClassColumnInfo currentCi = ci;
+    while (true) {
+      if (is1st) {
+        is1st = false;
+
+      } else {
+        sb.append(".");
+      }
+
+      if (formatType == FormatType.GET_CONNECTED
+          || formatType == FormatType.GET_CONNECTED_OF_ENTITY_DATA_TYPE) {
+        if (currentCi.isRelationColumn()) {
+          sb.append("get" + capitalCamel(currentCi.getRelationFieldName()) + "()");
+
+        } else {
+          String postfix =
+              ofEntityTypeMethodAvailableDataTypeList.contains(ci.getDtInfo().getKata())
+                  ? "OfEntityDataType"
+                  : "";
+          sb.append("get" + capitalCamel(currentCi.getName()) + postfix + "()");
+        }
+      }
+
+      if (currentCi.isRelationColumn()) {
+        String tab = currentCi.getRelationRefTable();
+        String col = currentCi.getRelationRefCol();
+        currentCi = info.dbRootInfo.tableList.stream().filter(e -> e.getName().equals(tab)).toList()
+            .get(0).columnList.stream().filter(e -> e.getName().equals(col)).toList().get(0);
+
+      } else {
+        break;
+      }
+    }
+
+    return sb.toString();
+  }
+
+  private static enum FormatType {
+    GET_CONNECTED, GET_CONNECTED_OF_ENTITY_DATA_TYPE
+  }
+
+
   /*
    * var
    */
@@ -145,13 +214,6 @@ public class CodeGenUtil {
     return "if (" + recGet(fieldOrColumnName) + " != null) ";
   }
 
-  public String recGetOfEntityType(DbOrClassColumnInfo ci) throws BizLogicAppException {
-    String postfix = ofEntityTypeMethodAvailableDataTypeList.contains(ci.getDtInfo().getKata())
-        ? "OfEntityDataType"
-        : "";
-    return "rec.get" + capitalCamel(ci.getName()) + postfix + "()";
-  }
-
   /** Account.mailAddress の形式の文字列を生成. */
   public String classDotField(String tableName, DbOrClassColumnInfo columnInfo) {
     return StringUtil.getUpperCamelFromSnake(tableName) + "."
@@ -168,12 +230,5 @@ public class CodeGenUtil {
 
   public String softDeleteColLowerSnake() {
     return info.removedDataRootInfo.getColumnName().toLowerCase();
-  }
-
-  /**
-   * changeForDataTypeについて すべて"DT_"で始まるが、そこは不要なので、ひとまずはずし、あとはchangiInitCaptalと同じ。
-   */
-  public static String dataTypeNameToUppperCamel(String str) {
-    return StringUtil.getUpperCamelFromSnake(str.substring(3));
   }
 }
