@@ -34,6 +34,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
+  private CodeGenUtil code = new CodeGenUtil();
+
   public BaseRecordGen(DataKindEnum dataKind) {
     super(dataKind);
   }
@@ -154,11 +156,19 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
   }
 
   protected void fieldDefinition(String tableName, DbOrClassColumnInfo ci) {
-    String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getName());
-    String refEntityNameLw = ci.getRelationRefTable() == null ? null
+    final String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getName());
+    final String refEntityNameLw = ci.getRelationRefTable() == null ? null
         : StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
     DataTypeInfo dtInfo = ci.getDtInfo();
-    String kata = dtInfo.getKata() == BOOLEAN ? "Boolean" : "String";
+
+    if (dtInfo.getKata() == DATE_TIME) {
+      sb.append(T1 + "/** The argument dataType of setters of datetime fields are not string "
+          + "because it's so rare that the user input datetime format string directly on screen "
+          + "and you don't have to care about receiving string of date-time format.  */" + RT);
+    }
+    String kata = dtInfo.getKata() == BOOLEAN || dtInfo.getKata() == DATE_TIME
+        ? code.capitalCamel(getEnumConsideredKata(dtInfo))
+        : "String";
 
     sb.append(AnnotationGenUtil.getCode(ci.getValidatorList(false), ElementType.FIELD));
 
@@ -383,7 +393,8 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
         }
 
       } else {
-        if (dtInfo.getKata() == STRING || dtInfo.getKata() == BOOLEAN) {
+        if (dtInfo.getKata() == STRING || dtInfo.getKata() == BOOLEAN
+            || dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME) {
           sb.append(
               T2 + "this." + fieldNameLc + " = e" + getPk + ".get" + fieldNameUc + "();" + RT);
         } else if (dtInfo.getKata() == ENUM) {
@@ -397,8 +408,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
               + "() == null) ? \"\" : " + kata + ".toString(e" + getPk + ".get" + fieldNameUc
               + "());" + RT);
 
-        } else if (dtInfo.getKata() == DATE || dtInfo.getKata() == TIME
-            || dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME) {
+        } else if (dtInfo.getKata() == DATE || dtInfo.getKata() == TIME) {
           String forTimeZone = dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME
               ? ".withOffsetSameInstant(params.getZoneOffset())"
               : "";
@@ -469,15 +479,21 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       String columnNameCp = StringUtil.getUpperCamelFromSnake(ci.getName());
       String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getName());
-      String lefthand = "rec.get" + columnNameCp + "()";
+      String lefthand = "rec.get" + columnNameCp;
 
       if (ci.isRelationColumn()) {
         sb.append(T2 + "this." + ci.getRelationFieldName() + " = new "
             + StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable()) + "BaseRecord("
             + (hasTableAnyRelationsOrRefs(ci.getRelationRefTable()) ? "count" : "") + ") {};" + RT);
       }
-      sb.append(T2 + "this." + (ci.isRelationColumn() ? "set" + columnNameCp + "(" + lefthand + ")"
-          : columnNameSm + " = " + lefthand) + ";" + RT);
+      sb.append(
+          T2 + "this."
+              + (ci.isRelationColumn() ? "set" + columnNameCp + "(" + lefthand + "())"
+                  : columnNameSm + " = " + lefthand
+                      + (ci.getDtInfo().getKata() == DATE_TIME
+                          || ci.getDtInfo().getKata() == TIMESTAMP ? "OfEntityDataType" : "")
+                      + "()")
+              + ";" + RT);
     }
   }
 
@@ -492,20 +508,35 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       sb.append(T1 + "// accessor:" + fieldNameLc + RT);
 
       DataTypeInfo dtInfo = ci.getDtInfo();
-      String recKata = dtInfo.getKata() == BOOLEAN ? "Boolean" : "String";
+      String recGetKata =
+          dtInfo.getKata() == BOOLEAN ? code.capitalCamel(dtInfo.getKata().toString()) : "String";
+      final String recSetKata = dtInfo.getKata() == BOOLEAN || dtInfo.getKata() == DATE_TIME
+          || dtInfo.getKata() == TIMESTAMP ? code.capitalCamel(getEnumConsideredKata(dtInfo))
+              : "String";
       final String javaKata = getEnumConsideredKata(dtInfo);
 
-      sb.append(T1 + "public " + recKata + " get" + fieldNameUc + "() {" + RT);
-      sb.append(T2 + "return "
-          + (ci.isRelationColumn()
-              ? ci.getRelationFieldName() + " == null ? null : " + ci.getRelationFieldName()
-                  + ".get" + relFieldNameUc + "()"
-              : fieldNameLc)
-          + ";" + RT);
+      sb.append(T1 + "public " + recGetKata + " get" + fieldNameUc + "() {" + RT);
+
+      if (ci.getDtInfo().getKata() == DATE_TIME || ci.getDtInfo().getKata() == TIMESTAMP) {
+        String forTimeZone = dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME
+            ? ".withOffsetSameInstant(dateTimeFormatParams.getZoneOffset())"
+            : "";
+        sb.append(T2 + "return " + fieldNameLc + " == null ? \"\" : " + fieldNameLc + forTimeZone
+            + ".format(DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
+            + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "Format()));" + RT);
+
+      } else {
+        sb.append(T2 + "return "
+            + (ci.isRelationColumn()
+                ? ci.getRelationFieldName() + " == null ? null : " + ci.getRelationFieldName()
+                    + ".get" + relFieldNameUc + "()"
+                : fieldNameLc)
+            + ";" + RT);
+      }
       sb.append(T1 + "}" + RT2);
 
       sb.append(
-          T1 + "public void set" + fieldNameUc + "(" + recKata + " " + fieldNameLc + ") {" + RT);
+          T1 + "public void set" + fieldNameUc + "(" + recSetKata + " " + fieldNameLc + ") {" + RT);
       sb.append(T2 + "this."
           + (ci.isRelationColumn()
               ? ci.getRelationFieldName() + ".set" + relFieldNameUc + "(" + fieldNameLc + ")"
@@ -514,27 +545,35 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       sb.append(T1 + "}" + RT2);
 
       // entityとの連携のために、entityのデータ型でデータ取得するgetterを追加
-      if (!ci.isRelationColumn()
-          && (CodeGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata()))) {
+      if (CodeGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata())) {
 
         sb.append(T1 + "public " + javaKata + " get" + fieldNameUc + "OfEntityDataType() {" + RT);
-        sb.append(T2 + "return (" + fieldNameLc + " == null || " + fieldNameLc
-            + ".equals(\"\")) ? null :" + RT);
 
-        if (CodeGenUtil.dateTimeDataTypeList.contains(dtInfo.getKata())) {
-          sb.append(T4 + javaKata + ".parse(" + fieldNameLc
-              + ", DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
-              + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "Format()));"
-              + RT);
-
-        } else if (dtInfo.getKata() == ENUM) {
-          sb.append(
-              T4 + "EnumUtil.getEnumFromCode(" + javaKata + ".class, " + fieldNameLc + ");" + RT);
+        if (dtInfo.getKata() == DATE_TIME || dtInfo.getKata() == TIMESTAMP) {
+          sb.append(T2 + "return " + code.uncapitalCamel(ci.getName()) + ";" + RT);
 
         } else {
-          sb.append(T4 + javaKata + ".valueOf(" + fieldNameLc + ".replaceAll(\",\", \"\"));" + RT);
-        }
+          sb.append(T2 + "return (get" + fieldNameUc + "() == null || get" + fieldNameUc
+              + "().equals(\"\")) ? null :" + RT);
 
+          if (ci.isRelationColumn()) {
+            sb.append(T4 + "get" + fieldNameUc + "OfEntityDataType();" + RT);
+            
+          } else if (dtInfo.getKata() == DATE || dtInfo.getKata() == TIME) {
+            sb.append(T4 + javaKata + ".parse(" + fieldNameLc
+                + ", DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
+                + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "Format()));"
+                + RT);
+
+          } else if (dtInfo.getKata() == ENUM) {
+            sb.append(
+                T4 + "EnumUtil.getEnumFromCode(" + javaKata + ".class, " + fieldNameLc + ");" + RT);
+
+          } else {
+            sb.append(
+                T4 + javaKata + ".valueOf(" + fieldNameLc + ".replaceAll(\",\", \"\"));" + RT);
+          }
+        }
         sb.append(T1 + "}" + RT2);
       }
 
@@ -552,6 +591,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
         }
       }
     }
+
   }
 
   private void createAccessorForRelation(String relEntityNameLw, String relFieldName,
