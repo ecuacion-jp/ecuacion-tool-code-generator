@@ -170,12 +170,12 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
         // importMgr.add("jp.ecuacion.lib.core.util.EnumUtil");
 
         String importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-            + ".base.enums." + CodeGenUtil.dataTypeNameToUppperCamel(dataType) + "Enum";
+            + ".base.enums." + CodeGenUtil.dataTypeNameToCapitalCamel(dataType) + "Enum";
         importMgr.add(importClassStr);
         // batch（javaSE環境）だと@ConverterにautoApply =
         // trueをつけても無視され、明示的に@Convertタグを書く必要がある関係で、Converterのimportが必要
         importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-            + ".base.converter." + CodeGenUtil.dataTypeNameToUppperCamel(dataType) + "Converter";
+            + ".base.converter." + CodeGenUtil.dataTypeNameToCapitalCamel(dataType) + "Converter";
         importMgr.add(importClassStr);
       }
     }
@@ -452,7 +452,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     DataTypeInfo dtInfo = ci.getDtInfo();
     String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getName());
     String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
-    String kataUc = getEnumConsideredKata(dtInfo);
+    String kataUc = code.getEnumConsideredKata(dtInfo);
 
     // relationがある場合は、インスタンス生成を行う
     String relFieldNameUc = StringUtils.capitalize(ci.getRelationFieldName());
@@ -634,7 +634,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
   }
 
   protected String getEnumConsideredKata(DbOrClassColumnInfo colInfo) {
-    return getEnumConsideredKata(colInfo.getDtInfo());
+    return code.getEnumConsideredKata(colInfo.getDtInfo());
   }
 
   private LinkedHashMap<String, String> createSortedMapForPropFile(String lang,
