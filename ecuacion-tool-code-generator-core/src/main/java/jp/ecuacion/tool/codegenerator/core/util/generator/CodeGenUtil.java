@@ -1,14 +1,16 @@
 package jp.ecuacion.tool.codegenerator.core.util.generator;
 
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
+import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import org.apache.commons.collections4.ListUtils;
@@ -75,7 +77,7 @@ public class CodeGenUtil {
   }
 
   /*
-   * cases
+   * cases / formats
    */
 
   public String uncapitalCamel(String camelOrSnakeString) {
@@ -99,31 +101,47 @@ public class CodeGenUtil {
   /**
    * Changes data type name format: "DT_XXX" to capitalized camel case.
    */
-  public static String dataTypeNameToUppperCamel(String str) {
+  public static String dataTypeNameToCapitalCamel(String str) {
     return StringUtil.getUpperCamelFromSnake(str.substring(3));
   }
 
-  public String getFromEntityToRec(DbOrClassColumnInfo ci) {
-    if (ci.getDtInfo().getKata() == DataTypeKataEnum.ENUM) {
-      return "get" + capitalCamel(ci.getName()) + "()" + ".getCode()";
+  /**
+   * Returns the datatype when you use the definition of the field in entities.
+   */
+  public String getEnumConsideredKata(DataTypeInfo dtInfo) {
+    String rtn = null;
 
-    } else if (numberDataTypeList.contains(ci.getDtInfo().getKata())) {
-      String getter = "get" + capitalCamel(ci.getName()) + "()";
-      return getter + " == null ? null : " + getter + ".toString()";
+    if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
+      rtn = CodeGenUtil.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName())
+          + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString());
+
+    } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
+        || dtInfo.getKata() == DataTypeKataEnum.DATE_TIME) {
+      rtn = (dtInfo.getNotNeedsTimezone()) ? "LocalDateTime" : "OffsetDateTime";
+
+    } else if (dtInfo.getKata() == DataTypeKataEnum.DATE) {
+      rtn = "LocalDate";
+
+    } else if (dtInfo.getKata() == DataTypeKataEnum.TIME) {
+      rtn = "LocalTime";
 
     } else {
-      return "get" + capitalCamel(ci.getName()) + "()";
+      rtn = StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString());
     }
+
+    return rtn;
   }
+
+  /*
+   * columns related common
+   */
 
   /**
-   * Record: ofEntityDataType
+   * Generatos column related string like getter.
+   * 
+   * <p>The feature of this method is for relation to be considered.</p>
    */
-  public String getOfEntityDataType(DbOrClassColumnInfo ci) {
-    return createStringFromColumnInfo(ci, FormatType.GET_CONNECTED_OF_ENTITY_DATA_TYPE);
-  }
-
-  public String createStringFromColumnInfo(DbOrClassColumnInfo ci, FormatType formatType) {
+  private String generateString(DbOrClassColumnInfo ci, ColFormat formatType) {
     StringBuilder sb = new StringBuilder();
     boolean is1st = true;
 
@@ -133,11 +151,16 @@ public class CodeGenUtil {
         is1st = false;
 
       } else {
-        sb.append(".");
+        if (formatType == ColFormat.GET_CONNECTED
+            || formatType == ColFormat.GET_CONNECTED_OF_ENTITY_DATA_TYPE) {
+          sb.append(".");
+
+        }
+
       }
 
-      if (formatType == FormatType.GET_CONNECTED
-          || formatType == FormatType.GET_CONNECTED_OF_ENTITY_DATA_TYPE) {
+      if (formatType == ColFormat.GET_CONNECTED
+          || formatType == ColFormat.GET_CONNECTED_OF_ENTITY_DATA_TYPE) {
         if (currentCi.isRelationColumn()) {
           sb.append("get" + capitalCamel(currentCi.getRelationFieldName()) + "()");
 
@@ -164,10 +187,146 @@ public class CodeGenUtil {
     return sb.toString();
   }
 
-  private static enum FormatType {
+  /**
+   * Generates a multiple columns connected string.
+   */
+  private String generateString(List<DbOrClassColumnInfo> ciList, ColListFormat formatType) {
+    StringBuilder sb = new StringBuilder();
+    
+    boolean is1st = true;
+    for (DbOrClassColumnInfo ci : ciList) {
+      DataTypeInfo dtInfo = ci.getDtInfo();
+      String colNameUc = StringUtil.getUpperCamelFromSnake(ci.getName());
+      String colNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
+      String colNameUcRelUnderscore = !ci.isRelationColumn() ? colNameUc
+          : StringUtil.getUpperCamelFromSnake(ci.getRelationFieldName()) + "_"
+              + StringUtil.getUpperCamelFromSnake(ci.getRelationRefCol());
+
+      if (is1st) {
+        is1st = false;
+
+      } else {
+        switch (formatType.betweenColumns) {
+          case PADDED_COMMA -> sb.append(", ");
+          case PADDED_AND -> sb.append(" and ");
+          case AND -> sb.append("And");
+          default -> sb.append("");
+        }
+      }
+
+      switch (formatType) {
+        case ENTITY_GET -> sb.append("e.get" + capitalCamel(ci.getName()) + "()");
+        case ENTITY_DEFINE -> sb.append((getEnumConsideredKata(dtInfo)) + " "
+            + StringUtil.getLowerCamelFromSnake(ci.getName()));
+        case JPQL -> sb.append(ci.getName().toLowerCase() + " = :" + colNameLc);
+        case SQL_PARAM -> sb.append(ci.getName().toLowerCase() + " = :#{#entity."
+            + StringUtil.getLowerCamelFromSnake(ci.getName())
+            + (ci.getDtInfo().getKata() == DataTypeKataEnum.ENUM ? ".code" : "") + "}");
+        case UNCAPITAL_CAMEL_AND -> sb
+            .append((is1st ? StringUtils.uncapitalize(colNameUc) : colNameUc));
+        case UNCAPITAL_CAMEL_AND_REL_CONSIDERED -> sb.append(
+            (is1st ? StringUtils.uncapitalize(colNameUcRelUnderscore) : colNameUcRelUnderscore));
+        default -> throw new EclibRuntimeException("ColListFormat not designated.");
+      }
+    }
+
+    return sb.toString();
+  }
+  
+  private static enum ColFormat {
     GET_CONNECTED, GET_CONNECTED_OF_ENTITY_DATA_TYPE
   }
 
+  private static enum ColListFormat {
+    /** naturalKeyをentityからgetする形の "myArg1MyArg2" という形式 */
+    JPQL(BetweenColumns.PADDED_AND),
+
+    /**
+     * naturalKeyをsqlの引数にする形の"my_arg_1 = :#{#entity.myArg1} and my_arg_2 = :#{#entity.myArg2}"
+     * という形式
+     */
+    SQL_PARAM(BetweenColumns.PADDED_AND),
+
+    /** naturalKeyをentityからgetする形の "myArg1AndMyArg2" という文字列を保持。table別にmap形式。 */
+    UNCAPITAL_CAMEL_AND(BetweenColumns.AND),
+
+    /**
+     * naturalKeyをentityからgetする形の "myArg1AndMyArg2" という文字列を保持。table別にmap形式。
+     * ただしnaturalKeyがrelationを持つ場合はAcc_IdAndApp_Idのようになる。repositoryでの使用を想定。
+     */
+    UNCAPITAL_CAMEL_AND_REL_CONSIDERED(BetweenColumns.AND),
+
+    /** naturalKeyをentityからgetする形の "e.getMyArg1(), e.getMyArg2()" という文字列を保持。table別にmap形式。 */
+    ENTITY_GET(BetweenColumns.PADDED_COMMA),
+
+    /** naturalKeyを引数にとる時の "String myArg1, Integer myArg2" という文字列を保持。table別にmap形式。 */
+    ENTITY_DEFINE(BetweenColumns.PADDED_COMMA);
+    
+    private BetweenColumns betweenColumns;
+    
+    private ColListFormat(BetweenColumns betweenColumns) {
+      this.betweenColumns = betweenColumns;
+    }
+  }
+
+  private static enum BetweenColumns {
+    NONE, PADDED_COMMA, AND, PADDED_AND
+  }
+
+  /*
+   * Record
+   */
+
+  /**
+   * Generates getter with "OfEntityDataType" if it exists.
+   */
+  public String getOfEntityDataType(DbOrClassColumnInfo ci) {
+    return generateString(ci, ColFormat.GET_CONNECTED_OF_ENTITY_DATA_TYPE);
+  }
+
+  /*
+   * Entity
+   */
+
+  /**
+   * Obtains a value from entity for substituting into record field.
+   */
+  public String getFromEntityToRec(DbOrClassColumnInfo ci) {
+    if (ci.getDtInfo().getKata() == DataTypeKataEnum.ENUM) {
+      return "get" + capitalCamel(ci.getName()) + "()" + ".getCode()";
+
+    } else if (numberDataTypeList.contains(ci.getDtInfo().getKata())) {
+      String getter = "get" + capitalCamel(ci.getName()) + "()";
+      return getter + " == null ? null : " + getter + ".toString()";
+
+    } else {
+      return "get" + capitalCamel(ci.getName()) + "()";
+    }
+  }
+
+  public String naturalKeyDefine(DbOrClassTableInfo ti) {
+    return generateString(ti.columnList.stream().filter(ci -> ci.isUniqueConstraint()).toList(),
+        ColListFormat.ENTITY_DEFINE);
+  }
+
+  /*
+   * repository
+   */
+
+  public String naturalKeySqlParams(DbOrClassTableInfo ti) {
+    return generateString(ti.columnList.stream().filter(ci -> ci.isUniqueConstraint()).toList(),
+        ColListFormat.SQL_PARAM);
+  }
+
+  public String naturalKeyUncapitalCamelAnd(DbOrClassTableInfo ti) {
+    return generateString(ti.columnList.stream().filter(ci -> ci.isUniqueConstraint()).toList(),
+        ColListFormat.UNCAPITAL_CAMEL_AND);
+  }
+
+  public String naturalKeyUncapitalCamelAndRelConsidered(DbOrClassTableInfo ti) {
+    return generateString(ti.columnList.stream().filter(ci -> ci.isUniqueConstraint()).toList(),
+        ColListFormat.UNCAPITAL_CAMEL_AND_REL_CONSIDERED);
+  }
 
   /*
    * var
