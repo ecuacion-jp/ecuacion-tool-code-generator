@@ -134,8 +134,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
       sb.append(T1 + " * surrogateKeyを使用している場合に、naturalKeyでselect。" + RT);
       sb.append(T1 + " */" + RT);
       sb.append(T1 + "public " + entityNameCp + " selectEntityBy"
-          + partNaturalKeySmCamel.get(ti.getName()) + "(EntityManager em," + RT);
-      sb.append(T3 + partNaturalKeyArgs.get(ti.getName()) + ") {" + RT);
+          + code.naturalKeyUncapitalCamelAnd(ti) + "(EntityManager em," + RT);
+      sb.append(T3 + code.naturalKeyDefine(ti) + ") {" + RT);
       sb.append(T2 + "QueryCondition[] queryConditions = new QueryCondition[] {" + RT);
       boolean is1st = true;
       for (DbOrClassColumnInfo ci : ti.columnList) {
@@ -204,7 +204,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
         DataTypeInfo dtInfo = colInfo.getDtInfo();
         if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
           String importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-              + ".base.enums." + CodeGenUtil.dataTypeNameToUppperCamel(dataType) + "Enum";
+              + ".base.enums." + CodeGenUtil.dataTypeNameToCapitalCamel(dataType) + "Enum";
           importMgr.add(importClassStr);
         }
       }
@@ -255,8 +255,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     if (tableInfo.hasUniqueConstraint()) {
       sb.append(T1 + "/** natural keyのqueryを自動生成 */" + RT);
       sb.append(T1 + "Optional<" + tableNameCp + "> findBy"
-          + partNaturalKeySmCamelRelConsidered.get(tableInfo.getName()) + "(" + RT);
-      sb.append(T3 + partNaturalKeyArgs.get(tableInfo.getName()) + ");" + RT2);
+          + code.naturalKeyUncapitalCamelAndRelConsidered(tableInfo) + "(" + RT);
+      sb.append(T3 + code.naturalKeyDefine(tableInfo) + ");" + RT2);
     }
 
     if (tableInfo.hasSoftDeleteFieldInludingSystemCommon()) {
@@ -278,8 +278,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
       }
       sb.append(T1 + "@Query(nativeQuery = true, " + RT);
       sb.append(T3 + "value = \"select * from " + tableInfo.getName() + " where "
-          + (tableInfo.hasUniqueConstraint() ? partNaturalKeyEntityParamSql.get(tableInfo.getName())
-              : "1 = 2")
+          + (tableInfo.hasUniqueConstraint() ? code.naturalKeySqlParams(tableInfo) : "1 = 2")
           + " and " + code.softDeleteColLowerSnake() + " = true\")" + RT);
       sb.append(
           T1 + "Optional<" + tableNameCp + "> findByNaturalKeyAndSoftDeleteFieldTrueFromAllGroups"
@@ -328,7 +327,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
         DataTypeInfo dtInfo = colInfo.getDtInfo();
         if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
           String importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-              + ".base.enums." + CodeGenUtil.dataTypeNameToUppperCamel(dataType) + "Enum";
+              + ".base.enums." + CodeGenUtil.dataTypeNameToCapitalCamel(dataType) + "Enum";
           importMgr.add(importClassStr);
         }
       }
@@ -341,7 +340,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     if (tableInfo.hasUniqueConstraint()) {
       importMgr.add("jp.ecuacion.lib.core.exception.checked.BizLogicAppException");
     }
-    
+
     sb.append(importMgr.outputStr() + RT);
   }
 
@@ -383,19 +382,19 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     if (!ti.hasUniqueConstraint()) {
       return;
     }
-    
+
     String entityName = code.capitalCamel(ti.getName());
     sb.append(T1 + "default void naturalKeyDuplicatedCheck(" + entityName
         + "BaseRecord rec) throws BizLogicAppException {" + RT);
     sb.append(T2 + "Optional<" + entityName + "> optional = findBy"
-        + StringUtils.capitalize(partNaturalKeySmCamelRelConsidered.get(ti.getName())) + "(");
+        + StringUtils.capitalize(code.naturalKeyUncapitalCamelAndRelConsidered(ti)) + "(");
 
     boolean is1st = true;
     for (DbOrClassColumnInfo ci : ti.columnList) {
       if (ci.isUniqueConstraint()) {
         if (is1st) {
           is1st = false;
-          
+
         } else {
           sb.append(", ");
         }
@@ -406,8 +405,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
 
     sb.append(");" + RT2);
     sb.append(T2 + "if (optional.isPresent()) {" + RT);
-    sb.append(
-        T3 + "throw new BizLogicAppException(\"jp\");" + RT);
+    sb.append(T3 + "throw new BizLogicAppException(\"jp\");" + RT);
     sb.append(T2 + "}" + RT);
     sb.append(T1 + "}" + RT);
   }

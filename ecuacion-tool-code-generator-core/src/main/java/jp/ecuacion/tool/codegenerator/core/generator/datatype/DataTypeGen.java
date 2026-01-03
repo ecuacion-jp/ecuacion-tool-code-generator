@@ -23,7 +23,7 @@ public class DataTypeGen extends AbstractGen {
 
     sb = new StringBuilder();
 
-    dataTypeName = CodeGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName());
+    dataTypeName = CodeGenUtil.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName());
     kata = dtInfo.getKata().getName();
 
     this.dtInfo = dtInfo;
