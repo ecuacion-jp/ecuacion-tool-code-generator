@@ -57,7 +57,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements EclibItemCont
           if (ci.isNullable()) {
             throw new BizLogicAppException(
                 "MSG_ERR_CONSISTENCY_CHECK_NULLABLE_ENTITY_COLUMN_CANNOT_HAVE_RELATIONS",
-                ti.getTableName(), ci.getColumnName());
+                ti.getName(), ci.getName());
           }
         }
       }
@@ -82,7 +82,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements EclibItemCont
       DbOrClassTableInfo ti = tableList.get(0);
 
       // 名称はSystemCommonEntity
-      if (!ti.getTableName().equals("SYSTEM_COMMON_ENTITY")) {
+      if (!ti.getName().equals("SYSTEM_COMMON_ENTITY")) {
         throw new BizLogicAppException(
             "MSG_ERR_CONSISTENCY_CHECK_NAME_OF_SYSTEM_COMMON_ENTITY_CANNOT_BE_CHANGED");
       }
