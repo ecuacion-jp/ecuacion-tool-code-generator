@@ -111,7 +111,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
       if (dtInfo.getKata() == ENUM) {
         // 当該enumをimport
-        importMgr.add(rootBasePackage + ".base.enums." + getEnumConsideredKata(dtInfo));
+        importMgr.add(rootBasePackage + ".base.enums." + code.getEnumConsideredKata(dtInfo));
         isAnyColumnEnumDataType = true;
       }
 
@@ -167,7 +167,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
           + "and you don't have to care about receiving string of date-time format.  */" + RT);
     }
     String kata = dtInfo.getKata() == BOOLEAN || dtInfo.getKata() == DATE_TIME
-        ? code.capitalCamel(getEnumConsideredKata(dtInfo))
+        ? code.capitalCamel(code.getEnumConsideredKata(dtInfo))
         : "String";
 
     sb.append(AnnotationGenUtil.getCode(ci.getValidatorList(false), ElementType.FIELD));
@@ -511,9 +511,9 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       String recGetKata =
           dtInfo.getKata() == BOOLEAN ? code.capitalCamel(dtInfo.getKata().toString()) : "String";
       final String recSetKata = dtInfo.getKata() == BOOLEAN || dtInfo.getKata() == DATE_TIME
-          || dtInfo.getKata() == TIMESTAMP ? code.capitalCamel(getEnumConsideredKata(dtInfo))
+          || dtInfo.getKata() == TIMESTAMP ? code.capitalCamel(code.getEnumConsideredKata(dtInfo))
               : "String";
-      final String javaKata = getEnumConsideredKata(dtInfo);
+      final String javaKata = code.getEnumConsideredKata(dtInfo);
 
       sb.append(T1 + "public " + recGetKata + " get" + fieldNameUc + "() {" + RT);
 
@@ -558,7 +558,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
           if (ci.isRelationColumn()) {
             sb.append(T4 + "get" + fieldNameUc + "OfEntityDataType();" + RT);
-            
+
           } else if (dtInfo.getKata() == DATE || dtInfo.getKata() == TIME) {
             sb.append(T4 + javaKata + ".parse(" + fieldNameLc
                 + ", DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
@@ -628,7 +628,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       if (dtInfo.getKata() == ENUM) {
         sb.append(T1 + "public List<String[]> get" + capitalizedName
             + "List(Locale locale, String options) {" + RT);
-        sb.append(T2 + "return EnumUtil.getListForHtmlSelect(" + getEnumConsideredKata(dtInfo)
+        sb.append(T2 + "return EnumUtil.getListForHtmlSelect(" + code.getEnumConsideredKata(dtInfo)
             + ".class, locale, options);" + RT);
         sb.append(T1 + "}" + RT2);
 
@@ -636,7 +636,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
         sb.append(T1 + "public String get" + capitalizedName + "Name(Locale locale) {" + RT);
         // sb.append(T2 + "return " + getEnumConsideredKata(dtInfo) + ".getEnumFromCode(get"
         // + capitalizedName + "()).getDisplayName(locale);" + RT);
-        sb.append(T2 + "return EnumUtil.getEnumFromCode(" + getEnumConsideredKata(dtInfo)
+        sb.append(T2 + "return EnumUtil.getEnumFromCode(" + code.getEnumConsideredKata(dtInfo)
             + ".class, get" + capitalizedName + "()).getDisplayName(locale);" + RT);
         sb.append(T1 + "}" + RT2);
       }

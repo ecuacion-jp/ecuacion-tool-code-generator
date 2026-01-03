@@ -45,7 +45,7 @@ public class EnumClassInfo extends StringExcelTableBean {
   @NotEmpty
   @Size(min = 1, max = 50)
   public String getEnumName() {
-    return CodeGenUtil.dataTypeNameToUppperCamel(dataTypeName) + "Enum";
+    return CodeGenUtil.dataTypeNameToCapitalCamel(dataTypeName) + "Enum";
   }
 
   public DataTypeInfo getDtInfo() {
