@@ -35,7 +35,7 @@ public class ConvertGen extends FieldSingleAnnotationGen {
   protected ParamListGen getParamGen() {
     ParamListGen plistGen = new ParamListGen();
     plistGen.add(new ParamGenWithSingleValue("converter",
-        CodeGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName())
+        CodeGenUtil.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName())
             + "Converter.class",
         DataTypeKataEnum.ENUM));
 
