@@ -46,7 +46,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   @NotEmpty
   @Size(max = 50)
   @Pattern(regexp = Constants.REG_EX_UP_NUM_US)
-  private String columnName;
+  private String name;
 
   private String userFriendlyName;
 
@@ -103,7 +103,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   @Override
   protected @Nonnull String[] getFieldNameArray() {
     return new String[] {
-        null, "userFriendlyName", "columnName", "dataType", null, 
+        null, "userFriendlyName", "name", "dataType", null, 
         "isJavaOnly", "pkKind", "isNullable", "isAutoIncrement", "isForcedIncrement", 
         "isAutoUpdate", "isForcedUpdate", "isCustomGroupColumn", "springAuditing", "relationKind", 
         "relationDirection", 
@@ -137,7 +137,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   public static DbOrClassColumnInfo cloneWithoutRelationRelated(DbOrClassColumnInfo ci) {
-    String[] arr = new String[] {null, ci.getDisplayName(), ci.getColumnName(), ci.getDataType(),
+    String[] arr = new String[] {null, ci.getDisplayName(), ci.getName(), ci.getDataType(),
         null, ci.getIsJavaOnlyString(), ci.getPkKindString(), ci.isNullable,
         ReaderUtil.booleanToBoolStr(ci.isAutoIncrement()),
         ReaderUtil.booleanToBoolStr(ci.isForcedIncrement()),
@@ -163,9 +163,9 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return bidirectionalInfo != null && bidirectionalInfo.size() != 0;
   }
 
-  // columnName
-  public String getColumnName() {
-    return columnName;
+  // name
+  public String getName() {
+    return name;
   }
 
   // dispName
@@ -246,7 +246,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   /** Settings側も加味した上でgroupの項目か否かを返す。 */
   public boolean isGroupColumn() {
     String groupColumnName = MainController.tlInfo.get().groupRootInfo.getColumnName();
-    return (groupColumnName != null && groupColumnName.equals(columnName)) || isCustomGroupColumn();
+    return (groupColumnName != null && groupColumnName.equals(name)) || isCustomGroupColumn();
   }
 
   // optLock

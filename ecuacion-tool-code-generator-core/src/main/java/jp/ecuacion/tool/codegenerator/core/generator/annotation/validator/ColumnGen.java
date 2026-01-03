@@ -34,7 +34,7 @@ public class ColumnGen extends FieldSingleAnnotationGen {
     ParamListGen plistGen = new ParamListGen();
     DataTypeInfo dtInfo = ci.getDtInfo();
     
-    plistGen.add(new ParamGenWithSingleValue("name", ci.getColumnName(), DataTypeKataEnum.STRING));
+    plistGen.add(new ParamGenWithSingleValue("name", ci.getName(), DataTypeKataEnum.STRING));
     plistGen.add(new ParamGenWithSingleValue("nullable",
         Boolean.valueOf(ci.isNullable()).toString(), DataTypeKataEnum.BOOLEAN));
     if (dtInfo.getKata() == DataTypeKataEnum.STRING || dtInfo.getKata() == DataTypeKataEnum.ENUM) {
