@@ -26,7 +26,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   @NotEmpty
   @Size(min = 1, max = 50)
   @Pattern(regexp = Constants.REG_EX_UP_NUM_US)
-  private String tableName;
+  private String name;
 
   // private boolean isSurrogateKeyStorategy = false;
   private boolean hasUniqueConstraint = false;
@@ -36,21 +36,21 @@ public class DbOrClassTableInfo extends AbstractInfo {
   }
 
   public DbOrClassTableInfo(String tableName) {
-    this.tableName = tableName;
+    this.name = tableName;
   }
 
-  // tableName
-  public String getTableName() {
-    return tableName;
+  // name
+  public String getName() {
+    return name;
   }
 
   public void setTableName(String tableName) throws AppException {
-    this.tableName = tableName;
+    this.name = tableName;
   }
 
   public boolean hasColumn(String colName) {
     for (DbOrClassColumnInfo ci : columnList) {
-      if (ci.getColumnName().equals(colName)) {
+      if (ci.getName().equals(colName)) {
         return true;
       }
     }
@@ -60,7 +60,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
   public DbOrClassColumnInfo getColumn(String colName) {
     for (DbOrClassColumnInfo ci : columnList) {
-      if (ci.getColumnName().equals(colName)) {
+      if (ci.getName().equals(colName)) {
         return ci;
       }
     }
@@ -112,19 +112,19 @@ public class DbOrClassTableInfo extends AbstractInfo {
       }
     }
 
-    if (info.groupRootInfo.getTableNamesWithoutGrouping().contains(tableName)) {
+    if (info.groupRootInfo.getTableNamesWithoutGrouping().contains(name)) {
       if (groupCiList.size() > 0) {
         throw new RuntimeException("The table is listed in 'TABLE_NAMES_WITHOUT_GROUPING'"
-            + " but has group column: table_name = " + tableName);
+            + " but has group column: table_name = " + name);
       }
 
     } else {
       if (groupCiList.size() == 0) {
-        throw new RuntimeException("Table '" + tableName
+        throw new RuntimeException("Table '" + name
             + "' is not listed in 'TABLE_NAMES_WITHOUT_GROUPING', but it has no group column.");
 
       } else if (groupCiList.size() != 1) {
-        throw new RuntimeException("Number of Group columns in a table must be 1: " + tableName);
+        throw new RuntimeException("Number of Group columns in a table must be 1: " + name);
       }
     }
 
@@ -147,12 +147,12 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
   // soft delete関連
   public boolean hasSoftDeleteFieldExcludingSystemCommon() throws BizLogicAppException {
-    return softDeleteExistenceCheck(columnList, getTableName());
+    return softDeleteExistenceCheck(columnList, getName());
   }
 
   public boolean hasSoftDeleteFieldInSystemCommon() throws BizLogicAppException {
     List<DbOrClassColumnInfo> dbCommonCi = info.dbCommonRootInfo.tableList.get(0).columnList;
-    return softDeleteExistenceCheck(dbCommonCi, getTableName());
+    return softDeleteExistenceCheck(dbCommonCi, getName());
   }
 
   /**
@@ -169,14 +169,14 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
     boolean hasRemovedDataColumn = false;
     for (DbOrClassColumnInfo ci : columnList) {
-      if (ci.getColumnName().equals(removedDataInfo.getColumnName())) {
+      if (ci.getName().equals(removedDataInfo.getColumnName())) {
         if (ci.getDataType().equals(removedDataInfo.getDataTypeName())) {
           hasRemovedDataColumn = true;
 
         } else {
           // カラム名が一緒なのにDataTypeが異なる場合はエラー扱いとする
           throw new BizLogicAppException("MSG_ERR_DT_OF_COL_FOR_REMOVED_DATA_COL_DIFFER",
-              info.systemName, tableName, ci.getColumnName(), ci.getDataType(),
+              info.systemName, tableName, ci.getName(), ci.getDataType(),
               removedDataInfo.getDataTypeName());
         }
       }
@@ -196,7 +196,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   public String getTableAnnotationString(DbOrClassTableInfo tableInfo) throws BizLogicAppException {
     ParamListGen paramGenList = new ParamListGen();
     // name
-    paramGenList.add(new ParamGenWithSingleValue("name", tableInfo.getTableName(), true));
+    paramGenList.add(new ParamGenWithSingleValue("name", tableInfo.getName(), true));
 
     // uniqueConstraints
     if (tableInfo.hasUniqueConstraint) {
@@ -204,7 +204,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
       List<String> uniqueKeyColumns = new ArrayList<>();
       for (DbOrClassColumnInfo col : tableInfo.columnList) {
         if (col.isUniqueConstraint()) {
-          uniqueKeyColumns.add(col.getColumnName());
+          uniqueKeyColumns.add(col.getName());
         }
       }
       // columnNames = {"id_1" , "id_2"})
@@ -308,11 +308,11 @@ public class DbOrClassTableInfo extends AbstractInfo {
     for (int i = 1; i <= indexMap.size(); i++) {
       if (!indexMap.containsKey(i)) {
         throw new RuntimeException(
-            new BizLogicAppException("MSG_ERR_INDEX_NUMBER_NOT_CONTINUOUS_FROM_1", "", tableName,
+            new BizLogicAppException("MSG_ERR_INDEX_NUMBER_NOT_CONTINUOUS_FROM_1", "", name,
                 Integer.toString(indexSerial)));
       }
 
-      index.add(indexMap.get(i).getColumnName());
+      index.add(indexMap.get(i).getName());
     }
 
     return index.toArray(new String[index.size()]);

@@ -6,7 +6,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.FieldSingleAnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.StringGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 
 public class ConvertGen extends FieldSingleAnnotationGen {
   private DataTypeInfo dtInfo;
@@ -35,7 +35,7 @@ public class ConvertGen extends FieldSingleAnnotationGen {
   protected ParamListGen getParamGen() {
     ParamListGen plistGen = new ParamListGen();
     plistGen.add(new ParamGenWithSingleValue("converter",
-        StringGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName())
+        CodeGenUtil.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName())
             + "Converter.class",
         DataTypeKataEnum.ENUM));
 

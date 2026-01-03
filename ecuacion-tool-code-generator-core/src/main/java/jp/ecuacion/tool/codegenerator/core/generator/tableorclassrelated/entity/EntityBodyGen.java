@@ -26,7 +26,7 @@ public class EntityBodyGen extends EntityGen {
       sb = new StringBuilder();
       createSource(tableInfo, commonColumnList);
       outputFile(sb, getFilePath("entity"),
-          StringUtil.getUpperCamelFromSnake(tableInfo.getTableName()) + ".java");
+          StringUtil.getUpperCamelFromSnake(tableInfo.getName()) + ".java");
     }
 
     appendItemNamesProperties(EntityGenKindEnum.ENTITY_BODY);
@@ -36,7 +36,7 @@ public class EntityBodyGen extends EntityGen {
       throws AppException {
 
     final String entityNameCp =
-        StringUtil.getUpperCamelFromSnake(tableInfo.getTableName());
+        StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
     // ヘッダ情報定義
     appendPackage(sb);
@@ -48,12 +48,12 @@ public class EntityBodyGen extends EntityGen {
 
     // group定義
     if (info.groupRootInfo.isDefined()
-        && !info.groupRootInfo.getTableNamesWithoutGrouping().contains(tableInfo.getTableName())) {
+        && !info.groupRootInfo.getTableNamesWithoutGrouping().contains(tableInfo.getName())) {
       if (tableInfo.hasCustomGroupColumn()) {
         DbOrClassColumnInfo customGroupCi = tableInfo.getCustomGroupColumn();
         String filterName = "groupFilter"
-            + StringUtil.getUpperCamelFromSnake(tableInfo.getTableName());
-        getGroupFilterDefAnnotationString(sb, filterName, customGroupCi.getColumnName(),
+            + StringUtil.getUpperCamelFromSnake(tableInfo.getName());
+        getGroupFilterDefAnnotationString(sb, filterName, customGroupCi.getName(),
             customGroupCi.getDtInfo());
         getGroupFilterAnnotationString(sb, filterName);
 
@@ -81,6 +81,9 @@ public class EntityBodyGen extends EntityGen {
     if (tableInfo.hasUniqueConstraint()) {
       appendNaturalKeyConstructor(sb, tableInfo, entityNameCp);
     }
+    
+    // update with record
+    appendUpdate(sb, tableInfo);
 
     // accessor
     appendAccessor(sb, tableInfo);
@@ -107,7 +110,7 @@ public class EntityBodyGen extends EntityGen {
       for (DbOrClassColumnInfo ci : tableInfo.columnList) {
         if (ci.isUniqueConstraint()) {
           sb.append(T2 + "rtnList.add(\""
-              + StringUtil.getLowerCamelFromSnake(ci.getColumnName()) + "\");"
+              + StringUtil.getLowerCamelFromSnake(ci.getName()) + "\");"
               + RT);
         }
       }

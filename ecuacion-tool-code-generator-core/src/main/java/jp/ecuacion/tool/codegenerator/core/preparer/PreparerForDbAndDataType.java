@@ -98,7 +98,7 @@ public class PreparerForDbAndDataType {
         if (!list.contains(ci.getDataType())) {
           throw new BizLogicAppException("MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION",
               ((SystemCommonRootInfo) rootInfoMap.get(dataKind)).getSystemName(),
-              dataKind.getLabel(), ti.getTableName() + "." + ci.getColumnName(), ci.getDataType());
+              dataKind.getLabel(), ti.getName() + "." + ci.getName(), ci.getDataType());
         }
       }
     }
@@ -225,11 +225,11 @@ public class PreparerForDbAndDataType {
     // 存在しない場合もあるので、件数を確認
     if (dbCommonRootInfo != null && dbCommonRootInfo.tableList.size() > 0) {
       for (DbOrClassColumnInfo col : dbCommonRootInfo.tableList.get(0).columnList) {
-        if (dbCommonColSet.contains(col.getColumnName())) {
+        if (dbCommonColSet.contains(col.getName())) {
           throw new BizLogicAppException("MSG_ERR_SAME_COL_DEFINED_TWICE", info.systemName,
-              DataKindEnum.DB_COMMON.getLabel(), "（なし）", col.getColumnName());
+              DataKindEnum.DB_COMMON.getLabel(), "（なし）", col.getName());
         }
-        dbCommonColSet.add(col.getColumnName());
+        dbCommonColSet.add(col.getName());
       }
     }
 
@@ -246,28 +246,28 @@ public class PreparerForDbAndDataType {
     if (rootInfo != null) {
       for (DbOrClassTableInfo ti : rootInfo.tableList) {
         // tableレベルの重複チェック
-        if (tableSet.contains(ti.getTableName())) {
+        if (tableSet.contains(ti.getName())) {
           throw new BizLogicAppException("MSG_ERR_SAME_TABLE_DEFINED_TWICE",
-              systemName + dataKind.getLabel(), ti.getTableName());
+              systemName + dataKind.getLabel(), ti.getName());
         }
 
-        tableSet.add(ti.getTableName());
+        tableSet.add(ti.getName());
 
         HashSet<String> dbColSet = new HashSet<String>();
 
         for (DbOrClassColumnInfo col : ti.columnList) {
-          if (dbColSet.contains(col.getColumnName())) {
+          if (dbColSet.contains(col.getName())) {
             throw new BizLogicAppException("MSG_ERR_SAME_COL_DEFINED_TWICE", systemName,
-                dataKind.getLabel(), ti.getTableName(), col.getColumnName());
+                dataKind.getLabel(), ti.getName(), col.getName());
           }
 
           // dbCommonに存在する項目の場合はエラー
-          if (dbCommonColSet.contains(col.getColumnName())) {
+          if (dbCommonColSet.contains(col.getName())) {
             throw new BizLogicAppException("MSG_ERR_COL_CONTAINED_IN_DB_COMMON",
-                systemName + dataKind.getLabel(), ti.getTableName(), col.getColumnName());
+                systemName + dataKind.getLabel(), ti.getName(), col.getName());
           }
 
-          dbColSet.add(col.getColumnName());
+          dbColSet.add(col.getName());
         }
       }
     }
@@ -311,7 +311,7 @@ public class PreparerForDbAndDataType {
           && en != DataTypeKataEnum.ENUM && en != DataTypeKataEnum.BOOLEAN) {
         throw new BizLogicAppException(
             "MSG_ERR_AUTO_INCREMENT_CAN_BE_ON_ONLY_WHEN_KATA_IS_EITHER_INT_OR_LONG_OR_TIMESTAMP",
-            systemName + postFix, tableInfo.getTableName(), col.getColumnName());
+            systemName + postFix, tableInfo.getName(), col.getName());
       }
     }
   }
