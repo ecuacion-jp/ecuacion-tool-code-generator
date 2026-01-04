@@ -26,13 +26,13 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.Bidirectional
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.AbstractTableOrClassRelatedGen;
+import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.dao.AbstractDaoRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
-public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
+public class BaseRecordGen extends AbstractDaoRelatedGen {
 
   private CodeGenUtil code = new CodeGenUtil();
 
@@ -42,7 +42,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
 
   @Override
   public void generate() throws AppException {
-    for (DbOrClassTableInfo tableInfo : getTableList()) {
+    for (DbOrClassTableInfo tableInfo : info.dbRootInfo.tableList) {
       String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
       sb = new StringBuilder();
 
@@ -96,7 +96,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
       DataTypeInfo dtInfo = ci.getDtInfo();
 
       // 項目の型別にimport必須のものを取り込む
-      importMgr.add(getHelper(dtInfo.getKata()).getNeededImports(ci));
+      importMgr.add(code.getHelper(dtInfo.getKata()).getNeededImports(ci));
 
       // timestampの場合はセットでDateTimeFormatterも必要になるので追加しておく。
       // （metamodel作成時もgetNeededImports()が呼ばれるがその場合はDateTimeFormatterは不要なので分けて記載）
@@ -204,7 +204,7 @@ public class BaseRecordGen extends AbstractTableOrClassRelatedGen {
   }
 
   private boolean hasTableAnyRelationsOrRefs(String tableName) {
-    return getTableList().stream().collect(Collectors.toMap(e -> e.getName(), e -> e))
+    return info.dbRootInfo.tableList.stream().collect(Collectors.toMap(e -> e.getName(), e -> e))
         .get(tableName).hasAnyRelationsOrRefs();
   }
 
