@@ -1,4 +1,4 @@
-package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.record;
+package jp.ecuacion.tool.codegenerator.core.generator.record;
 
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BIG_DECIMAL;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BIG_INTEGER;
@@ -26,7 +26,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.Bidirectional
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.dao.AbstractDaoRelatedGen;
+import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
