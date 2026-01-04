@@ -1,4 +1,4 @@
-package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity;
+package jp.ecuacion.tool.codegenerator.core.generator.entity;
 
 /**
  * クラス構成の階層としては、Entity / Recordなどでまず分ける。 Entityの中で、共通の記述方法が多いので、EntityGenの中に共通処理を書くイメージ。
