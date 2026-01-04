@@ -6,10 +6,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.tool.codegenerator.core.blf.ExcelFormatReadBlf;
 import jp.ecuacion.tool.codegenerator.core.blf.GenerationBlf;
 import jp.ecuacion.tool.codegenerator.core.checker.FileLevelConsistencyChecker;
@@ -37,14 +37,10 @@ public class MainController {
    */
   public static ThreadLocal<Info> tlInfo = new ThreadLocal<>();
 
+  private DetailLogger detailLog = new DetailLogger(this);
+
   /**
    * Is the entrypoint of the core module.
-   * 
-   * <p>The flow of it is as follows:<br>
-   * 1. Read and validate excel formats, and complement data.<br>
-   * 2. Check data by compare multiple RootInfos.<br>
-   * 3. Generate source.
-   * </p>
    */
   public void execute(String inputDir, String outputDir) throws Exception {
 
@@ -55,135 +51,163 @@ public class MainController {
     // Create and set Info.
     Info info = new Info();
     tlInfo.set(info);
-    info.inputDir = inputDir;
     info.outputDir = outputDir;
 
-    // 1. Read and validate excel formats, and complement data.
-    Logger.log(this, "READ_EXCELS");
-    HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> systemMap =
-        new ExcelFormatReadBlf().read(info.inputDir);
-    info.setCommonUnitValues(systemMap);
+    new File(inputDir).mkdirs();
 
-    // 2. Check data
-    Logger.log(this, "CHECK_AND_COMPLEMENT_DATA");
-    checksAndComplements(systemMap);
+    // infoExcelDirが存在しない場合はエラー
+    if (!new File(inputDir).exists() || !new File(inputDir).isDirectory()) {
+      throw new BizLogicAppException("MSG_ERR_INFO_XML_DIR_NOT_EXIST", inputDir);
+    }
 
-    // dataTypeInfoのcolInfoへの詰め込み
-    HashMap<String, HashMap<String, DataTypeInfo>> allDtMap = createAllDataTypeMap(systemMap);
-    // dataTypeInfoのcolInfoへの詰め込み（指定したdataTypeNameに対するdataTypeInfoの存在チェックも合わせて実施）
-    putDataTypeInfoIntoColInfo(info, systemMap, allDtMap);
+    File[] listFiles = new File(inputDir).listFiles();
+    for (File file : listFiles) {
 
-    // 3.generate source
-    Logger.log(this, "GEN_SOURCE_START");
-    // システム別にループを回して生成
-    generateSource(info, systemMap, outputDir);
+      detailLog.info("read excel : " + file.getName());
+
+      // fileの中身から見てスキップすべきの場合、continue.
+      if (shouldSkip(file, "xlsx")) {
+        continue;
+      }
+
+      // 1. Read and validate excel formats, and complement data.
+      Logger.log(this, "READ_EXCELS");
+      HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap = new ExcelFormatReadBlf().read(file);
+      String systemName =
+          ((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON)).getSystemName();
+      info.setRootInfoUnitValues(systemName, rootInfoMap);
+
+      // 2. Check data
+      Logger.log(this, "CHECK_AND_COMPLEMENT_DATA");
+      checksAndComplements(systemName, rootInfoMap);
+
+      // dataTypeInfoのcolInfoへの詰め込み
+      Map<String, DataTypeInfo> dtMap = createAllDataTypeMap(systemName, rootInfoMap);
+      // dataTypeInfoのcolInfoへの詰め込み（指定したdataTypeNameに対するdataTypeInfoの存在チェックも合わせて実施）
+      putDataTypeInfoIntoColInfo(info, systemName, rootInfoMap, dtMap);
+
+      // 3.generate source
+      Logger.log(this, "GEN_SOURCE_START");
+
+      // システム別にループを回して生成
+      generateSource(info, systemName, rootInfoMap, outputDir);
+    }
   }
 
-  private void generateSource(Info info,
-      HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> systemMap, String outputDir)
-      throws Exception {
+  private boolean shouldSkip(File file, String extension) {
+    // ディレクトリの場合はスキップ
+    if (file.isDirectory()) {
+      Logger.log(ExcelFormatReadBlf.class, "MSG_INFO_DIRECTORY_INCLUDED", file.getName());
+      return true;
 
-    for (String sysName : systemMap.keySet()) {
-      final GenerationBlf genCon = new GenerationBlf(info, outputDir);
+    } else if (!file.getName().endsWith("." + extension)) {
+      // xml / excelでない場合はスキップ
+      Logger.log(ExcelFormatReadBlf.class, "MSG_INFO_NON_XML_FILE_INCLUDED", file.getName());
+      return true;
 
-      // Infoに値を格納
-      info.setRootInfoUnitValues(sysName);
+    } else if (file.getName().startsWith("~$")) {
+      // excelの一時ファイルが勝手にこのファイル名でできるのでスキップ
+      return true;
 
-      // 複数ファイル間でのデータチェックとデータ整理
-      new PrepareManager().prepare();
+    } else {
+      return false;
+    }
+  }
 
-      // 1システムについても複数パターンの生成が必要な場合があるので、パターンを配列で持ち、それをループで実行する形をとる
-      List<GeneratePtnEnum> arr = new ArrayList<>();
+  private void generateSource(Info info, String systemName,
+      HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap, String outputDir) throws Exception {
 
-      if (shouldMakeNoGroupQuery(info)) {
-        if (shouldMakeNoGroupQueryForDaoOnly(info)) {
-          arr.add(GeneratePtnEnum.DAO_ONLY_GROUP_NORMAL);
-          arr.add(GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY);
+    final GenerationBlf genCon = new GenerationBlf(info, outputDir);
 
-        } else {
-          // グループ指定なしqueryパターンで生成
-          arr.add(GeneratePtnEnum.NORMAL);
-          arr.add(GeneratePtnEnum.NO_GROUP_QUERY);
-        }
+    // Infoに値を格納
+    info.setRootInfoUnitValues(systemName, rootInfoMap);
+
+    // 複数ファイル間でのデータチェックとデータ整理
+    new PrepareManager().prepare();
+
+    // 1システムについても複数パターンの生成が必要な場合があるので、パターンを配列で持ち、それをループで実行する形をとる
+    List<GeneratePtnEnum> arr = new ArrayList<>();
+
+    if (shouldMakeNoGroupQuery(info)) {
+      if (shouldMakeNoGroupQueryForDaoOnly(info)) {
+        arr.add(GeneratePtnEnum.DAO_ONLY_GROUP_NORMAL);
+        arr.add(GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY);
 
       } else {
+        // グループ指定なしqueryパターンで生成
         arr.add(GeneratePtnEnum.NORMAL);
+        arr.add(GeneratePtnEnum.NO_GROUP_QUERY);
       }
 
-      // 通常は1システム1パターンだが、複数になる場合は複数に分けて生成
-      for (GeneratePtnEnum anEnum : arr) {
-        info.setGenPtn(anEnum);
-        genCon.controlGenerators();
-      }
+    } else {
+      arr.add(GeneratePtnEnum.NORMAL);
+    }
+
+    // 通常は1システム1パターンだが、複数になる場合は複数に分けて生成
+    for (GeneratePtnEnum anEnum : arr) {
+      info.setGenPtn(anEnum);
+      genCon.controlGenerators();
     }
   }
 
-  private void checksAndComplements(
-      HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> systemMap) throws AppException {
+  private void checksAndComplements(String systemName,
+      HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap) throws AppException {
 
-    for (Entry<String, HashMap<DataKindEnum, AbstractRootInfo>> entry : systemMap.entrySet()) {
-      Map<DataKindEnum, AbstractRootInfo> rootInfoMap = systemMap.get(entry.getKey());
-      final SystemCommonRootInfo systemCommon =
-          (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON);
+    final SystemCommonRootInfo systemCommon =
+        (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON);
 
-      // 複数RootInfoの中で、RootInfoの存在有無の整合性チェックと補完
-      new FileLevelConsistencyChecker().check(entry.getKey(), systemMap);
+    // 複数RootInfoの中で、RootInfoの存在有無の整合性チェックと補完
+    new FileLevelConsistencyChecker().check(systemName, rootInfoMap);
 
-      // inside tables
-      checkForChildTable(systemCommon.getSystemName(),
-          (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB));
+    // inside tables
+    checkForChildTable(systemCommon.getSystemName(),
+        (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB));
 
-      // tableの親子間
-      checkAndComplementForParentAndChildTable(
-          (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON),
-          (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB));
+    // tableの親子間
+    checkAndComplementForParentAndChildTable(
+        (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON),
+        (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB));
 
-      // tableとgroup間
-      checkAndComplementForTableAndGroup(entry.getKey(),
-          (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON),
-          (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB),
-          (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP));
+    // tableとgroup間
+    checkAndComplementForTableAndGroup(systemName,
+        (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON),
+        (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB),
+        (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP));
 
-      // dataType
-      ((DataTypeRootInfo) rootInfoMap.get(DataKindEnum.DATA_TYPE)).dataTypeList
-          .forEach(dt -> dt.checksAndComplements(systemCommon));
-    }
+    // dataType
+    ((DataTypeRootInfo) rootInfoMap.get(DataKindEnum.DATA_TYPE)).dataTypeList
+        .forEach(dt -> dt.checksAndComplements(systemCommon));
   }
 
-  private void putDataTypeInfoIntoColInfo(Info info,
-      HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> systemMap,
-      HashMap<String, HashMap<String, DataTypeInfo>> allDtMap) throws BizLogicAppException {
+  private void putDataTypeInfoIntoColInfo(Info info, String systemName,
+      Map<DataKindEnum, AbstractRootInfo> rootInfoMap, Map<String, DataTypeInfo> dtMap)
+      throws BizLogicAppException {
 
-    for (Entry<String, HashMap<DataKindEnum, AbstractRootInfo>> entry : systemMap.entrySet()) {
-      HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap = systemMap.get(entry.getKey());
-      HashMap<String, DataTypeInfo> dtMap = allDtMap.get(entry.getKey());
+    for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
 
-      for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
-
-        if (rootInfo instanceof DbOrClassRootInfo) {
-          // DbOrClassRootInfo
-          for (DbOrClassTableInfo ti : ((DbOrClassRootInfo) rootInfo).tableList) {
-            for (DbOrClassColumnInfo ci : ti.columnList) {
-              ci.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, ci.getDataType(), entry.getKey(),
-                  "tableName = " + ti.getName() + ", columnName = " + ci.getName()));
-            }
+      if (rootInfo instanceof DbOrClassRootInfo) {
+        // DbOrClassRootInfo
+        for (DbOrClassTableInfo ti : ((DbOrClassRootInfo) rootInfo).tableList) {
+          for (DbOrClassColumnInfo ci : ti.columnList) {
+            ci.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, ci.getDataType(), systemName,
+                "tableName = " + ti.getName() + ", columnName = " + ci.getName()));
           }
+        }
 
-        } else if (rootInfo instanceof EnumRootInfo) {
-          // EnumRootInfo
-          for (EnumClassInfo ei : ((EnumRootInfo) rootInfo).enumClassList) {
-            ei.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, ei.getDataTypeName(), entry.getKey(),
-                "enumName = " + ei.getEnumName()));
-          }
+      } else if (rootInfo instanceof EnumRootInfo) {
+        // EnumRootInfo
+        for (EnumClassInfo ei : ((EnumRootInfo) rootInfo).enumClassList) {
+          ei.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, ei.getDataTypeName(), systemName,
+              "enumName = " + ei.getEnumName()));
+        }
 
-        } else if (rootInfo instanceof MiscGroupRootInfo) {
-          // MiscGroupRootInfo
-          MiscGroupRootInfo grpInfo = (MiscGroupRootInfo) rootInfo;
+      } else if (rootInfo instanceof MiscGroupRootInfo) {
+        // MiscGroupRootInfo
+        MiscGroupRootInfo grpInfo = (MiscGroupRootInfo) rootInfo;
 
-          if (grpInfo.isDefined()) {
-            grpInfo.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, grpInfo.getDataTypeName(),
-                entry.getKey(), "grouping column: " + grpInfo.getColumnName()));
-          }
+        if (grpInfo.isDefined()) {
+          grpInfo.setDtInfo(checkAndGetDataTypeInfo(info, dtMap, grpInfo.getDataTypeName(),
+              systemName, "grouping column: " + grpInfo.getColumnName()));
         }
       }
     }
@@ -191,8 +215,7 @@ public class MainController {
 
   private void checkForChildTable(String sysName, DbOrClassRootInfo dbOrClassRootInfo)
       throws BizLogicAppException {
-    List<String> tableNameSet =
-        dbOrClassRootInfo.tableList.stream().map(e -> e.getName()).toList();
+    List<String> tableNameSet = dbOrClassRootInfo.tableList.stream().map(e -> e.getName()).toList();
 
     for (DbOrClassTableInfo ti : dbOrClassRootInfo.tableList) {
       for (DbOrClassColumnInfo ci : ti.columnList) {
@@ -205,12 +228,10 @@ public class MainController {
           }
 
           DbOrClassTableInfo refTi = dbOrClassRootInfo.tableList.stream()
-              .collect(Collectors.toMap(e -> e.getName(), e -> e))
-              .get(ci.getRelationRefTable());
+              .collect(Collectors.toMap(e -> e.getName(), e -> e)).get(ci.getRelationRefTable());
 
           // relation: refering to column name existence check
-          List<String> refTiColNameList =
-              refTi.columnList.stream().map(e -> e.getName()).toList();
+          List<String> refTiColNameList = refTi.columnList.stream().map(e -> e.getName()).toList();
           if (!refTiColNameList.contains(ci.getRelationRefCol())) {
             throw new BizLogicAppException("MSG_ERR_DB_REFER_TO_COLUMN_NAME_NOT_FOUND", sysName,
                 ti.getName(), ci.getName(), ci.getRelationRefCol());
@@ -220,7 +241,7 @@ public class MainController {
     }
   }
 
-  private DataTypeInfo checkAndGetDataTypeInfo(Info info, HashMap<String, DataTypeInfo> dtMap,
+  private DataTypeInfo checkAndGetDataTypeInfo(Info info, Map<String, DataTypeInfo> dtMap,
       String dataTypeName, String systemName, String placeInfo) throws BizLogicAppException {
     DataTypeInfo dtInfo = dtMap.get(dataTypeName);
     if (dtInfo == null) {
@@ -367,28 +388,23 @@ public class MainController {
   }
 
   // allDtMapを作成
-  private static HashMap<String, HashMap<String, DataTypeInfo>> createAllDataTypeMap(
-      HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> systemMap) {
+  private static Map<String, DataTypeInfo> createAllDataTypeMap(String systemName,
+      HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap) {
     // 一つ目のStringはシステム名、2つ目はdataType名。全てのdataTypeInfoをこれに詰める
-    HashMap<String, HashMap<String, DataTypeInfo>> allDtMap =
-        new HashMap<String, HashMap<String, DataTypeInfo>>();
+    Map<String, DataTypeInfo> dtMap = new HashMap<String, DataTypeInfo>();
 
     // データをdtMapに詰める
-    systemMap.keySet().forEach(systemName -> {
-      // 仕様上、dataTypeInfoなしで、dataTypeRefInfoのみを使用しシステムを構築することも可能としているので、存在チェックをかけておく
-      if (systemMap.get(systemName).get(DataKindEnum.DATA_TYPE) != null) {
-        // Mapを生成
-        allDtMap.put(systemName, new HashMap<String, DataTypeInfo>());
+    // 仕様上、dataTypeInfoなしで、dataTypeRefInfoのみを使用しシステムを構築することも可能としているので、存在チェックをかけておく
+    if (rootInfoMap.get(DataKindEnum.DATA_TYPE) != null) {
+      // Mapを生成
 
-        DataTypeRootInfo dtRootInfo =
-            (DataTypeRootInfo) systemMap.get(systemName).get(DataKindEnum.DATA_TYPE);
-        // dataTypeListのdataType情報をMapに詰める。
-        for (DataTypeInfo dtInfo : dtRootInfo.dataTypeList) {
-          allDtMap.get(systemName).put(dtInfo.getDataTypeName(), dtInfo);
-        }
+      DataTypeRootInfo dtRootInfo = (DataTypeRootInfo) rootInfoMap.get(DataKindEnum.DATA_TYPE);
+      // dataTypeListのdataType情報をMapに詰める。
+      for (DataTypeInfo dtInfo : dtRootInfo.dataTypeList) {
+        dtMap.put(dtInfo.getDataTypeName(), dtInfo);
       }
-    });
+    }
 
-    return allDtMap;
+    return dtMap;
   }
 }

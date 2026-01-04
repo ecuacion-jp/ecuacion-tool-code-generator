@@ -5,6 +5,7 @@ import java.util.List;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
@@ -24,7 +25,9 @@ public class EntityBodyGen extends EntityGen {
 
     for (DbOrClassTableInfo tableInfo : getTableList()) {
       sb = new StringBuilder();
-      createSource(tableInfo, commonColumnList);
+      createSource(tableInfo,
+          ((DbOrClassRootInfo) info.rootInfoMap.get(DataKindEnum.DB_COMMON)).tableList
+              .get(0).columnList);
       outputFile(sb, getFilePath("entity"),
           StringUtil.getUpperCamelFromSnake(tableInfo.getName()) + ".java");
     }
@@ -35,8 +38,7 @@ public class EntityBodyGen extends EntityGen {
   public void createSource(DbOrClassTableInfo tableInfo, List<DbOrClassColumnInfo> commonColumnList)
       throws AppException {
 
-    final String entityNameCp =
-        StringUtil.getUpperCamelFromSnake(tableInfo.getName());
+    final String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
     // ヘッダ情報定義
     appendPackage(sb);
@@ -51,8 +53,7 @@ public class EntityBodyGen extends EntityGen {
         && !info.groupRootInfo.getTableNamesWithoutGrouping().contains(tableInfo.getName())) {
       if (tableInfo.hasCustomGroupColumn()) {
         DbOrClassColumnInfo customGroupCi = tableInfo.getCustomGroupColumn();
-        String filterName = "groupFilter"
-            + StringUtil.getUpperCamelFromSnake(tableInfo.getName());
+        String filterName = "groupFilter" + StringUtil.getUpperCamelFromSnake(tableInfo.getName());
         getGroupFilterDefAnnotationString(sb, filterName, customGroupCi.getName(),
             customGroupCi.getDtInfo());
         getGroupFilterAnnotationString(sb, filterName);
@@ -81,7 +82,7 @@ public class EntityBodyGen extends EntityGen {
     if (tableInfo.hasUniqueConstraint()) {
       appendNaturalKeyConstructor(sb, tableInfo, entityNameCp);
     }
-    
+
     // update with record
     appendUpdate(sb, tableInfo);
 
@@ -109,8 +110,7 @@ public class EntityBodyGen extends EntityGen {
 
       for (DbOrClassColumnInfo ci : tableInfo.columnList) {
         if (ci.isUniqueConstraint()) {
-          sb.append(T2 + "rtnList.add(\""
-              + StringUtil.getLowerCamelFromSnake(ci.getName()) + "\");"
+          sb.append(T2 + "rtnList.add(\"" + StringUtil.getLowerCamelFromSnake(ci.getName()) + "\");"
               + RT);
         }
       }
