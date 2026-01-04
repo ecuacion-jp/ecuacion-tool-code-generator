@@ -71,12 +71,12 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
     createHeaderCommon(importMgr, tableInfo);
 
     importMgr.add(rootBasePackage + ".base.entity." + tableNameCp);
-    importMgr.add("jp.ecuacion.splib.core.container.*");
+    importMgr.add("jp.ecuacion.splib.core.container.*", "jp.ecuacion.lib.core.item.*");
 
     sb.append(importMgr.outputStr() + RT);
 
-    sb.append("public abstract class " + tableNameCp + "BaseRecord extends SystemCommonBaseRecord {"
-        + RT2);
+    sb.append("public abstract class " + tableNameCp
+        + "BaseRecord extends SystemCommonBaseRecord implements EclibItemContainer {" + RT2);
 
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       // field定義
@@ -267,7 +267,8 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
         String relEntityNameSm = StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
         sb.append(T3 + ci.getRelationFieldName() + " = new "
             + StringUtils.capitalize(relEntityNameSm) + "BaseRecord("
-            + (hasTableAnyRelationsOrRefs(ci.getRelationRefTable()) ? "count" : "") + ") {};" + RT);
+            + (hasTableAnyRelationsOrRefs(ci.getRelationRefTable()) ? "count" : "")
+            + ") {public EclibItem[] getItems() {return null;}};" + RT);
       }
 
       // bidirectional relationで参照される側になっている場合は追加で定義
@@ -277,7 +278,8 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
           // sb.append(T2 + "if (constructsRelation) {" + RT);
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
             sb.append(T3 + info.getEmptyConsideredFieldNameToReferFromTable() + " = new "
-                + StringUtils.capitalize(relEntityNameSm) + "BaseRecord(count) {};" + RT);
+                + StringUtils.capitalize(relEntityNameSm)
+                + "BaseRecord(count) {public EclibItem[] getItems() {return null;}};" + RT);
           } else {
             // sb.append(T3 + info.getEmptyConsideredFieldNameToReferFromTable()
             // + " = new ArrayList<>();" + RT);
@@ -347,7 +349,7 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
                   T3 + refFieldName + " = (e.get" + refFieldNameUc + "() == null) ? null : new "
                       + refEntityNameUc + "BaseRecord(e.get" + refFieldNameUc + "(), params"
                       + (hasTableAnyRelationsOrRefs(info.getOrgTableName()) ? ", count" : "")
-                      + ") {};" + RT);
+                      + ") {public EclibItem[] getItems() {return null;}};" + RT);
 
             } else {
               sb.append(
@@ -355,8 +357,8 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
               sb.append(T4 + "for (" + refEntityNameUc + " en : e.get"
                   + StringUtils.capitalize(refFieldName) + "()) {" + RT);
               sb.append(T5 + refFieldName + ".add(new " + refEntityNameUc + "BaseRecord(en, params"
-                  + (hasTableAnyRelationsOrRefs(info.getOrgTableName()) ? ", count" : "") + ") {});"
-                  + RT);
+                  + (hasTableAnyRelationsOrRefs(info.getOrgTableName()) ? ", count" : "")
+                  + ") {public EclibItem[] getItems() {return null;}});" + RT);
               sb.append(T4 + "}" + RT);
               sb.append(T3 + "}" + RT);
             }
@@ -386,8 +388,8 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
         }
         sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getRelationFieldName() + " = new "
             + refEntityNameUp + "BaseRecord(e.get" + relFieldNameUp + "(), params"
-            + (hasTableAnyRelationsOrRefs(ci.getRelationRefTable()) ? ", count" : "") + ") {};"
-            + RT);
+            + (hasTableAnyRelationsOrRefs(ci.getRelationRefTable()) ? ", count" : "")
+            + ") {public EclibItem[] getItems() {return null;}};" + RT);
         if (isCalledFromB2) {
           sb.append(T2 + "}" + RT);
         }
@@ -484,7 +486,8 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
       if (ci.isRelationColumn()) {
         sb.append(T2 + "this." + ci.getRelationFieldName() + " = new "
             + StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable()) + "BaseRecord("
-            + (hasTableAnyRelationsOrRefs(ci.getRelationRefTable()) ? "count" : "") + ") {};" + RT);
+            + (hasTableAnyRelationsOrRefs(ci.getRelationRefTable()) ? "count" : "")
+            + ") {public EclibItem[] getItems() {return null;}};" + RT);
       }
       sb.append(
           T2 + "this."

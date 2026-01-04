@@ -10,6 +10,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import jp.ecuacion.tool.codegenerator.core.generator.advice.AdviceGen;
+import jp.ecuacion.tool.codegenerator.core.generator.bl.BlGen;
 import jp.ecuacion.tool.codegenerator.core.generator.config.ConfigGen;
 import jp.ecuacion.tool.codegenerator.core.generator.constant.ConstantGen;
 import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
@@ -120,6 +121,7 @@ public class GenerationBlf {
       }
       arrGen.add(new SystemCommonBaseRecordGen());
       arrGen.add(new SystemCommonEntityGen());
+      arrGen.add(new BlGen());
       arrGen.add(new ValidationMessagesPatternDescriptionsGen());
 
       for (AbstractGen gen : arrGen) {
@@ -143,28 +145,12 @@ public class GenerationBlf {
           gen.generateConverter(false);
         }
 
-        // } else if (name.endsWith(Constants.XML_POST_FIX_DT_R)) {
-        // Logger.log(this, "GEN_DT_R");
-        //
-        // //
-        // 参照している親のdataTypeに対するconverterは、親のところに置いておいても機能してくれない（自動認識してくれない）ので、個別システム側のbaseに作る必要がある
-        // if (info.dataTypeRefRootInfo != null) {
-        // for (DataTypeRefInfo dtRef : info.dataTypeRefRootInfo.dataTypeRefList) {
-        // // 参照しているdataTypeのinfoを取得し、それをもとにconveterを生成
-        // String dtName = dtRef.getDataType();
-        // DataTypeInfo dtInfo = allDtMap.get(dtRef.getSystemName()).get(dtName);
-        // DataTypeGen gen = createDataTypeGen(dtInfo);
-        // gen.generateConverter(true);
-        // }
-        // }
-
       } else if (dataKind == DataKindEnum.DB) {
         Logger.log(this, "GEN_DB");
         List<AbstractDaoRelatedGen> genArr =
             new ArrayList<AbstractDaoRelatedGen>();
         genArr.add(new BaseRecordGen(DataKindEnum.DB));
         genArr.add(new EntityBodyGen(DataKindEnum.DB, false));
-        // genArr.add(new EntityPkGen(Constants.XML_POST_FIX_DB, true));
 
         genArr.add(new DaoGen(DataKindEnum.DB));
         genArr.add(new SqlPropertiesGen());

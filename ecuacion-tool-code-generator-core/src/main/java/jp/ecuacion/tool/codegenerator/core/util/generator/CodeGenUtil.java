@@ -151,9 +151,9 @@ public class CodeGenUtil {
     if (!helperMap.containsKey(kata)) {
       try {
         @SuppressWarnings("unchecked")
-        Class<GenHelperKata> cls = (Class<GenHelperKata>) Class.forName(Constants.STR_PACKAGE_HOME
-            + ".core.generator.tableorclassrelated.entity.genhelper.GenHelper"
-            + StringUtil.getUpperCamelFromSnake(kata.getName()));
+        Class<GenHelperKata> cls = (Class<GenHelperKata>) Class
+            .forName(Constants.STR_PACKAGE_HOME + ".core.generator.entity.genhelper.GenHelper"
+                + StringUtil.getUpperCamelFromSnake(kata.getName()));
         Constructor<GenHelperKata> con = cls.getConstructor();
         GenHelperKata helper = con.newInstance();
         helperMap.put(kata, helper);
@@ -171,7 +171,7 @@ public class CodeGenUtil {
    * 
    * <p>The feature of this method is for relation to be considered.</p>
    */
-  private String generateString(DbOrClassColumnInfo ci, ColFormat formatType) {
+  public String generateString(DbOrClassColumnInfo ci, ColFormat formatType) {
     StringBuilder sb = new StringBuilder();
     boolean is1st = true;
 
@@ -181,26 +181,27 @@ public class CodeGenUtil {
         is1st = false;
 
       } else {
-        if (formatType == ColFormat.GET_CONNECTED
-            || formatType == ColFormat.GET_CONNECTED_OF_ENTITY_DATA_TYPE) {
-          sb.append(".");
-
+        switch (formatType) {
+          case ITEM_PROPERTY_PATH, GET, GET_OF_ENTITY_DATA_TYPE -> sb.append(".");
+          default -> throw new EclibRuntimeException("Unexpected.");
         }
-
       }
 
-      if (formatType == ColFormat.GET_CONNECTED
-          || formatType == ColFormat.GET_CONNECTED_OF_ENTITY_DATA_TYPE) {
+      if (formatType == ColFormat.GET || formatType == ColFormat.GET_OF_ENTITY_DATA_TYPE) {
         if (currentCi.isRelationColumn()) {
           sb.append("get" + capitalCamel(currentCi.getRelationFieldName()) + "()");
 
         } else {
-          String postfix =
-              ofEntityTypeMethodAvailableDataTypeList.contains(ci.getDtInfo().getKata())
+          String postfix = formatType == ColFormat.GET_OF_ENTITY_DATA_TYPE
+              && ofEntityTypeMethodAvailableDataTypeList.contains(ci.getDtInfo().getKata())
                   ? "OfEntityDataType"
                   : "";
           sb.append("get" + capitalCamel(currentCi.getName()) + postfix + "()");
         }
+
+      } else if (formatType == ColFormat.ITEM_PROPERTY_PATH) {
+        sb.append(currentCi.isRelationColumn() ? uncapitalCamel(currentCi.getRelationFieldName())
+            : uncapitalCamel(currentCi.getName()));
       }
 
       if (currentCi.isRelationColumn()) {
@@ -222,7 +223,7 @@ public class CodeGenUtil {
    */
   private String generateString(List<DbOrClassColumnInfo> ciList, ColListFormat formatType) {
     StringBuilder sb = new StringBuilder();
-    
+
     boolean is1st = true;
     for (DbOrClassColumnInfo ci : ciList) {
       DataTypeInfo dtInfo = ci.getDtInfo();
@@ -262,9 +263,9 @@ public class CodeGenUtil {
 
     return sb.toString();
   }
-  
-  private static enum ColFormat {
-    GET_CONNECTED, GET_CONNECTED_OF_ENTITY_DATA_TYPE
+
+  public static enum ColFormat {
+    ITEM_PROPERTY_PATH, GET, GET_OF_ENTITY_DATA_TYPE
   }
 
   private static enum ColListFormat {
@@ -291,9 +292,9 @@ public class CodeGenUtil {
 
     /** naturalKeyを引数にとる時の "String myArg1, Integer myArg2" という文字列を保持。table別にmap形式。 */
     ENTITY_DEFINE(BetweenColumns.PADDED_COMMA);
-    
+
     private BetweenColumns betweenColumns;
-    
+
     private ColListFormat(BetweenColumns betweenColumns) {
       this.betweenColumns = betweenColumns;
     }
@@ -311,7 +312,7 @@ public class CodeGenUtil {
    * Generates getter with "OfEntityDataType" if it exists.
    */
   public String getOfEntityDataType(DbOrClassColumnInfo ci) {
-    return generateString(ci, ColFormat.GET_CONNECTED_OF_ENTITY_DATA_TYPE);
+    return generateString(ci, ColFormat.GET_OF_ENTITY_DATA_TYPE);
   }
 
   /*
