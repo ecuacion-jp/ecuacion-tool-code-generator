@@ -1,4 +1,4 @@
-package jp.ecuacion.tool.codegenerator.core.preparer;
+package jp.ecuacion.tool.codegenerator.core.bl;
 
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
