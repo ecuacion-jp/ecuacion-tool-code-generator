@@ -33,13 +33,13 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.IdGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.SequenceGeneratorGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.VersionGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.AbstractTableOrClassRelatedGen;
+import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.dao.AbstractDaoRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
-public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
+public abstract class EntityGen extends AbstractDaoRelatedGen {
 
   private CodeGenUtil code = new CodeGenUtil();
 
@@ -159,7 +159,7 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
     // 項目の型別にimport必須のものを取り込む
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList) {
       DataTypeInfo dtInfo = colInfo.getDtInfo();
-      importMgr.add(getHelper(dtInfo.getKata()).getNeededImports(colInfo));
+      importMgr.add(code.getHelper(dtInfo.getKata()).getNeededImports(colInfo));
     }
 
     // 使用するenumクラスをimport
@@ -169,13 +169,13 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
       if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
         // importMgr.add("jp.ecuacion.lib.core.util.EnumUtil");
 
-        String importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-            + ".base.enums." + CodeGenUtil.dataTypeNameToCapitalCamel(dataType) + "Enum";
+        String importClassStr =
+            rootBasePackage + ".base.enums." + code.dataTypeNameToCapitalCamel(dataType) + "Enum";
         importMgr.add(importClassStr);
         // batch（javaSE環境）だと@ConverterにautoApply =
         // trueをつけても無視され、明示的に@Convertタグを書く必要がある関係で、Converterのimportが必要
-        importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-            + ".base.converter." + CodeGenUtil.dataTypeNameToCapitalCamel(dataType) + "Converter";
+        importClassStr = rootBasePackage + ".base.converter."
+            + code.dataTypeNameToCapitalCamel(dataType) + "Converter";
         importMgr.add(importClassStr);
       }
     }
@@ -671,20 +671,23 @@ public abstract class EntityGen extends AbstractTableOrClassRelatedGen {
   /**
    * item_names_xx.propertiesを作成するための共通処理。
    */
-  protected void appendItemNamesProperties(EntityGenKindEnum entityKind)
+  protected void appendItemNamesProperties(EntityGenKindEnum entityKind,
+      List<DbOrClassTableInfo> tableList)
       throws IOException, InterruptedException, BizLogicAppException {
     PropertiesFileGen gen = new PropertiesFileGen();
 
     // fallback用のファイルを作成。
-    gen.writeMapToPropFile(createSortedMapForPropFile(info.sysCmnRootInfo.getDefaultLang(),
-        getTableList(), entityKind), "item_names", null);
+    gen.writeMapToPropFile(
+        createSortedMapForPropFile(info.sysCmnRootInfo.getDefaultLang(), tableList, entityKind),
+        "item_names", null);
     // default言語用のファイルを作成
-    gen.writeMapToPropFile(createSortedMapForPropFile(info.sysCmnRootInfo.getDefaultLang(),
-        getTableList(), entityKind), "item_names", info.sysCmnRootInfo.getDefaultLang());
+    gen.writeMapToPropFile(
+        createSortedMapForPropFile(info.sysCmnRootInfo.getDefaultLang(), tableList, entityKind),
+        "item_names", info.sysCmnRootInfo.getDefaultLang());
     // supportedLangArrに入っているものについて作成
     for (String lang : info.sysCmnRootInfo.getSupportedLangArr()) {
-      gen.writeMapToPropFile(createSortedMapForPropFile(lang, getTableList(), entityKind),
-          "item_names", lang);
+      gen.writeMapToPropFile(createSortedMapForPropFile(lang, tableList, entityKind), "item_names",
+          lang);
     }
   }
 

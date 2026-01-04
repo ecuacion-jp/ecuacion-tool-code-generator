@@ -1,7 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity;
 
 import java.io.IOException;
-import java.util.List;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -10,8 +9,6 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
 public class SystemCommonEntityGen extends EntityGen {
-
-  // protected EntityGenKindEnum genKind = EntityGenKindEnum.ENTITY_SYSTEM_COMMON;
 
   public SystemCommonEntityGen() throws AppException {
     super(DataKindEnum.DB_COMMON);
@@ -24,11 +21,8 @@ public class SystemCommonEntityGen extends EntityGen {
   @Override
   public void generate() throws AppException, IOException, InterruptedException {
 
-    List<DbOrClassTableInfo> tableList = getTableList();
-
-    if (tableList != null) {
-      DbOrClassTableInfo tableInfo = tableList.get(0);
-
+    DbOrClassTableInfo tableInfo = info.getCommonTableInfo();
+    if (tableInfo != null) {
       sb = new StringBuilder();
       createSource(tableInfo);
 
@@ -58,22 +52,13 @@ public class SystemCommonEntityGen extends EntityGen {
 
     outputFile(sb, getFilePath("entity"), "SystemCommonEntity.java");
 
-    // // metamodel生成
-    // if (tableList != null) {
-    // DbOrClassTableInfo tableInfo = tableList.get(0);
-    // sb = new StringBuilder();
-    // createMetaModelSource(tableInfo);
-    // outputFile(sb, getFilePath("entity"),
-    // strUtil.getUpperCamelFromSnake(tableInfo.getTableName()) + "_.java");
-    // }
-
-    appendItemNamesProperties(EntityGenKindEnum.ENTITY_SYSTEM_COMMON);
+    appendItemNamesProperties(EntityGenKindEnum.ENTITY_SYSTEM_COMMON,
+        info.dbCommonRootInfo.tableList);
   }
 
   public void createSource(DbOrClassTableInfo tableInfo) throws AppException {
 
-    final String entityNameCp =
-        StringUtil.getUpperCamelFromSnake(tableInfo.getName());
+    final String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
     // ヘッダ情報定義
     appendPackage(sb);
@@ -120,16 +105,4 @@ public class SystemCommonEntityGen extends EntityGen {
 
     sb.append("}");
   }
-
-  // public void createMetaModelSource(DbOrClassTableInfo tableInfo) throws AppException {
-  // // ヘッダ情報定義
-  // appendPackage(sb);
-  // appendMetaModelImport(sb, tableInfo);
-  // // class定義
-  // appendMetaModelClass(sb, tableInfo, EntityGenKindEnum.ENTITY_SYSTEM_COMMON);
-  // // field定義
-  // appendMetaModelField(sb, tableInfo, EntityGenKindEnum.ENTITY_SYSTEM_COMMON);
-  //
-  // sb.append("}" + RT);
-  // }
 }

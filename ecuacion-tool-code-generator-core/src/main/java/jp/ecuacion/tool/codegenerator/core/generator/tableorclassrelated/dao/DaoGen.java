@@ -14,12 +14,11 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.AbstractTableOrClassRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
-public class DaoGen extends AbstractTableOrClassRelatedGen {
+public class DaoGen extends AbstractDaoRelatedGen {
 
   private CodeGenUtil code = new CodeGenUtil();
 
@@ -31,7 +30,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
   public void generate() throws AppException {
 
     // Entity別のbaseDao / baseRepositoryImplを作成
-    for (DbOrClassTableInfo tableInfo : getTableList()) {
+    for (DbOrClassTableInfo tableInfo : info.dbRootInfo.tableList) {
       String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
       // super.makePkList(tableInfo);
@@ -193,7 +192,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
       importMgr.add("jp.ecuacion.util.jpa.dao.query.QueryCondition");
       for (DbOrClassColumnInfo ci : ti.columnList) {
         DataTypeInfo dtInfo = ci.getDtInfo();
-        importMgr.add(getHelper(dtInfo.getKata()).getNeededImports(ci));
+        importMgr.add(code.getHelper(dtInfo.getKata()).getNeededImports(ci));
       }
     }
 
@@ -203,8 +202,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
         String dataType = colInfo.getDataType();
         DataTypeInfo dtInfo = colInfo.getDtInfo();
         if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-          String importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-              + ".base.enums." + CodeGenUtil.dataTypeNameToCapitalCamel(dataType) + "Enum";
+          String importClassStr =
+              rootBasePackage + ".base.enums." + code.dataTypeNameToCapitalCamel(dataType) + "Enum";
           importMgr.add(importClassStr);
         }
       }
@@ -315,7 +314,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
         DataTypeInfo dtInfo = ci.getDtInfo();
         // dateは対象外（java.time.*をimportするが未使用）
         if (dtInfo.getKata() != DataTypeKataEnum.DATE) {
-          importMgr.add(getHelper(dtInfo.getKata()).getNeededImports(ci));
+          importMgr.add(code.getHelper(dtInfo.getKata()).getNeededImports(ci));
         }
       }
     }
@@ -326,8 +325,8 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
         String dataType = colInfo.getDataType();
         DataTypeInfo dtInfo = colInfo.getDtInfo();
         if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-          String importClassStr = getRootBasePackageOfDataTypeFromAllSystem(colInfo.getDataType())
-              + ".base.enums." + CodeGenUtil.dataTypeNameToCapitalCamel(dataType) + "Enum";
+          String importClassStr =
+              rootBasePackage + ".base.enums." + code.dataTypeNameToCapitalCamel(dataType) + "Enum";
           importMgr.add(importClassStr);
         }
       }
