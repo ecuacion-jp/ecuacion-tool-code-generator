@@ -1,4 +1,4 @@
-package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.record;
+package jp.ecuacion.tool.codegenerator.core.generator.record;
 
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;

@@ -1,4 +1,4 @@
-package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity;
+package jp.ecuacion.tool.codegenerator.core.generator.entity;
 
 import java.io.IOException;
 import java.lang.annotation.ElementType;
@@ -32,8 +32,8 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Genera
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.IdGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.SequenceGeneratorGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.VersionGen;
+import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.dao.AbstractDaoRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;

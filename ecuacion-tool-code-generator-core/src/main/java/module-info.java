@@ -1,6 +1,5 @@
 module jp.ecuacion.tool.codegenerator.core {
   exports jp.ecuacion.tool.codegenerator.core.controller;
-  exports jp.ecuacion.tool.codegenerator.core.checker;
   exports jp.ecuacion.tool.codegenerator.core.constant;
   exports jp.ecuacion.tool.codegenerator.core.dto;
   exports jp.ecuacion.tool.codegenerator.core.enums;
@@ -8,8 +7,7 @@ module jp.ecuacion.tool.codegenerator.core {
   exports jp.ecuacion.tool.codegenerator.core.generator.annotation;
   exports jp.ecuacion.tool.codegenerator.core.generator.annotation.param;
   exports jp.ecuacion.tool.codegenerator.core.generator.annotation.validator;
-  exports jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity;
-  exports jp.ecuacion.tool.codegenerator.core.preparer;
+  exports jp.ecuacion.tool.codegenerator.core.generator.entity;
   exports jp.ecuacion.tool.codegenerator.core.validation;
 
   opens jp.ecuacion.tool.codegenerator.core.config;

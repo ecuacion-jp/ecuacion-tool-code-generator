@@ -1,8 +1,8 @@
-package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity.genhelper;
+package jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper;
 
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 
-public class GenHelperDateTime extends GenHelperNoNumberObj {
+public class GenHelperTimestamp extends GenHelperNoNumberObj {
   @Override
   protected String getStringParamSetter(String columnNameCp, String columnNameSm, String dataType) {
     StringBuilder sb = new StringBuilder();
@@ -17,8 +17,9 @@ public class GenHelperDateTime extends GenHelperNoNumberObj {
         + ").getTime()));" + RT);
     sb.append(T2 + "} catch (ParseException pe) {" + RT);
     sb.append(T3 + "ArrayList<AppException> exArr = new ArrayList<AppException>();" + RT);
-    sb.append(T3 + "exArr.add(new BizLogicAppException(\"MSG_ERR_TIMESTAMP_FORMAT_WRONG\", "
-        + columnNameSm + "Info.getDisplayName(), str" + columnNameCp + "));" + RT);
+    sb.append(
+        T3 + "exArr.add(new BizLogicAppException(\"MSG_ERR_TIMESTAMP_FORMAT_WRONG\", "
+            + columnNameSm + "Info.getDisplayName(), str" + columnNameCp + "));" + RT);
     sb.append(T3 + "throw new MultipleAppException(exArr);" + RT);
     sb.append(T2 + "}" + RT);
     sb.append(T1 + "}" + RT2);
@@ -27,11 +28,13 @@ public class GenHelperDateTime extends GenHelperNoNumberObj {
 
   @Override
   public String[] getNeededImports(DbOrClassColumnInfo columnInfo) {
-    String[] rtnStrings = mergeStrings(super.getNeededImports(columnInfo), "java.time.*");
-    if (columnInfo.isAutoIncrement() || columnInfo.isAutoUpdate() || columnInfo.isForcedIncrement()
-        || columnInfo.isForcedUpdate()) {
-      // rtnStrings = mergeStrings(rtnStrings, "jp.ecuacion.lib.core.util.*");
-    }
+    String[] rtnStrings =
+        mergeStrings(super.getNeededImports(columnInfo), "java.time.*");
+    // if (columnInfo.isAutoIncrement() || columnInfo.isAutoUpdate() ||
+    // columnInfo.isForcedIncrement()
+    // || columnInfo.isForcedUpdate()) {
+    // rtnStrings = mergeStrings(rtnStrings, "jp.ecuacion.lib.core.util.*");
+    // }
 
     return rtnStrings;
   }

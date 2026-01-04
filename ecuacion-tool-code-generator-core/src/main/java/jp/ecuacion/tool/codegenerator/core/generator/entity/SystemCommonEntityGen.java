@@ -1,4 +1,4 @@
-package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity;
+package jp.ecuacion.tool.codegenerator.core.generator.entity;
 
 import java.io.IOException;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
