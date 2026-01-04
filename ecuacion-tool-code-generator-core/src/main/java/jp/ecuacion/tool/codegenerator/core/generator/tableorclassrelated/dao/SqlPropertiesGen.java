@@ -33,11 +33,9 @@ public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
     List<SqlInfo> sqlInfoArrForNativeSqlProp = new ArrayList<>();
 
     for (DbOrClassTableInfo tableInfo : getTableList()) {
-      final String tableNameCp =
-          StringUtil.getUpperCamelFromSnake(tableInfo.getName());
+      final String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
-      makePkList(tableInfo);
-      makeParts();
+      makeParts(tableInfo);
       // insert
       sqlInfoArrForNativeSqlProp.add(getInsertSqlInfo(tableInfo));
       // insertAll
@@ -62,7 +60,7 @@ public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
     super.outputFile(sqls, path, fileName);
   }
 
-  private void makeParts() {
+  private void makeParts(DbOrClassTableInfo tableInfo) {
     sbWhere = new StringBuilder();
     sbWhereAndRem = new StringBuilder();
     sbOrder = new StringBuilder();
@@ -70,7 +68,7 @@ public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
     sbWhere.append(T1 + "where ");
     sbOrder.append(T1 + "order by ");
     boolean isFirst = true;
-    for (DbOrClassColumnInfo ci : pkList) {
+    for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(ci -> ci.isPk()).toList()) {
       if (isFirst) {
         sbWhere.append(ci.getName() + " = ?");
         sbOrder.append(ci.getName());
