@@ -115,7 +115,6 @@ public class GenerationBlf {
         // }
         // }
 
-
       } else if (dataKind == DataKindEnum.DB) {
         Logger.log(this, "GEN_DB");
         List<AbstractTableOrClassRelatedGen> genArr =
