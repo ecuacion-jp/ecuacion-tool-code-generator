@@ -23,7 +23,7 @@ public class EntityBodyGen extends EntityGen {
   @Override
   public void generate() throws AppException, IOException, InterruptedException {
 
-    for (DbOrClassTableInfo tableInfo : getTableList()) {
+    for (DbOrClassTableInfo tableInfo : info.dbRootInfo.tableList) {
       sb = new StringBuilder();
       createSource(tableInfo,
           ((DbOrClassRootInfo) info.rootInfoMap.get(DataKindEnum.DB_COMMON)).tableList
@@ -32,7 +32,7 @@ public class EntityBodyGen extends EntityGen {
           StringUtil.getUpperCamelFromSnake(tableInfo.getName()) + ".java");
     }
 
-    appendItemNamesProperties(EntityGenKindEnum.ENTITY_BODY);
+    appendItemNamesProperties(EntityGenKindEnum.ENTITY_BODY, info.dbRootInfo.tableList);
   }
 
   public void createSource(DbOrClassTableInfo tableInfo, List<DbOrClassColumnInfo> commonColumnList)

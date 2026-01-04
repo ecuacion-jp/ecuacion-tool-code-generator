@@ -1,18 +1,22 @@
 package jp.ecuacion.tool.codegenerator.core.util.generator;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
+import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity.genhelper.GenHelperKata;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -101,7 +105,7 @@ public class CodeGenUtil {
   /**
    * Changes data type name format: "DT_XXX" to capitalized camel case.
    */
-  public static String dataTypeNameToCapitalCamel(String str) {
+  public String dataTypeNameToCapitalCamel(String str) {
     return StringUtil.getUpperCamelFromSnake(str.substring(3));
   }
 
@@ -112,7 +116,7 @@ public class CodeGenUtil {
     String rtn = null;
 
     if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-      rtn = CodeGenUtil.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName())
+      rtn = dataTypeNameToCapitalCamel(dtInfo.getDataTypeName())
           + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString());
 
     } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
@@ -135,6 +139,32 @@ public class CodeGenUtil {
   /*
    * columns related common
    */
+
+
+  private HashMap<DataTypeKataEnum, GenHelperKata> helperMap =
+      new HashMap<DataTypeKataEnum, GenHelperKata>();
+
+  /**
+   * Gets Helper.
+   */
+  public GenHelperKata getHelper(DataTypeKataEnum kata) {
+    if (!helperMap.containsKey(kata)) {
+      try {
+        @SuppressWarnings("unchecked")
+        Class<GenHelperKata> cls = (Class<GenHelperKata>) Class.forName(Constants.STR_PACKAGE_HOME
+            + ".core.generator.tableorclassrelated.entity.genhelper.GenHelper"
+            + StringUtil.getUpperCamelFromSnake(kata.getName()));
+        Constructor<GenHelperKata> con = cls.getConstructor();
+        GenHelperKata helper = con.newInstance();
+        helperMap.put(kata, helper);
+
+      } catch (ReflectiveOperationException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    return helperMap.get(kata);
+  }
 
   /**
    * Generatos column related string like getter.

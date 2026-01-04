@@ -8,9 +8,8 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.AbstractTableOrClassRelatedGen;
 
-public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
+public class SqlPropertiesGen extends AbstractDaoRelatedGen {
 
   StringBuilder sbWhere;
   StringBuilder sbWhereAndRem;
@@ -32,7 +31,7 @@ public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
     // List<SqlInfo> sqlInfoArrForOrmXml = new ArrayList<>();
     List<SqlInfo> sqlInfoArrForNativeSqlProp = new ArrayList<>();
 
-    for (DbOrClassTableInfo tableInfo : getTableList()) {
+    for (DbOrClassTableInfo tableInfo : info.dbRootInfo.tableList) {
       final String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
       makeParts(tableInfo);
@@ -126,16 +125,13 @@ public class SqlPropertiesGen extends AbstractTableOrClassRelatedGen {
         sbInsert.append(T2 + comma + ci.getName() + sqlRt + RT);
       }
     }
-    if (commonTableList != null) {
-      for (DbOrClassTableInfo commonTableInfo : commonTableList) {
-        commonColumnList = commonTableInfo.columnList;
-        for (DbOrClassColumnInfo ci : commonColumnList.stream().filter(e -> !e.getIsJavaOnly())
-            .toList()) {
-          DataTypeKataEnum kata = ci.getDtInfo().getKata();
-          if (!(ci.isAutoIncrement()
-              && (kata == DataTypeKataEnum.INTEGER || kata == DataTypeKataEnum.LONG))) {
-            sbInsert.append(T2 + ", " + ci.getName() + sqlRt + RT);
-          }
+    if (info.getCommonTableInfo() != null) {
+      for (DbOrClassColumnInfo ci : info.getCommonTableInfo().columnList.stream()
+          .filter(e -> !e.getIsJavaOnly()).toList()) {
+        DataTypeKataEnum kata = ci.getDtInfo().getKata();
+        if (!(ci.isAutoIncrement()
+            && (kata == DataTypeKataEnum.INTEGER || kata == DataTypeKataEnum.LONG))) {
+          sbInsert.append(T2 + ", " + ci.getName() + sqlRt + RT);
         }
       }
     }

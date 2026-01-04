@@ -1,10 +1,10 @@
 package jp.ecuacion.tool.codegenerator.core.generator;
 
-import java.io.File;
 import java.util.Map;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
@@ -52,15 +52,16 @@ public class Info {
     groupRootInfo = (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP);
   }
 
+  public DbOrClassTableInfo getCommonTableInfo() {
+    return rootInfoMap.containsKey(DataKindEnum.DB_COMMON) ? dbCommonRootInfo.tableList.get(0)
+        : null;
+  }
+
   public GeneratePtnEnum getGenPtn() {
     return genPtn;
   }
 
   public void setGenPtn(GeneratePtnEnum genPtn) {
     this.genPtn = genPtn;
-  }
-
-  public String getWorkDir() {
-    return outputDir + "/" + "###work###" + File.separator;
   }
 }
