@@ -34,7 +34,7 @@ public class DaoGen extends AbstractTableOrClassRelatedGen {
     for (DbOrClassTableInfo tableInfo : getTableList()) {
       String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
-      super.makePkList(tableInfo);
+      // super.makePkList(tableInfo);
 
       if (info.sysCmnRootInfo.getUsesUtilJpa()) {
         createBaseDaos(tableInfo, entityNameCp);

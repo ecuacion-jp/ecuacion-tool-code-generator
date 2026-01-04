@@ -51,8 +51,7 @@ public class PreparerForDbAndDataType {
    */
   private void checkIfDataTypeInEnumExistsInDataTypeInfo() throws AppException {
 
-    HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap = info.systemMap.get(info.systemName);
-    EnumRootInfo enumRootInfo = ((EnumRootInfo) rootInfoMap.get(DataKindEnum.ENUM));
+    EnumRootInfo enumRootInfo = ((EnumRootInfo) info.rootInfoMap.get(DataKindEnum.ENUM));
 
     // enumInfoが存在しない場合はスキップ
     if (enumRootInfo == null) {
@@ -84,9 +83,7 @@ public class PreparerForDbAndDataType {
   private void checkIfDataTypeInDbOrClassExistsInDataTypeInfoCommon(DataKindEnum dataKind)
       throws AppException {
 
-    HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap = info.systemMap.get(info.systemName);
-
-    DbOrClassRootInfo rootInfo = ((DbOrClassRootInfo) rootInfoMap.get(dataKind));
+    DbOrClassRootInfo rootInfo = ((DbOrClassRootInfo) info.rootInfoMap.get(dataKind));
     if (rootInfo == null) {
       return;
     }
@@ -97,7 +94,7 @@ public class PreparerForDbAndDataType {
       for (DbOrClassColumnInfo ci : ti.columnList) {
         if (!list.contains(ci.getDataType())) {
           throw new BizLogicAppException("MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION",
-              ((SystemCommonRootInfo) rootInfoMap.get(dataKind)).getSystemName(),
+              ((SystemCommonRootInfo) info.rootInfoMap.get(dataKind)).getSystemName(),
               dataKind.getLabel(), ti.getName() + "." + ci.getName(), ci.getDataType());
         }
       }
@@ -106,10 +103,9 @@ public class PreparerForDbAndDataType {
 
   private void checkRepeatedEmerge() throws AppException {
 
-    HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap = info.systemMap.get(info.systemName);
-    Iterator<DataKindEnum> it = rootInfoMap.keySet().iterator();
+    Iterator<DataKindEnum> it = info.rootInfoMap.keySet().iterator();
     while (it.hasNext()) {
-      AbstractRootInfo rootInfo = rootInfoMap.get(it.next());
+      AbstractRootInfo rootInfo = info.rootInfoMap.get(it.next());
       if (rootInfo instanceof EnumRootInfo) {
         checkRepeatedEmergeEnum((EnumRootInfo) rootInfo);
       }
@@ -191,10 +187,9 @@ public class PreparerForDbAndDataType {
 
   private void checkRepeatedEmergeDataType() throws AppException {
 
-    HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap = info.systemMap.get(info.systemName);
     HashSet<String> dtNameSet = new HashSet<String>();
 
-    DataTypeRootInfo dtRootInfo = (DataTypeRootInfo) rootInfoMap.get(DataKindEnum.DATA_TYPE);
+    DataTypeRootInfo dtRootInfo = (DataTypeRootInfo) info.rootInfoMap.get(DataKindEnum.DATA_TYPE);
 
     // dataType自身の中に2回出現がないかを確認
     if (dtRootInfo != null) {
@@ -211,13 +206,12 @@ public class PreparerForDbAndDataType {
 
   private void checkRepeatedEmergeDbOrClass() throws AppException {
 
-    HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap = info.systemMap.get(info.systemName);
     HashSet<String> dbCommonColSet = new HashSet<String>();
     // HashSet<String> clsTableSet = null;
 
-    DbOrClassRootInfo dbRootInfo = (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB);
+    DbOrClassRootInfo dbRootInfo = (DbOrClassRootInfo) info.rootInfoMap.get(DataKindEnum.DB);
     DbOrClassRootInfo dbCommonRootInfo =
-        (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON);
+        (DbOrClassRootInfo) info.rootInfoMap.get(DataKindEnum.DB_COMMON);
     // DbOrClassRootInfo clsRootInfo = (DbOrClassRootInfo)
     // rootInfoMap.get(DataKindEnum.XML_POST_FIX_CLS);
 
@@ -276,10 +270,9 @@ public class PreparerForDbAndDataType {
 
   private void checkKataBetsuSyori() throws AppException {
 
-    HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap = info.systemMap.get(info.systemName);
-    DbOrClassRootInfo dbRootInfo = (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB);
+    DbOrClassRootInfo dbRootInfo = (DbOrClassRootInfo) info.rootInfoMap.get(DataKindEnum.DB);
     DbOrClassRootInfo dbCommonRootInfo =
-        (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON);
+        (DbOrClassRootInfo) info.rootInfoMap.get(DataKindEnum.DB_COMMON);
 
     // 自動採番
     if (dbRootInfo != null) {

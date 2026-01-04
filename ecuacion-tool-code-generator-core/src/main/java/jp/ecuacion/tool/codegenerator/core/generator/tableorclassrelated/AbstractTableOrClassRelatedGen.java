@@ -28,8 +28,8 @@ public abstract class AbstractTableOrClassRelatedGen extends AbstractGen {
   private List<DbOrClassTableInfo> tableList;
   protected List<DbOrClassTableInfo> commonTableList;
   protected List<DbOrClassColumnInfo> commonColumnList;
-  protected List<DbOrClassColumnInfo> pkList;
-  protected List<DbOrClassColumnInfo> nonPkList;
+  // protected List<DbOrClassColumnInfo> pkList;
+  // protected List<DbOrClassColumnInfo> nonPkList;
 
   private HashMap<DataTypeKataEnum, GenHelperKata> helperMap =
       new HashMap<DataTypeKataEnum, GenHelperKata>();
@@ -48,7 +48,7 @@ public abstract class AbstractTableOrClassRelatedGen extends AbstractGen {
 
     // tableListの生成
     DbOrClassRootInfo rootInfo =
-        ((DbOrClassRootInfo) info.systemMap.get(info.systemName).get(xmlFilePostFix));
+        ((DbOrClassRootInfo) info.rootInfoMap.get(xmlFilePostFix));
     if (rootInfo != null) {
       setTableList(rootInfo.tableList);
     }
@@ -59,11 +59,11 @@ public abstract class AbstractTableOrClassRelatedGen extends AbstractGen {
     postfixCp = (usesSpringName) ? "RepositoryImpl" : "Dao";
 
     boolean doesHaveDbCommon =
-        info.systemMap.get(info.systemName).containsKey(DataKindEnum.DB_COMMON);
+        info.rootInfoMap.containsKey(DataKindEnum.DB_COMMON);
 
     if (doesHaveDbCommon) {
       DbOrClassRootInfo dbOrClassRootInfo =
-          (DbOrClassRootInfo) info.systemMap.get(info.systemName).get(DataKindEnum.DB_COMMON);
+          (DbOrClassRootInfo) info.rootInfoMap.get(DataKindEnum.DB_COMMON);
 
       if (dbOrClassRootInfo.tableList.size() > 0) {
         commonTableList = dbOrClassRootInfo.tableList;
@@ -72,15 +72,6 @@ public abstract class AbstractTableOrClassRelatedGen extends AbstractGen {
         commonTableList = new ArrayList<>();
         commonColumnList = new ArrayList<>();
       }
-    }
-  }
-
-  public void makePkList(DbOrClassTableInfo tableInfo) {
-    pkList = new ArrayList<DbOrClassColumnInfo>();
-    nonPkList = new ArrayList<DbOrClassColumnInfo>();
-
-    for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-      nonPkList.add(ci);
     }
   }
 
