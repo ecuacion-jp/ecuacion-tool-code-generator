@@ -2,7 +2,9 @@ package jp.ecuacion.tool.codegenerator.core.blf;
 
 import java.io.File;
 import java.util.HashMap;
+import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.util.ValidationUtil;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController.SkipException;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeRootInfo;
@@ -11,6 +13,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelDbCommonReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelDbReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelEnumReader;
@@ -20,14 +23,23 @@ import jp.ecuacion.util.poi.excel.table.reader.concrete.StringOneLineHeaderExcel
 /**
  * Reads Excel Format and returns read data.
  */
-public class ExcelFormatReadBlf {
+public class ReadExcelFilesBlf {
 
+  private DetailLogger detailLog = new DetailLogger(this);
+  
   /**
    * 戻り値はsystemMap： systemNameをキーとして、systemごとに振り分けられたxmlMapを値に持つリスト。
    * それぞれのxmlMapには、xmlファイル名をキーとして、そのrooList（SuperRootInfo型）がセットで納められている
    * ※SuperRootInfoには複数の実装がある（enumRootInfoなど）
    */
-  public HashMap<DataKindEnum, AbstractRootInfo> read(File file) throws Exception {
+  public HashMap<DataKindEnum, AbstractRootInfo> execute(File file) throws Exception {
+
+    detailLog.info("read excel : " + file.getName());
+
+    // fileの中身から見てスキップすべきの場合、continue.
+    if (shouldSkip(file, "xlsx")) {
+      throw new SkipException();
+    }
 
     // excelのシート単位とは異なるのだが、元々のxml時代のファイル分け単位に一旦沿って実装
     HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap = null;
@@ -57,7 +69,7 @@ public class ExcelFormatReadBlf {
       rootInfo.consistencyCheckAndCoplementData();
     }
 
-    // ファイルがなくてもrootInfoは作成しておく処理（必要なもののみ）。個別アプリ（base）以外は不要のため作成しない
+    // ファイルがなくてもrootInfoは作成しておく処理（必要なもののみ）
     putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_REMOVED_DATA, new MiscSoftDeleteRootInfo());
     putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_GROUP, new MiscGroupRootInfo());
     putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_OPTIMISTIC_LOCK,
@@ -70,6 +82,26 @@ public class ExcelFormatReadBlf {
       DataKindEnum filePostfix, AbstractRootInfo rootInfo) {
     if (!fileMap.containsKey(filePostfix)) {
       fileMap.put(filePostfix, rootInfo);
+    }
+  }
+
+  private boolean shouldSkip(File file, String extension) {
+    // ディレクトリの場合はスキップ
+    if (file.isDirectory()) {
+      Logger.log(ReadExcelFilesBlf.class, "MSG_INFO_DIRECTORY_INCLUDED", file.getName());
+      return true;
+
+    } else if (!file.getName().endsWith("." + extension)) {
+      // xml / excelでない場合はスキップ
+      Logger.log(ReadExcelFilesBlf.class, "MSG_INFO_NON_XML_FILE_INCLUDED", file.getName());
+      return true;
+
+    } else if (file.getName().startsWith("~$")) {
+      // excelの一時ファイルが勝手にこのファイル名でできるのでスキップ
+      return true;
+
+    } else {
+      return false;
     }
   }
 }

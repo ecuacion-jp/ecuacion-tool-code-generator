@@ -1,4 +1,4 @@
-package jp.ecuacion.tool.codegenerator.core.preparer;
+package jp.ecuacion.tool.codegenerator.core.bl;
 
 public class PreparerForDbTable {
 
