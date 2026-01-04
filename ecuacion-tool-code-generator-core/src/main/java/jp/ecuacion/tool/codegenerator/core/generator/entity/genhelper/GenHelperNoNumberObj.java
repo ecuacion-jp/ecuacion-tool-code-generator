@@ -1,4 +1,4 @@
-package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity.genhelper;
+package jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper;
 
 public abstract class GenHelperNoNumberObj extends GenHelperKata {
 

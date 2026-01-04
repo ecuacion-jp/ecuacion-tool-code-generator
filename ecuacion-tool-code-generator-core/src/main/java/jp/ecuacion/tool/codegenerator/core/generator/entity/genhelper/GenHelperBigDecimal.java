@@ -1,4 +1,4 @@
-package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity.genhelper;
+package jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper;
 
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 

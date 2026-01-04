@@ -1,4 +1,4 @@
-package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.dao;
+package jp.ecuacion.tool.codegenerator.core.generator.dao;
 
 import java.util.ArrayList;
 import java.util.List;
