@@ -1,6 +1,5 @@
 package jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.record;
 
-import java.util.List;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
@@ -21,10 +20,12 @@ public class SystemCommonBaseRecordGen extends BaseRecordGen {
 
   @Override
   public void generate() throws AppException {
-    List<DbOrClassTableInfo> tableList = getTableList();
 
-    // if (tableList != null) {
-    DbOrClassTableInfo tableInfo = tableList.get(0);
+    DbOrClassTableInfo tableInfo = info.getCommonTableInfo();
+    if (tableInfo == null) {
+      return;
+    }
+    
     final String tableNameCp =
         StringUtil.getUpperCamelFromSnake(tableInfo.getName());
     sb = new StringBuilder();

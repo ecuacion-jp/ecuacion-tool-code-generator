@@ -17,7 +17,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.enums.EnumGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.ValidationMessagesPatternDescriptionsGen;
 import jp.ecuacion.tool.codegenerator.core.generator.systemcommon.Miscellaneous;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.AbstractTableOrClassRelatedGen;
+import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.dao.AbstractDaoRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.dao.DaoGen;
 import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.dao.SqlPropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity.EntityBodyGen;
@@ -160,8 +160,8 @@ public class GenerationBlf {
 
       } else if (dataKind == DataKindEnum.DB) {
         Logger.log(this, "GEN_DB");
-        List<AbstractTableOrClassRelatedGen> genArr =
-            new ArrayList<AbstractTableOrClassRelatedGen>();
+        List<AbstractDaoRelatedGen> genArr =
+            new ArrayList<AbstractDaoRelatedGen>();
         genArr.add(new BaseRecordGen(DataKindEnum.DB));
         genArr.add(new EntityBodyGen(DataKindEnum.DB, false));
         // genArr.add(new EntityPkGen(Constants.XML_POST_FIX_DB, true));
@@ -169,7 +169,7 @@ public class GenerationBlf {
         genArr.add(new DaoGen(DataKindEnum.DB));
         genArr.add(new SqlPropertiesGen());
 
-        for (AbstractTableOrClassRelatedGen gen : genArr) {
+        for (AbstractDaoRelatedGen gen : genArr) {
           gen.generate();
         }
 
