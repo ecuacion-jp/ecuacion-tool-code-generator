@@ -1,20 +1,20 @@
-package jp.ecuacion.tool.codegenerator.core.checker;
+package jp.ecuacion.tool.codegenerator.core.bl;
 
-import java.util.HashMap;
+import java.util.Map;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
-public class FileLevelConsistencyChecker {
+public class CheckAndComplementFileLevelConsistencyCheckBl {
 
-  public void check(String systemName, HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap)
+  public void check(String systemName, Map<DataKindEnum, AbstractRootInfo> rootInfoMap)
       throws AppException {
     checkIfNeededXmlExist(systemName, rootInfoMap);
   }
 
   private void checkIfNeededXmlExist(String systemName,
-      HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap) throws AppException {
+      Map<DataKindEnum, AbstractRootInfo> rootInfoMap) throws AppException {
 
     if (!rootInfoMap.containsKey(DataKindEnum.DATA_TYPE)) {
       throw new BizLogicAppException("MSG_ERR_DT_FILE_EXIST", systemName);
@@ -33,8 +33,5 @@ public class FileLevelConsistencyChecker {
       // systemCommonは必ず存在しなければならない
       throw new BizLogicAppException("MSG_ERR_SYSTEM_COMMON_INFO_NOT_EXIST", systemName);
     }
-
-
   }
-
 }

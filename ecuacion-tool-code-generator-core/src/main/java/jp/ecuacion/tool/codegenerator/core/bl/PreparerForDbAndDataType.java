@@ -1,4 +1,4 @@
-package jp.ecuacion.tool.codegenerator.core.preparer;
+package jp.ecuacion.tool.codegenerator.core.bl;
 
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.DATE_TIME;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.INTEGER;

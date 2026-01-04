@@ -6,6 +6,7 @@ import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import jp.ecuacion.tool.codegenerator.core.generator.advice.AdviceGen;
@@ -30,10 +31,52 @@ public class GenerationBlf {
   
   private Info info;
 
-  public GenerationBlf(Info info, String outputDir) {
+  public GenerationBlf(Info info) {
     this.info = MainController.tlInfo.get();
   }
+  
+  public void execute() throws Exception {
+    // 1システムについても複数パターンの生成が必要な場合があるので、パターンを配列で持ち、それをループで実行する形をとる
+    List<GeneratePtnEnum> arr = new ArrayList<>();
 
+    if (shouldMakeNoGroupQuery(info)) {
+      if (shouldMakeNoGroupQueryForDaoOnly(info)) {
+        arr.add(GeneratePtnEnum.DAO_ONLY_GROUP_NORMAL);
+        arr.add(GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY);
+
+      } else {
+        // グループ指定なしqueryパターンで生成
+        arr.add(GeneratePtnEnum.NORMAL);
+        arr.add(GeneratePtnEnum.NO_GROUP_QUERY);
+      }
+
+    } else {
+      arr.add(GeneratePtnEnum.NORMAL);
+    }
+
+    // 通常は1システム1パターンだが、複数になる場合は複数に分けて生成
+    for (GeneratePtnEnum anEnum : arr) {
+      info.setGenPtn(anEnum);
+      controlGenerators();
+    }
+  }
+
+  private boolean shouldMakeNoGroupQuery(Info info) {
+    if (info.groupRootInfo == null) {
+      return false;
+    }
+
+    return info.groupRootInfo.getNeedsUngroupedSource();
+  }
+
+  private boolean shouldMakeNoGroupQueryForDaoOnly(Info info) {
+    if (info.groupRootInfo == null) {
+      return false;
+    }
+
+    return info.groupRootInfo.getDevidesDaoIntoOtherProject();
+  }
+  
   // xmlファイルの種類ごとに必要なファイルを作成
   public void controlGenerators() throws Exception {
     Logger.log(this, "SINGLE_BORDER");
