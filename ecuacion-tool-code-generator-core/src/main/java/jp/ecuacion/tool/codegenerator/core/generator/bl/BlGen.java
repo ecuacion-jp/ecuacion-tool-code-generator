@@ -73,21 +73,22 @@ public class BlGen extends AbstractGen {
   private void generateInsertOrUpdate(DbOrClassTableInfo ti,
       List<DbOrClassColumnInfo> relFieldList) {
 
+    String entityName = code.capitalCamel(ti.getName());
     final String idField = code.capitalCamel(ti.getPkColumn().getName());
 
     sb.append(T1 + "/** Is a utility to insert or update an entity. */" + RT);
     StringBuilder relString = new StringBuilder();
     relFieldList.stream().forEach(ci -> relString.append(
         ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
-    sb.append(T1 + "public void insertOrUpdate(" + code.capitalCamel(ti.getName())
+    sb.append(T1 + "public " + entityName + " insertOrUpdate(" + code.capitalCamel(ti.getName())
         + "BaseRecord rec, " + code.capitalCamel(ti.getName()) + " entityForUpdate" + relString
         + ", String... skipUpdateFields) {" + RT);
-    sb.append(T2 + code.capitalCamel(ti.getName()) + " e = null;" + RT);
+    sb.append(T2 + entityName + " e = null;" + RT);
     sb.append(T2 + "boolean isInsert = rec.get" + idField + "() == null || rec.get" + idField
         + "().equals(\"\");" + RT2);
 
     sb.append(T2 + "if (isInsert) {" + RT);
-    sb.append(T3 + "e = new " + code.capitalCamel(ti.getName()) + "(rec);" + RT);
+    sb.append(T3 + "e = new " + entityName + "(rec);" + RT);
     relFieldList.stream()
         .forEach(ci -> sb.append(T3 + "e.set" + code.capitalCamel(ci.getRelationFieldName()) + "("
             + code.uncapitalCamel(ci.getRelationFieldName()) + ");" + RT));
@@ -99,7 +100,7 @@ public class BlGen extends AbstractGen {
         .forEach(ci -> relString2.append(", " + ci.getRelationFieldName()));
     sb.append(T3 + "e.update(rec" + relString2 + ");" + RT);
     sb.append(T2 + "}" + RT2);
-    sb.append(T2 + "repo.save(e);" + RT);
+    sb.append(T2 + "return repo.save(e);" + RT);
     sb.append(T1 + "}" + RT2);
   }
 
@@ -116,10 +117,11 @@ public class BlGen extends AbstractGen {
         .map(ci -> code.generateString(ci, ColFormat.ITEM_PROPERTY_PATH)).toList();
     final String itemPropertyPathsStr = "new String[] {"
         + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"", false) + "}";
-    final String itemNameKeysStr = "new String[] {"
-        + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "rec.getItem(\"",
-            "\").getItemNameKey(\"" + StringUtils.uncapitalize(entityName) + "\")", false)
-        + "}";
+    final String itemNameKeysStr =
+        "new String[] {"
+            + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "rec.getItem(\"",
+                "\").getItemNameKey(\"" + StringUtils.uncapitalize(entityName) + "\")", false)
+            + "}";
 
     sb.append(T2 + "Optional<" + entityName + "> optional = repo.findBy"
         + StringUtils.capitalize(code.naturalKeyUncapitalCamelAndRelConsidered(ti)) + "("
