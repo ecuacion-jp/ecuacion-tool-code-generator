@@ -9,6 +9,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
+import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColListFormat;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -49,12 +50,11 @@ public class BlGen extends AbstractGen {
 
     importMgr.add(rootBasePackage + ".base.entity.*", rootBasePackage + ".base.record.*",
         rootBasePackage + ".base.repository.*",
-        "org.springframework.beans.factory.annotation.Autowired");
+        "org.springframework.beans.factory.annotation.Autowired", "jp.ecuacion.splib.core.bl.*");
 
     if (tableInfo.hasUniqueConstraint()) {
       importMgr.add("jp.ecuacion.lib.core.exception.checked.BizLogicAppException",
-          "java.util.Optional", "java.util.List", "jp.ecuacion.lib.core.util.StringUtil",
-          "java.util.Arrays", "jp.ecuacion.lib.core.util.PropertyFileUtil.Arg");
+          "java.util.Optional");
     }
 
     relFieldList.stream().forEach(ci -> importMgr
@@ -62,7 +62,7 @@ public class BlGen extends AbstractGen {
 
     sb.append(importMgr.outputStr() + RT);
 
-    sb.append("public abstract class " + entityNameCp + "BaseBl {" + RT2);
+    sb.append("public abstract class " + entityNameCp + "BaseBl extends SplibCoreBl {" + RT2);
   }
 
   private void generateFields(DbOrClassTableInfo ti, String entityNameCp) {
@@ -114,59 +114,21 @@ public class BlGen extends AbstractGen {
 
     List<String> itemPropertyPathList = ti.columnList.stream().filter(ci -> ci.isUniqueConstraint())
         .map(ci -> code.generateString(ci, ColFormat.ITEM_PROPERTY_PATH)).toList();
-    String itemPropertyPathsStr =
-        StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"", false);
-
-    sb.append(
-        T2 + "String[] itemPropertyPaths = new String[] {" + itemPropertyPathsStr + "};" + RT);
-    sb.append(T2 + "List<String> itemNameKeyList = Arrays.asList(itemPropertyPaths).stream()"
-        + ".map(path -> rec.getItem(path).getItemNameKey()).toList();" + RT2);
+    final String itemPropertyPathsStr = "new String[] {"
+        + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"", false) + "}";
+    final String itemNameKeysStr = "new String[] {"
+        + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "rec.getItem(\"",
+            "\").getItemNameKey(\"" + StringUtils.uncapitalize(entityName) + "\")", false)
+        + "}";
 
     sb.append(T2 + "Optional<" + entityName + "> optional = repo.findBy"
-        + StringUtils.capitalize(code.naturalKeyUncapitalCamelAndRelConsidered(ti)) + "(");
+        + StringUtils.capitalize(code.naturalKeyUncapitalCamelAndRelConsidered(ti)) + "("
+        + code.generateString(ti.columnList.stream().filter(ci -> ci.isUniqueConstraint()).toList(),
+            ColListFormat.REC_GET_OF_ENTITY_DATA_TYPE)
+        + ");" + RT);
 
-    boolean is1st = true;
-    for (DbOrClassColumnInfo ci : ti.columnList) {
-      if (ci.isUniqueConstraint()) {
-        if (is1st) {
-          is1st = false;
-
-        } else {
-          sb.append(", ");
-        }
-
-        sb.append("rec." + code.getOfEntityDataType(ci));
-      }
-    }
-
-    sb.append(");" + RT2);
-    sb.append(T2 + "if (optional.isPresent()) {" + RT);
-    sb.append(T3
-        + "String msgId = \"jp.ecuacion.splib.web.jpa.service.SplibEditJpaService.message.\""
-        + " + (itemPropertyPaths.length == 1 ? \"duplicated\" : \"combinationDuplicated\");" + RT);
-    sb.append(T3 + "String str = StringUtil.getSeparatedValuesString(itemNameKeyList, \"、\", "
-        + "\"「${+item_names:\", \"}」\", false);" + RT);
-
-    sb.append(T3 + "throw new BizLogicAppException("
-        + "itemPropertyPaths, msgId, new Arg[] {Arg.formattedString(str)});" + RT);
-    sb.append(T2 + "}" + RT);
+    sb.append(T2 + "throwExceptionWhenDuplicated(optional.isPresent(), " + itemPropertyPathsStr
+        + ", " + itemNameKeysStr + ");" + RT);
     sb.append(T1 + "}" + RT);
   }
-
-  // String[] itemPropertyPaths = new String[] {"accGeneral.acc.id", "app.id"};
-  // List<String> itemNameKeyList = Arrays.asList(itemPropertyPaths).stream().map(path ->
-  // rec.getItem(path).getItemNameKey()).toList();
-  //
-  // Optional<AccApp> optional =
-  // repo.findByAccGeneral_AccIdAndApp_Id(rec.getAccGeneral().getAcc().getIdOfEntityDataType(),
-  // rec.getApp().getIdOfEntityDataType());
-  //
-  // if (optional.isPresent()) {
-  // String msgId = "jp.ecuacion.splib.web.jpa.service.SplibEditJpaService.message." +
-  // (itemPropertyPaths.length == 1 ? "duplicated" : "combinationDuplicated");
-  // String str = StringUtil.getSeparatedValuesString(itemNameKeyList, "、", "「${+item_names:", "}」",
-  // false);
-  // throw new BizLogicAppException(itemPropertyPaths, msgId, new Arg[] {Arg.formattedString(str)});
-  // }
-
 }
