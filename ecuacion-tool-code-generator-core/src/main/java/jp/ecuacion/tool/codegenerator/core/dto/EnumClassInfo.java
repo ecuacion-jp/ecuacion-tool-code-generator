@@ -17,6 +17,8 @@ public class EnumClassInfo extends StringExcelTableBean {
   @Valid
   public List<EnumValueInfo> enumList = new ArrayList<EnumValueInfo>();
 
+  private CodeGenUtil code = new CodeGenUtil();
+
   @NotEmpty
   @Size(min = 1, max = 50)
   @Pattern(regexp = Constants.REG_EX_DT_NAME)
@@ -45,7 +47,7 @@ public class EnumClassInfo extends StringExcelTableBean {
   @NotEmpty
   @Size(min = 1, max = 50)
   public String getEnumName() {
-    return CodeGenUtil.dataTypeNameToCapitalCamel(dataTypeName) + "Enum";
+    return code.dataTypeNameToCapitalCamel(dataTypeName) + "Enum";
   }
 
   public DataTypeInfo getDtInfo() {

@@ -14,7 +14,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.FieldSingleAnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity.EntityGenKindEnum;
+import jp.ecuacion.tool.codegenerator.core.generator.entity.EntityGenKindEnum;
 
 public class SequenceGeneratorGen extends FieldSingleAnnotationGen {
 
