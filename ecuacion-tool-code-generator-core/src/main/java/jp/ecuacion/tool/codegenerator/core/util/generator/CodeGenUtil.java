@@ -140,7 +140,6 @@ public class CodeGenUtil {
    * columns related common
    */
 
-
   private HashMap<DataTypeKataEnum, GenHelperKata> helperMap =
       new HashMap<DataTypeKataEnum, GenHelperKata>();
 
@@ -221,7 +220,7 @@ public class CodeGenUtil {
   /**
    * Generates a multiple columns connected string.
    */
-  private String generateString(List<DbOrClassColumnInfo> ciList, ColListFormat formatType) {
+  public String generateString(List<DbOrClassColumnInfo> ciList, ColListFormat formatType) {
     StringBuilder sb = new StringBuilder();
 
     boolean is1st = true;
@@ -249,6 +248,8 @@ public class CodeGenUtil {
         case ENTITY_GET -> sb.append("e.get" + capitalCamel(ci.getName()) + "()");
         case ENTITY_DEFINE -> sb.append((getEnumConsideredKata(dtInfo)) + " "
             + StringUtil.getLowerCamelFromSnake(ci.getName()));
+        case REC_GET_OF_ENTITY_DATA_TYPE -> sb
+            .append("rec." + generateString(ci, ColFormat.GET_OF_ENTITY_DATA_TYPE));
         case JPQL -> sb.append(ci.getName().toLowerCase() + " = :" + colNameLc);
         case SQL_PARAM -> sb.append(ci.getName().toLowerCase() + " = :#{#entity."
             + StringUtil.getLowerCamelFromSnake(ci.getName())
@@ -268,7 +269,7 @@ public class CodeGenUtil {
     ITEM_PROPERTY_PATH, GET, GET_OF_ENTITY_DATA_TYPE
   }
 
-  private static enum ColListFormat {
+  public static enum ColListFormat {
     /** naturalKeyをentityからgetする形の "myArg1MyArg2" という形式 */
     JPQL(BetweenColumns.PADDED_AND),
 
@@ -291,7 +292,8 @@ public class CodeGenUtil {
     ENTITY_GET(BetweenColumns.PADDED_COMMA),
 
     /** naturalKeyを引数にとる時の "String myArg1, Integer myArg2" という文字列を保持。table別にmap形式。 */
-    ENTITY_DEFINE(BetweenColumns.PADDED_COMMA);
+    ENTITY_DEFINE(BetweenColumns.PADDED_COMMA), REC_GET_OF_ENTITY_DATA_TYPE(
+        BetweenColumns.PADDED_COMMA);
 
     private BetweenColumns betweenColumns;
 
