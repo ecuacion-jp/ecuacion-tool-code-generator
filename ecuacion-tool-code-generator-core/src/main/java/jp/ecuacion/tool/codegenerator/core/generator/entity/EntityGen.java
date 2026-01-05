@@ -87,9 +87,14 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     }
 
     // soft deleteを使用する場合
-    if (info.sysCmnRootInfo.isFrameworkKindSpring() && info.removedDataRootInfo.isDefined()
-        && tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
-      importMgr.add("org.hibernate.annotations.Filter", "org.hibernate.annotations.FilterDef");
+    // bidirectionalなrelationがある場合そこにもつける必要あり
+    if (info.sysCmnRootInfo.isFrameworkKindSpring() && info.removedDataRootInfo.isDefined()) {
+      if (tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
+        importMgr.add("org.hibernate.annotations.Filter", "org.hibernate.annotations.FilterDef");
+
+      } else if (tableInfo.hasBidirectionalRelationRef()) {
+        importMgr.add("org.hibernate.annotations.Filter");
+      }
     }
 
     // @Filterを使用する場合はimport
@@ -265,19 +270,21 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
               + info.getOrgFieldNameToReferDst() + "\")" + RT);
           String refEntityNameLw = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
 
+          // bidirectional relationで参照されている場合に必要となる抽出条件
+          MiscSoftDeleteRootInfo softDeleteInfo = MainController.tlInfo.get().removedDataRootInfo;
+          MiscGroupRootInfo groupInfo = MainController.tlInfo.get().groupRootInfo;
+          if (softDeleteInfo.isDefined()) {
+            sb.append(T1 + "@Filter(name = \"softDeleteFilter\")" + RT);
+          }
+          if (groupInfo.isDefined()) {
+            sb.append(T1 + "@Filter(name = \"groupFilter\")" + RT);
+          }
+          
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
             sb.append(T1 + "protected " + StringUtils.capitalize(refEntityNameLw) + " "
                 + info.getEmptyConsideredFieldNameToReferFromTable() + ";" + RT2);
 
           } else {
-            MiscSoftDeleteRootInfo softDeleteInfo = MainController.tlInfo.get().removedDataRootInfo;
-            MiscGroupRootInfo groupInfo = MainController.tlInfo.get().groupRootInfo;
-            if (softDeleteInfo.isDefined()) {
-              sb.append(T1 + "@Filter(name = \"softDeleteFilter\")" + RT);
-            }
-            if (groupInfo.isDefined()) {
-              sb.append(T1 + "@Filter(name = \"groupFilter\")" + RT);
-            }
             sb.append(T1 + "protected List<" + StringUtils.capitalize(refEntityNameLw) + "> "
                 + info.getEmptyConsideredFieldNameToReferFromTable() + ";" + RT2);
           }
