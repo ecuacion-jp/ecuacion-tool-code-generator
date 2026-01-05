@@ -1,10 +1,10 @@
 package jp.ecuacion.tool.codegenerator.core.generator;
 
-import java.io.File;
-import java.util.HashMap;
+import java.util.Map;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
@@ -13,19 +13,17 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 
 /**
- * 持ち歩くのが面倒なので、staticで保持させどこでも使えるようにする。
+ * Offers a container for needed data to generate various codes.
  */
 public class Info {
-  // 全体共通の情報
-  public HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> systemMap;
-  public String inputDir;
+  // all systems common
   public String outputDir;
 
-  // system単位の情報
-  public HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap;
+  // system unit values
+  public Map<DataKindEnum, AbstractRootInfo> rootInfoMap;
   public String systemName;
 
-  // rootInfo単位の情報
+  // rootInfo unit values
   public SystemCommonRootInfo sysCmnRootInfo;
   public DataTypeRootInfo dataTypeRootInfo;
   public EnumRootInfo enumRootInfo;
@@ -36,20 +34,12 @@ public class Info {
 
   private GeneratePtnEnum genPtn;
 
-  /** 全体共通の値の格納. */
-  public void setCommonUnitValues(
-      HashMap<String, HashMap<DataKindEnum, AbstractRootInfo>> systemMap) {
-
-    this.systemMap = systemMap;
-    // this.allDataTypeMap = allDataTypeMap;
-  }
-
-  /** システム・RootInfo単位の値の格納。system単位のループの頭で情報更新される。. */
-  public void setRootInfoUnitValues(String systemName) {
+  public void setRootInfoUnitValues(String systemName,
+      Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
 
     // システム単位
     this.systemName = systemName;
-    rootInfoMap = systemMap.get(systemName);
+    this.rootInfoMap = rootInfoMap;
 
     // RootInfo単位
     sysCmnRootInfo = (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON);
@@ -58,9 +48,13 @@ public class Info {
     dbRootInfo = (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB);
     dbCommonRootInfo = (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON);
     // dbFkRootInfo = ((DbFkRootInfo) rootInfoMap.get(Constants.XML_POST_FIX_DB_FK));
-    removedDataRootInfo =
-        (MiscSoftDeleteRootInfo) rootInfoMap.get(DataKindEnum.MISC_REMOVED_DATA);
+    removedDataRootInfo = (MiscSoftDeleteRootInfo) rootInfoMap.get(DataKindEnum.MISC_REMOVED_DATA);
     groupRootInfo = (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP);
+  }
+
+  public DbOrClassTableInfo getCommonTableInfo() {
+    return rootInfoMap.containsKey(DataKindEnum.DB_COMMON) ? dbCommonRootInfo.tableList.get(0)
+        : null;
   }
 
   public GeneratePtnEnum getGenPtn() {
@@ -69,9 +63,5 @@ public class Info {
 
   public void setGenPtn(GeneratePtnEnum genPtn) {
     this.genPtn = genPtn;
-  }
-
-  public String getWorkDir() {
-    return outputDir + "/" + "###work###" + File.separator;
   }
 }

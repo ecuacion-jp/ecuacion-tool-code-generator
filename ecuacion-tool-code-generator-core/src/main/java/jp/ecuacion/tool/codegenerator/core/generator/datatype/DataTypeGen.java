@@ -18,12 +18,14 @@ public class DataTypeGen extends AbstractGen {
   protected String dataTypeName;
   protected String kata;
 
+  private CodeGenUtil code = new CodeGenUtil();
+  
   public DataTypeGen(DataTypeInfo dtInfo) {
     super(DataKindEnum.DATA_TYPE);
 
     sb = new StringBuilder();
 
-    dataTypeName = CodeGenUtil.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName());
+    dataTypeName = code.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName());
     kata = dtInfo.getKata().getName();
 
     this.dtInfo = dtInfo;

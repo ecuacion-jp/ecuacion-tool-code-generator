@@ -6,23 +6,25 @@ import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import jp.ecuacion.tool.codegenerator.core.generator.advice.AdviceGen;
+import jp.ecuacion.tool.codegenerator.core.generator.bl.BlGen;
 import jp.ecuacion.tool.codegenerator.core.generator.config.ConfigGen;
 import jp.ecuacion.tool.codegenerator.core.generator.constant.ConstantGen;
+import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
+import jp.ecuacion.tool.codegenerator.core.generator.dao.DaoGen;
+import jp.ecuacion.tool.codegenerator.core.generator.dao.SqlPropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.datatype.DataTypeGen;
+import jp.ecuacion.tool.codegenerator.core.generator.entity.EntityBodyGen;
+import jp.ecuacion.tool.codegenerator.core.generator.entity.SystemCommonEntityGen;
 import jp.ecuacion.tool.codegenerator.core.generator.enums.EnumGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.ValidationMessagesPatternDescriptionsGen;
+import jp.ecuacion.tool.codegenerator.core.generator.record.BaseRecordGen;
+import jp.ecuacion.tool.codegenerator.core.generator.record.SystemCommonBaseRecordGen;
 import jp.ecuacion.tool.codegenerator.core.generator.systemcommon.Miscellaneous;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.AbstractTableOrClassRelatedGen;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.dao.DaoGen;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.dao.SqlPropertiesGen;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity.EntityBodyGen;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.entity.SystemCommonEntityGen;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.record.BaseRecordGen;
-import jp.ecuacion.tool.codegenerator.core.generator.tableorclassrelated.record.SystemCommonBaseRecordGen;
 import jp.ecuacion.tool.codegenerator.core.generator.util.UtilGen;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
@@ -30,10 +32,52 @@ public class GenerationBlf {
   
   private Info info;
 
-  public GenerationBlf(Info info, String outputDir) {
+  public GenerationBlf(Info info) {
     this.info = MainController.tlInfo.get();
   }
+  
+  public void execute() throws Exception {
+    // 1システムについても複数パターンの生成が必要な場合があるので、パターンを配列で持ち、それをループで実行する形をとる
+    List<GeneratePtnEnum> arr = new ArrayList<>();
 
+    if (shouldMakeNoGroupQuery(info)) {
+      if (shouldMakeNoGroupQueryForDaoOnly(info)) {
+        arr.add(GeneratePtnEnum.DAO_ONLY_GROUP_NORMAL);
+        arr.add(GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY);
+
+      } else {
+        // グループ指定なしqueryパターンで生成
+        arr.add(GeneratePtnEnum.NORMAL);
+        arr.add(GeneratePtnEnum.NO_GROUP_QUERY);
+      }
+
+    } else {
+      arr.add(GeneratePtnEnum.NORMAL);
+    }
+
+    // 通常は1システム1パターンだが、複数になる場合は複数に分けて生成
+    for (GeneratePtnEnum anEnum : arr) {
+      info.setGenPtn(anEnum);
+      controlGenerators();
+    }
+  }
+
+  private boolean shouldMakeNoGroupQuery(Info info) {
+    if (info.groupRootInfo == null) {
+      return false;
+    }
+
+    return info.groupRootInfo.getNeedsUngroupedSource();
+  }
+
+  private boolean shouldMakeNoGroupQueryForDaoOnly(Info info) {
+    if (info.groupRootInfo == null) {
+      return false;
+    }
+
+    return info.groupRootInfo.getDevidesDaoIntoOtherProject();
+  }
+  
   // xmlファイルの種類ごとに必要なファイルを作成
   public void controlGenerators() throws Exception {
     Logger.log(this, "SINGLE_BORDER");
@@ -77,6 +121,7 @@ public class GenerationBlf {
       }
       arrGen.add(new SystemCommonBaseRecordGen());
       arrGen.add(new SystemCommonEntityGen());
+      arrGen.add(new BlGen());
       arrGen.add(new ValidationMessagesPatternDescriptionsGen());
 
       for (AbstractGen gen : arrGen) {
@@ -100,34 +145,17 @@ public class GenerationBlf {
           gen.generateConverter(false);
         }
 
-        // } else if (name.endsWith(Constants.XML_POST_FIX_DT_R)) {
-        // Logger.log(this, "GEN_DT_R");
-        //
-        // //
-        // 参照している親のdataTypeに対するconverterは、親のところに置いておいても機能してくれない（自動認識してくれない）ので、個別システム側のbaseに作る必要がある
-        // if (info.dataTypeRefRootInfo != null) {
-        // for (DataTypeRefInfo dtRef : info.dataTypeRefRootInfo.dataTypeRefList) {
-        // // 参照しているdataTypeのinfoを取得し、それをもとにconveterを生成
-        // String dtName = dtRef.getDataType();
-        // DataTypeInfo dtInfo = allDtMap.get(dtRef.getSystemName()).get(dtName);
-        // DataTypeGen gen = createDataTypeGen(dtInfo);
-        // gen.generateConverter(true);
-        // }
-        // }
-
-
       } else if (dataKind == DataKindEnum.DB) {
         Logger.log(this, "GEN_DB");
-        List<AbstractTableOrClassRelatedGen> genArr =
-            new ArrayList<AbstractTableOrClassRelatedGen>();
+        List<AbstractDaoRelatedGen> genArr =
+            new ArrayList<AbstractDaoRelatedGen>();
         genArr.add(new BaseRecordGen(DataKindEnum.DB));
         genArr.add(new EntityBodyGen(DataKindEnum.DB, false));
-        // genArr.add(new EntityPkGen(Constants.XML_POST_FIX_DB, true));
 
         genArr.add(new DaoGen(DataKindEnum.DB));
         genArr.add(new SqlPropertiesGen());
 
-        for (AbstractTableOrClassRelatedGen gen : genArr) {
+        for (AbstractDaoRelatedGen gen : genArr) {
           gen.generate();
         }
 
