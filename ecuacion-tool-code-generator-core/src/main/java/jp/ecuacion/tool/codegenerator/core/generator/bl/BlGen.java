@@ -129,8 +129,10 @@ public class BlGen extends AbstractGen {
             ColListFormat.REC_GET_OF_ENTITY_DATA_TYPE)
         + ");" + RT);
 
-    sb.append(T2 + "throwExceptionWhenDuplicated(optional.isPresent(), " + itemPropertyPathsStr
-        + ", " + itemNameKeysStr + ");" + RT);
+    String pkCapFieldName = code.capitalCamel(ti.getPkColumn().getName());
+    sb.append(T2 + "throwExceptionWhenDuplicated(optional.isPresent() && !optional.get().get"
+        + pkCapFieldName + "().equals(rec.get" + pkCapFieldName + "OfEntityDataType()), "
+        + itemPropertyPathsStr + ", " + itemNameKeysStr + ");" + RT);
     sb.append(T1 + "}" + RT);
   }
 }
