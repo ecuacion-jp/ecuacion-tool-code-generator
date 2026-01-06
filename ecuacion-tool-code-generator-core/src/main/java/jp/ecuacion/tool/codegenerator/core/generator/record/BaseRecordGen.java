@@ -29,6 +29,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -161,14 +162,9 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
         : StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
     DataTypeInfo dtInfo = ci.getDtInfo();
 
-    if (dtInfo.getKata() == DATE_TIME) {
-      sb.append(T1 + "/** The argument dataType of setters of datetime fields are not string "
-          + "because it's so rare that the user input datetime format string directly on screen "
-          + "and you don't have to care about receiving string of date-time format.  */" + RT);
-    }
-    String kata = dtInfo.getKata() == BOOLEAN || dtInfo.getKata() == DATE_TIME
-        ? code.capitalCamel(code.getEnumConsideredKata(dtInfo))
-        : "String";
+    String kata =
+        dtInfo.getKata() == BOOLEAN ? code.capitalCamel(code.getEnumConsideredKata(dtInfo))
+            : "String";
 
     sb.append(AnnotationGenUtil.getCode(ci.getValidatorList(false), ElementType.FIELD));
 
@@ -395,8 +391,7 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
         }
 
       } else {
-        if (dtInfo.getKata() == STRING || dtInfo.getKata() == BOOLEAN
-            || dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME) {
+        if (dtInfo.getKata() == STRING || dtInfo.getKata() == BOOLEAN) {
           sb.append(
               T2 + "this." + fieldNameLc + " = e" + getPk + ".get" + fieldNameUc + "();" + RT);
         } else if (dtInfo.getKata() == ENUM) {
@@ -410,7 +405,8 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
               + "() == null) ? \"\" : " + kata + ".toString(e" + getPk + ".get" + fieldNameUc
               + "());" + RT);
 
-        } else if (dtInfo.getKata() == DATE || dtInfo.getKata() == TIME) {
+        } else if (dtInfo.getKata() == DATE || dtInfo.getKata() == TIME
+            || dtInfo.getKata() == DATE_TIME || dtInfo.getKata() == TIMESTAMP) {
           String forTimeZone = dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME
               ? ".withOffsetSameInstant(params.getZoneOffset())"
               : "";
@@ -490,13 +486,8 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
             + ") {public EclibItem[] getItems() {return null;}};" + RT);
       }
       sb.append(
-          T2 + "this."
-              + (ci.isRelationColumn() ? "set" + columnNameCp + "(" + lefthand + "())"
-                  : columnNameSm + " = " + lefthand
-                      + (ci.getDtInfo().getKata() == DATE_TIME
-                          || ci.getDtInfo().getKata() == TIMESTAMP ? "OfEntityDataType" : "")
-                      + "()")
-              + ";" + RT);
+          T2 + "this." + (ci.isRelationColumn() ? "set" + columnNameCp + "(" + lefthand + "())"
+              : columnNameSm + " = " + lefthand + "()") + ";" + RT);
     }
   }
 
@@ -513,29 +504,29 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
       DataTypeInfo dtInfo = ci.getDtInfo();
       String recGetKata =
           dtInfo.getKata() == BOOLEAN ? code.capitalCamel(dtInfo.getKata().toString()) : "String";
-      final String recSetKata = dtInfo.getKata() == BOOLEAN || dtInfo.getKata() == DATE_TIME
-          || dtInfo.getKata() == TIMESTAMP ? code.capitalCamel(code.getEnumConsideredKata(dtInfo))
+      final String recSetKata =
+          dtInfo.getKata() == BOOLEAN ? code.capitalCamel(code.getEnumConsideredKata(dtInfo))
               : "String";
       final String javaKata = code.getEnumConsideredKata(dtInfo);
 
       sb.append(T1 + "public " + recGetKata + " get" + fieldNameUc + "() {" + RT);
 
-      if (ci.getDtInfo().getKata() == DATE_TIME || ci.getDtInfo().getKata() == TIMESTAMP) {
-        String forTimeZone = dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME
-            ? ".withOffsetSameInstant(dateTimeFormatParams.getZoneOffset())"
-            : "";
-        sb.append(T2 + "return " + fieldNameLc + " == null ? \"\" : " + fieldNameLc + forTimeZone
-            + ".format(DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
-            + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "Format()));" + RT);
-
-      } else {
-        sb.append(T2 + "return "
-            + (ci.isRelationColumn()
-                ? ci.getRelationFieldName() + " == null ? null : " + ci.getRelationFieldName()
-                    + ".get" + relFieldNameUc + "()"
-                : fieldNameLc)
-            + ";" + RT);
-      }
+      // if (ci.getDtInfo().getKata() == DATE_TIME || ci.getDtInfo().getKata() == TIMESTAMP) {
+      // String forTimeZone = dtInfo.getKata() == TIMESTAMP || dtInfo.getKata() == DATE_TIME
+      // ? ".withOffsetSameInstant(dateTimeFormatParams.getZoneOffset())"
+      // : "";
+      // sb.append(T2 + "return " + fieldNameLc + " == null ? \"\" : " + fieldNameLc + forTimeZone
+      // + ".format(DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
+      // + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "Format()));" + RT);
+      //
+      // } else {
+      sb.append(T2 + "return "
+          + (ci.isRelationColumn()
+              ? ci.getRelationFieldName() + " == null ? null : " + ci.getRelationFieldName()
+                  + ".get" + relFieldNameUc + "()"
+              : fieldNameLc)
+          + ";" + RT);
+      // }
       sb.append(T1 + "}" + RT2);
 
       sb.append(
@@ -552,31 +543,30 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
 
         sb.append(T1 + "public " + javaKata + " get" + fieldNameUc + "OfEntityDataType() {" + RT);
 
-        if (dtInfo.getKata() == DATE_TIME || dtInfo.getKata() == TIMESTAMP) {
-          sb.append(T2 + "return " + code.uncapitalCamel(ci.getName()) + ";" + RT);
+        // if (dtInfo.getKata() == DATE_TIME || dtInfo.getKata() == TIMESTAMP) {
+        // sb.append(T2 + "return " + code.uncapitalCamel(ci.getName()) + ";" + RT);
+        //
+        // } else {
+        sb.append(T2 + "return (get" + fieldNameUc + "() == null || get" + fieldNameUc
+            + "().equals(\"\")) ? null : ");
+
+        if (ci.isRelationColumn()) {
+          sb.append(code.generateString(ci, ColFormat.GET_OF_ENTITY_DATA_TYPE) + ";" + RT);
+
+        } else if (dtInfo.getKata() == DATE || dtInfo.getKata() == TIME
+            || dtInfo.getKata() == DATE_TIME || dtInfo.getKata() == TIMESTAMP) {
+          sb.append(javaKata + ".parse(" + fieldNameLc
+              + ", DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
+              + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "Format()));"
+              + RT);
+
+        } else if (dtInfo.getKata() == ENUM) {
+          sb.append("EnumUtil.getEnumFromCode(" + javaKata + ".class, " + fieldNameLc + ");" + RT);
 
         } else {
-          sb.append(T2 + "return (get" + fieldNameUc + "() == null || get" + fieldNameUc
-              + "().equals(\"\")) ? null :" + RT);
-
-          if (ci.isRelationColumn()) {
-            sb.append(T4 + "get" + fieldNameUc + "OfEntityDataType();" + RT);
-
-          } else if (dtInfo.getKata() == DATE || dtInfo.getKata() == TIME) {
-            sb.append(T4 + javaKata + ".parse(" + fieldNameLc
-                + ", DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
-                + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "Format()));"
-                + RT);
-
-          } else if (dtInfo.getKata() == ENUM) {
-            sb.append(
-                T4 + "EnumUtil.getEnumFromCode(" + javaKata + ".class, " + fieldNameLc + ");" + RT);
-
-          } else {
-            sb.append(
-                T4 + javaKata + ".valueOf(" + fieldNameLc + ".replaceAll(\",\", \"\"));" + RT);
-          }
+          sb.append(javaKata + ".valueOf(" + fieldNameLc + ".replaceAll(\",\", \"\"));" + RT);
         }
+        // }
         sb.append(T1 + "}" + RT2);
       }
 
@@ -594,7 +584,6 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
         }
       }
     }
-
   }
 
   private void createAccessorForRelation(String relEntityNameLw, String relFieldName,
