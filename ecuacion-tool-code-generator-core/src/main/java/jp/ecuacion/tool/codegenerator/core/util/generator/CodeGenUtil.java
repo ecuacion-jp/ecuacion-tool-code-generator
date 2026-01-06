@@ -292,8 +292,9 @@ public class CodeGenUtil {
     ENTITY_GET(BetweenColumns.PADDED_COMMA),
 
     /** naturalKeyを引数にとる時の "String myArg1, Integer myArg2" という文字列を保持。table別にmap形式。 */
-    ENTITY_DEFINE(BetweenColumns.PADDED_COMMA), REC_GET_OF_ENTITY_DATA_TYPE(
-        BetweenColumns.PADDED_COMMA);
+    ENTITY_DEFINE(BetweenColumns.PADDED_COMMA),
+
+    REC_GET_OF_ENTITY_DATA_TYPE(BetweenColumns.PADDED_COMMA);
 
     private BetweenColumns betweenColumns;
 
