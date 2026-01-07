@@ -7,6 +7,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -31,6 +32,7 @@ public class Info {
   public DbOrClassRootInfo dbCommonRootInfo;
   public MiscSoftDeleteRootInfo removedDataRootInfo;
   public MiscGroupRootInfo groupRootInfo;
+  public MiscOptimisticLockRootInfo optimisticLockRootInfo;
 
   private GeneratePtnEnum genPtn;
 
@@ -47,9 +49,10 @@ public class Info {
     enumRootInfo = (EnumRootInfo) rootInfoMap.get(DataKindEnum.ENUM);
     dbRootInfo = (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB);
     dbCommonRootInfo = (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON);
-    // dbFkRootInfo = ((DbFkRootInfo) rootInfoMap.get(Constants.XML_POST_FIX_DB_FK));
     removedDataRootInfo = (MiscSoftDeleteRootInfo) rootInfoMap.get(DataKindEnum.MISC_REMOVED_DATA);
     groupRootInfo = (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP);
+    optimisticLockRootInfo =
+        (MiscOptimisticLockRootInfo) rootInfoMap.get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
   }
 
   public DbOrClassTableInfo getCommonTableInfo() {
