@@ -6,6 +6,7 @@ import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
+import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
@@ -57,6 +58,13 @@ public class BlGen extends AbstractGen {
           "java.util.Optional");
     }
 
+    if (tableInfo.columnList.stream()
+        .filter(ci -> ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
+            || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP)
+        .toList().size() > 0) {
+      importMgr.add("java.time.*");
+    }
+
     relFieldList.stream().forEach(ci -> importMgr
         .add(rootBasePackage + ".base.entity." + code.capitalCamel(ci.getRelationRefTable())));
 
@@ -73,16 +81,22 @@ public class BlGen extends AbstractGen {
   private void generateInsertOrUpdate(DbOrClassTableInfo ti,
       List<DbOrClassColumnInfo> relFieldList) {
 
-    String entityName = code.capitalCamel(ti.getName());
+    final String entityName = code.capitalCamel(ti.getName());
     final String idField = code.capitalCamel(ti.getPkColumn().getName());
 
     sb.append(T1 + "/** Is a utility to insert or update an entity. */" + RT);
+    StringBuilder dateTimeString = new StringBuilder();
+    ti.columnList.stream().filter(ci -> !ci.getIsJavaOnly())
+        .filter(ci -> ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
+            || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP)
+        .forEach(ci -> dateTimeString.append(", " + code.getEnumConsideredKata(ci.getDtInfo()) + " "
+            + code.uncapitalCamel(ci.getName())));
     StringBuilder relString = new StringBuilder();
     relFieldList.stream().forEach(ci -> relString.append(
         ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
     sb.append(T1 + "public " + entityName + " insertOrUpdate(" + code.capitalCamel(ti.getName())
-        + "BaseRecord rec, " + code.capitalCamel(ti.getName()) + " entityForUpdate" + relString
-        + ", String... skipUpdateFields) {" + RT);
+        + "BaseRecord rec, " + code.capitalCamel(ti.getName()) + " entityForUpdate" + dateTimeString
+        + relString + ", String... skipUpdateFields) {" + RT);
     sb.append(T2 + entityName + " e = null;" + RT);
     sb.append(T2 + "boolean isInsert = rec.get" + idField + "() == null || rec.get" + idField
         + "().equals(\"\");" + RT2);
@@ -95,10 +109,15 @@ public class BlGen extends AbstractGen {
     sb.append(RT);
     sb.append(T2 + "} else {" + RT);
     sb.append(T3 + "e = entityForUpdate;" + RT);
+    StringBuilder dateTimeString2 = new StringBuilder();
+    ti.columnList.stream().filter(ci -> !ci.getIsJavaOnly())
+        .filter(ci -> ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
+            || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP)
+        .forEach(ci -> dateTimeString2.append(", " + code.uncapitalCamel(ci.getName())));
     StringBuilder relString2 = new StringBuilder();
     relFieldList.stream().filter(ci -> !ci.isGroupColumn())
         .forEach(ci -> relString2.append(", " + ci.getRelationFieldName()));
-    sb.append(T3 + "e.update(rec" + relString2 + ");" + RT);
+    sb.append(T3 + "e.update(rec" + dateTimeString2 + relString2 + ");" + RT);
     sb.append(T2 + "}" + RT2);
     sb.append(T2 + "return repo.save(e);" + RT);
     sb.append(T1 + "}" + RT2);
