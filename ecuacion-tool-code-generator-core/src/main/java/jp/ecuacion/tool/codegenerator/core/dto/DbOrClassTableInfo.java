@@ -48,6 +48,10 @@ public class DbOrClassTableInfo extends AbstractInfo {
     this.name = tableName;
   }
 
+  /*
+   * column
+   */
+
   public boolean hasColumn(String colName) {
     for (DbOrClassColumnInfo ci : columnList) {
       if (ci.getName().equals(colName)) {
@@ -68,10 +72,38 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return null;
   }
 
-  public DbOrClassColumnInfo getPkColumn() {
-    // pk（surrogate key）は必ず存在するのでこの書き方でOK
-    return columnList.stream().filter(col -> col.isPk()).toList().get(0);
+  /*
+   * all columns
+   */
+
+  public List<DbOrClassColumnInfo> getColumnListIncludingSystemCommon() {
+    List<DbOrClassColumnInfo> list = new ArrayList<>(columnList);
+    list.addAll(info.dbCommonRootInfo.tableList.get(0).columnList);
+
+    return list;
   }
+
+  /*
+   * pk
+   */
+
+  public DbOrClassColumnInfo getPkColumn() {
+    List<DbOrClassColumnInfo> list = columnList.stream().filter(ci -> ci.isPk()).toList();
+    return list.size() == 0 ? null : list.get(0);
+  }
+  
+  public boolean hasPkColumn() {
+    return getPkColumn() != null;
+  }
+
+  public DbOrClassColumnInfo getPkColumnIncludingSystemCommon() {
+    // pk (surrogate key) always exists.
+    return getColumnListIncludingSystemCommon().stream().filter(ci -> ci.isPk()).toList().get(0);
+  }
+
+  /*
+   * group
+   */
 
   public boolean hasGroupColumn() {
     return getGroupColumn() != null;
@@ -102,11 +134,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     // 後続のチェックのためにListで保持
     List<DbOrClassColumnInfo> groupCiList = new ArrayList<>();
 
-    // こちらはループを回す対象のカラムリスト。systemCommonも含める。
-    List<DbOrClassColumnInfo> list = new ArrayList<>(columnList);
-    list.addAll(info.dbCommonRootInfo.tableList.get(0).columnList);
-
-    for (DbOrClassColumnInfo ci : list) {
+    for (DbOrClassColumnInfo ci : getColumnListIncludingSystemCommon()) {
       if (ci.isGroupColumn()) {
         groupCiList.add(ci);
       }
@@ -145,7 +173,10 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return null;
   }
 
-  // soft delete関連
+  /*
+   * soft delete
+   */
+
   public boolean hasSoftDeleteFieldExcludingSystemCommon() throws BizLogicAppException {
     return softDeleteExistenceCheck(columnList, getName());
   }
@@ -184,6 +215,37 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
     return hasRemovedDataColumn;
   }
+
+  /*
+   * version
+   */
+
+  private DbOrClassColumnInfo getVersionColumn(List<DbOrClassColumnInfo> columnList) {
+    List<DbOrClassColumnInfo> versionColList = columnList.stream()
+        .filter(ci -> ci.getName().equals(info.optimisticLockRootInfo.getColumnName())).toList();
+
+    return versionColList.size() == 0 ? null : versionColList.get(0);
+  }
+
+  public DbOrClassColumnInfo getVersionColumn() {
+    return getVersionColumn(columnList);
+  }
+
+  public boolean hasVersionColumn() {
+    return getVersionColumn() != null;
+  }
+
+  public DbOrClassColumnInfo getVersionColumnIncludingSystemCommon() {
+    return getVersionColumn(getColumnListIncludingSystemCommon());
+  }
+
+  public boolean hasVersionColumnIncludingSystemCommon() {
+    return getGroupColumnIncludingSystemCommon() != null;
+  }
+
+  /*
+   * unique constraint
+   */
 
   public void setHasUniqueConstraint(boolean hasUniqueConstraint) {
     this.hasUniqueConstraint = hasUniqueConstraint;
@@ -307,9 +369,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
     List<String> index = new ArrayList<>();
     for (int i = 1; i <= indexMap.size(); i++) {
       if (!indexMap.containsKey(i)) {
-        throw new RuntimeException(
-            new BizLogicAppException("MSG_ERR_INDEX_NUMBER_NOT_CONTINUOUS_FROM_1", "", name,
-                Integer.toString(indexSerial)));
+        throw new RuntimeException(new BizLogicAppException(
+            "MSG_ERR_INDEX_NUMBER_NOT_CONTINUOUS_FROM_1", "", name, Integer.toString(indexSerial)));
       }
 
       index.add(indexMap.get(i).getName());
