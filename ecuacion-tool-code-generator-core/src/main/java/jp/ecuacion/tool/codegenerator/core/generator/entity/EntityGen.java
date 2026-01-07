@@ -279,7 +279,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
           if (groupInfo.isDefined()) {
             sb.append(T1 + "@Filter(name = \"groupFilter\")" + RT);
           }
-          
+
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
             sb.append(T1 + "protected " + StringUtils.capitalize(refEntityNameLw) + " "
                 + info.getEmptyConsideredFieldNameToReferFromTable() + ";" + RT2);
@@ -549,11 +549,19 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
         tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> !e.isPk())
             .filter(e -> !e.isGroupColumn()).toList();
 
+    StringBuilder dateTimeString = new StringBuilder();
+    baseList.stream()
+        .filter(ci -> ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
+            || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP)
+        .forEach(
+            ci -> dateTimeString.append(", " + getEnumConsideredKata(ci)
+                + " " + code.uncapitalCamel(ci.getName())));
+
     StringBuilder relString = new StringBuilder();
     baseList.stream().filter(e -> e.isRelationColumn()).forEach(ci -> relString.append(
         ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
-    sb.append(T1 + "public void update(" + code.baseRecDef(tableInfo.getName()) + relString
-        + ", String... skipUpdateFields) {" + RT);
+    sb.append(T1 + "public void update(" + code.baseRecDef(tableInfo.getName()) + dateTimeString
+        + relString + ", String... skipUpdateFields) {" + RT);
 
     // Remove groupColumn to avoid the data to be moved to other group (=normally other customer's
     // dara realm).
@@ -561,17 +569,25 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       sb.append(T2 + "List<String> skipUpdateFieldList = Arrays.asList(skipUpdateFields);" + RT2);
     }
 
+    // if (uploadedDateTime != null && !skipUpdateFieldList.contains(FIELD_UPLOADED_DATETIME))
+    // setUploadedDatetime(uploadedDateTime);
     for (DbOrClassColumnInfo ci : baseList) {
+      String fieldName = code.uncapitalCamel(ci.getName());
+
       if (ci.isRelationColumn()) {
         String name = ci.getRelationFieldName();
         sb.append(T2 + "if (" + name + " != null) set"
             + StringUtils.capitalize(ci.getRelationFieldName()) + "(" + name + ");" + RT);
 
+      } else if (ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
+          || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP) {
+        sb.append(T2 + "if (" + fieldName + " != null && !skipUpdateFieldList.contains(" + "FIELD_"
+            + ci.getName() + ")) " + code.set(fieldName, fieldName) + ";" + RT);
+
       } else {
-        String name = code.uncapitalCamel(ci.getName());
-        sb.append(T2 + "if (" + code.recGet(name) + " != null && !skipUpdateFieldList.contains("
-            + "FIELD_" + ci.getName() + ")) "
-            + code.set(name, "rec." + code.getOfEntityDataType(ci)) + ";" + RT);
+        sb.append(T2 + "if (" + code.recGet(fieldName)
+            + " != null && !skipUpdateFieldList.contains(" + "FIELD_" + ci.getName() + ")) "
+            + code.set(fieldName, "rec." + code.getOfEntityDataType(ci)) + ";" + RT);
       }
     }
 
