@@ -1,5 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.bl;
 
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import jp.ecuacion.lib.core.exception.checked.AppException;
@@ -24,7 +25,14 @@ public class BlGen extends AbstractGen {
 
   @Override
   public void generate() throws AppException, IOException, InterruptedException {
-    for (DbOrClassTableInfo ti : info.dbRootInfo.tableList) {
+    generateBl(true, info.dbCommonRootInfo.tableList);
+    generateBl(false, info.dbRootInfo.tableList);
+  }
+
+  private void generateBl(boolean isSystemCommon, @Valid List<DbOrClassTableInfo> tableList)
+      throws AppException {
+
+    for (DbOrClassTableInfo ti : tableList) {
       String entityNameCp = StringUtil.getUpperCamelFromSnake(ti.getName());
       sb = new StringBuilder();
 
@@ -32,10 +40,20 @@ public class BlGen extends AbstractGen {
           ti.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> !e.isPk())
               .filter(e -> e.isRelationColumn()).toList();
 
-      generateHeader(ti, entityNameCp, relFieldList);
-      generateFields(ti, entityNameCp);
-      generateInsertOrUpdate(ti, relFieldList);
-      generateNaturalKeyDuplicatedCheck(ti);
+      generateHeader(isSystemCommon, ti, entityNameCp, relFieldList);
+
+      if (!isSystemCommon) {
+        generateFields(ti, entityNameCp);
+        getRepositoryForOptimisticLocking(ti, entityNameCp);
+        getFindAndOptimisticLockingCheckRec(ti, entityNameCp);
+      }
+
+      generateGetVersionForOptimisticLocking(ti, entityNameCp);
+
+      if (!isSystemCommon) {
+        generateInsertOrUpdate(ti, relFieldList);
+        generateNaturalKeyDuplicatedCheck(ti);
+      }
 
       sb.append("}" + RT);
 
@@ -43,26 +61,30 @@ public class BlGen extends AbstractGen {
     }
   }
 
-  public void generateHeader(DbOrClassTableInfo tableInfo, String entityNameCp,
+  public void generateHeader(boolean isSystemCommon, DbOrClassTableInfo ti, String entityNameCp,
       List<DbOrClassColumnInfo> relFieldList) throws AppException {
     sb.append("package " + rootBasePackage + ".base.bl;" + RT2);
 
     ImportGenUtil importMgr = new ImportGenUtil();
 
-    importMgr.add(rootBasePackage + ".base.entity.*", rootBasePackage + ".base.record.*",
-        rootBasePackage + ".base.repository.*",
-        "org.springframework.beans.factory.annotation.Autowired", "jp.ecuacion.splib.core.bl.*");
+    importMgr.add(rootBasePackage + ".base.entity.*");
 
-    if (tableInfo.hasUniqueConstraint()) {
-      importMgr.add("jp.ecuacion.lib.core.exception.checked.BizLogicAppException",
-          "java.util.Optional");
+    if (isSystemCommon) {
+      importMgr.add("jp.ecuacion.splib.jpa.bl.*");
+
+    } else {
+      importMgr.add("org.springframework.beans.factory.annotation.Autowired",
+          "jp.ecuacion.splib.jpa.repository.SplibRepository", rootBasePackage + ".base.record.*",
+          rootBasePackage + ".base.repository.*", "jp.ecuacion.lib.core.exception.checked.*");
+
+      if (ti.columnList.stream().filter(ci -> ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
+          || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP).toList().size() > 0) {
+        importMgr.add("java.time.*");
+      }
     }
 
-    if (tableInfo.columnList.stream()
-        .filter(ci -> ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
-            || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP)
-        .toList().size() > 0) {
-      importMgr.add("java.time.*");
+    if (ti.hasUniqueConstraint()) {
+      importMgr.add("jp.ecuacion.lib.core.exception.checked.*", "java.util.Optional");
     }
 
     relFieldList.stream().forEach(ci -> importMgr
@@ -70,12 +92,55 @@ public class BlGen extends AbstractGen {
 
     sb.append(importMgr.outputStr() + RT);
 
-    sb.append("public abstract class " + entityNameCp + "BaseBl extends SplibCoreBl {" + RT2);
+    String extendsStr =
+        isSystemCommon
+            ? "<E extends SystemCommonEntity" + (ti.hasPkColumn() ? "" : ", I")
+                + "> extends SplibJpaBl<E, "
+                + (ti.hasPkColumn() ? code.getEnumConsideredKata(ti.getPkColumn().getDtInfo())
+                    : "I")
+                + ", "
+                + code.getEnumConsideredKata(ti.getVersionColumnIncludingSystemCommon().getDtInfo())
+                + ">"
+            : " extends SystemCommonEntityBaseBl<" + entityNameCp + ", "
+                + code.getEnumConsideredKata(ti.getPkColumn().getDtInfo()) + ">";
+    sb.append("public abstract class " + entityNameCp + "BaseBl" + extendsStr + " {" + RT2);
   }
 
   private void generateFields(DbOrClassTableInfo ti, String entityNameCp) {
     sb.append(T1 + "@Autowired" + RT);
-    sb.append(T1 + "private " + entityNameCp + "BaseRepository repo;" + RT2);
+    sb.append(T1 + "protected " + entityNameCp + "BaseRepository repo;" + RT2);
+  }
+
+  private void getRepositoryForOptimisticLocking(DbOrClassTableInfo ti, String entityNameCp) {
+    sb.append(T1 + "@Override" + RT);
+    sb.append(T1 + "public SplibRepository<" + entityNameCp
+        + ", Long> getRepositoryForOptimisticLocking() {" + RT);
+    sb.append(T2 + "return repo;" + RT);
+    sb.append(T1 + "}" + RT2);
+  }
+
+  private void getFindAndOptimisticLockingCheckRec(DbOrClassTableInfo ti, String entityNameCp) {
+
+    sb.append(T1 + "public " + entityNameCp + " findAndOptimisticLockingCheck(" + entityNameCp
+        + "BaseRecord rec) throws AppException {" + RT);
+    sb.append(T2 + "return findAndOptimisticLockingCheck(rec.get"
+        + code.capitalCamel(ti.getPkColumn().getName()) + "OfEntityDataType(), "
+        + "rec.getVersionOfEntityDataType());" + RT);
+    sb.append(T1 + "}" + RT2);
+  }
+
+  private void generateGetVersionForOptimisticLocking(DbOrClassTableInfo ti, String entityNameCp) {
+    if (!ti.hasVersionColumn()) {
+      return;
+    }
+
+    sb.append(T1 + "@Override" + RT);
+    sb.append(T1 + "public "
+        + code.getEnumConsideredKata(ti.getVersionColumnIncludingSystemCommon().getDtInfo())
+        + " getVersionForOptimisticLocking(" + entityNameCp + " e) {" + RT);
+    sb.append(
+        T2 + "return e.get" + code.capitalCamel(ti.getVersionColumn().getName()) + "();" + RT);
+    sb.append(T1 + "}" + RT2);
   }
 
   private void generateInsertOrUpdate(DbOrClassTableInfo ti,
