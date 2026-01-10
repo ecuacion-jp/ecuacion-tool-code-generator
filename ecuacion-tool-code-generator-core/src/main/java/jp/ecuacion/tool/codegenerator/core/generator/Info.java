@@ -1,6 +1,7 @@
 package jp.ecuacion.tool.codegenerator.core.generator;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
@@ -36,6 +37,14 @@ public class Info {
 
   private GeneratePtnEnum genPtn;
 
+  public GeneratePtnEnum getGenPtn() {
+    return genPtn;
+  }
+
+  public void setGenPtn(GeneratePtnEnum genPtn) {
+    this.genPtn = genPtn;
+  }
+
   public void setRootInfoUnitValues(String systemName,
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
 
@@ -55,16 +64,17 @@ public class Info {
         (MiscOptimisticLockRootInfo) rootInfoMap.get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
   }
 
+  /*
+   * table
+   */
+
   public DbOrClassTableInfo getCommonTableInfo() {
     return rootInfoMap.containsKey(DataKindEnum.DB_COMMON) ? dbCommonRootInfo.tableList.get(0)
         : null;
   }
 
-  public GeneratePtnEnum getGenPtn() {
-    return genPtn;
-  }
-
-  public void setGenPtn(GeneratePtnEnum genPtn) {
-    this.genPtn = genPtn;
+  public DbOrClassTableInfo getTableInfo(String nameSnakeCase) {
+    return dbRootInfo.tableList.stream().collect(Collectors.toMap(ti -> ti.getName(), ti -> ti))
+        .get(nameSnakeCase);
   }
 }

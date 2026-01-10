@@ -171,6 +171,15 @@ public class CodeGenUtil {
    * <p>The feature of this method is for relation to be considered.</p>
    */
   public String generateString(DbOrClassColumnInfo ci, ColFormat formatType) {
+    return generateString(ci, formatType, "");
+  }
+
+  /**
+   * Generatos column related string like getter.
+   * 
+   * <p>The feature of this method is for relation to be considered.</p>
+   */
+  public String generateString(DbOrClassColumnInfo ci, ColFormat formatType, String argString) {
     StringBuilder sb = new StringBuilder();
     boolean is1st = true;
 
@@ -181,33 +190,34 @@ public class CodeGenUtil {
 
       } else {
         switch (formatType) {
-          case ITEM_PROPERTY_PATH, GET, GET_OF_ENTITY_DATA_TYPE -> sb.append(".");
+          case ITEM_PROPERTY_PATH, SET, GET, GET_OF_ENTITY_DATA_TYPE -> sb.append(".");
           default -> throw new EclibRuntimeException("Unexpected.");
         }
       }
 
-      if (formatType == ColFormat.GET || formatType == ColFormat.GET_OF_ENTITY_DATA_TYPE) {
-        if (currentCi.isRelationColumn()) {
-          sb.append("get" + capitalCamel(currentCi.getRelationFieldName()) + "()");
+      switch (formatType) {
+        case SET, GET, GET_OF_ENTITY_DATA_TYPE -> {
+          if (currentCi.isRelationColumn()) {
+            sb.append("get" + currentCi.getRelationFieldNameCp() + "()");
 
-        } else {
-          String postfix = formatType == ColFormat.GET_OF_ENTITY_DATA_TYPE
-              && ofEntityTypeMethodAvailableDataTypeList.contains(ci.getDtInfo().getKata())
-                  ? "OfEntityDataType"
-                  : "";
-          sb.append("get" + capitalCamel(currentCi.getName()) + postfix + "()");
+          } else {
+            String postfix = formatType == ColFormat.GET_OF_ENTITY_DATA_TYPE
+                && ofEntityTypeMethodAvailableDataTypeList.contains(ci.getDtInfo().getKata())
+                    ? "OfEntityDataType"
+                    : "";
+            sb.append((formatType == ColFormat.SET ? "set" : "get")
+                + capitalCamel(currentCi.getName()) + postfix + "(" + argString + ")");
+          }
         }
-
-      } else if (formatType == ColFormat.ITEM_PROPERTY_PATH) {
-        sb.append(currentCi.isRelationColumn() ? uncapitalCamel(currentCi.getRelationFieldName())
-            : uncapitalCamel(currentCi.getName()));
+        case ITEM_PROPERTY_PATH -> sb
+            .append(currentCi.isRelationColumn() ? uncapitalCamel(currentCi.getRelationFieldName())
+                : uncapitalCamel(currentCi.getName()));
+        default -> throw new EclibRuntimeException("Unexpected.");
       }
 
       if (currentCi.isRelationColumn()) {
-        String tab = currentCi.getRelationRefTable();
-        String col = currentCi.getRelationRefCol();
-        currentCi = info.dbRootInfo.tableList.stream().filter(e -> e.getName().equals(tab)).toList()
-            .get(0).columnList.stream().filter(e -> e.getName().equals(col)).toList().get(0);
+        currentCi = info.getTableInfo(currentCi.getRelationRefTable())
+            .getColumn(currentCi.getRelationRefCol());
 
       } else {
         break;
@@ -266,7 +276,7 @@ public class CodeGenUtil {
   }
 
   public static enum ColFormat {
-    ITEM_PROPERTY_PATH, GET, GET_OF_ENTITY_DATA_TYPE
+    ITEM_PROPERTY_PATH, SET, GET, GET_OF_ENTITY_DATA_TYPE
   }
 
   public static enum ColListFormat {

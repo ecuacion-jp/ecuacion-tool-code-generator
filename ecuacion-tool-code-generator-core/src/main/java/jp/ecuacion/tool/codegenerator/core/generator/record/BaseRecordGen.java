@@ -15,6 +15,7 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.STRING;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIME;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIMESTAMP;
 import java.lang.annotation.ElementType;
+import java.util.List;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.checked.AppException;
@@ -57,6 +58,7 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
       createConstC2(tableInfo, tableNameCp, false);
       createAccessor(tableInfo, tableNameCp);
       createListsForHtmlSelect(tableInfo);
+      createIdsAndOptimisticLockVersions(tableInfo);
 
       sb.append("}" + RT);
 
@@ -71,8 +73,9 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
 
     createHeaderCommon(importMgr, tableInfo);
 
-    importMgr.add(rootBasePackage + ".base.entity." + tableNameCp);
-    importMgr.add("jp.ecuacion.splib.core.container.*", "jp.ecuacion.lib.core.item.*");
+    importMgr.add(rootBasePackage + ".base.entity." + tableNameCp,
+        "jp.ecuacion.splib.core.container.*", "jp.ecuacion.lib.core.item.*",
+        "jp.ecuacion.lib.core.util.StringUtil");
 
     sb.append(importMgr.outputStr() + RT);
 
@@ -654,5 +657,60 @@ public class BaseRecordGen extends AbstractDaoRelatedGen {
         sb.append(T1 + "}" + RT2);
       }
     }
+  }
+
+  private void createIdsAndOptimisticLockVersions(DbOrClassTableInfo ti) {
+    List<DbOrClassColumnInfo> relColList = ti.getRelationColumnWithoutGroupList();
+
+    sb.append(T1 + "public String getIds() {" + RT);
+    sb.append(T2 + "return StringUtil.getCsv(new String[] {"
+        + code.generateString(ti.getPkColumn(), ColFormat.GET));
+    for (DbOrClassColumnInfo ci : relColList) {
+      String relField = StringUtils.capitalize(ci.getRelationFieldName());
+      DbOrClassColumnInfo pk =
+          info.getTableInfo(ci.getRelationRefTable()).getPkColumnIncludingSystemCommon();
+      String refPkGet = code.generateString(pk, ColFormat.GET);
+      sb.append(", get" + relField + "() == null ? null : get" + relField + "()." + refPkGet);
+    }
+    sb.append("});" + RT);
+    sb.append(T1 + "}" + RT2);
+
+    sb.append(T1 + "public void setIds(String idCsv) {" + RT);
+    sb.append(T2 + "String[] ids = idCsv.split(\",\");" + RT);
+    sb.append(T2 + "if (ids.length < " + (1 + relColList.size()) + ") return;" + RT2);
+
+    sb.append(T2 + code.generateString(ti.getPkColumn(), ColFormat.SET, "ids[0]") + ";" + RT);
+    int i = 0;
+    while (relColList.size() > i) {
+      sb.append(T2 + code.generateString(relColList.get(i), ColFormat.SET, "ids[" + (i + 1) + "]")
+          + ";" + RT);
+      i++;
+    }
+    sb.append(T1 + "}" + RT2);
+
+    sb.append(T1 + "public String getOptimisticLockVersions() {" + RT);
+    sb.append(T2 + "return StringUtil.getCsv(new String[] {getVersion()");
+    for (DbOrClassColumnInfo ci : relColList) {
+      String relField = StringUtils.capitalize(ci.getRelationFieldName());
+      DbOrClassColumnInfo v =
+          info.getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingSystemCommon();
+      String refVerGet = code.generateString(v, ColFormat.GET);
+      sb.append(", get" + relField + "() == null ? null : get" + relField + "()." + refVerGet);
+    }
+    sb.append("});" + RT);
+    sb.append(T1 + "}" + RT2);
+
+    sb.append(T1 + "public void setOptimisticLockVersions(String versionCsv) {" + RT);
+    sb.append(T2 + "String[] versions = versionCsv.split(\",\");" + RT);
+    sb.append(T2 + "if (versions.length < " + (1 + relColList.size()) + ") return;" + RT2);
+
+    sb.append(T2 + "setVersion(versions[0]);" + RT);
+    i = 0;
+    while (relColList.size() > i) {
+      sb.append(T2 + "get" + relColList.get(i).getRelationFieldNameCp() + "().setVersion(versions["
+          + (i + 1) + "]);" + RT);
+      i++;
+    }
+    sb.append(T1 + "}" + RT);
   }
 }

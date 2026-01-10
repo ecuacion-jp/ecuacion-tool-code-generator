@@ -3,7 +3,6 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.notEqualTo;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.empty;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
-
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -167,6 +166,14 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   public String getName() {
     return name;
   }
+  
+  public String getNameCpCamel() {
+    return  StringUtil.getUpperCamelFromSnake(name);
+  }
+  
+  public String getNameCamel() {
+    return  StringUtil.getLowerCamelFromSnake(name);
+  }
 
   // dispName
   public String getDisplayName() {
@@ -277,6 +284,10 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   public String getRelationFieldName() {
     return relationFieldName;
+  }
+
+  public String getRelationFieldNameCp() {
+    return StringUtils.capitalize(relationFieldName);
   }
 
   public String getRelationRefTable() {
