@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.AnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.NormalSingleAnnotationGen;
@@ -42,6 +43,14 @@ public class DbOrClassTableInfo extends AbstractInfo {
   // name
   public String getName() {
     return name;
+  }
+
+  public String getNameCpCamel() {
+    return StringUtil.getUpperCamelFromSnake(name);
+  }
+
+  public String getNameCamel() {
+    return StringUtil.getLowerCamelFromSnake(name);
   }
 
   public void setTableName(String tableName) throws AppException {
@@ -91,7 +100,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     List<DbOrClassColumnInfo> list = columnList.stream().filter(ci -> ci.isPk()).toList();
     return list.size() == 0 ? null : list.get(0);
   }
-  
+
   public boolean hasPkColumn() {
     return getPkColumn() != null;
   }
@@ -318,6 +327,15 @@ public class DbOrClassTableInfo extends AbstractInfo {
     NormalSingleAnnotationGen table =
         new NormalSingleAnnotationGen("Table", ElementType.TYPE, paramGenList);
     return table.generateString(ElementType.TYPE);
+  }
+
+  /*
+   * relation
+   */
+
+  public List<DbOrClassColumnInfo> getRelationColumnWithoutGroupList() {
+    return columnList.stream().filter(ci -> ci.isRelationColumn())
+        .filter(ci -> !ci.getName().equals(info.groupRootInfo.getColumnName())).toList();
   }
 
   private List<String[]> getIndexList() {
