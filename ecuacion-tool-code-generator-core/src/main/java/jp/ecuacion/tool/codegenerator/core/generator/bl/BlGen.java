@@ -38,7 +38,7 @@ public class BlGen extends AbstractGen {
 
       final List<DbOrClassColumnInfo> relFieldList =
           ti.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> !e.isPk())
-              .filter(e -> e.isRelationColumn()).toList();
+              .filter(e -> e.isRelation()).toList();
 
       generateHeader(isSystemCommon, ti, entityNameCp, relFieldList);
 
@@ -92,17 +92,12 @@ public class BlGen extends AbstractGen {
 
     sb.append(importMgr.outputStr() + RT);
 
-    String extendsStr =
-        isSystemCommon
-            ? "<E extends SystemCommonEntity" + (ti.hasPkColumn() ? "" : ", I")
-                + "> extends SplibJpaBl<E, "
-                + (ti.hasPkColumn() ? code.getEnumConsideredKata(ti.getPkColumn().getDtInfo())
-                    : "I")
-                + ", "
-                + code.getEnumConsideredKata(ti.getVersionColumnIncludingSystemCommon().getDtInfo())
-                + ">"
-            : " extends SystemCommonEntityBaseBl<" + entityNameCp + ", "
-                + code.getEnumConsideredKata(ti.getPkColumn().getDtInfo()) + ">";
+    String extendsStr = isSystemCommon
+        ? "<E extends SystemCommon" + (ti.hasPkColumn() ? "" : ", I") + "> extends SplibJpaBl<E, "
+            + (ti.hasPkColumn() ? code.getJavaKata(ti.getPkColumn()) : "I") + ", "
+            + code.getJavaKata(ti.getVersionColumnIncludingSystemCommon()) + ">"
+        : " extends SystemCommonBaseBl<" + entityNameCp + ", " + code.getJavaKata(ti.getPkColumn())
+            + ">";
     sb.append("public abstract class " + entityNameCp + "BaseBl" + extendsStr + " {" + RT2);
   }
 
@@ -135,8 +130,7 @@ public class BlGen extends AbstractGen {
     }
 
     sb.append(T1 + "@Override" + RT);
-    sb.append(T1 + "public "
-        + code.getEnumConsideredKata(ti.getVersionColumnIncludingSystemCommon().getDtInfo())
+    sb.append(T1 + "public " + code.getJavaKata(ti.getVersionColumnIncludingSystemCommon())
         + " getVersionForOptimisticLocking(" + entityNameCp + " e) {" + RT);
     sb.append(
         T2 + "return e.get" + code.capitalCamel(ti.getVersionColumn().getName()) + "();" + RT);
@@ -154,8 +148,8 @@ public class BlGen extends AbstractGen {
     ti.columnList.stream().filter(ci -> !ci.getIsJavaOnly())
         .filter(ci -> ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
             || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP)
-        .forEach(ci -> dateTimeString.append(", " + code.getEnumConsideredKata(ci.getDtInfo()) + " "
-            + code.uncapitalCamel(ci.getName())));
+        .forEach(ci -> dateTimeString
+            .append(", " + code.getJavaKata(ci) + " " + code.uncapitalCamel(ci.getName())));
     StringBuilder relString = new StringBuilder();
     relFieldList.stream().forEach(ci -> relString.append(
         ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));

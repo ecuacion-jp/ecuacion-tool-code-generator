@@ -65,7 +65,7 @@ public abstract class AbstractColAttrRootInfo extends AbstractRootInfo {
   }
 
   public String getKata() {
-    return StringUtil.getUpperCamelFromSnake(dtInfo.getKata().getName());
+    return StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString());
   }
 
   /**

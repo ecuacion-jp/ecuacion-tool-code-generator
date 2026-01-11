@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.lang.annotation.ElementType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
+import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.AnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.NormalSingleAnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGen;
@@ -41,16 +43,17 @@ public class DbOrClassTableInfo extends AbstractInfo {
   }
 
   // name
+
   public String getName() {
-    return name;
+    return name.equals("SYSTEM_COMMON_ENTITY") ? "SYSTEM_COMMON" : name;
   }
 
   public String getNameCpCamel() {
-    return StringUtil.getUpperCamelFromSnake(name);
+    return StringUtil.getUpperCamelFromSnake(getName());
   }
 
   public String getNameCamel() {
-    return StringUtil.getLowerCamelFromSnake(name);
+    return StringUtil.getLowerCamelFromSnake(getName());
   }
 
   public void setTableName(String tableName) throws AppException {
@@ -90,6 +93,36 @@ public class DbOrClassTableInfo extends AbstractInfo {
     list.addAll(info.dbCommonRootInfo.tableList.get(0).columnList);
 
     return list;
+  }
+
+  /*
+   * kata
+   */
+
+  public boolean hasColumnWithKata(DataTypeKataEnum kata) {
+    return columnList.stream().map(ci -> ci.getDtInfo().getKata()).toList().contains(kata);
+  }
+
+  public List<DbOrClassColumnInfo> getColumnListWithKata(DataTypeKataEnum kata) {
+    return columnList.stream().filter(ci -> ci.getDtInfo().getKata() == kata).toList();
+  }
+
+  public boolean hasColumnWithAnyOfKatas(DataTypeKataEnum... katas) {
+    List<DataTypeKataEnum> tableKataList =
+        columnList.stream().map(ci -> ci.getDtInfo().getKata()).toList();
+
+    for (DataTypeKataEnum argKata : katas) {
+      if (tableKataList.contains(argKata)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public List<DbOrClassColumnInfo> getColumnListWithAnyOfKatas(DataTypeKataEnum... katas) {
+    return columnList.stream().filter(ci -> Arrays.asList(katas).contains(ci.getDtInfo().getKata()))
+        .toList();
   }
 
   /*
@@ -334,7 +367,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
    */
 
   public List<DbOrClassColumnInfo> getRelationColumnWithoutGroupList() {
-    return columnList.stream().filter(ci -> ci.isRelationColumn())
+    return columnList.stream().filter(ci -> ci.isRelation())
         .filter(ci -> !ci.getName().equals(info.groupRootInfo.getColumnName())).toList();
   }
 
@@ -398,11 +431,11 @@ public class DbOrClassTableInfo extends AbstractInfo {
   }
 
   public boolean hasRelation() {
-    return columnList.stream().filter(col -> col.isRelationColumn()).toList().size() > 0;
+    return columnList.stream().filter(col -> col.isRelation()).toList().size() > 0;
   }
 
   public boolean hasBidirectionalRelation() {
-    return columnList.stream().filter(col -> col.isRelationColumn() && col.isRelationBidirectinal())
+    return columnList.stream().filter(col -> col.isRelation() && col.isRelationBidirectinal())
         .toList().size() > 0;
   }
 
