@@ -144,7 +144,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
       // bidirectionalInfoでかつOneToManyの場合は、明示的にbidirectionの参照元のBaseRecordをimportする必要あり。
       for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-        for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
+        for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
             importMgr.add(rootBasePackage + ".base.record."
                 + StringUtil.getUpperCamelFromSnake(info.getOrgTableName()) + "BaseRecord");
@@ -211,7 +211,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
     sb.append("@FilterDef(name = \"" + filterName + "\", " + RT);
     sb.append(T2 + "parameters = @ParamDef(name = \"" + fieldNameLc + "\", type = "
-        + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().getName()) + "JavaType.class)," + RT);
+        + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "JavaType.class)," + RT);
     sb.append(T2 + "defaultCondition = \"" + colName + " = :" + fieldNameLc + "\")" + RT);
   }
 
@@ -258,13 +258,13 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       createFieldInternal(sb, tableInfo.getName(), ci);
 
       // colが@Idでかつrelationの場合、@MapsIdのために通常の@Idカラムも必要
-      if (ci.isPk() && ci.isRelationColumn()) {
+      if (ci.isPk() && ci.isRelation()) {
         DbOrClassColumnInfo ci2 = DbOrClassColumnInfo.cloneWithoutRelationRelated(ci);
         createFieldInternal(sb, tableInfo.getName(), ci2);
       }
 
       if (ci.isReferedByBidirectionalRelation()) {
-        for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
+        for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
           sb.append(T1 + info.getRelationKind().getName()
               + "(cascade={CascadeType.DETACH, CascadeType.REMOVE}, mappedBy = \""
               + info.getOrgFieldNameToReferDst() + "\")" + RT);
@@ -296,13 +296,13 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   private void createFieldInternal(StringBuilder sb, String tableName, DbOrClassColumnInfo ci) {
 
     String columnName = StringUtil.getLowerCamelFromSnake(ci.getName());
-    String kata = getEnumConsideredKata(ci);
+    String kata = code.getJavaKata(ci);
 
     // 第二引数は、CommonInfoの場合nullなので、nullを考慮
     sb.append(getEntityFieldAnnotations(getEntityGenKindEnum(), tableName, ci,
         code.classDotField(tableName, ci)));
 
-    if (ci.isRelationColumn()) {
+    if (ci.isRelation()) {
       sb.append(T1 + "@Valid" + RT);
       sb.append(T1 + ci.getRelationKind().getName() + "(fetch = FetchType."
           + (ci.getRelationIsEager() ? "EAGER" : "LAZY") + ", cascade = {CascadeType.DETACH})"
@@ -436,8 +436,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
         comma = ", ";
       }
 
-      sb.append(comma + getEnumConsideredKata(ci) + " "
-          + StringUtil.getLowerCamelFromSnake(ci.getName()));
+      sb.append(
+          comma + code.getJavaKata(ci) + " " + StringUtil.getLowerCamelFromSnake(ci.getName()));
     }
     sb.append(") {" + RT);
     sb.append(T2 + "this();" + RT);
@@ -459,11 +459,11 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     DataTypeInfo dtInfo = ci.getDtInfo();
     String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getName());
     String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
-    String kataUc = code.getEnumConsideredKata(dtInfo);
+    String kataUc = code.getJavaKata(ci);
 
     // relationがある場合は、インスタンス生成を行う
     String relFieldNameUc = StringUtils.capitalize(ci.getRelationFieldName());
-    if (ci.isRelationColumn()) {
+    if (ci.isRelation()) {
       String entityName = StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
       sb.append(T2 + ci.getRelationFieldName() + " = rec.get" + relFieldNameUc
           + "() == null ? null : new " + StringUtils.capitalize(entityName) + "(rec.get"
@@ -511,7 +511,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
     // bidirectional relationの参照先カラムの場合はそのfieldの代入も追加
     if (ci.isReferedByBidirectionalRelation()) {
-      for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
+      for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
         String entityNameUc = StringUtil.getUpperCamelFromSnake(info.getOrgTableName());
         String entityNameLc = StringUtils.uncapitalize(entityNameUc);
 
@@ -553,19 +553,18 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     baseList.stream()
         .filter(ci -> ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
             || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP)
-        .forEach(
-            ci -> dateTimeString.append(", " + getEnumConsideredKata(ci)
-                + " " + code.uncapitalCamel(ci.getName())));
+        .forEach(ci -> dateTimeString
+            .append(", " + code.getJavaKata(ci) + " " + code.uncapitalCamel(ci.getName())));
 
     StringBuilder relString = new StringBuilder();
-    baseList.stream().filter(e -> e.isRelationColumn()).forEach(ci -> relString.append(
+    baseList.stream().filter(e -> e.isRelation()).forEach(ci -> relString.append(
         ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
     sb.append(T1 + "public void update(" + code.baseRecDef(tableInfo.getName()) + dateTimeString
         + relString + ", String... skipUpdateFields) {" + RT);
 
     // Remove groupColumn to avoid the data to be moved to other group (=normally other customer's
     // dara realm).
-    if (baseList.stream().filter(ci -> !ci.isRelationColumn()).toList().size() > 0) {
+    if (baseList.stream().filter(ci -> !ci.isRelation()).toList().size() > 0) {
       sb.append(T2 + "List<String> skipUpdateFieldList = Arrays.asList(skipUpdateFields);" + RT2);
     }
 
@@ -574,7 +573,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     for (DbOrClassColumnInfo ci : baseList) {
       String fieldName = code.uncapitalCamel(ci.getName());
 
-      if (ci.isRelationColumn()) {
+      if (ci.isRelation()) {
         String name = ci.getRelationFieldName();
         sb.append(T2 + "if (" + name + " != null) set"
             + StringUtils.capitalize(ci.getRelationFieldName()) + "(" + name + ");" + RT);
@@ -604,9 +603,9 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       String relFieldName = ci.getRelationRefCol() == null ? null
           : StringUtil.getUpperCamelFromSnake(ci.getRelationRefCol());
 
-      sb.append(T1 + "public " + getEnumConsideredKata(ci) + " get" + columnNameCp + "() {" + RT);
+      sb.append(T1 + "public " + code.getJavaKata(ci) + " get" + columnNameCp + "() {" + RT);
       sb.append(T2 + "return "
-          + (ci.isRelationColumn()
+          + (ci.isRelation()
               ? ci.getRelationFieldName() + " == null ? null : " + ci.getRelationFieldName()
                   + ".get" + relFieldName + "()"
               : columnNameSm)
@@ -616,19 +615,19 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       sb.append(T1 + "public void set" + columnNameCp + "(" + getEnumConsideredKata(ci) + " "
           + columnNameSm + ") {" + RT);
       sb.append(T2 + "this."
-          + (ci.isRelationColumn()
+          + (ci.isRelation()
               ? ci.getRelationFieldName() + ".set" + relFieldName + "(" + columnNameSm + ")"
               : columnNameSm + " = " + columnNameSm)
           + ";" + RT);
       sb.append(T1 + "}" + RT2);
 
-      if (ci.isRelationColumn()) {
+      if (ci.isRelation()) {
         // relationのcolumnの場合は、別途entityを示すfield自体のaccessorも用意しておく
         appendAccessorForRelation(sb, relEntityName, ci.getRelationFieldName(), false, null);
       }
 
       if (ci.isReferedByBidirectionalRelation()) {
-        for (BidirectionalRelationInfo info : ci.getBidirectionalInfo()) {
+        for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
           appendAccessorForRelation(sb, StringUtil.getLowerCamelFromSnake(info.getOrgTableName()),
               info.getEmptyConsideredFieldNameToReferFromTable(), true, info);
         }
@@ -656,8 +655,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "}" + RT2);
   }
 
-  protected String getEnumConsideredKata(DbOrClassColumnInfo colInfo) {
-    return code.getEnumConsideredKata(colInfo.getDtInfo());
+  protected String getEnumConsideredKata(DbOrClassColumnInfo ci) {
+    return code.getJavaKata(ci);
   }
 
   private LinkedHashMap<String, String> createSortedMapForPropFile(String lang,
@@ -742,13 +741,12 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       sb.append(T2 + "super." + ((isUpdate) ? "preUpdate" : "preInsert") + "();" + RT2);
 
     }
-    for (DbOrClassColumnInfo colInfo : tableInfo.columnList) {
-      DataTypeInfo dtInfo = colInfo.getDtInfo();
-      String fieldName = StringUtil.getLowerCamelFromSnake(colInfo.getName());
-      boolean isForced =
-          !isUpdate && colInfo.isForcedIncrement() || isUpdate && colInfo.isForcedUpdate();
+    for (DbOrClassColumnInfo ci : tableInfo.columnList) {
+      DataTypeInfo dtInfo = ci.getDtInfo();
+      String fieldName = StringUtil.getLowerCamelFromSnake(ci.getName());
+      boolean isForced = !isUpdate && ci.isForcedIncrement() || isUpdate && ci.isForcedUpdate();
 
-      if (!needsAutoInsertOrUpdate(colInfo, isUpdate)) {
+      if (!needsAutoInsertOrUpdate(ci, isUpdate)) {
         continue;
       }
 
@@ -762,7 +760,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
       } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
           || dtInfo.getKata() == DataTypeKataEnum.DATE_TIME) {
-        String kataName = getEnumConsideredKata(colInfo);
+        String kataName = code.getJavaKata(ci);
         sb.append(T2 + ((isForced) ? "" : "if (" + fieldName + " == null) ") + fieldName + " = "
             + kataName + ".now();" + RT);
 
@@ -813,7 +811,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       if (ci.isPk()) {
         DataTypeInfo dtInfo = ci.getDtInfo();
         String comma = (isFirst) ? "" : ", ";
-        String tmpKata = StringUtil.getUpperCamelFromSnake(dtInfo.getKata().getName());
+        String tmpKata = StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString());
         String kata = (areAllArgsString) ? "String "
             : (Objects.requireNonNull(tmpKata).equals("Enum")
                 ? StringUtil.getUpperCamelFromSnake(ci.getName())
@@ -842,9 +840,9 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
    * Entityとしての削除フラグの保持有無を返すメソッドを生成。
    * 
    * <p>
-   * 当entityに削除フラグ項目を持っている場合（SystemCommonEntityからの呼び出しの場合、
-   * 個々のEntityではなくSystemCommonEntityに項目を持っている場合）は、具体的にメソッドとして定義。
-   * SystemCommonEntityからの呼び出しだが、個々のentity側で定義される場合は、abstractメソッドとして定義を行う。
+   * 当entityに削除フラグ項目を持っている場合（SystemCommonからの呼び出しの場合、
+   * 個々のEntityではなくSystemCommonに項目を持っている場合）は、具体的にメソッドとして定義。
+   * SystemCommonからの呼び出しだが、個々のentity側で定義される場合は、abstractメソッドとして定義を行う。
    * </p>
    * 具体的には、
    * <ul>
@@ -887,7 +885,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     annotationGenList.addAll(colInfo.getValidatorList(true));
 
     // relationColumnの場合はこれ以下は不要
-    if (colInfo.isRelationColumn()) {
+    if (colInfo.isRelation()) {
       // 文字列出力。isRelationColumn() == trueの場合はNotEmptyのみが対象。
       return AnnotationGenUtil.getCode(annotationGenList, ElementType.FIELD);
     }

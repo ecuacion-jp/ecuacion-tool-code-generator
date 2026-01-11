@@ -22,7 +22,7 @@ public class PrepareManager {
     list.addAll(info.dbCommonRootInfo.tableList);
     for (DbOrClassTableInfo ti : list) {
       for (DbOrClassColumnInfo ci : ti.columnList) {
-        if (ci.isRelationColumn() && ci.isRelationBidirectinal()) {
+        if (ci.isRelation() && ci.isRelationBidirectinal()) {
           bidirectionalInfoList.add(new DbOrClassColumnInfo.BidirectionalRelationInfo(
               ci.getRelationKind().getInverse(), ci.getRelationRefTable(), ci.getRelationRefCol(),
               ci.getRelationRefFieldName(), ti.getName(),
@@ -40,7 +40,7 @@ public class PrepareManager {
         for (DbOrClassColumnInfo ci : ti.columnList) {
           if (ti.getName().equals(bdInfo.getDstTableName())
               && ci.getName().equals(bdInfo.getDstColumnName())) {
-            ci.getBidirectionalInfo().add(bdInfo);
+            ci.getBidirectionalInfoList().add(bdInfo);
             found = true;
           }
         }

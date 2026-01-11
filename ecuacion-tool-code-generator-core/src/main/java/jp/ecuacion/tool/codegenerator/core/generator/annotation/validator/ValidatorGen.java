@@ -56,7 +56,7 @@ public abstract class ValidatorGen extends FieldSingleAnnotationGen {
     if (!kataList.contains(dtInfo.getKata())) {
       throw new EclibRuntimeException("The specified Kata not allowed. (system name: "
           + info.systemName + ", annotation name: " + this.annotationName + ", dataType name: "
-          + dtInfo.getDataTypeName() + ", dataType: " + dtInfo.getKata().getName() + ")");
+          + dtInfo.getDataTypeName() + ", dataType: " + dtInfo.getKata().toString() + ")");
     }
   }
 
