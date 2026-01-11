@@ -81,8 +81,8 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements EclibItemCont
       // 以下は親entityが存在する場合
       DbOrClassTableInfo ti = tableList.get(0);
 
-      // 名称はSystemCommonEntity
-      if (!ti.getName().equals("SYSTEM_COMMON_ENTITY")) {
+      // 名称はSystemCommon
+      if (!ti.getName().equals("SYSTEM_COMMON")) {
         throw new BizLogicAppException(
             "MSG_ERR_CONSISTENCY_CHECK_NAME_OF_SYSTEM_COMMON_ENTITY_CANNOT_BE_CHANGED");
       }
