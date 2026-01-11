@@ -5,7 +5,6 @@ import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
-
 /**
  * Generates SystemCommonBaseRecord.
  */
