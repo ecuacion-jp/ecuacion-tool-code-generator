@@ -83,13 +83,6 @@ public enum DataTypeKataEnum {
   ENUM, BOOLEAN;
 
   /**
-   * nameを返す。 nameがnull, 空文字の場合は、Enum生成時にチェックエラーとなるため考慮不要
-   */
-  public String getName() {
-    return this.toString();
-  }
-
-  /**
    * 画面で表示するための名称を返す。 この名称は、getはできるがそれをもとにenumを取得することはできない。 localizeされた言語で返す。
    * 明らかに日本語専用のサイトを作成する場合も多いし、その場合にこの仕組みのほうが楽なので。 またどこかで変わるかもしれないけど。
    */
@@ -112,7 +105,7 @@ public enum DataTypeKataEnum {
    */
   public static boolean hasEnumFromName(String name) {
     for (DataTypeKataEnum enu : DataTypeKataEnum.values()) {
-      if (name != null && name.equals(enu.getName())) {
+      if (name != null && name.equals(enu.toString())) {
         return true;
       }
     }

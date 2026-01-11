@@ -26,7 +26,7 @@ public class DataTypeGen extends AbstractGen {
     sb = new StringBuilder();
 
     dataTypeName = code.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName());
-    kata = dtInfo.getKata().getName();
+    kata = dtInfo.getKata().toString();
 
     this.dtInfo = dtInfo;
   }
@@ -119,7 +119,7 @@ public class DataTypeGen extends AbstractGen {
       return "String";
 
     } else {
-      return StringUtil.getUpperCamelFromSnake(dtInfo.getKata().getName());
+      return StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString());
     }
   }
 }

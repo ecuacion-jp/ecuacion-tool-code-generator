@@ -22,7 +22,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.entity.SystemCommonEntityGe
 import jp.ecuacion.tool.codegenerator.core.generator.enums.EnumGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.ValidationMessagesPatternDescriptionsGen;
-import jp.ecuacion.tool.codegenerator.core.generator.record.BaseRecordGen;
+import jp.ecuacion.tool.codegenerator.core.generator.record.PerTableBaseRecordGen;
 import jp.ecuacion.tool.codegenerator.core.generator.record.SystemCommonBaseRecordGen;
 import jp.ecuacion.tool.codegenerator.core.generator.systemcommon.Miscellaneous;
 import jp.ecuacion.tool.codegenerator.core.generator.util.UtilGen;
@@ -149,7 +149,7 @@ public class GenerationBlf {
         Logger.log(this, "GEN_DB");
         List<AbstractDaoRelatedGen> genArr =
             new ArrayList<AbstractDaoRelatedGen>();
-        genArr.add(new BaseRecordGen(DataKindEnum.DB));
+        genArr.add(new PerTableBaseRecordGen(DataKindEnum.DB));
         genArr.add(new EntityBodyGen(DataKindEnum.DB, false));
 
         genArr.add(new DaoGen(DataKindEnum.DB));
