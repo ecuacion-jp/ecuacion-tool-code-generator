@@ -450,30 +450,28 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
   }
 
   /**
-   * html用にlistを作成。 項目名とEnum名が異なる場合（例えば、Enum名：AccRoleEnum、項目名：role）、メソッド名はgetRoleListになるので注意。
-   * 項目名をメソッド名にしないと、thymeleaf側からlist取得する際に問題が出るため。
-   * その関係で、個々のentityで持つenum型の項目のlistをまとめてSystemCommonBaseRecordで保持はせず、個々のrecordに持たせている。
+   * Generates list for UI dropdown lists.
    */
   protected void createListsForHtmlSelectCommon(DbOrClassTableInfo ti) {
     for (DbOrClassColumnInfo ci : ti.getColumnListWithAnyOfKatas(ENUM, BOOLEAN)) {
       DataTypeInfo dtInfo = ci.getDtInfo();
 
-      // list取得
+      // Obtain list.
       sb.append(T1 + "public List<String[]> get" + ci.getNameCpCamel()
           + "List(Locale locale, String options) {" + RT);
 
-      if (dtInfo.getKata() == ENUM) {
-        sb.append(T2 + "return EnumUtil.getListForHtmlSelect(" + code.getJavaKata(ci)
+      switch (dtInfo.getKata()) {
+        case ENUM -> sb.append(T2 + "return EnumUtil.getListForHtmlSelect(" + code.getJavaKata(ci)
             + ".class, locale, options);" + RT);
-
-      } else if (dtInfo.getKata() == BOOLEAN) {
-        sb.append(T2 + "return getBooleanDropdownList(locale, \"" + ci.getNameCamel()
-            + " \", options);" + RT);
+        case BOOLEAN -> sb.append(T2 + "return getBooleanDropdownList(locale, \""
+            + ci.getNameCamel() + " \", options);" + RT);
+        default -> {
+        }
       }
 
       sb.append(T1 + "}" + RT2);
 
-      // name取得
+      // Obtain name.
       sb.append(T1 + "public String get" + ci.getNameCpCamel() + "Name(Locale locale) {" + RT);
 
       if (dtInfo.getKata() == ENUM) {
@@ -488,5 +486,4 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
       sb.append(T1 + "}" + RT2);
     }
   }
-
 }
