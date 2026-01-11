@@ -67,7 +67,7 @@ public class EntityBodyGen extends EntityGen {
     getSoftDeleteAnnotationsString(sb, tableInfo);
 
     sb.append("public final class " + entityNameCp
-        + " extends SystemCommonEntity implements Serializable {" + RT2);
+        + " extends SystemCommon implements Serializable {" + RT2);
 
     appendSerialVersionUid(sb);
 
