@@ -112,8 +112,9 @@ public class CodeGenUtil {
   /**
    * Returns the datatype when you use the definition of the field in entities.
    */
-  public String getEnumConsideredKata(DataTypeInfo dtInfo) {
+  public String getJavaKata(DbOrClassColumnInfo ci) {
     String rtn = null;
+    DataTypeInfo dtInfo = ci.getDtInfo();
 
     if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
       rtn = dataTypeNameToCapitalCamel(dtInfo.getDataTypeName())
@@ -152,7 +153,7 @@ public class CodeGenUtil {
         @SuppressWarnings("unchecked")
         Class<GenHelperKata> cls = (Class<GenHelperKata>) Class
             .forName(Constants.STR_PACKAGE_HOME + ".core.generator.entity.genhelper.GenHelper"
-                + StringUtil.getUpperCamelFromSnake(kata.getName()));
+                + StringUtil.getUpperCamelFromSnake(kata.toString()));
         Constructor<GenHelperKata> con = cls.getConstructor();
         GenHelperKata helper = con.newInstance();
         helperMap.put(kata, helper);
@@ -171,6 +172,15 @@ public class CodeGenUtil {
    * <p>The feature of this method is for relation to be considered.</p>
    */
   public String generateString(DbOrClassColumnInfo ci, ColFormat formatType) {
+    return generateString(ci, formatType, "");
+  }
+
+  /**
+   * Generatos column related string like getter.
+   * 
+   * <p>The feature of this method is for relation to be considered.</p>
+   */
+  public String generateString(DbOrClassColumnInfo ci, ColFormat formatType, String argString) {
     StringBuilder sb = new StringBuilder();
     boolean is1st = true;
 
@@ -181,33 +191,34 @@ public class CodeGenUtil {
 
       } else {
         switch (formatType) {
-          case ITEM_PROPERTY_PATH, GET, GET_OF_ENTITY_DATA_TYPE -> sb.append(".");
+          case ITEM_PROPERTY_PATH, SET, GET, GET_OF_ENTITY_DATA_TYPE -> sb.append(".");
           default -> throw new EclibRuntimeException("Unexpected.");
         }
       }
 
-      if (formatType == ColFormat.GET || formatType == ColFormat.GET_OF_ENTITY_DATA_TYPE) {
-        if (currentCi.isRelationColumn()) {
-          sb.append("get" + capitalCamel(currentCi.getRelationFieldName()) + "()");
+      switch (formatType) {
+        case SET, GET, GET_OF_ENTITY_DATA_TYPE -> {
+          if (currentCi.isRelation()) {
+            sb.append("get" + currentCi.getRelationFieldNameCp() + "()");
 
-        } else {
-          String postfix = formatType == ColFormat.GET_OF_ENTITY_DATA_TYPE
-              && ofEntityTypeMethodAvailableDataTypeList.contains(ci.getDtInfo().getKata())
-                  ? "OfEntityDataType"
-                  : "";
-          sb.append("get" + capitalCamel(currentCi.getName()) + postfix + "()");
+          } else {
+            String postfix = formatType == ColFormat.GET_OF_ENTITY_DATA_TYPE
+                && ofEntityTypeMethodAvailableDataTypeList.contains(ci.getDtInfo().getKata())
+                    ? "OfEntityDataType"
+                    : "";
+            sb.append((formatType == ColFormat.SET ? "set" : "get")
+                + capitalCamel(currentCi.getName()) + postfix + "(" + argString + ")");
+          }
         }
-
-      } else if (formatType == ColFormat.ITEM_PROPERTY_PATH) {
-        sb.append(currentCi.isRelationColumn() ? uncapitalCamel(currentCi.getRelationFieldName())
-            : uncapitalCamel(currentCi.getName()));
+        case ITEM_PROPERTY_PATH -> sb
+            .append(currentCi.isRelation() ? uncapitalCamel(currentCi.getRelationFieldName())
+                : uncapitalCamel(currentCi.getName()));
+        default -> throw new EclibRuntimeException("Unexpected.");
       }
 
-      if (currentCi.isRelationColumn()) {
-        String tab = currentCi.getRelationRefTable();
-        String col = currentCi.getRelationRefCol();
-        currentCi = info.dbRootInfo.tableList.stream().filter(e -> e.getName().equals(tab)).toList()
-            .get(0).columnList.stream().filter(e -> e.getName().equals(col)).toList().get(0);
+      if (currentCi.isRelation()) {
+        currentCi = info.getTableInfo(currentCi.getRelationRefTable())
+            .getColumn(currentCi.getRelationRefCol());
 
       } else {
         break;
@@ -225,10 +236,9 @@ public class CodeGenUtil {
 
     boolean is1st = true;
     for (DbOrClassColumnInfo ci : ciList) {
-      DataTypeInfo dtInfo = ci.getDtInfo();
       String colNameUc = StringUtil.getUpperCamelFromSnake(ci.getName());
       String colNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
-      String colNameUcRelUnderscore = !ci.isRelationColumn() ? colNameUc
+      String colNameUcRelUnderscore = !ci.isRelation() ? colNameUc
           : StringUtil.getUpperCamelFromSnake(ci.getRelationFieldName()) + "_"
               + StringUtil.getUpperCamelFromSnake(ci.getRelationRefCol());
 
@@ -246,7 +256,7 @@ public class CodeGenUtil {
 
       switch (formatType) {
         case ENTITY_GET -> sb.append("e.get" + capitalCamel(ci.getName()) + "()");
-        case ENTITY_DEFINE -> sb.append((getEnumConsideredKata(dtInfo)) + " "
+        case ENTITY_DEFINE -> sb.append((getJavaKata(ci)) + " "
             + StringUtil.getLowerCamelFromSnake(ci.getName()));
         case REC_GET_OF_ENTITY_DATA_TYPE -> sb
             .append("rec." + generateString(ci, ColFormat.GET_OF_ENTITY_DATA_TYPE));
@@ -266,7 +276,7 @@ public class CodeGenUtil {
   }
 
   public static enum ColFormat {
-    ITEM_PROPERTY_PATH, GET, GET_OF_ENTITY_DATA_TYPE
+    ITEM_PROPERTY_PATH, SET, GET, GET_OF_ENTITY_DATA_TYPE
   }
 
   public static enum ColListFormat {
