@@ -1,12 +1,14 @@
 package jp.ecuacion.tool.codegenerator.core.generator;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -31,8 +33,17 @@ public class Info {
   public DbOrClassRootInfo dbCommonRootInfo;
   public MiscSoftDeleteRootInfo removedDataRootInfo;
   public MiscGroupRootInfo groupRootInfo;
+  public MiscOptimisticLockRootInfo optimisticLockRootInfo;
 
   private GeneratePtnEnum genPtn;
+
+  public GeneratePtnEnum getGenPtn() {
+    return genPtn;
+  }
+
+  public void setGenPtn(GeneratePtnEnum genPtn) {
+    this.genPtn = genPtn;
+  }
 
   public void setRootInfoUnitValues(String systemName,
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
@@ -47,21 +58,23 @@ public class Info {
     enumRootInfo = (EnumRootInfo) rootInfoMap.get(DataKindEnum.ENUM);
     dbRootInfo = (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB);
     dbCommonRootInfo = (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON);
-    // dbFkRootInfo = ((DbFkRootInfo) rootInfoMap.get(Constants.XML_POST_FIX_DB_FK));
     removedDataRootInfo = (MiscSoftDeleteRootInfo) rootInfoMap.get(DataKindEnum.MISC_REMOVED_DATA);
     groupRootInfo = (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP);
+    optimisticLockRootInfo =
+        (MiscOptimisticLockRootInfo) rootInfoMap.get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
   }
+
+  /*
+   * table
+   */
 
   public DbOrClassTableInfo getCommonTableInfo() {
     return rootInfoMap.containsKey(DataKindEnum.DB_COMMON) ? dbCommonRootInfo.tableList.get(0)
         : null;
   }
 
-  public GeneratePtnEnum getGenPtn() {
-    return genPtn;
-  }
-
-  public void setGenPtn(GeneratePtnEnum genPtn) {
-    this.genPtn = genPtn;
+  public DbOrClassTableInfo getTableInfo(String nameSnakeCase) {
+    return dbRootInfo.tableList.stream().collect(Collectors.toMap(ti -> ti.getName(), ti -> ti))
+        .get(nameSnakeCase);
   }
 }
