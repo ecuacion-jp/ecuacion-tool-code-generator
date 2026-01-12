@@ -30,7 +30,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
   @Override
   protected void generateMethods(DbOrClassTableInfo ti) throws AppException {
-    createIdsAndOptimisticLockVersions(ti);    
+    createIdsAndOptimisticLockVersions(ti);
   }
 
   private void createIdsAndOptimisticLockVersions(DbOrClassTableInfo ti) {
@@ -38,14 +38,16 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
     // getIds
     sb.append(T1 + "public String getIds() {" + RT);
-    sb.append(T2 + "return StringUtil.getCsv(new String[] {"
-        + code.generateString(ti.getPkColumn(), ColFormat.GET));
+    String pkGet = code.generateString(ti.getPkColumn(), ColFormat.GET);
+    sb.append(
+        T2 + "return StringUtil.getCsv(new String[] {" + pkGet + " == null ? \"\" : " + pkGet);
     for (DbOrClassColumnInfo ci : relColList) {
       String relField = ci.getRelationFieldNameCp();
       DbOrClassColumnInfo pk =
           info.getTableInfo(ci.getRelationRefTable()).getPkColumnIncludingSystemCommon();
       String refPkGet = code.generateString(pk, ColFormat.GET);
-      sb.append(", get" + relField + "() == null ? null : get" + relField + "()." + refPkGet);
+      sb.append(", get" + relField + "() == null || get" + relField + "()." + refPkGet + " == null"
+          + "? \"\" : get" + relField + "()." + refPkGet);
     }
     sb.append("});" + RT);
     sb.append(T1 + "}" + RT2);
@@ -66,13 +68,15 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
     // getOptimisticLockVersions
     sb.append(T1 + "public String getOptimisticLockVersions() {" + RT);
-    sb.append(T2 + "return StringUtil.getCsv(new String[] {getVersion()");
+    String ver = "getVersion()";
+    sb.append(T2 + "return StringUtil.getCsv(new String[] {" + ver + " == null ? \"\" : " + ver);
     for (DbOrClassColumnInfo ci : relColList) {
-      String relField = ci.getRelationFieldNameCp();
+      String relFieldGet = "get" + ci.getRelationFieldNameCp() + "()";
       DbOrClassColumnInfo v =
           info.getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingSystemCommon();
       String refVerGet = code.generateString(v, ColFormat.GET);
-      sb.append(", get" + relField + "() == null ? null : get" + relField + "()." + refVerGet);
+      sb.append(", " + relFieldGet + " == null || " + relFieldGet + "." + refVerGet
+          + " == null ? \"\" : " + relFieldGet + "." + refVerGet);
     }
     sb.append("});" + RT);
     sb.append(T1 + "}" + RT2);
