@@ -39,8 +39,8 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements EclibItemCont
     // 子のentityの場合のみのチェック
     childEntityCheck();
 
-    // systemCommonEntityの場合のみのチェック
-    systemCommonEntityCheck();
+    // systemCommonの場合のみのチェック
+    systemCommonCheck();
   }
 
   private void childEntityCheck() throws BizLogicAppException {
@@ -64,7 +64,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements EclibItemCont
     }
   }
 
-  private void systemCommonEntityCheck() throws AppException {
+  private void systemCommonCheck() throws AppException {
     
     if (fileKind.equals(DataKindEnum.DB_COMMON)) {
 
