@@ -36,11 +36,7 @@ public class BlGen extends AbstractGen {
       String entityNameCp = StringUtil.getUpperCamelFromSnake(ti.getName());
       sb = new StringBuilder();
 
-      final List<DbOrClassColumnInfo> relFieldList =
-          ti.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> !e.isPk())
-              .filter(e -> e.isRelation()).toList();
-
-      generateHeader(isSystemCommon, ti, entityNameCp, relFieldList);
+      generateHeader(isSystemCommon, ti, entityNameCp);
 
       if (!isSystemCommon) {
         generateFields(ti, entityNameCp);
@@ -51,7 +47,7 @@ public class BlGen extends AbstractGen {
       generateGetVersionForOptimisticLocking(ti, entityNameCp);
 
       if (!isSystemCommon) {
-        generateInsertOrUpdate(ti, relFieldList);
+        generateInsertOrUpdate(ti);
         generateNaturalKeyDuplicatedCheck(ti);
       }
 
@@ -61,8 +57,8 @@ public class BlGen extends AbstractGen {
     }
   }
 
-  public void generateHeader(boolean isSystemCommon, DbOrClassTableInfo ti, String entityNameCp,
-      List<DbOrClassColumnInfo> relFieldList) throws AppException {
+  public void generateHeader(boolean isSystemCommon, DbOrClassTableInfo ti, String entityNameCp)
+      throws AppException {
     sb.append("package " + rootBasePackage + ".base.bl;" + RT2);
 
     ImportGenUtil importMgr = new ImportGenUtil();
@@ -86,9 +82,6 @@ public class BlGen extends AbstractGen {
     if (ti.hasUniqueConstraint()) {
       importMgr.add("jp.ecuacion.lib.core.exception.checked.*", "java.util.Optional");
     }
-
-    relFieldList.stream().forEach(ci -> importMgr
-        .add(rootBasePackage + ".base.entity." + code.capitalCamel(ci.getRelationRefTable())));
 
     sb.append(importMgr.outputStr() + RT);
 
@@ -137,8 +130,10 @@ public class BlGen extends AbstractGen {
     sb.append(T1 + "}" + RT2);
   }
 
-  private void generateInsertOrUpdate(DbOrClassTableInfo ti,
-      List<DbOrClassColumnInfo> relFieldList) {
+  private void generateInsertOrUpdate(DbOrClassTableInfo ti) {
+
+    final List<DbOrClassColumnInfo> relFieldList =
+        ti.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> e.isRelation()).toList();
 
     final String entityName = code.capitalCamel(ti.getName());
     final String idField = code.capitalCamel(ti.getPkColumn().getName());
@@ -154,8 +149,8 @@ public class BlGen extends AbstractGen {
     relFieldList.stream().forEach(ci -> relString.append(
         ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
     sb.append(T1 + "public " + entityName + " insertOrUpdate(" + code.capitalCamel(ti.getName())
-        + "BaseRecord rec, " + code.capitalCamel(ti.getName()) + " entityForUpdate" + dateTimeString
-        + relString + ", String... skipUpdateFields) {" + RT);
+        + "BaseRecord rec" + dateTimeString + relString
+        + ", String... skipUpdateFields) throws AppException {" + RT);
     sb.append(T2 + entityName + " e = null;" + RT);
     sb.append(T2 + "boolean isInsert = rec.get" + idField + "() == null || rec.get" + idField
         + "().equals(\"\");" + RT2);
@@ -167,7 +162,7 @@ public class BlGen extends AbstractGen {
             + code.uncapitalCamel(ci.getRelationFieldName()) + ");" + RT));
     sb.append(RT);
     sb.append(T2 + "} else {" + RT);
-    sb.append(T3 + "e = entityForUpdate;" + RT);
+    sb.append(T3 + "e = findAndOptimisticLockingCheck(rec);" + RT);
     StringBuilder dateTimeString2 = new StringBuilder();
     ti.columnList.stream().filter(ci -> !ci.getIsJavaOnly())
         .filter(ci -> ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
@@ -176,7 +171,7 @@ public class BlGen extends AbstractGen {
     StringBuilder relString2 = new StringBuilder();
     relFieldList.stream().filter(ci -> !ci.isGroupColumn())
         .forEach(ci -> relString2.append(", " + ci.getRelationFieldName()));
-    sb.append(T3 + "e.update(rec" + dateTimeString2 + relString2 + ");" + RT);
+    sb.append(T3 + "e.update(rec" + dateTimeString2 + relString2 + ", skipUpdateFields);" + RT);
     sb.append(T2 + "}" + RT2);
     sb.append(T2 + "return repo.save(e);" + RT);
     sb.append(T1 + "}" + RT2);
