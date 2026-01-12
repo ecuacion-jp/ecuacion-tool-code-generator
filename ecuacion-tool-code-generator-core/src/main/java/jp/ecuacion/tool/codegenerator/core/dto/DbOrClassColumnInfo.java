@@ -3,7 +3,6 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.notEqualTo;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.empty;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
-
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -21,6 +20,7 @@ import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.NotEmptyGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.ValidatorGen;
+import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.tool.codegenerator.core.validation.StrPk;
@@ -38,7 +38,7 @@ import org.apache.commons.lang3.StringUtils;
     conditionPattern = empty)
 public class DbOrClassColumnInfo extends StringExcelTableBean {
 
-  private List<BidirectionalRelationInfo> bidirectionalInfo = new ArrayList<>();
+  private List<BidirectionalRelationInfo> bidirectionalInfoList = new ArrayList<>();
 
   // ファイルからのデータ取り込みでは使用しなくなったので直接booleanで持つ
   private boolean isOptLock = false;
@@ -98,6 +98,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   /** 利便性のために追加。 */
   private DataTypeInfo dtInfo;
+  
+  private CodeGenUtil code = new CodeGenUtil();
 
   //@formatter:off
   @Override
@@ -137,8 +139,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   public static DbOrClassColumnInfo cloneWithoutRelationRelated(DbOrClassColumnInfo ci) {
-    String[] arr = new String[] {null, ci.getDisplayName(), ci.getName(), ci.getDataType(),
-        null, ci.getIsJavaOnlyString(), ci.getPkKindString(), ci.isNullable,
+    String[] arr = new String[] {null, ci.getDisplayName(), ci.getName(), ci.getDataType(), null,
+        ci.getIsJavaOnlyString(), ci.getPkKindString(), ci.isNullable,
         ReaderUtil.booleanToBoolStr(ci.isAutoIncrement()),
         ReaderUtil.booleanToBoolStr(ci.isForcedIncrement()),
         ReaderUtil.booleanToBoolStr(ci.isAutoUpdate()),
@@ -155,17 +157,25 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return rtnCi;
   }
 
-  public List<BidirectionalRelationInfo> getBidirectionalInfo() {
-    return bidirectionalInfo;
+  public List<BidirectionalRelationInfo> getBidirectionalInfoList() {
+    return bidirectionalInfoList;
   }
 
   public boolean isReferedByBidirectionalRelation() {
-    return bidirectionalInfo != null && bidirectionalInfo.size() != 0;
+    return bidirectionalInfoList != null && bidirectionalInfoList.size() != 0;
   }
 
   // name
   public String getName() {
     return name;
+  }
+
+  public String getNameCpCamel() {
+    return StringUtil.getUpperCamelFromSnake(name);
+  }
+
+  public String getNameCamel() {
+    return StringUtil.getLowerCamelFromSnake(name);
   }
 
   // dispName
@@ -259,7 +269,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   /** relationのcolumnかを判断するメソッド。 */
-  public boolean isRelationColumn() {
+  public boolean isRelation() {
     return getRelationKind() != null;
   }
 
@@ -279,12 +289,28 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return relationFieldName;
   }
 
+  public String getRelationFieldNameCp() {
+    return StringUtils.capitalize(relationFieldName);
+  }
+
   public String getRelationRefTable() {
     return relationRefTable;
   }
 
+  public String getRelationRefTableCpCamel() {
+    return code.capitalCamel(relationRefTable);
+  }
+
+  public String getRelationRefTableCamel() {
+    return code.uncapitalCamel(relationRefTable);
+  }
+
   public String getRelationRefCol() {
     return relationRefCol;
+  }
+
+  public String getRelationRefColCpCamel() {
+    return code.capitalCamel(relationRefCol);
   }
 
   public String getRelationRefFieldName() {
@@ -323,7 +349,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   public boolean hasAnyRelationsOrRefs() {
-    return isRelationColumn() || isReferedByBidirectionalRelation();
+    return isRelation() || isReferedByBidirectionalRelation();
   }
 
   public static class BidirectionalRelationInfo {
@@ -335,6 +361,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     private String orgTableName;
     private String orgFieldName;
     private String orgFieldNameToReferDst;
+
+    private CodeGenUtil code = new CodeGenUtil();
 
     public BidirectionalRelationInfo(RelationKindEnum relationKind, String dstTableName,
         String dstColumnName, String dstFieldNameToReferOrgTable, String orgTableName,
@@ -366,6 +394,14 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
     public String getOrgTableName() {
       return orgTableName;
+    }
+
+    public String getOrgTableNameCamel() {
+      return code.uncapitalCamel(orgTableName);
+    }
+
+    public String getOrgTableNameCpCamel() {
+      return code.capitalCamel(orgTableName);
     }
 
     public String getOrgFieldName() {
@@ -412,7 +448,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
       }
     }
 
-    if (!isRelationColumn()) {
+    if (!isRelation()) {
       rtnList.addAll(forEntity ? dtInfo.getValidatorList(true) : dtInfo.getValidatorList(false));
     }
 

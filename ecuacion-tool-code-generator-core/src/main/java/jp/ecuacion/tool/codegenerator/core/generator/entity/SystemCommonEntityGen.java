@@ -38,11 +38,11 @@ public class SystemCommonEntityGen extends EntityGen {
       sb.append(importMgr.outputStr() + RT);
       // クラス定義
       sb.append("@MappedSuperclass" + RT);
-      sb.append("public abstract class SystemCommonEntity "
+      sb.append("public abstract class SystemCommon "
           + "extends EclibEntity implements Serializable {" + RT2);
       sb.append(T1 + "private static final long serialVersionUID = 1L;" + RT2);
-      sb.append(T1 + "public SystemCommonEntity() {}" + RT);
-      sb.append(T1 + "public SystemCommonEntity(SystemCommonBaseRecord rec) {super();}" + RT2);
+      sb.append(T1 + "public SystemCommon() {}" + RT);
+      sb.append(T1 + "public SystemCommon(SystemCommonBaseRecord rec) {super();}" + RT2);
       sb.append(T1 + "@PrePersist" + RT);
       sb.append(T1 + "public void preInsert() {}" + RT2);
       sb.append(T1 + "@PreUpdate" + RT);
@@ -50,7 +50,7 @@ public class SystemCommonEntityGen extends EntityGen {
       sb.append("}" + RT);
     }
 
-    outputFile(sb, getFilePath("entity"), "SystemCommonEntity.java");
+    outputFile(sb, getFilePath("entity"), "SystemCommon.java");
 
     appendItemNamesProperties(EntityGenKindEnum.ENTITY_SYSTEM_COMMON,
         info.dbCommonRootInfo.tableList);
@@ -79,7 +79,7 @@ public class SystemCommonEntityGen extends EntityGen {
     sb.append("@MappedSuperclass" + RT);
     sb.append("@EntityListeners(AuditingEntityListener.class)" + RT);
     sb.append(
-        "public abstract class SystemCommonEntity extends EclibEntity implements Serializable {"
+        "public abstract class SystemCommon extends EclibEntity implements Serializable {"
             + RT2);
 
     appendSerialVersionUid(sb);

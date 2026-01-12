@@ -218,7 +218,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     final List<DbOrClassColumnInfo> relFieldList =
         tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> !e.isPk())
-            .filter(e -> e.isRelationColumn()).toList();
+            .filter(e -> e.isRelation()).toList();
 
     List<DbOrClassColumnInfo> list = new ArrayList<>(tableInfo.columnList);
     list.addAll(info.dbCommonRootInfo.tableList.get(0).columnList);
@@ -345,7 +345,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     ImportGenUtil importMgr = new ImportGenUtil();
     importMgr.add("jp.ecuacion.util.jpa.dao.AbstractDao",
-        rootBasePackage + ".base.entity.SystemCommonEntity");
+        rootBasePackage + ".base.entity.SystemCommon");
     importMgr.add("jakarta.annotation.Nonnull");
 
     if (delFlgInfo.isDefined()) {
@@ -366,7 +366,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
     sb.append(importMgr.outputStr() + RT);
 
     sb.append("public abstract class SystemCommonBase" + postfixCp
-        + "<T extends SystemCommonEntity> " + "extends AbstractDao<T> {" + RT2);
+        + "<T extends SystemCommon> " + "extends AbstractDao<T> {" + RT2);
 
     sb.append(T1 + "protected static final String COL_NAME_GRP = \""
         + ((groupInfo == null || groupInfo.getColumnName() == null) ? null
