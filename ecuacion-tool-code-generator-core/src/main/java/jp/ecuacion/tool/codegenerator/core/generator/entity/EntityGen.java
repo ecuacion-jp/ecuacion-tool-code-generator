@@ -309,8 +309,9 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
           + RT);
       sb.append(T1 + "@OnDelete(action = OnDeleteAction.CASCADE)" + RT);
       sb.append(T1 + "@JoinColumn(name = \"" + ci.getName() + "\", referencedColumnName = \""
-          + ci.getRelationRefCol() + "\", nullable = " + (ci.isNullable() ? "true" : "false") + ")"
-          + RT);
+          + ci.getRelationRefCol() + "\", nullable = " + (ci.isNullable() ? "true" : "false")
+          + ", columnDefinition = \""
+          + (ci.getDtInfo().getKata() == DataTypeKataEnum.LONG ? "bigint" : "int") + "\")" + RT);
       if (ci.isPk()) {
         sb.append(T1 + "@MapsId" + RT);
       }
