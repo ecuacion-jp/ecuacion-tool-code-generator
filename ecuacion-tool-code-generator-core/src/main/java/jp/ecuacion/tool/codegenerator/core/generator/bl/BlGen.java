@@ -188,13 +188,19 @@ public class BlGen extends AbstractGen {
     }
 
     String entityName = code.capitalCamel(ti.getName());
-    sb.append(T1 + "public void naturalKeyDuplicatedCheck(" + entityName
-        + "BaseRecord rec) throws BizLogicAppException {" + RT);
-
     List<String> itemPropertyPathList = ti.columnList.stream().filter(ci -> ci.isUniqueConstraint())
         .map(ci -> code.generateString(ci, ColFormat.ITEM_PROPERTY_PATH)).toList();
-    final String itemPropertyPathsStr = "new String[] {"
-        + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"", false) + "}";
+
+    // args: rec
+    sb.append(T1 + "public void naturalKeyDuplicatedCheck(" + entityName
+        + "BaseRecord rec) throws BizLogicAppException {" + RT);
+    sb.append(T2 + "naturalKeyDuplicatedCheck(rec, "
+        + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"", false) + ");" + RT);
+    sb.append(T1 + "}" + RT2);
+
+    // args: rec, itemPropertyPath
+    sb.append(T1 + "public void naturalKeyDuplicatedCheck(" + entityName
+        + "BaseRecord rec, String... itemPropertyPaths) throws BizLogicAppException {" + RT);
     final String itemNameKeysStr =
         "new String[] {"
             + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "rec.getItem(\"",
@@ -210,7 +216,7 @@ public class BlGen extends AbstractGen {
     String pkCapFieldName = code.capitalCamel(ti.getPkColumn().getName());
     sb.append(T2 + "throwExceptionWhenDuplicated(optional.isPresent() && !optional.get().get"
         + pkCapFieldName + "().equals(rec.get" + pkCapFieldName + "OfEntityDataType()), "
-        + itemPropertyPathsStr + ", " + itemNameKeysStr + ");" + RT);
+        + "itemPropertyPaths, " + itemNameKeysStr + ");" + RT);
     sb.append(T1 + "}" + RT);
   }
 }
