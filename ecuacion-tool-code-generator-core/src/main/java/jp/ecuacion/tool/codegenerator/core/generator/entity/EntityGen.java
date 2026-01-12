@@ -547,7 +547,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   protected void appendUpdate(StringBuilder sb, DbOrClassTableInfo tableInfo)
       throws BizLogicAppException {
     List<DbOrClassColumnInfo> baseList =
-        tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> !e.isPk())
+        tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
             .filter(e -> !e.isGroupColumn()).toList();
 
     StringBuilder dateTimeString = new StringBuilder();
