@@ -464,7 +464,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
         case ENUM -> sb.append(T2 + "return EnumUtil.getListForHtmlSelect(" + code.getJavaKata(ci)
             + ".class, locale, options);" + RT);
         case BOOLEAN -> sb.append(T2 + "return getBooleanDropdownList(locale, \""
-            + ci.getNameCamel() + " \", options);" + RT);
+            + ci.getNameCamel() + "\", options);" + RT);
         default -> {
         }
       }
