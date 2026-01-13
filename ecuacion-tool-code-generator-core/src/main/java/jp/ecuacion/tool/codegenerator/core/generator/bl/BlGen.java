@@ -48,7 +48,8 @@ public class BlGen extends AbstractGen {
 
       if (!isSystemCommon) {
         generateInsertOrUpdate(ti);
-        generateNaturalKeyDuplicatedCheck(ti);
+        generateDuplicateCheck(ti);
+        generateNaturalKeyDuplicateCheck(ti);
       }
 
       sb.append("}" + RT);
@@ -71,7 +72,8 @@ public class BlGen extends AbstractGen {
     } else {
       importMgr.add("org.springframework.beans.factory.annotation.Autowired",
           "jp.ecuacion.splib.jpa.repository.SplibRepository", rootBasePackage + ".base.record.*",
-          rootBasePackage + ".base.repository.*", "jp.ecuacion.lib.core.exception.checked.*");
+          rootBasePackage + ".base.repository.*", "jp.ecuacion.lib.core.exception.checked.*",
+          "java.util.List");
 
       if (ti.columnList.stream().filter(ci -> ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
           || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP).toList().size() > 0) {
@@ -155,29 +157,42 @@ public class BlGen extends AbstractGen {
     sb.append(T2 + "boolean isInsert = rec.get" + idField + "() == null || rec.get" + idField
         + "().equals(\"\");" + RT2);
 
-    sb.append(T2 + "if (isInsert) {" + RT);
-    sb.append(T3 + "e = new " + entityName + "(rec);" + RT);
-    relFieldList.stream()
-        .forEach(ci -> sb.append(T3 + "e.set" + code.capitalCamel(ci.getRelationFieldName()) + "("
-            + code.uncapitalCamel(ci.getRelationFieldName()) + ");" + RT));
-    sb.append(RT);
-    sb.append(T2 + "} else {" + RT);
-    sb.append(T3 + "e = findAndOptimisticLockingCheck(rec);" + RT);
     StringBuilder dateTimeString2 = new StringBuilder();
     ti.columnList.stream().filter(ci -> !ci.getIsJavaOnly())
         .filter(ci -> ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
             || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP)
         .forEach(ci -> dateTimeString2.append(", " + code.uncapitalCamel(ci.getName())));
     StringBuilder relString2 = new StringBuilder();
-    relFieldList.stream().filter(ci -> !ci.isGroupColumn())
-        .forEach(ci -> relString2.append(", " + ci.getRelationFieldName()));
+    relFieldList.stream().forEach(ci -> relString2.append(", " + ci.getRelationFieldName()));
+
+    sb.append(T2 + "if (isInsert) {" + RT);
+    sb.append(T3 + "e = new " + entityName + "(rec" + dateTimeString2 + relString2 + ");" + RT);
+    // relFieldList.stream()
+    // .forEach(ci -> sb.append(T3 + "e.set" + code.capitalCamel(ci.getRelationFieldName()) + "("
+    // + code.uncapitalCamel(ci.getRelationFieldName()) + ");" + RT));
+    sb.append(RT);
+    sb.append(T2 + "} else {" + RT);
+    sb.append(T3 + "e = findAndOptimisticLockingCheck(rec);" + RT);
     sb.append(T3 + "e.update(rec" + dateTimeString2 + relString2 + ", skipUpdateFields);" + RT);
     sb.append(T2 + "}" + RT2);
     sb.append(T2 + "return repo.save(e);" + RT);
     sb.append(T1 + "}" + RT2);
   }
 
-  private void generateNaturalKeyDuplicatedCheck(DbOrClassTableInfo ti) {
+  private void generateDuplicateCheck(DbOrClassTableInfo ti) {
+    sb.append(T1 + "public <T, I> void duplicateCheck(" + ti.getNameCpCamel() + "BaseRecord rec, "
+        + "String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+    sb.append(T2 + "duplicateCheck(repo.findAll(), rec, targetItemPropertyPaths);" + RT);
+    sb.append(T1 + "}" + RT2);
+
+    sb.append(T1 + "public <T, I> void duplicateCheck(List<T> entityList, " + ti.getNameCpCamel()
+        + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+    sb.append(T2 + "internalDuplicateCheck(entityList, rec, \"" + ti.getNameCamel() + "\", \"id\", "
+        + "targetItemPropertyPaths);" + RT);
+    sb.append(T1 + "}" + RT2);
+  }
+
+  private void generateNaturalKeyDuplicateCheck(DbOrClassTableInfo ti) {
     if (!ti.hasUniqueConstraint()) {
       return;
     }
@@ -187,14 +202,14 @@ public class BlGen extends AbstractGen {
         .map(ci -> code.generateString(ci, ColFormat.ITEM_PROPERTY_PATH)).toList();
 
     // args: rec
-    sb.append(T1 + "public void naturalKeyDuplicatedCheck(" + entityName
+    sb.append(T1 + "public void naturalKeyDuplicateCheck(" + entityName
         + "BaseRecord rec) throws BizLogicAppException {" + RT);
-    sb.append(T2 + "naturalKeyDuplicatedCheck(rec, "
+    sb.append(T2 + "naturalKeyDuplicateCheck(rec, "
         + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"", false) + ");" + RT);
     sb.append(T1 + "}" + RT2);
 
     // args: rec, itemPropertyPath
-    sb.append(T1 + "public void naturalKeyDuplicatedCheck(" + entityName
+    sb.append(T1 + "public void naturalKeyDuplicateCheck(" + entityName
         + "BaseRecord rec, String... itemPropertyPaths) throws BizLogicAppException {" + RT);
     final String itemNameKeysStr =
         "new String[] {"
