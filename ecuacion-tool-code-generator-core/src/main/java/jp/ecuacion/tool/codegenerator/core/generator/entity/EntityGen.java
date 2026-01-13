@@ -142,15 +142,15 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
       importMgr.add("jakarta.annotation.Nonnull");
 
-      // bidirectionalInfoでかつOneToManyの場合は、明示的にbidirectionの参照元のBaseRecordをimportする必要あり。
-      for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-        for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
-          if (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
-            importMgr.add(rootBasePackage + ".base.record."
-                + StringUtil.getUpperCamelFromSnake(info.getOrgTableName()) + "BaseRecord");
-          }
-        }
-      }
+      // // bidirectionalInfoでかつOneToManyの場合は、明示的にbidirectionの参照元のBaseRecordをimportする必要あり。
+      // for (DbOrClassColumnInfo ci : tableInfo.columnList) {
+      // for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
+      // if (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
+      // importMgr.add(rootBasePackage + ".base.record."
+      // + StringUtil.getUpperCamelFromSnake(info.getOrgTableName()) + "BaseRecord");
+      // }
+      // }
+      // }
 
     } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
       // 親entity
@@ -393,22 +393,24 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "public " + tableNameCp + "() {" + "}" + RT2);
   }
 
-  protected void appendRecConstructor(StringBuilder sb, DbOrClassTableInfo tableInfo,
-      String entityNameCp) {
+  protected void appendRecConstructor(StringBuilder sb, DbOrClassTableInfo ti, String entityNameCp)
+      throws BizLogicAppException {
     // recを引数としたコンストラクタ
     sb.append(T1 + "/** A constructor with record argument */" + RT);
-    // BaseRecordの前の部分に"Pk"が入らないように、あえてPkがつかない名前を取得している
-    sb.append(
-        T1 + "public " + entityNameCp + "("
-            + (this instanceof SystemCommonEntityGen ? "SystemCommon"
-                : StringUtil.getUpperCamelFromSnake(tableInfo.getName()))
-            + "BaseRecord rec) {" + RT);
-    sb.append(T2 + "super("
-        + ((getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY) ? "rec" : "") + ");" + RT);
 
-    tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly()).toList().forEach(ci -> {
-      substituteFieldsFromRecordToEntity(sb, ci, true);
-    });
+    // BaseRecordの前の部分に"Pk"が入らないように、あえてPkがつかない名前を取得している
+    sb.append(T1 + "public " + entityNameCp + "("
+        + (this instanceof SystemCommonEntityGen ? "SystemCommon"
+            : StringUtil.getUpperCamelFromSnake(ti.getName()))
+        + "BaseRecord rec" + args(ti) + ") {" + RT);
+    sb.append(T2 + "super("
+        + ((getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY) ? "rec" : "") + ");" + RT2);
+
+    // ti.columnList.stream().filter(e -> !e.getIsJavaOnly()).toList().forEach(ci -> {
+    // substituteFieldsFromRecordToEntity(sb, ci, true);
+    // });
+
+    fields(sb, ti, false);
 
     sb.append(T1 + "}" + RT2);
   }
@@ -453,102 +455,100 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "}" + RT2);
   }
 
-  protected void substituteFieldsFromRecordToEntity(StringBuilder sb, DbOrClassColumnInfo ci,
-      boolean usesRec) {
-    // if (createsField(ci)) {
-    String leftHandSide = "set" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "(";
-    DataTypeInfo dtInfo = ci.getDtInfo();
-    String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getName());
-    String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
-    String kataUc = code.getJavaKata(ci);
+  // private void substituteFieldsFromRecordToEntity(StringBuilder sb, DbOrClassColumnInfo ci,
+  // boolean usesRec) {
+  // // if (createsField(ci)) {
+  // String leftHandSide = "set" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "(";
+  // DataTypeInfo dtInfo = ci.getDtInfo();
+  // String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getName());
+  // String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
+  // String kataUc = code.getJavaKata(ci);
+  //
+  // // relationがある場合は、インスタンス生成を行う
+  // String relFieldNameUc = StringUtils.capitalize(ci.getRelationFieldName());
+  // if (ci.isRelation()) {
+  // String entityName = StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
+  // sb.append(T2 + ci.getRelationFieldName() + " = rec.get" + relFieldNameUc
+  // + "() == null ? null : new " + StringUtils.capitalize(entityName) + "(rec.get"
+  // + relFieldNameUc + "());" + RT);
+  //
+  // } else {
+  //
+  // if (dtInfo.getKata() == DataTypeKataEnum.FLOAT
+  // || dtInfo.getKata() == DataTypeKataEnum.DOUBLE) {
+  // sb.append(
+  // T2 + leftHandSide + "(" + ((usesRec) ? "rec.get" + fieldNameUc + "()" : fieldNameLc)
+  // + " == null || " + ((usesRec) ? "rec.get" + fieldNameUc + "()" : fieldNameLc)
+  // + ".equals(\"\"))? null: " + kataUc + ".valueOf"
+  // + ((usesRec) ? "(rec.get" + fieldNameUc + "().replaceAll(\",\", \"\"))"
+  // : "(" + fieldNameLc + ")")
+  // + ");" + RT);
+  //
+  // // } else if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
+  // // String obtainedValue =
+  // // ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
+  // // : StringUtil.getLowerCamelFromSnake(ci.getName()));
+  // // sb.append(T2 + leftHandSide + obtainedValue + " == null ? null :
+  // // EnumUtil.getEnumFromCode("
+  // // + CodeGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName()) + "Enum.class, "
+  // // + obtainedValue + "));" + RT);
+  //
+  // } else if (CodeGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata())) {
+  // sb.append(T2 + fieldNameLc + " = rec.get" + fieldNameUc + "OfEntityDataType();" + RT);
+  //
+  // } else if (dtInfo.getKata() == DataTypeKataEnum.BOOLEAN) {
+  // // booleanは、record上ではBooleanで保持されているため、Stringから読み込む場合（userRec ==
+  // // falseの場合）のみBoolean.valueOfを付加
+  // sb.append(T2 + leftHandSide
+  // + ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
+  // : ("Boolean.valueOf(" + StringUtil.getLowerCamelFromSnake(ci.getName())) + ")")
+  // + ");" + RT);
+  //
+  // } else {
+  // sb.append(T2 + leftHandSide
+  // + ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
+  // : StringUtil.getLowerCamelFromSnake(ci.getName()))
+  // + ");" + RT);
+  // }
+  // }
+  //
+  // // bidirectional relationの参照先カラムの場合はそのfieldの代入も追加
+  // if (ci.isReferedByBidirectionalRelation()) {
+  // for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
+  // String entityNameUc = StringUtil.getUpperCamelFromSnake(info.getOrgTableName());
+  // String entityNameLc = StringUtils.uncapitalize(entityNameUc);
+  //
+  // String bidirFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
+  // String bidirFieldNameUc = StringUtils.capitalize(bidirFieldName);
+  //
+  // // ID column of ref-from table
+  // String pkColumnInOrgTable = MainController.tlInfo.get().dbRootInfo.tableList.stream()
+  // .filter(tbl -> tbl.getName().equals(info.getOrgTableName())).toList().get(0)
+  // .getPkColumn().getName();
+  // if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
+  // sb.append(T2 + bidirFieldName + " = rec.get" + bidirFieldNameUc + "() == null || rec.get"
+  // + bidirFieldNameUc + "().get" + StringUtil.getUpperCamelFromSnake(pkColumnInOrgTable)
+  // + "() == null ? null : new " + StringUtils.capitalize(entityNameLc) + "(rec.get"
+  // + bidirFieldNameUc + "());" + RT);
+  //
+  // } else {
+  // sb.append(
+  // T2 + "if (rec.get" + StringUtils.capitalize(bidirFieldName) + "() != null) {" + RT);
+  // sb.append(T3 + bidirFieldName + " = new ArrayList<>();" + RT);
+  // sb.append(T3 + "for (" + entityNameUc + "BaseRecord " + entityNameLc + "Rec : rec.get"
+  // + StringUtils.capitalize(bidirFieldName) + "()) {" + RT);
+  // sb.append(T4 + bidirFieldName + ".add(new " + entityNameUc + "(" + entityNameLc + "Rec));"
+  // + RT);
+  // sb.append(T3 + "}" + RT);
+  // sb.append(T2 + "}" + RT);
+  // }
+  // }
+  // }
+  // }
 
-    // relationがある場合は、インスタンス生成を行う
-    String relFieldNameUc = StringUtils.capitalize(ci.getRelationFieldName());
-    if (ci.isRelation()) {
-      String entityName = StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
-      sb.append(T2 + ci.getRelationFieldName() + " = rec.get" + relFieldNameUc
-          + "() == null ? null : new " + StringUtils.capitalize(entityName) + "(rec.get"
-          + relFieldNameUc + "());" + RT);
-
-    } else {
-
-      if (dtInfo.getKata() == DataTypeKataEnum.FLOAT
-          || dtInfo.getKata() == DataTypeKataEnum.DOUBLE) {
-        sb.append(
-            T2 + leftHandSide + "(" + ((usesRec) ? "rec.get" + fieldNameUc + "()" : fieldNameLc)
-                + " == null || " + ((usesRec) ? "rec.get" + fieldNameUc + "()" : fieldNameLc)
-                + ".equals(\"\"))? null: " + kataUc + ".valueOf"
-                + ((usesRec) ? "(rec.get" + fieldNameUc + "().replaceAll(\",\", \"\"))"
-                    : "(" + fieldNameLc + ")")
-                + ");" + RT);
-
-        // } else if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-        // String obtainedValue =
-        // ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
-        // : StringUtil.getLowerCamelFromSnake(ci.getName()));
-        // sb.append(T2 + leftHandSide + obtainedValue + " == null ? null :
-        // EnumUtil.getEnumFromCode("
-        // + CodeGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName()) + "Enum.class, "
-        // + obtainedValue + "));" + RT);
-
-      } else if (CodeGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata())) {
-        sb.append(T2 + fieldNameLc + " = rec.get" + fieldNameUc + "OfEntityDataType();" + RT);
-
-      } else if (dtInfo.getKata() == DataTypeKataEnum.BOOLEAN) {
-        // booleanは、record上ではBooleanで保持されているため、Stringから読み込む場合（userRec ==
-        // falseの場合）のみBoolean.valueOfを付加
-        sb.append(T2 + leftHandSide
-            + ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
-                : ("Boolean.valueOf(" + StringUtil.getLowerCamelFromSnake(ci.getName())) + ")")
-            + ");" + RT);
-
-      } else {
-        sb.append(T2 + leftHandSide
-            + ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
-                : StringUtil.getLowerCamelFromSnake(ci.getName()))
-            + ");" + RT);
-      }
-    }
-
-    // bidirectional relationの参照先カラムの場合はそのfieldの代入も追加
-    if (ci.isReferedByBidirectionalRelation()) {
-      for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
-        String entityNameUc = StringUtil.getUpperCamelFromSnake(info.getOrgTableName());
-        String entityNameLc = StringUtils.uncapitalize(entityNameUc);
-
-        String bidirFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
-        String bidirFieldNameUc = StringUtils.capitalize(bidirFieldName);
-
-        // ID column of ref-from table
-        String pkColumnInOrgTable = MainController.tlInfo.get().dbRootInfo.tableList.stream()
-            .filter(tbl -> tbl.getName().equals(info.getOrgTableName())).toList().get(0)
-            .getPkColumn().getName();
-        if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
-          sb.append(T2 + bidirFieldName + " = rec.get" + bidirFieldNameUc + "() == null || rec.get"
-              + bidirFieldNameUc + "().get" + StringUtil.getUpperCamelFromSnake(pkColumnInOrgTable)
-              + "() == null ? null : new " + StringUtils.capitalize(entityNameLc) + "(rec.get"
-              + bidirFieldNameUc + "());" + RT);
-
-        } else {
-          sb.append(
-              T2 + "if (rec.get" + StringUtils.capitalize(bidirFieldName) + "() != null) {" + RT);
-          sb.append(T3 + bidirFieldName + " = new ArrayList<>();" + RT);
-          sb.append(T3 + "for (" + entityNameUc + "BaseRecord " + entityNameLc + "Rec : rec.get"
-              + StringUtils.capitalize(bidirFieldName) + "()) {" + RT);
-          sb.append(T4 + bidirFieldName + ".add(new " + entityNameUc + "(" + entityNameLc + "Rec));"
-              + RT);
-          sb.append(T3 + "}" + RT);
-          sb.append(T2 + "}" + RT);
-        }
-      }
-    }
-  }
-
-  protected void appendUpdate(StringBuilder sb, DbOrClassTableInfo tableInfo)
-      throws BizLogicAppException {
-    List<DbOrClassColumnInfo> baseList =
-        tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> !e.isPk())
-            .filter(e -> !e.isGroupColumn()).toList();
+  private String args(DbOrClassTableInfo ti) {
+    List<DbOrClassColumnInfo> baseList = ti.columnList.stream().filter(ci -> !ci.getIsJavaOnly())
+        .filter(ci -> StringUtils.isEmpty(ci.getSpringAuditing())).toList();
 
     StringBuilder dateTimeString = new StringBuilder();
     baseList.stream()
@@ -560,20 +560,37 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     StringBuilder relString = new StringBuilder();
     baseList.stream().filter(e -> e.isRelation()).forEach(ci -> relString.append(
         ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
-    sb.append(T1 + "public void update(" + code.baseRecDef(tableInfo.getName()) + dateTimeString
-        + relString + ", String... skipUpdateFields) {" + RT);
+
+    return dateTimeString.toString() + relString.toString();
+  }
+
+  protected void appendUpdate(StringBuilder sb, DbOrClassTableInfo ti) throws BizLogicAppException {
+    sb.append(T1 + "public void update(" + code.baseRecDef(ti.getName()) + args(ti)
+        + ", String... skipUpdateFields) {" + RT);
 
     // Remove groupColumn to avoid the data to be moved to other group (=normally other customer's
     // dara realm).
-    if (baseList.stream().filter(ci -> !ci.isRelation()).toList().size() > 0) {
+    if (ti.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(ci -> !ci.isRelation())
+        .toList().size() > 0) {
       sb.append(T2 + "List<String> skipUpdateFieldList = Arrays.asList(skipUpdateFields);" + RT2);
     }
+
+    fields(sb, ti, true);
+
+    sb.append(T1 + "}" + RT2);
+  }
+
+  private void fields(StringBuilder sb, DbOrClassTableInfo ti, boolean isUpdate)
+      throws BizLogicAppException {
+    List<DbOrClassColumnInfo> baseList =
+        ti.columnList.stream().filter(e -> !e.getIsJavaOnly()).toList();
 
     // if (uploadedDateTime != null && !skipUpdateFieldList.contains(FIELD_UPLOADED_DATETIME))
     // setUploadedDatetime(uploadedDateTime);
     for (DbOrClassColumnInfo ci : baseList) {
       String fieldName = code.uncapitalCamel(ci.getName());
-
+      String updString = !isUpdate ? ""
+          : " && !skipUpdateFieldList.contains(FIELD_" + ci.getName() + ")";
       if (ci.isRelation()) {
         String name = ci.getRelationFieldName();
         sb.append(T2 + "if (" + name + " != null) set"
@@ -581,17 +598,14 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
       } else if (ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
           || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP) {
-        sb.append(T2 + "if (" + fieldName + " != null && !skipUpdateFieldList.contains(" + "FIELD_"
-            + ci.getName() + ")) " + code.set(fieldName, fieldName) + ";" + RT);
+        sb.append(T2 + "if (" + fieldName + " != null" + updString + ") "
+            + code.set(fieldName, fieldName) + ";" + RT);
 
       } else {
-        sb.append(T2 + "if (" + code.recGet(fieldName)
-            + " != null && !skipUpdateFieldList.contains(" + "FIELD_" + ci.getName() + ")) "
+        sb.append(T2 + "if (" + code.recGet(fieldName) + " != null" + updString + ") "
             + code.set(fieldName, "rec." + code.getOfEntityDataType(ci)) + ";" + RT);
       }
     }
-
-    sb.append(T1 + "}" + RT2);
   }
 
   protected void appendAccessor(StringBuilder sb, DbOrClassTableInfo tableInfo) {
