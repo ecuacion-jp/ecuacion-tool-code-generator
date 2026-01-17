@@ -23,7 +23,7 @@ import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.BidirectionalRelationInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
@@ -104,8 +104,8 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     }
 
     // Add imports for columns referred by bidirectional relation.
-    ti.columnList.stream().filter(ci -> ci.isReferedByBidirectionalRelation())
-        .map(ci -> ci.getBidirectionalInfoList()).flatMap(l -> l.stream())
+    ti.columnList.stream().filter(ci -> ci.hasBidirectionalRelationRef())
+        .map(ci -> ci.getBidirectionalRelationRefInfoList()).flatMap(l -> l.stream())
         .filter(info -> info.getRelationKind() == RelationKindEnum.ONE_TO_MANY)
         .forEach(info -> imp.add("java.util.ArrayList", "java.util.List", rootBasePackage
             + ".base.entity." + StringUtil.getUpperCamelFromSnake(info.getOrgTableName())));
@@ -135,7 +135,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
         T1 + "protected " + (ci.isRelation() ? rel : kata + " " + ci.getNameCamel()) + ";" + RT);
 
     // Add method for bidirectional relation if the column has it.
-    for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
+    for (RelationRefInfo info : ci.getBidirectionalRelationRefInfoList()) {
       sb.append(T1 + "@Valid" + RT);
       boolean is1To1 = info.getRelationKind() == RelationKindEnum.ONE_TO_ONE;
       String recKata = is1To1 ? info.getOrgTableNameCpCamel() + "BaseRecord"
@@ -194,8 +194,8 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
       }
 
       // Add field for bidirectional relation.
-      if (ci.isReferedByBidirectionalRelation()) {
-        for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
+      if (ci.hasBidirectionalRelationRef()) {
+        for (RelationRefInfo info : ci.getBidirectionalRelationRefInfoList()) {
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
             sb.append(T3 + info.getEmptyConsideredFieldNameToReferFromTable() + " = new "
                 + info.getOrgTableNameCpCamel()
@@ -241,8 +241,8 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
       sb.append(T2 + "if (count > 0) {" + RT);
 
       for (DbOrClassColumnInfo ci : ti.columnList) {
-        if (ci.isReferedByBidirectionalRelation()) {
-          for (BidirectionalRelationInfo bi : ci.getBidirectionalInfoList()) {
+        if (ci.hasBidirectionalRelationRef()) {
+          for (RelationRefInfo bi : ci.getBidirectionalRelationRefInfoList()) {
             String refEnNameCp = bi.getOrgTableNameCpCamel();
             String refFiName = bi.getEmptyConsideredFieldNameToReferFromTable();
             String refFiNameCp = StringUtils.capitalize(refFiName);
@@ -424,14 +424,14 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
       }
 
       // accessor for bidirectional relation
-      ci.getBidirectionalInfoList().stream()
+      ci.getBidirectionalRelationRefInfoList().stream()
           .forEach(info -> createAccessorForRelation(info.getOrgTableNameCamel(),
               info.getEmptyConsideredFieldNameToReferFromTable(), info));
     }
   }
 
   private void createAccessorForRelation(String relEntityNameLw, String relFieldName,
-      BidirectionalRelationInfo info) {
+      RelationRefInfo info) {
     String relDataType = StringUtils.capitalize(relEntityNameLw) + "BaseRecord";
     if (info != null && info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
       relFieldName = info.getEmptyConsideredFieldNameToReferFromTable();

@@ -14,7 +14,7 @@ import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.BidirectionalRelationInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
@@ -263,8 +263,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
         createFieldInternal(sb, tableInfo.getName(), ci2);
       }
 
-      if (ci.isReferedByBidirectionalRelation()) {
-        for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
+      if (ci.hasBidirectionalRelationRef()) {
+        for (RelationRefInfo info : ci.getBidirectionalRelationRefInfoList()) {
           sb.append(T1 + info.getRelationKind().getName()
               + "(cascade={CascadeType.DETACH, CascadeType.REMOVE}, mappedBy = \""
               + info.getOrgFieldNameToReferDst() + "\")" + RT);
@@ -641,8 +641,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
         appendAccessorForRelation(sb, relEntityName, ci.getRelationFieldName(), false, null);
       }
 
-      if (ci.isReferedByBidirectionalRelation()) {
-        for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
+      if (ci.hasBidirectionalRelationRef()) {
+        for (RelationRefInfo info : ci.getBidirectionalRelationRefInfoList()) {
           appendAccessorForRelation(sb, StringUtil.getLowerCamelFromSnake(info.getOrgTableName()),
               info.getEmptyConsideredFieldNameToReferFromTable(), true, info);
         }
@@ -652,7 +652,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
   private void appendAccessorForRelation(StringBuilder sb, String relEntityName,
       String relFieldName, boolean isReferedByBidirectionalRelation,
-      BidirectionalRelationInfo info) {
+      RelationRefInfo info) {
     // bidirectionの参照先の場合で、かつoneToManyの場合、それを考慮したfieldName, relEntityNameの値に変更
     if (info != null && info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
       relFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
