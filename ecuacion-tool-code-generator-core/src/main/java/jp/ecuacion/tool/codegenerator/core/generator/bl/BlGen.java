@@ -180,15 +180,35 @@ public class BlGen extends AbstractGen {
   }
 
   private void generateDuplicateCheck(DbOrClassTableInfo ti) {
-    sb.append(T1 + "public <T, I> void duplicateCheck(" + ti.getNameCpCamel() + "BaseRecord rec, "
+    sb.append(T1 + "private void duplicateCheck(boolean isCheckFromAllGroups, List<"
+        + ti.getNameCpCamel() + "> entityList, " + ti.getNameCpCamel()
+        + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+    sb.append(T2 + "internalDuplicateCheck(isCheckFromAllGroups, entityList, rec, \""
+        + ti.getNameCamel() + "\", \"id\", " + "targetItemPropertyPaths);" + RT);
+    sb.append(T1 + "}" + RT2);
+
+    sb.append(T1 + "public void duplicateCheck(List<" + ti.getNameCpCamel() + "> entityList, "
+        + ti.getNameCpCamel()
+        + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+    sb.append(T2 + "duplicateCheck(false, entityList, rec, targetItemPropertyPaths);" + RT);
+    sb.append(T1 + "}" + RT2);
+
+    sb.append(T1 + "public void duplicateCheck(" + ti.getNameCpCamel() + "BaseRecord rec, "
         + "String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
     sb.append(T2 + "duplicateCheck(repo.findAll(), rec, targetItemPropertyPaths);" + RT);
     sb.append(T1 + "}" + RT2);
 
-    sb.append(T1 + "public <T, I> void duplicateCheck(List<T> entityList, " + ti.getNameCpCamel()
+    sb.append(T1 + "public void duplicateCheckFromAllGroups(List<" + ti.getNameCpCamel()
+        + "> entityList, " + ti.getNameCpCamel()
         + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
-    sb.append(T2 + "internalDuplicateCheck(entityList, rec, \"" + ti.getNameCamel() + "\", \"id\", "
-        + "targetItemPropertyPaths);" + RT);
+    sb.append(T2 + "duplicateCheck(true, entityList, rec, targetItemPropertyPaths);" + RT);
+    sb.append(T1 + "}" + RT2);
+
+    sb.append(T1 + "public void duplicateCheckFromAllGroups(" + ti.getNameCpCamel()
+        + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+    sb.append(T2
+        + "duplicateCheckFromAllGroups(repo.findAllFromAllGroups(), rec, targetItemPropertyPaths);"
+        + RT);
     sb.append(T1 + "}" + RT2);
   }
 
@@ -201,16 +221,15 @@ public class BlGen extends AbstractGen {
     List<String> itemPropertyPathList = ti.columnList.stream().filter(ci -> ci.isUniqueConstraint())
         .map(ci -> code.generateString(ci, ColFormat.ITEM_PROPERTY_PATH)).toList();
 
-    // args: rec
+    // // args: rec
+    // sb.append(T1 + "public void naturalKeyDuplicateCheck(" + entityName
+    // + "BaseRecord rec) throws BizLogicAppException {" + RT);
+    // sb.append(T2 + "naturalKeyDuplicateCheck(rec, "
+    // + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"", false) + ");" + RT);
+    // sb.append(T1 + "}" + RT2);
+
     sb.append(T1 + "public void naturalKeyDuplicateCheck(" + entityName
         + "BaseRecord rec) throws BizLogicAppException {" + RT);
-    sb.append(T2 + "naturalKeyDuplicateCheck(rec, "
-        + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"", false) + ");" + RT);
-    sb.append(T1 + "}" + RT2);
-
-    // args: rec, itemPropertyPath
-    sb.append(T1 + "public void naturalKeyDuplicateCheck(" + entityName
-        + "BaseRecord rec, String... itemPropertyPaths) throws BizLogicAppException {" + RT);
     final String itemNameKeysStr =
         "new String[] {"
             + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "rec.getItem(\"",
@@ -225,8 +244,10 @@ public class BlGen extends AbstractGen {
 
     String pkCapFieldName = code.capitalCamel(ti.getPkColumn().getName());
     sb.append(T2 + "throwExceptionWhenDuplicated(optional.isPresent() && !optional.get().get"
-        + pkCapFieldName + "().equals(rec.get" + pkCapFieldName + "OfEntityDataType()), "
-        + "itemPropertyPaths, " + itemNameKeysStr + ");" + RT);
+        + pkCapFieldName + "().equals(rec.get" + pkCapFieldName
+        + "OfEntityDataType()), false, new String[] {"
+        + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"", false) + "}, "
+        + itemNameKeysStr + ");" + RT);
     sb.append(T1 + "}" + RT);
   }
 }
