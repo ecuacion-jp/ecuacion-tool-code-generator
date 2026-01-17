@@ -38,7 +38,7 @@ import org.apache.commons.lang3.StringUtils;
     conditionPattern = empty)
 public class DbOrClassColumnInfo extends StringExcelTableBean {
 
-  private List<BidirectionalRelationInfo> bidirectionalInfoList = new ArrayList<>();
+  private List<RelationRefInfo> relationRefInfoList = new ArrayList<>();
 
   // ファイルからのデータ取り込みでは使用しなくなったので直接booleanで持つ
   private boolean isOptLock = false;
@@ -98,7 +98,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   /** 利便性のために追加。 */
   private DataTypeInfo dtInfo;
-  
+
   private CodeGenUtil code = new CodeGenUtil();
 
   //@formatter:off
@@ -157,12 +157,17 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return rtnCi;
   }
 
-  public List<BidirectionalRelationInfo> getBidirectionalInfoList() {
-    return bidirectionalInfoList;
+  public List<RelationRefInfo> getRelationRefInfoList() {
+    return relationRefInfoList;
   }
 
-  public boolean isReferedByBidirectionalRelation() {
-    return bidirectionalInfoList != null && bidirectionalInfoList.size() != 0;
+  public List<RelationRefInfo> getBidirectionalRelationRefInfoList() {
+    return relationRefInfoList.stream().filter(info -> info.isBidirectional).toList();
+  }
+
+  public boolean hasBidirectionalRelationRef() {
+    return getBidirectionalRelationRefInfoList() != null
+        && getBidirectionalRelationRefInfoList().size() != 0;
   }
 
   // name
@@ -349,11 +354,11 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   public boolean hasAnyRelationsOrRefs() {
-    return isRelation() || isReferedByBidirectionalRelation();
+    return isRelation() || hasBidirectionalRelationRef();
   }
 
-  public static class BidirectionalRelationInfo {
-
+  public static class RelationRefInfo {
+    private boolean isBidirectional;
     private RelationKindEnum relationKind;
     private String dstTableName;
     private String dstColumnName;
@@ -364,9 +369,10 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
     private CodeGenUtil code = new CodeGenUtil();
 
-    public BidirectionalRelationInfo(RelationKindEnum relationKind, String dstTableName,
-        String dstColumnName, String dstFieldNameToReferOrgTable, String orgTableName,
-        String orgFieldName, String orgFieldNameToReferDst) {
+    public RelationRefInfo(boolean isBidirectional, RelationKindEnum relationKind,
+        String dstTableName, String dstColumnName, String dstFieldNameToReferOrgTable,
+        String orgTableName, String orgFieldName, String orgFieldNameToReferDst) {
+      this.isBidirectional = isBidirectional;
       this.relationKind = relationKind;
       this.dstTableName = dstTableName;
       this.dstColumnName = dstColumnName;
@@ -374,6 +380,10 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
       this.orgTableName = orgTableName;
       this.orgFieldName = orgFieldName;
       this.orgFieldNameToReferDst = orgFieldNameToReferDst;
+    }
+
+    public boolean isBidirectional() {
+      return isBidirectional;
     }
 
     public RelationKindEnum getRelationKind() {
