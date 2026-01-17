@@ -101,8 +101,8 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
   private void check(String originalFileName) throws BizLogicAppException {
     if (originalFileName.equals("")) {
       // ファイル指定なしでsubmitされた
-      throw new BizLogicAppException("SOURCE_DOWNLOAD_MESSAGE_FILE_NOT_DESIGNATED")
-          .itemPropertyPaths("fileToUpload");
+      throw new BizLogicAppException(new String[] {"fileToUpload"},
+          "SOURCE_DOWNLOAD_MESSAGE_FILE_NOT_DESIGNATED");
     }
 
     if (!originalFileName.endsWith(".xlsx")) {
