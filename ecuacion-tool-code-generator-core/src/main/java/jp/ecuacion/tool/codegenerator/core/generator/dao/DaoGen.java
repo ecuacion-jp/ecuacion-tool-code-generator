@@ -15,6 +15,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
 public class DaoGen extends AbstractDaoRelatedGen {
@@ -33,7 +34,6 @@ public class DaoGen extends AbstractDaoRelatedGen {
       String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
       // super.makePkList(tableInfo);
-
       if (info.sysCmnRootInfo.getUsesUtilJpa()) {
         createBaseDaos(tableInfo, entityNameCp);
       }
@@ -245,22 +245,39 @@ public class DaoGen extends AbstractDaoRelatedGen {
         + " extends SystemCommonBaseRepository<" + tableNameCp
         + ", Long>, JpaSpecificationExecutor<" + tableNameCp + "> {" + RT2);
 
-    sb.append(T1 + "/** spring data jpa標準の基本crud（findById）ではfilterが動作しないためjpql形式で定義. */" + RT);
+    sb.append(T1 + "/** Is defined with jpql because hibernate filter "
+        + "does not take effect to spring data jpa standard 'findById'. */" + RT);
     sb.append(
         T1 + "@Query(value = \"from " + tableNameCp + " where " + idFieldName + " = :id\")" + RT);
     sb.append(T1 + "Optional<" + tableNameCp + "> findById(Long id);" + RT2);
 
+    // findBy<NaturalKey>
     if (tableInfo.hasUniqueConstraint()) {
-      sb.append(T1 + "/** natural keyのqueryを自動生成 */" + RT);
+      sb.append(T1 + "/** Finds by natural key. */" + RT);
       sb.append(T1 + "Optional<" + tableNameCp + "> findBy"
           + code.naturalKeyUncapitalCamelAndRelConsidered(tableInfo) + "(" + RT);
       sb.append(T3 + code.naturalKeyDefine(tableInfo) + ");" + RT2);
     }
 
+    // findBy<IdOfRelation>
+    for (DbOrClassColumnInfo ci : tableInfo.getRelationColumnList()) {
+      sb.append(
+          T1 + "/** Is generated for existence check when a parent record is deleted. */" + RT);
+      sb.append(T1 + "public List<" + tableInfo.getNameCpCamel() + "> findBy"
+          + code.generateString(ci, ColFormat.QUERY_METHOD) + "(" + code.getJavaKata(ci) + " "
+          + info.getTableInfo(ci.getRelationRefTable()).getPkColumn().getNameCamel() + ");" + RT2);
+    }
+
     if (tableInfo.hasSoftDeleteFieldInludingSystemCommon()) {
+
+      // findAllFromAllGroups
+      sb.append(T1 + "@Query(nativeQuery = true, value = "
+          + "\"select * from Instance where del_flg = false\")" + RT);
+      sb.append(T1 + "public List<" + tableNameCp + "> findAllFromAllGroups();" + RT2);
+
       String commonComment = "/** Used for procedures in libraries. "
-          + "Native query is used to search soft deleted records. */";
-      sb.append(T1 + commonComment + RT);
+          + "Native query is used to search soft deleted records.";
+      sb.append(T1 + commonComment + " */" + RT);
       sb.append(T1 + "@Query(nativeQuery = true, " + RT);
       sb.append(T3 + "value = \"select * from " + tableInfo.getName() + " where " + idColumnName
           + " = :#{#entity." + idFieldName + "} and " + code.softDeleteColLowerSnake()
@@ -268,12 +285,10 @@ public class DaoGen extends AbstractDaoRelatedGen {
       sb.append(T1 + "Optional<" + tableNameCp + "> findByIdAndSoftDeleteFieldTrueFromAllGroups"
           + "(@Param(\"entity\") " + tableNameCp + " entity);" + RT2);
 
-      sb.append(T1 + commonComment + RT);
-      if (!tableInfo.hasUniqueConstraint()) {
-        sb.append(T1 + "/** The entity doesn't have a natural key. "
-            + "Unsatisfied condition is used in the where clause. It not called from library. */"
-            + RT);
-      }
+      String noNaturalKeyMsg = T1 + "The entity doesn't have a natural key. "
+          + "Unsatisfied condition is used in the where clause. It not called from library. */";
+      sb.append(T1 + commonComment
+          + (tableInfo.hasUniqueConstraint() ? " */" : RT + noNaturalKeyMsg) + RT);
       sb.append(T1 + "@Query(nativeQuery = true, " + RT);
       sb.append(T3 + "value = \"select * from " + tableInfo.getName() + " where "
           + (tableInfo.hasUniqueConstraint() ? code.naturalKeySqlParams(tableInfo) : "1 = 2")
@@ -282,7 +297,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
           T1 + "Optional<" + tableNameCp + "> findByNaturalKeyAndSoftDeleteFieldTrueFromAllGroups"
               + "(@Param(\"entity\") " + tableNameCp + " entity);" + RT2);
 
-      sb.append(T1 + commonComment + RT);
+      sb.append(T1 + commonComment + " */" + RT);
       sb.append(T1 + "@Modifying" + RT);
       sb.append(T1 + "@Query(nativeQuery = true, " + RT);
       sb.append(T3 + "value = \"delete from " + tableInfo.getName() + " where " + idColumnName
@@ -365,8 +380,8 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     sb.append(importMgr.outputStr() + RT);
 
-    sb.append("public abstract class SystemCommonBase" + postfixCp
-        + "<T extends SystemCommon> " + "extends AbstractDao<T> {" + RT2);
+    sb.append("public abstract class SystemCommonBase" + postfixCp + "<T extends SystemCommon> "
+        + "extends AbstractDao<T> {" + RT2);
 
     sb.append(T1 + "protected static final String COL_NAME_GRP = \""
         + ((groupInfo == null || groupInfo.getColumnName() == null) ? null
