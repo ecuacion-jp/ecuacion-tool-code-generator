@@ -366,6 +366,10 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * relation
    */
 
+  public List<DbOrClassColumnInfo> getRelationColumnList() {
+    return columnList.stream().filter(ci -> ci.isRelation()).toList();
+  }
+
   public List<DbOrClassColumnInfo> getRelationColumnWithoutGroupList() {
     return columnList.stream().filter(ci -> ci.isRelation())
         .filter(ci -> !ci.getName().equals(info.groupRootInfo.getColumnName())).toList();
