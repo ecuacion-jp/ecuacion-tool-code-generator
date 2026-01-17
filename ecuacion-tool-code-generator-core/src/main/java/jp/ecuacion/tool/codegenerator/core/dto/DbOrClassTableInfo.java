@@ -444,7 +444,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   }
 
   public boolean hasBidirectionalRelationRef() {
-    return columnList.stream().filter(col -> col.isReferedByBidirectionalRelation()).toList()
+    return columnList.stream().filter(col -> col.hasBidirectionalRelationRef()).toList()
         .size() > 0;
   }
 
