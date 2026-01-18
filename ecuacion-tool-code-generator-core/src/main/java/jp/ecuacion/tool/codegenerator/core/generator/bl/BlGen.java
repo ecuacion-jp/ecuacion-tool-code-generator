@@ -6,6 +6,7 @@ import java.util.List;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
@@ -50,6 +51,8 @@ public class BlGen extends AbstractGen {
         generateInsertOrUpdate(ti);
         generateDuplicateCheck(ti);
         generateNaturalKeyDuplicateCheck(ti);
+        generateChildExistenceCheck(ti);
+        allChildrenExistenceChecks(ti);
       }
 
       sb.append("}" + RT);
@@ -99,6 +102,13 @@ public class BlGen extends AbstractGen {
   private void generateFields(DbOrClassTableInfo ti, String entityNameCp) {
     sb.append(T1 + "@Autowired" + RT);
     sb.append(T1 + "protected " + entityNameCp + "BaseRepository repo;" + RT2);
+
+    for (RelationRefInfo relInfo : ti.columnList.stream().map(ci -> ci.getRelationRefInfoList())
+        .flatMap(l -> l.stream()).toList()) {
+      sb.append(T1 + "@Autowired" + RT);
+      sb.append(T1 + "protected " + relInfo.getOrgTableNameCpCamel() + "BaseRepository "
+          + relInfo.getOrgTableNameCamel() + "Repo;" + RT2);
+    }
   }
 
   private void getRepositoryForOptimisticLocking(DbOrClassTableInfo ti, String entityNameCp) {
@@ -180,15 +190,35 @@ public class BlGen extends AbstractGen {
   }
 
   private void generateDuplicateCheck(DbOrClassTableInfo ti) {
-    sb.append(T1 + "public <T, I> void duplicateCheck(" + ti.getNameCpCamel() + "BaseRecord rec, "
+    sb.append(T1 + "private void duplicateCheck(boolean isCheckFromAllGroups, List<"
+        + ti.getNameCpCamel() + "> entityList, " + ti.getNameCpCamel()
+        + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+    sb.append(T2 + "internalDuplicateCheck(isCheckFromAllGroups, entityList, rec, \""
+        + ti.getNameCamel() + "\", \"id\", " + "targetItemPropertyPaths);" + RT);
+    sb.append(T1 + "}" + RT2);
+
+    sb.append(T1 + "public void duplicateCheck(List<" + ti.getNameCpCamel() + "> entityList, "
+        + ti.getNameCpCamel()
+        + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+    sb.append(T2 + "duplicateCheck(false, entityList, rec, targetItemPropertyPaths);" + RT);
+    sb.append(T1 + "}" + RT2);
+
+    sb.append(T1 + "public void duplicateCheck(" + ti.getNameCpCamel() + "BaseRecord rec, "
         + "String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
     sb.append(T2 + "duplicateCheck(repo.findAll(), rec, targetItemPropertyPaths);" + RT);
     sb.append(T1 + "}" + RT2);
 
-    sb.append(T1 + "public <T, I> void duplicateCheck(List<T> entityList, " + ti.getNameCpCamel()
+    sb.append(T1 + "public void duplicateCheckFromAllGroups(List<" + ti.getNameCpCamel()
+        + "> entityList, " + ti.getNameCpCamel()
         + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
-    sb.append(T2 + "internalDuplicateCheck(entityList, rec, \"" + ti.getNameCamel() + "\", \"id\", "
-        + "targetItemPropertyPaths);" + RT);
+    sb.append(T2 + "duplicateCheck(true, entityList, rec, targetItemPropertyPaths);" + RT);
+    sb.append(T1 + "}" + RT2);
+
+    sb.append(T1 + "public void duplicateCheckFromAllGroups(" + ti.getNameCpCamel()
+        + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+    sb.append(T2
+        + "duplicateCheckFromAllGroups(repo.findAllFromAllGroups(), rec, targetItemPropertyPaths);"
+        + RT);
     sb.append(T1 + "}" + RT2);
   }
 
@@ -201,16 +231,8 @@ public class BlGen extends AbstractGen {
     List<String> itemPropertyPathList = ti.columnList.stream().filter(ci -> ci.isUniqueConstraint())
         .map(ci -> code.generateString(ci, ColFormat.ITEM_PROPERTY_PATH)).toList();
 
-    // args: rec
     sb.append(T1 + "public void naturalKeyDuplicateCheck(" + entityName
         + "BaseRecord rec) throws BizLogicAppException {" + RT);
-    sb.append(T2 + "naturalKeyDuplicateCheck(rec, "
-        + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"", false) + ");" + RT);
-    sb.append(T1 + "}" + RT2);
-
-    // args: rec, itemPropertyPath
-    sb.append(T1 + "public void naturalKeyDuplicateCheck(" + entityName
-        + "BaseRecord rec, String... itemPropertyPaths) throws BizLogicAppException {" + RT);
     final String itemNameKeysStr =
         "new String[] {"
             + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "rec.getItem(\"",
@@ -225,8 +247,63 @@ public class BlGen extends AbstractGen {
 
     String pkCapFieldName = code.capitalCamel(ti.getPkColumn().getName());
     sb.append(T2 + "throwExceptionWhenDuplicated(optional.isPresent() && !optional.get().get"
-        + pkCapFieldName + "().equals(rec.get" + pkCapFieldName + "OfEntityDataType()), "
-        + "itemPropertyPaths, " + itemNameKeysStr + ");" + RT);
-    sb.append(T1 + "}" + RT);
+        + pkCapFieldName + "().equals(rec.get" + pkCapFieldName
+        + "OfEntityDataType()), false, new String[] {"
+        + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"", false) + "}, "
+        + itemNameKeysStr + ");" + RT);
+    sb.append(T1 + "}" + RT2);
+  }
+
+  private void generateChildExistenceCheck(DbOrClassTableInfo ti) {
+    String methodDefAdditionalArgs = ", ChildExistenceCheckConditionBean[] conditions, "
+        + "String whatCannotBeDoneMessageId, String referingRecordDataLabel, "
+        + "String recordSpecifyingFieldName";
+    String checkMethodAdditionalArgs = ", conditions, whatCannotBeDoneMessageId, "
+        + "referingRecordDataLabel, recordSpecifyingFieldName";
+
+    for (RelationRefInfo refInfo : ti.getPkColumn().getRelationRefInfoList()) {
+      DbOrClassTableInfo relOrgTi = info.getTableInfo(refInfo.getOrgTableName());
+      DbOrClassColumnInfo relOrgCi = relOrgTi
+          .getColumn(StringUtil.getLowerSnakeFromCamel(refInfo.getOrgFieldName()).toUpperCase());
+
+      String methodDefPrefix = "public void childExistenceCheck" + refInfo.getOrgTableNameCpCamel()
+          + "(" + ti.getNameCpCamel() + "BaseRecord rec";
+      String methodDefPostfix = ") throws BizLogicAppException {";
+      String msgId = "jp.ecuacion.splib.core.entity." + refInfo.getOrgTableNameCamel();
+      String checkMethodPrefix = "internalChildExistenceCheck(" + refInfo.getOrgTableNameCamel()
+          + "Repo.findBy" + code.generateString(relOrgCi, ColFormat.QUERY_METHOD) + "(rec.get"
+          + ti.getPkColumn().getNameCpCamel() + "OfEntityDataType()), msgId";
+
+      // method 1
+      sb.append(T1 + methodDefPrefix + methodDefPostfix + RT);
+      sb.append(T2 + "String msgId = \"" + msgId + "\";" + RT);
+      sb.append(T2 + checkMethodPrefix + ");" + RT);
+      sb.append(T1 + "}" + RT2);
+
+      // method 2
+      sb.append(T1 + methodDefPrefix + methodDefAdditionalArgs + methodDefPostfix + RT);
+      sb.append(T2 + "String msgId = \"" + msgId + "\";" + RT);
+      sb.append(T2 + checkMethodPrefix + checkMethodAdditionalArgs + ");" + RT);
+      sb.append(T1 + "}" + RT2);
+    }
+  }
+
+  private void allChildrenExistenceChecks(DbOrClassTableInfo ti) {
+    if (ti.getPkColumn().getRelationRefInfoList().size() > 0) {
+      sb.append(T1 + "public void allChildrenExistenceChecks(" + ti.getNameCpCamel()
+          + "BaseRecord rec) throws BizLogicAppException {" + RT);
+
+      // if (ti.hasUniqueConstraint()) {
+      // sb.append(T2 + "/* unique constraint checks */" + RT);
+      // sb.append(T2 + "naturalKeyDuplicateCheck(rec);" + RT2);
+      // }
+
+      for (RelationRefInfo refInfo : ti.getPkColumn().getRelationRefInfoList()) {
+        sb.append(T2 + "childExistenceCheck" + code.capitalCamel(refInfo.getOrgTableName())
+            + "(rec);" + RT);
+      }
+
+      sb.append(T1 + "}" + RT);
+    }
   }
 }

@@ -14,7 +14,7 @@ import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.BidirectionalRelationInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
@@ -128,7 +128,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     }
 
     // relationを使用する場合
-    if (tableInfo.hasRelation()) {
+    if (tableInfo.hasRelationColumns()) {
       importMgr.add("jakarta.validation.*");
       importMgr.add("org.hibernate.annotations.OnDelete",
           "org.hibernate.annotations.OnDeleteAction");
@@ -263,8 +263,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
         createFieldInternal(sb, tableInfo.getName(), ci2);
       }
 
-      if (ci.isReferedByBidirectionalRelation()) {
-        for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
+      if (ci.hasBidirectionalRelationRef()) {
+        for (RelationRefInfo info : ci.getBidirectionalRelationRefInfoList()) {
           sb.append(T1 + info.getRelationKind().getName()
               + "(cascade={CascadeType.DETACH, CascadeType.REMOVE}, mappedBy = \""
               + info.getOrgFieldNameToReferDst() + "\")" + RT);
@@ -400,7 +400,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
     // BaseRecordの前の部分に"Pk"が入らないように、あえてPkがつかない名前を取得している
     sb.append(T1 + "public " + entityNameCp + "("
-        + (this instanceof SystemCommonEntityGen ? "SystemCommon"
+        + (this instanceof SystemCommonGen ? "SystemCommon"
             : StringUtil.getUpperCamelFromSnake(ti.getName()))
         + "BaseRecord rec" + args(ti) + ") {" + RT);
     sb.append(T2 + "super("
@@ -641,8 +641,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
         appendAccessorForRelation(sb, relEntityName, ci.getRelationFieldName(), false, null);
       }
 
-      if (ci.isReferedByBidirectionalRelation()) {
-        for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
+      if (ci.hasBidirectionalRelationRef()) {
+        for (RelationRefInfo info : ci.getBidirectionalRelationRefInfoList()) {
           appendAccessorForRelation(sb, StringUtil.getLowerCamelFromSnake(info.getOrgTableName()),
               info.getEmptyConsideredFieldNameToReferFromTable(), true, info);
         }
@@ -652,7 +652,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
   private void appendAccessorForRelation(StringBuilder sb, String relEntityName,
       String relFieldName, boolean isReferedByBidirectionalRelation,
-      BidirectionalRelationInfo info) {
+      RelationRefInfo info) {
     // bidirectionの参照先の場合で、かつoneToManyの場合、それを考慮したfieldName, relEntityNameの値に変更
     if (info != null && info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
       relFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
