@@ -400,7 +400,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
     // BaseRecordの前の部分に"Pk"が入らないように、あえてPkがつかない名前を取得している
     sb.append(T1 + "public " + entityNameCp + "("
-        + (this instanceof SystemCommonEntityGen ? "SystemCommon"
+        + (this instanceof SystemCommonGen ? "SystemCommon"
             : StringUtil.getUpperCamelFromSnake(ti.getName()))
         + "BaseRecord rec" + args(ti) + ") {" + RT);
     sb.append(T2 + "super("
