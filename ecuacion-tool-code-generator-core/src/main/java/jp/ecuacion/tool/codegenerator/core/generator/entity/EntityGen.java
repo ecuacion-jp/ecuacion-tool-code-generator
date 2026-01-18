@@ -128,7 +128,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     }
 
     // relationを使用する場合
-    if (tableInfo.hasRelation()) {
+    if (tableInfo.hasRelationColumns()) {
       importMgr.add("jakarta.validation.*");
       importMgr.add("org.hibernate.annotations.OnDelete",
           "org.hibernate.annotations.OnDeleteAction");

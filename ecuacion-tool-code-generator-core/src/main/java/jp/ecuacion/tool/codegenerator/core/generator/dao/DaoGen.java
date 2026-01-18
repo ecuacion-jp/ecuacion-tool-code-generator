@@ -14,6 +14,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
+import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
@@ -261,9 +262,10 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     // findBy<IdOfRelation>
     for (DbOrClassColumnInfo ci : tableInfo.getRelationColumnList()) {
+      String rtnType = ci.getRelationKind() == RelationKindEnum.ONE_TO_ONE ? "Optional" : "List";
       sb.append(
           T1 + "/** Is generated for existence check when a parent record is deleted. */" + RT);
-      sb.append(T1 + "public List<" + tableInfo.getNameCpCamel() + "> findBy"
+      sb.append(T1 + "public " + rtnType + "<" + tableInfo.getNameCpCamel() + "> findBy"
           + code.generateString(ci, ColFormat.QUERY_METHOD) + "(" + code.getJavaKata(ci) + " "
           + info.getTableInfo(ci.getRelationRefTable()).getPkColumn().getNameCamel() + ");" + RT2);
     }

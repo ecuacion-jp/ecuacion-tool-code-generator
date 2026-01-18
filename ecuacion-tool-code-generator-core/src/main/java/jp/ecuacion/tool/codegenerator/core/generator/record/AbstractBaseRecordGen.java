@@ -98,7 +98,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     }
 
     // Add @Valid imports for relation columns
-    if ((ti.hasRelation() || ti.hasBidirectionalRelationRef())
+    if ((ti.hasRelationColumns() || ti.hasBidirectionalRelationRef())
         && info.sysCmnRootInfo.isFrameworkKindSpring()) {
       imp.add("jakarta.validation.Valid");
     }
