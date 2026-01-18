@@ -50,7 +50,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements EclibItemCont
       // 項目単位のチェック
       for (DbOrClassColumnInfo ci : ti.columnList) {
 
-        // relationを持つ場合（SystemCommonEntityではrelationを持たないのでこちらにチェックを実装）
+        // relationを持つ場合（SystemCommonではrelationを持たないのでこちらにチェックを実装）
         if (ci.getRelationKind() != null) {
 
           // nullableな場合はエラー（redmine#463参照）
@@ -87,7 +87,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements EclibItemCont
             "MSG_ERR_CONSISTENCY_CHECK_NAME_OF_SYSTEM_COMMON_ENTITY_CANNOT_BE_CHANGED");
       }
 
-      // SystemCommonEntityにはrelationを保持しないルール。（redmine#465）
+      // SystemCommonにはrelationを保持しないルール。（redmine#465）
       for (DbOrClassColumnInfo ci : ti.columnList) {
         if (ci.getRelationKind() != null) {
           throw new BizLogicAppException(
