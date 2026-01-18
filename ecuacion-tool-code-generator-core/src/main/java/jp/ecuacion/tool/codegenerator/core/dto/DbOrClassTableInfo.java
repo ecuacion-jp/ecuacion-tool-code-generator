@@ -366,9 +366,30 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * relation
    */
 
+  public List<DbOrClassColumnInfo> getRelationColumnList() {
+    return columnList.stream().filter(ci -> ci.isRelation()).toList();
+  }
+
+  public boolean hasRelationColumns() {
+    return getRelationColumnList().size() > 0;
+  }
+
   public List<DbOrClassColumnInfo> getRelationColumnWithoutGroupList() {
     return columnList.stream().filter(ci -> ci.isRelation())
         .filter(ci -> !ci.getName().equals(info.groupRootInfo.getColumnName())).toList();
+  }
+
+  public boolean hasBidirectionalRelation() {
+    return columnList.stream().filter(col -> col.isRelation() && col.isRelationBidirectinal())
+        .toList().size() > 0;
+  }
+
+  public boolean hasBidirectionalRelationRef() {
+    return columnList.stream().filter(col -> col.hasBidirectionalRelationRef()).toList().size() > 0;
+  }
+
+  public boolean hasAnyRelationsOrRefs() {
+    return hasRelationColumns() || hasBidirectionalRelationRef();
   }
 
   private List<String[]> getIndexList() {
@@ -428,24 +449,6 @@ public class DbOrClassTableInfo extends AbstractInfo {
     }
 
     return index.toArray(new String[index.size()]);
-  }
-
-  public boolean hasRelation() {
-    return columnList.stream().filter(col -> col.isRelation()).toList().size() > 0;
-  }
-
-  public boolean hasBidirectionalRelation() {
-    return columnList.stream().filter(col -> col.isRelation() && col.isRelationBidirectinal())
-        .toList().size() > 0;
-  }
-
-  public boolean hasBidirectionalRelationRef() {
-    return columnList.stream().filter(col -> col.isReferedByBidirectionalRelation()).toList()
-        .size() > 0;
-  }
-
-  public boolean hasAnyRelationsOrRefs() {
-    return hasRelation() || hasBidirectionalRelationRef();
   }
 
   public void dataConsistencyCheck() throws AppException {
