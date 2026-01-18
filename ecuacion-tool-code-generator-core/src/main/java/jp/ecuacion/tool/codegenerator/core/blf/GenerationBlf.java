@@ -18,7 +18,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.dao.DaoGen;
 import jp.ecuacion.tool.codegenerator.core.generator.dao.SqlPropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.datatype.DataTypeGen;
 import jp.ecuacion.tool.codegenerator.core.generator.entity.EntityBodyGen;
-import jp.ecuacion.tool.codegenerator.core.generator.entity.SystemCommonEntityGen;
+import jp.ecuacion.tool.codegenerator.core.generator.entity.SystemCommonGen;
 import jp.ecuacion.tool.codegenerator.core.generator.enums.EnumGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.ValidationMessagesPatternDescriptionsGen;
@@ -120,7 +120,7 @@ public class GenerationBlf {
         arrGen.add(new ConfigGen());
       }
       arrGen.add(new SystemCommonBaseRecordGen());
-      arrGen.add(new SystemCommonEntityGen());
+      arrGen.add(new SystemCommonGen());
       arrGen.add(new BlGen());
       arrGen.add(new ValidationMessagesPatternDescriptionsGen());
 
