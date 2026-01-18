@@ -8,9 +8,9 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
-public class SystemCommonEntityGen extends EntityGen {
+public class SystemCommonGen extends EntityGen {
 
-  public SystemCommonEntityGen() throws AppException {
+  public SystemCommonGen() throws AppException {
     super(DataKindEnum.DB_COMMON);
   }
 
