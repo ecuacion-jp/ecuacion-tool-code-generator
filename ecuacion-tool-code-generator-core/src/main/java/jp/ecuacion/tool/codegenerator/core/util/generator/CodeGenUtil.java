@@ -192,6 +192,7 @@ public class CodeGenUtil {
       } else {
         switch (formatType) {
           case ITEM_PROPERTY_PATH, SET, GET, GET_OF_ENTITY_DATA_TYPE -> sb.append(".");
+          case QUERY_METHOD -> sb.append("_");
           default -> throw new EclibRuntimeException("Unexpected.");
         }
       }
@@ -210,9 +211,10 @@ public class CodeGenUtil {
                 + capitalCamel(currentCi.getName()) + postfix + "(" + argString + ")");
           }
         }
-        case ITEM_PROPERTY_PATH -> sb
-            .append(currentCi.isRelation() ? uncapitalCamel(currentCi.getRelationFieldName())
-                : uncapitalCamel(currentCi.getName()));
+        case ITEM_PROPERTY_PATH -> sb.append(
+            currentCi.isRelation() ? currentCi.getRelationFieldName() : currentCi.getNameCamel());
+        case QUERY_METHOD -> sb.append(currentCi.isRelation() ? currentCi.getRelationFieldNameCp()
+            : currentCi.getNameCpCamel());
         default -> throw new EclibRuntimeException("Unexpected.");
       }
 
@@ -256,8 +258,8 @@ public class CodeGenUtil {
 
       switch (formatType) {
         case ENTITY_GET -> sb.append("e.get" + capitalCamel(ci.getName()) + "()");
-        case ENTITY_DEFINE -> sb.append((getJavaKata(ci)) + " "
-            + StringUtil.getLowerCamelFromSnake(ci.getName()));
+        case ENTITY_DEFINE -> sb
+            .append((getJavaKata(ci)) + " " + StringUtil.getLowerCamelFromSnake(ci.getName()));
         case REC_GET_OF_ENTITY_DATA_TYPE -> sb
             .append("rec." + generateString(ci, ColFormat.GET_OF_ENTITY_DATA_TYPE));
         case JPQL -> sb.append(ci.getName().toLowerCase() + " = :" + colNameLc);
@@ -276,7 +278,7 @@ public class CodeGenUtil {
   }
 
   public static enum ColFormat {
-    ITEM_PROPERTY_PATH, SET, GET, GET_OF_ENTITY_DATA_TYPE
+    ITEM_PROPERTY_PATH, SET, GET, GET_OF_ENTITY_DATA_TYPE, QUERY_METHOD
   }
 
   public static enum ColListFormat {

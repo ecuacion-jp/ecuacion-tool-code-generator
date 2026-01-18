@@ -55,7 +55,7 @@ public class SequenceGeneratorGen extends FieldSingleAnnotationGen {
 
     plistGen.add(new ParamGenWithSingleValue("name", tableName + "_" + columnName + "_SEQ_GEN",
         DataTypeKataEnum.STRING));
-    // SystemCommonEntity上に定義する場合は、table毎のsequenceNameを指定することが不可なので
+    // SystemCommon上に定義する場合は、table毎のsequenceNameを指定することが不可なので
     // sequence nameの指定はなくす
     if (entityGenKindEnum != EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
       plistGen.add(new ParamGenWithSingleValue("sequenceName",
