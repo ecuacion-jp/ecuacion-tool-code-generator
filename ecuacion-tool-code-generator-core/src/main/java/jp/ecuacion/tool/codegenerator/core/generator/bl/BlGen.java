@@ -255,52 +255,67 @@ public class BlGen extends AbstractGen {
   }
 
   private void generateChildExistenceCheck(DbOrClassTableInfo ti) {
-    String methodDefAdditionalArgs = ", ChildExistenceCheckConditionBean[] conditions, "
-        + "String whatCannotBeDoneMessageId, String referingRecordDataLabel, "
-        + "String recordSpecifyingFieldName";
-    String checkMethodAdditionalArgs = ", conditions, whatCannotBeDoneMessageId, "
-        + "referingRecordDataLabel, recordSpecifyingFieldName";
+    String methodDefArgPkCol =
+        code.getJavaKata(ti.getPkColumn()) + " " + ti.getPkColumn().getNameCamel();
+    String methodDefArgRec =
+        ti.getNameCpCamel() + "BaseRecord rec, ChildExistenceCheckConditionBean[] conditions, "
+            + "String referingRecordDataLabel, String recordSpecifyingFieldName";
+    String checkMethodAdditionalArgs =
+        ", conditions, referingRecordDataLabel, recordSpecifyingFieldName";
+    String repoArgPkCol = ti.getPkColumn().getNameCamel();
+    String repoArgRec = "rec.get" + ti.getPkColumn().getNameCpCamel() + "OfEntityDataType()";
 
     for (RelationRefInfo refInfo : ti.getPkColumn().getRelationRefInfoList()) {
       DbOrClassTableInfo relOrgTi = info.getTableInfo(refInfo.getOrgTableName());
       DbOrClassColumnInfo relOrgCi = relOrgTi
           .getColumn(StringUtil.getLowerSnakeFromCamel(refInfo.getOrgFieldName()).toUpperCase());
 
-      String methodDefPrefix = "public void childExistenceCheck" + refInfo.getOrgTableNameCpCamel()
-          + "(" + ti.getNameCpCamel() + "BaseRecord rec";
+      String methodDefPrefix =
+          "public void childExistenceCheck" + refInfo.getOrgTableNameCpCamel() + "(";
       String methodDefPostfix = ") throws BizLogicAppException {";
       String msgId = "jp.ecuacion.splib.core.entity." + refInfo.getOrgTableNameCamel();
       String checkMethodPrefix = "internalChildExistenceCheck(" + refInfo.getOrgTableNameCamel()
-          + "Repo.findBy" + code.generateString(relOrgCi, ColFormat.QUERY_METHOD) + "(rec.get"
-          + ti.getPkColumn().getNameCpCamel() + "OfEntityDataType()), msgId";
+          + "Repo.findBy" + code.generateString(relOrgCi, ColFormat.QUERY_METHOD) + "(";
 
-      // method 1
-      sb.append(T1 + methodDefPrefix + methodDefPostfix + RT);
-      sb.append(T2 + "String msgId = \"" + msgId + "\";" + RT);
-      sb.append(T2 + checkMethodPrefix + ");" + RT);
+      // method (args : pk)
+      sb.append(T1 + methodDefPrefix + methodDefArgPkCol + methodDefPostfix + RT);
+      sb.append(T2 + "childExistenceCheck" + refInfo.getOrgTableNameCpCamel() + "(" + repoArgPkCol
+          + ", null);" + RT);
       sb.append(T1 + "}" + RT2);
 
-      // method 2
-      sb.append(T1 + methodDefPrefix + methodDefAdditionalArgs + methodDefPostfix + RT);
-      sb.append(T2 + "String msgId = \"" + msgId + "\";" + RT);
-      sb.append(T2 + checkMethodPrefix + checkMethodAdditionalArgs + ");" + RT);
+      // method (args : pk, messageId)
+      sb.append(
+          T1 + methodDefPrefix + methodDefArgPkCol + ", String messageId" + methodDefPostfix + RT);
+      sb.append(T2 + "String entityMsgIdPart = \"" + msgId + "\";" + RT);
+      sb.append(T2 + checkMethodPrefix + repoArgPkCol + "), messageId, entityMsgIdPart);" + RT);
+      sb.append(T1 + "}" + RT2);
+
+      // method args : rec)
+      sb.append(T1 + methodDefPrefix + methodDefArgRec + methodDefPostfix + RT);
+      sb.append(T2 + "String entityMsgIdPart = \"" + msgId + "\";" + RT);
+      sb.append(T2 + checkMethodPrefix + repoArgRec + "), null, entityMsgIdPart"
+          + checkMethodAdditionalArgs + ");" + RT);
       sb.append(T1 + "}" + RT2);
     }
   }
 
   private void allChildrenExistenceChecks(DbOrClassTableInfo ti) {
     if (ti.getPkColumn().getRelationRefInfoList().size() > 0) {
-      sb.append(T1 + "public void allChildrenExistenceChecks(" + ti.getNameCpCamel()
-          + "BaseRecord rec) throws BizLogicAppException {" + RT);
 
-      // if (ti.hasUniqueConstraint()) {
-      // sb.append(T2 + "/* unique constraint checks */" + RT);
-      // sb.append(T2 + "naturalKeyDuplicateCheck(rec);" + RT2);
-      // }
+      String fiName = ti.getPkColumn().getNameCamel();
+      String mtdArg = code.getJavaKata(ti.getPkColumn()) + " " + fiName;
+
+      sb.append(T1 + "public void allChildrenExistenceChecks(" + mtdArg
+          + ") throws BizLogicAppException {" + RT);
+      sb.append(T2 + "allChildrenExistenceChecks(" + fiName + ", null);" + RT);
+      sb.append(T1 + "}" + RT2);
+
+      sb.append(T1 + "public void allChildrenExistenceChecks(" + mtdArg
+          + ", String messageId) throws BizLogicAppException {" + RT);
 
       for (RelationRefInfo refInfo : ti.getPkColumn().getRelationRefInfoList()) {
-        sb.append(T2 + "childExistenceCheck" + code.capitalCamel(refInfo.getOrgTableName())
-            + "(rec);" + RT);
+        sb.append(T2 + "childExistenceCheck" + code.capitalCamel(refInfo.getOrgTableName()) + "("
+            + fiName + ", messageId);" + RT);
       }
 
       sb.append(T1 + "}" + RT);
