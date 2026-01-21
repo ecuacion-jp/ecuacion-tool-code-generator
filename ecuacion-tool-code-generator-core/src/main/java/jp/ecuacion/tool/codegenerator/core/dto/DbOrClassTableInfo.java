@@ -370,26 +370,30 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return columnList.stream().filter(ci -> ci.isRelation()).toList();
   }
 
-  public boolean hasRelationColumns() {
-    return getRelationColumnList().size() > 0;
-  }
-
   public List<DbOrClassColumnInfo> getRelationColumnWithoutGroupList() {
     return columnList.stream().filter(ci -> ci.isRelation())
         .filter(ci -> !ci.getName().equals(info.groupRootInfo.getColumnName())).toList();
+  }
+
+  public boolean hasRelationColumn() {
+    return getRelationColumnList().size() > 0;
   }
 
   public boolean hasBidirectionalRelation() {
     return columnList.stream().filter(col -> col.isRelation() && col.isRelationBidirectinal())
         .toList().size() > 0;
   }
+  
+  public List<DbOrClassColumnInfo> getBidirectionalRelationRefColumnList() {
+    return columnList.stream().filter(col -> col.hasBidirectionalRelationRef()).toList();
+  }
 
-  public boolean hasBidirectionalRelationRef() {
-    return columnList.stream().filter(col -> col.hasBidirectionalRelationRef()).toList().size() > 0;
+  public boolean hasBidirectionalRelationRefColumn() {
+    return getBidirectionalRelationRefColumnList().size() > 0;
   }
 
   public boolean hasAnyRelationsOrRefs() {
-    return hasRelationColumns() || hasBidirectionalRelationRef();
+    return hasRelationColumn() || hasBidirectionalRelationRefColumn();
   }
 
   private List<String[]> getIndexList() {
