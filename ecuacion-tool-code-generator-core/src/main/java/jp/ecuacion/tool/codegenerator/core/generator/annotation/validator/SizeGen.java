@@ -13,7 +13,7 @@ public class SizeGen extends ValidatorGen {
   private Integer maxSize;
 
   public SizeGen(DataTypeInfo dtInfo, Integer minSize, Integer maxSize) {
-    super("FieldSize", dtInfo);
+    super("SizeString", dtInfo);
     this.minSize = minSize;
     this.maxSize = maxSize;
   }
@@ -43,6 +43,6 @@ public class SizeGen extends ValidatorGen {
 
   @Override
   public boolean isJakartaEeStandardValidator() {
-    return true;
+    return false;
   }
 }
