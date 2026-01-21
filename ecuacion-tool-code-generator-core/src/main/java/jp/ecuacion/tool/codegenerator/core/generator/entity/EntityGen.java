@@ -92,7 +92,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       if (tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
         importMgr.add("org.hibernate.annotations.Filter", "org.hibernate.annotations.FilterDef");
 
-      } else if (tableInfo.hasBidirectionalRelationRef()) {
+      } else if (tableInfo.hasBidirectionalRelationRefColumn()) {
         importMgr.add("org.hibernate.annotations.Filter");
       }
     }
@@ -128,7 +128,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     }
 
     // relationを使用する場合
-    if (tableInfo.hasRelationColumns()) {
+    if (tableInfo.hasRelationColumn()) {
       importMgr.add("jakarta.validation.*");
       importMgr.add("org.hibernate.annotations.OnDelete",
           "org.hibernate.annotations.OnDeleteAction");
@@ -141,16 +141,6 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       importMgr.add(rootBasePackage + ".base.record." + tableNameCp + "BaseRecord");
 
       importMgr.add("jakarta.annotation.Nonnull");
-
-      // // bidirectionalInfoでかつOneToManyの場合は、明示的にbidirectionの参照元のBaseRecordをimportする必要あり。
-      // for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-      // for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
-      // if (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
-      // importMgr.add(rootBasePackage + ".base.record."
-      // + StringUtil.getUpperCamelFromSnake(info.getOrgTableName()) + "BaseRecord");
-      // }
-      // }
-      // }
 
     } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
       // 親entity
@@ -268,8 +258,11 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
           sb.append(T1 + info.getRelationKind().getName()
               + "(cascade={CascadeType.DETACH, CascadeType.REMOVE}, mappedBy = \""
               + info.getOrgFieldNameToReferDst() + "\")" + RT);
-          String refEntityNameLw = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
+          final String refEntityNameLw = StringUtil.getLowerCamelFromSnake(info.getOrgTableName());
 
+          if (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
+            sb.append(T1 + "@OrderBy(\"id ASC\")" + RT);
+          }
           // bidirectional relationで参照されている場合に必要となる抽出条件
           MiscSoftDeleteRootInfo softDeleteInfo = MainController.tlInfo.get().removedDataRootInfo;
           MiscGroupRootInfo groupInfo = MainController.tlInfo.get().groupRootInfo;
@@ -589,8 +582,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     // setUploadedDatetime(uploadedDateTime);
     for (DbOrClassColumnInfo ci : baseList) {
       String fieldName = code.uncapitalCamel(ci.getName());
-      String updString = !isUpdate ? ""
-          : " && !skipUpdateFieldList.contains(FIELD_" + ci.getName() + ")";
+      String updString =
+          !isUpdate ? "" : " && !skipUpdateFieldList.contains(FIELD_" + ci.getName() + ")";
       if (ci.isRelation()) {
         String name = ci.getRelationFieldName();
         sb.append(T2 + "if (" + name + " != null) set"
@@ -651,8 +644,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   }
 
   private void appendAccessorForRelation(StringBuilder sb, String relEntityName,
-      String relFieldName, boolean isReferedByBidirectionalRelation,
-      RelationRefInfo info) {
+      String relFieldName, boolean isReferedByBidirectionalRelation, RelationRefInfo info) {
     // bidirectionの参照先の場合で、かつoneToManyの場合、それを考慮したfieldName, relEntityNameの値に変更
     if (info != null && info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
       relFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
