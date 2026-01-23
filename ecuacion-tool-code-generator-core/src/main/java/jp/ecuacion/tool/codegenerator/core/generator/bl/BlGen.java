@@ -88,6 +88,10 @@ public class BlGen extends AbstractGen {
       importMgr.add("jp.ecuacion.lib.core.exception.checked.*", "java.util.Optional");
     }
 
+    if (!isSystemCommon && ti.getPkColumn().getRelationRefInfoList().size() > 0) {
+      importMgr.add("java.util.Arrays");
+    }
+    
     sb.append(importMgr.outputStr() + RT);
 
     String extendsStr = isSystemCommon
@@ -280,7 +284,7 @@ public class BlGen extends AbstractGen {
       // method (args : pk)
       sb.append(T1 + methodDefPrefix + methodDefArgPkCol + methodDefPostfix + RT);
       sb.append(T2 + "childExistenceCheck" + refInfo.getOrgTableNameCpCamel() + "(" + repoArgPkCol
-          + ", null);" + RT);
+          + ", (String) null);" + RT);
       sb.append(T1 + "}" + RT2);
 
       // method (args : pk, messageId)
@@ -288,6 +292,13 @@ public class BlGen extends AbstractGen {
           T1 + methodDefPrefix + methodDefArgPkCol + ", String messageId" + methodDefPostfix + RT);
       sb.append(T2 + "String entityMsgIdPart = \"" + msgId + "\";" + RT);
       sb.append(T2 + checkMethodPrefix + repoArgPkCol + "), messageId, entityMsgIdPart);" + RT);
+      sb.append(T1 + "}" + RT2);
+
+      // method (args : pk, ChildExistenceCheckConditionBean...)
+      sb.append(T1 + methodDefPrefix + methodDefArgPkCol
+          + ", ChildExistenceCheckConditionBean... conditions" + methodDefPostfix + RT);
+      sb.append(T2 + "String entityMsgIdPart = \"" + msgId + "\";" + RT);
+      sb.append(T2 + checkMethodPrefix + repoArgPkCol + "), entityMsgIdPart, conditions);" + RT);
       sb.append(T1 + "}" + RT2);
 
       // method args : rec)
@@ -311,10 +322,11 @@ public class BlGen extends AbstractGen {
       sb.append(T1 + "}" + RT2);
 
       sb.append(T1 + "public void allChildrenExistenceChecks(" + mtdArg
-          + ", String messageId) throws BizLogicAppException {" + RT);
-
+          + ", String messageId, Class<?>... clses) throws BizLogicAppException {" + RT);
+      sb.append(T2 + "List<Class<?>> skipList = Arrays.asList(clses);" + RT2);
       for (RelationRefInfo refInfo : ti.getPkColumn().getRelationRefInfoList()) {
-        sb.append(T2 + "childExistenceCheck" + code.capitalCamel(refInfo.getOrgTableName()) + "("
+        sb.append(T2 + "if (!skipList.contains(" + code.capitalCamel(refInfo.getOrgTableName())
+            + ".class)) childExistenceCheck" + code.capitalCamel(refInfo.getOrgTableName()) + "("
             + fiName + ", messageId);" + RT);
       }
 
