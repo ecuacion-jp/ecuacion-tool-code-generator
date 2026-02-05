@@ -35,12 +35,13 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
   private void createIdsAndOptimisticLockVersions(DbOrClassTableInfo ti) {
     List<DbOrClassColumnInfo> relColList = ti.getRelationColumnWithoutGroupList();
+    final String sep = "-";
 
     // getIds
     sb.append(T1 + "public String getIds() {" + RT);
     String pkGet = code.generateString(ti.getPkColumn(), ColFormat.GET);
-    sb.append(
-        T2 + "return StringUtil.getCsv(new String[] {" + pkGet + " == null ? \"\" : " + pkGet);
+    sb.append(T2 + "return StringUtil.getSeparatedValuesString(new String[] {" + pkGet
+        + " == null ? \"\" : " + pkGet);
     for (DbOrClassColumnInfo ci : relColList) {
       String relField = ci.getRelationFieldNameCp();
       DbOrClassColumnInfo pk =
@@ -49,12 +50,12 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
       sb.append(", get" + relField + "() == null || get" + relField + "()." + refPkGet + " == null"
           + "? \"\" : get" + relField + "()." + refPkGet);
     }
-    sb.append("});" + RT);
+    sb.append("}, \"" + sep + "\");" + RT);
     sb.append(T1 + "}" + RT2);
 
     // setIds
     sb.append(T1 + "public void setIds(String idCsv) {" + RT);
-    sb.append(T2 + "String[] ids = idCsv.split(\",\");" + RT);
+    sb.append(T2 + "String[] ids = idCsv.split(\"" + sep + "\");" + RT);
     sb.append(T2 + "if (ids.length < " + (1 + relColList.size()) + ") return;" + RT2);
 
     sb.append(T2 + code.generateString(ti.getPkColumn(), ColFormat.SET, "ids[0]") + ";" + RT);
@@ -69,7 +70,8 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     // getOptimisticLockVersions
     sb.append(T1 + "public String getOptimisticLockVersions() {" + RT);
     String ver = "getVersion()";
-    sb.append(T2 + "return StringUtil.getCsv(new String[] {" + ver + " == null ? \"\" : " + ver);
+    sb.append(T2 + "return StringUtil.getSeparatedValuesString(new String[] {" + ver
+        + " == null ? \"\" : " + ver);
     for (DbOrClassColumnInfo ci : relColList) {
       String relFieldGet = "get" + ci.getRelationFieldNameCp() + "()";
       DbOrClassColumnInfo v =
@@ -78,12 +80,12 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
       sb.append(", " + relFieldGet + " == null || " + relFieldGet + "." + refVerGet
           + " == null ? \"\" : " + relFieldGet + "." + refVerGet);
     }
-    sb.append("});" + RT);
+    sb.append("}, \"" + sep + "\");" + RT);
     sb.append(T1 + "}" + RT2);
 
     // setOptimisticLockVersions
     sb.append(T1 + "public void setOptimisticLockVersions(String versionCsv) {" + RT);
-    sb.append(T2 + "String[] versions = versionCsv.split(\",\");" + RT);
+    sb.append(T2 + "String[] versions = versionCsv.split(\"" + sep + "\");" + RT);
     sb.append(T2 + "if (versions.length < " + (1 + relColList.size()) + ") return;" + RT2);
 
     sb.append(T2 + "setVersion(versions[0]);" + RT);
