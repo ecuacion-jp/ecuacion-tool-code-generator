@@ -24,10 +24,12 @@ public class SourceDownloadController
 
   }
 
-  @PostMapping(value = "action", params = "sourceDownloadButton")
+  @PostMapping(value = "action", params = "action=sourceDownloadButton")
   public ResponseEntity<Resource> download(Model model, @Validated SourceDownloadForm form,
       BindingResult result) throws Exception {
     prepare(model, form);
+
+    addCookieForDownloadButton();
 
     return getService().execute(form.getSourceDownload().getFileToUpload());
   }
