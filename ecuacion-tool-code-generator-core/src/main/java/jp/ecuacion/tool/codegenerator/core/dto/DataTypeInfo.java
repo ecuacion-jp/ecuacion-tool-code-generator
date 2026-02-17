@@ -1,7 +1,7 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.notEqualTo;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.notEqualTo;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.string;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
@@ -13,10 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalEmpty;
-import jp.ecuacion.lib.core.jakartavalidation.validator.EnumElement;
-import jp.ecuacion.lib.core.jakartavalidation.validator.IntegerString;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.validation.constraints.EmptyWhen;
+import jp.ecuacion.lib.validation.constraints.EnumElement;
+import jp.ecuacion.lib.validation.constraints.IntegerString;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeStringDataPtnEnum;
@@ -31,25 +31,25 @@ import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
 
-@ConditionalEmpty(
+@EmptyWhen(
     propertyPath = {"minLength", "maxLength", "stringDataPtn", "stringAllowsProhibitedCharacters",
         "stringRegEx", "stringRegExDescLangDefault", "stringRegExDescLangSupport01",
         "stringRegExDescLangSupport02", "stringRegExDescLangSupport03"},
     conditionPropertyPath = "kata", conditionPattern = string, conditionOperator = notEqualTo,
     conditionValueString = "STRING")
-@ConditionalEmpty(propertyPath = {"numMinVal", "numMaxVal"}, conditionPropertyPath = "kata",
+@EmptyWhen(propertyPath = {"numMinVal", "numMaxVal"}, conditionPropertyPath = "kata",
     conditionPattern = string, conditionOperator = notEqualTo,
     conditionValueString = {"SHORT", "INTEGER", "LONG", "FLOAT", "DOUBLE", "BIG_INTEGER",
         "BIG_DECIMAL"})
-@ConditionalEmpty(propertyPath = {"numDigitInteger"}, conditionPropertyPath = "kata",
+@EmptyWhen(propertyPath = {"numDigitInteger"}, conditionPropertyPath = "kata",
     conditionPattern = string, conditionOperator = notEqualTo,
     conditionValueString = {"SHORT", "INTEGER", "LONG", "BIG_INTEGER", "BIG_DECIMAL"})
-@ConditionalEmpty(propertyPath = {"numDigitFraction"}, conditionPropertyPath = "kata",
+@EmptyWhen(propertyPath = {"numDigitFraction"}, conditionPropertyPath = "kata",
     conditionPattern = string, conditionOperator = notEqualTo,
     conditionValueString = {"BIG_DECIMAL"})
-@ConditionalEmpty(propertyPath = {"enumCodeLength"}, conditionPropertyPath = "kata",
+@EmptyWhen(propertyPath = {"enumCodeLength"}, conditionPropertyPath = "kata",
     conditionPattern = string, conditionOperator = notEqualTo, conditionValueString = {"ENUM"})
-@ConditionalEmpty(propertyPath = {"notNeedsTimezone"}, conditionPropertyPath = "kata",
+@EmptyWhen(propertyPath = {"notNeedsTimezone"}, conditionPropertyPath = "kata",
     conditionPattern = string, conditionOperator = notEqualTo,
     conditionValueString = {"DATE_TIME", "TIMESTAMP"})
 public class DataTypeInfo extends StringExcelTableBean {
