@@ -26,6 +26,7 @@ module jp.ecuacion.tool.codegenerator.core {
   requires org.apache.commons.lang3;
   requires jakarta.annotation;
   requires org.apache.commons.collections4;
+  requires jp.ecuacion.lib.validation;
 
   provides jp.ecuacion.lib.core.spi.ApplicationCoreProvider
       with jp.ecuacion.tool.codegenerator.core.spi.impl.internal.ApplicationCoreProviderImpl;
