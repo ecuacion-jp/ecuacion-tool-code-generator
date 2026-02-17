@@ -24,7 +24,7 @@ public class SourceDownloadController
 
   }
 
-  @PostMapping(value = "action", params = "action=sourceDownloadButton")
+  @PostMapping(value = "action", params = "action=download")
   public ResponseEntity<Resource> download(Model model, @Validated SourceDownloadForm form,
       BindingResult result) throws Exception {
     prepare(model, form);
