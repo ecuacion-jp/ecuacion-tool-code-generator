@@ -1,8 +1,9 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.notEqualTo;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.empty;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.notEqualTo;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.empty;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.string;
+
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -12,9 +13,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalEmpty;
-import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.validation.constraints.EmptyWhen;
+import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
@@ -27,14 +28,14 @@ import jp.ecuacion.tool.codegenerator.core.validation.StrPk;
 import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 
-@ConditionalNotEmpty(
+@NotEmptyWhen(
     propertyPath = {"relationDirection", "relationFieldName", "relationRefTable", "relationRefCol"},
     conditionPropertyPath = "relationKind", conditionPattern = empty,
     conditionOperator = notEqualTo, emptyWhenConditionNotSatisfied = true)
-@ConditionalEmpty(propertyPath = "relationRefFieldName",
+@EmptyWhen(propertyPath = "relationRefFieldName",
     conditionPropertyPath = "relationDirection", conditionPattern = string,
     conditionOperator = notEqualTo, conditionValueString = "bidirectional")
-@ConditionalEmpty(propertyPath = "relationIsEager", conditionPropertyPath = "relationKind",
+@EmptyWhen(propertyPath = "relationIsEager", conditionPropertyPath = "relationKind",
     conditionPattern = empty)
 public class DbOrClassColumnInfo extends StringExcelTableBean {
 

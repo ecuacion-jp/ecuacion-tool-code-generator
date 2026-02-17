@@ -3,8 +3,8 @@ package jp.ecuacion.tool.codegenerator.core.constant;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 
 
@@ -25,7 +25,7 @@ public class Constants {
   public static final String REG_EX_AL_NUM_US_CM_DOT = "^[A-Za-z0-9_,\\.]*$";
 
   public static final int OBJECT_CONSTRUCTION_COUNT = 3;
-  
+
   // **
   // ** パッケージ関連
   // **
@@ -34,14 +34,13 @@ public class Constants {
 
   /** libのパッケージ共通部分. */
   public static final String STR_TOOL_PKG = "jp.ecuacion.tool";
-  
+
   /** code-generator自身のbase package。 */
   public static final String STR_PACKAGE_HOME = STR_TOOL_PKG + ".codegenerator";
 
   public static final String PKG_STANDARD_VALIDATOR = "jakarta.validation.constraints.*";
-  public static final String PKG_CUSTOM_VALIDATOR =
-      EclibCoreConstants.PKG + ".jakartavalidation.validator.*";
-  
+  public static final String PKG_CUSTOM_VALIDATOR = EclibValidationConstants.PKG + ".constraints.*";
+
   // **
   // ** ディレクトリ関連
   // **
@@ -49,7 +48,7 @@ public class Constants {
   // OS非依存のpath separator.
   public static final String PATH_SEPARATOR = File.separator;
 
-  /// ** 生成するクラスファイルの置き場所のルートフォルダ名。 */
+  /// ** 生成するクラスファイルの置き場所のルートフォルダ名。 * /
   // public static final String DIR_PRODUCT = "products" + PATH_SEPARATOR;
 
   /** javaソースパス。 */
