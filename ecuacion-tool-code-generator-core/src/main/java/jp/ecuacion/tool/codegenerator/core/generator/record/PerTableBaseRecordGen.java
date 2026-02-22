@@ -27,7 +27,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
     sb.append("@ItemNameKeyClass(\"" + ti.getNameCamel() + "\")" + RT);
     sb.append("public abstract class " + ti.getNameCpCamel()
-        + "BaseRecord extends SystemCommonBaseRecord implements EclibItemContainer {" + RT2);
+        + "BaseRecord extends SystemCommonBaseRecord implements ItemContainer {" + RT2);
   }
 
   @Override
@@ -71,9 +71,10 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
     // getOptimisticLockVersions
     sb.append(T1 + "public String getOptimisticLockVersions() {" + RT);
-    String ver = "getVersion()";
-    sb.append(T2 + "return StringUtil.getSeparatedValuesString(new String[] {" + ver
-        + " == null ? \"\" : " + ver);
+    String ver = ti.getVersionColumnIncludingSystemCommon().getNameCpCamel();
+    String verGet = "get" + ver + "()";
+    sb.append(T2 + "return StringUtil.getSeparatedValuesString(new String[] {" + verGet
+        + " == null ? \"\" : " + verGet);
     for (DbOrClassColumnInfo ci : relColList) {
       String relFieldGet = "get" + ci.getRelationFieldNameCp() + "()";
       DbOrClassColumnInfo v =
@@ -90,11 +91,11 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     sb.append(T2 + "String[] versions = versionCsv.split(\"" + sep + "\");" + RT);
     sb.append(T2 + "if (versions.length < " + (1 + relColList.size()) + ") return;" + RT2);
 
-    sb.append(T2 + "setVersion(versions[0]);" + RT);
+    sb.append(T2 + "set" + ver + "(versions[0]);" + RT);
     i = 0;
     while (relColList.size() > i) {
-      sb.append(T2 + "get" + relColList.get(i).getRelationFieldNameCp() + "().setVersion(versions["
-          + (i + 1) + "]);" + RT);
+      sb.append(T2 + "get" + relColList.get(i).getRelationFieldNameCp() + "().set" + ver
+          + "(versions[" + (i + 1) + "]);" + RT);
       i++;
     }
     sb.append(T1 + "}" + RT);
