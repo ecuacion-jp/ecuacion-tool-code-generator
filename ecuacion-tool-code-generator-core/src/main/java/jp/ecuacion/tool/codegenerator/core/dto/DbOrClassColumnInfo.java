@@ -1,8 +1,8 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.notEqualTo;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.empty;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.string;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
@@ -30,13 +30,13 @@ import org.apache.commons.lang3.StringUtils;
 
 @NotEmptyWhen(
     propertyPath = {"relationDirection", "relationFieldName", "relationRefTable", "relationRefCol"},
-    conditionPropertyPath = "relationKind", conditionPattern = empty,
-    conditionOperator = notEqualTo, emptyWhenConditionNotSatisfied = true)
+    conditionPropertyPath = "relationKind", conditionValue = EMPTY,
+    conditionOperator = NOT_EQUAL_TO, emptyWhenConditionNotSatisfied = true)
 @EmptyWhen(propertyPath = "relationRefFieldName",
-    conditionPropertyPath = "relationDirection", conditionPattern = string,
-    conditionOperator = notEqualTo, conditionValueString = "bidirectional")
+    conditionPropertyPath = "relationDirection", conditionValue = STRING,
+    conditionOperator = NOT_EQUAL_TO, conditionValueString = "bidirectional")
 @EmptyWhen(propertyPath = "relationIsEager", conditionPropertyPath = "relationKind",
-    conditionPattern = empty)
+    conditionValue = EMPTY)
 public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   private List<RelationRefInfo> relationRefInfoList = new ArrayList<>();
