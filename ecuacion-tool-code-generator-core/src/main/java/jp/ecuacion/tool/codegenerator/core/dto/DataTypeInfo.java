@@ -1,7 +1,7 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.notEqualTo;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.string;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
@@ -35,22 +35,22 @@ import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
     propertyPath = {"minLength", "maxLength", "stringDataPtn", "stringAllowsProhibitedCharacters",
         "stringRegEx", "stringRegExDescLangDefault", "stringRegExDescLangSupport01",
         "stringRegExDescLangSupport02", "stringRegExDescLangSupport03"},
-    conditionPropertyPath = "kata", conditionPattern = string, conditionOperator = notEqualTo,
+    conditionPropertyPath = "kata", conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
     conditionValueString = "STRING")
 @EmptyWhen(propertyPath = {"numMinVal", "numMaxVal"}, conditionPropertyPath = "kata",
-    conditionPattern = string, conditionOperator = notEqualTo,
+    conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
     conditionValueString = {"SHORT", "INTEGER", "LONG", "FLOAT", "DOUBLE", "BIG_INTEGER",
         "BIG_DECIMAL"})
 @EmptyWhen(propertyPath = {"numDigitInteger"}, conditionPropertyPath = "kata",
-    conditionPattern = string, conditionOperator = notEqualTo,
+    conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
     conditionValueString = {"SHORT", "INTEGER", "LONG", "BIG_INTEGER", "BIG_DECIMAL"})
 @EmptyWhen(propertyPath = {"numDigitFraction"}, conditionPropertyPath = "kata",
-    conditionPattern = string, conditionOperator = notEqualTo,
+    conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
     conditionValueString = {"BIG_DECIMAL"})
 @EmptyWhen(propertyPath = {"enumCodeLength"}, conditionPropertyPath = "kata",
-    conditionPattern = string, conditionOperator = notEqualTo, conditionValueString = {"ENUM"})
+    conditionValue = STRING, conditionOperator = NOT_EQUAL_TO, conditionValueString = {"ENUM"})
 @EmptyWhen(propertyPath = {"notNeedsTimezone"}, conditionPropertyPath = "kata",
-    conditionPattern = string, conditionOperator = notEqualTo,
+    conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
     conditionValueString = {"DATE_TIME", "TIMESTAMP"})
 public class DataTypeInfo extends StringExcelTableBean {
 

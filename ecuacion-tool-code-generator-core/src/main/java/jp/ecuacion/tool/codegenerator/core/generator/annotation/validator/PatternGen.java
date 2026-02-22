@@ -41,7 +41,7 @@ public class PatternGen extends ValidatorGen {
   protected void getParamGenWithoutFieldId(ParamListGen plistGen) {
     plistGen.add(new ParamGenWithSingleValue("regexp", regEx, DataTypeKataEnum.STRING));
     plistGen
-        .add(new ParamGenWithSingleValue("descriptionId", descriptionId, DataTypeKataEnum.STRING));
+        .add(new ParamGenWithSingleValue("description", descriptionId, DataTypeKataEnum.STRING));
   }
 
   @Override

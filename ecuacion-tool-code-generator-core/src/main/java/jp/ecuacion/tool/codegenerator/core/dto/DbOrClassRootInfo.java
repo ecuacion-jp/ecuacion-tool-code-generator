@@ -5,16 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
-import jp.ecuacion.lib.core.item.EclibItem;
-import jp.ecuacion.lib.core.item.EclibItemContainer;
+import jp.ecuacion.lib.core.item.Item;
+import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.util.ValidationUtil;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 
-public class DbOrClassRootInfo extends AbstractRootInfo implements EclibItemContainer {
+public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer {
   @Override
-  public EclibItem[] getItems() {
-    return new EclibItem[] {};
+  public Item[] customizedItems() {
+    return new Item[] {};
   }
   
   @Valid
