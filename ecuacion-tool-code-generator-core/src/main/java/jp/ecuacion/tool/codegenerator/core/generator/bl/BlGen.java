@@ -91,7 +91,7 @@ public class BlGen extends AbstractGen {
     if (!isSystemCommon && ti.getPkColumn().getRelationRefInfoList().size() > 0) {
       importMgr.add("java.util.Arrays");
     }
-    
+
     sb.append(importMgr.outputStr() + RT);
 
     String extendsStr = isSystemCommon
@@ -128,8 +128,9 @@ public class BlGen extends AbstractGen {
     sb.append(T1 + "public " + entityNameCp + " findAndOptimisticLockingCheck(" + entityNameCp
         + "BaseRecord rec) throws AppException {" + RT);
     sb.append(T2 + "return findAndOptimisticLockingCheck(rec.get"
-        + code.capitalCamel(ti.getPkColumn().getName()) + "OfEntityDataType(), "
-        + "rec.getVersionOfEntityDataType());" + RT);
+        + code.capitalCamel(ti.getPkColumn().getName()) + "OfEntityDataType(), " + "rec.get"
+        + ti.getVersionColumnIncludingSystemCommon().getNameCpCamel() + "OfEntityDataType());"
+        + RT);
     sb.append(T1 + "}" + RT2);
   }
 
