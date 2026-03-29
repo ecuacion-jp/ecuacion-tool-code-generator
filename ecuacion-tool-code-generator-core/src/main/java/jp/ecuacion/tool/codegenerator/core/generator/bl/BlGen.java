@@ -241,7 +241,7 @@ public class BlGen extends AbstractGen {
     final String itemNameKeysStr =
         "new String[] {"
             + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "rec.getItem(\"",
-                "\").getItemNameKey(\"" + StringUtils.uncapitalize(entityName) + "\")", false)
+                "\").getItemNameKey(\"" + StringUtils.uncapitalize(entityName) + "\")")
             + "}";
 
     sb.append(T2 + "Optional<" + entityName + "> optional = repo.findBy"
@@ -254,7 +254,7 @@ public class BlGen extends AbstractGen {
     sb.append(T2 + "throwExceptionWhenDuplicated(optional.isPresent() && !optional.get().get"
         + pkCapFieldName + "().equals(rec.get" + pkCapFieldName
         + "OfEntityDataType()), false, new String[] {"
-        + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"", false) + "}, "
+        + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "\"") + "}, "
         + itemNameKeysStr + ");" + RT);
     sb.append(T1 + "}" + RT2);
   }
