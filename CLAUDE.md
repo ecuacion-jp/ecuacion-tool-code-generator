@@ -2,128 +2,128 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Java コーディングルール
+## Java Coding Rules
 
-### スタイル基準
-- **Google Java Style Guide** に従う（CIでCheckstyleにより強制）
-- インデント: **スペース2つ**（タブ禁止）
-- 最大行長: **100文字**（package/import文を除く）— **コメント・Javadocも対象**
-- エンコーディング: **UTF-8**
+### Style Standards
+- Follow **Google Java Style Guide** (enforced by Checkstyle in CI)
+- Indentation: **2 spaces** (no tabs)
+- Max line length: **100 characters** (excluding package/import statements) — **applies to comments and Javadoc as well**
+- Encoding: **UTF-8**
 
-### Import
-- ワイルドカードインポート（`.*`）は**禁止**
-- IDEの自動整理に従って並び順を整える
+### Imports
+- Wildcard imports (`.*`) are **prohibited**
+- Follow IDE auto-organization for import ordering
 
 ### Javadoc
-- **全publicクラス・メソッド・フィールドにJavadocが必要**
-- 既存ファイルを編集した場合、変更したメソッドのJavadocも見直して更新する
+- **Javadoc is required for all public classes, methods, and fields**
+- When editing an existing file, review and update the Javadoc for any modified methods
 
-### ライセンスヘッダー
-- 全Javaファイルの先頭にApache 2.0ライセンスヘッダーが必要
-- 既存ファイルと同じフォーマットに従う
+### License Header
+- All Java files must have an Apache 2.0 license header at the top
+- Follow the same format as existing files
 
-## ファイル作成・編集ルール
+## File Creation / Editing Rules
 
-- 新規ファイルを作成する前に、同パッケージの既存ファイルを必ず参照する
-- `package-info.java` が存在するパッケージに追加する場合、その内容を先に確認する
+- Before creating a new file, always review existing files in the same package
+- When adding to a package that has a `package-info.java`, check its contents first
 
-## ビルドコマンド
+## Build Commands
 
 ```bash
-# 全モジュールをビルド（ルートディレクトリから）
+# Build all modules (from root directory)
 mvn compile
 
-# 個別モジュールのビルド
+# Build individual modules
 mvn -pl ecuacion-tool-code-generator-core compile
 mvn -pl ecuacion-tool-code-generator-batch compile
 mvn -pl ecuacion-tool-code-generator-web compile
 
-# コードスタイルチェック
+# Code style check
 mvn checkstyle:check
 
-# 静的解析（全モジュール）
+# Static analysis (all modules)
 mvn spotbugs:check
 ```
 
-**Javaファイルを編集した後は必ず以下を実行し、違反があれば修正してから完了とする:**
+**After editing any Java file, always run the following and fix any violations before finishing:**
 
 ```bash
-# checkstyle（全モジュール）
+# checkstyle (all modules)
 mvn checkstyle:check
 
-# spotbugs（全モジュール）
+# spotbugs (all modules)
 mvn spotbugs:check
 
-# Javadoc生成確認
+# Javadoc generation check
 mvn javadoc:javadoc
 ```
 
-よくある違反:
-- Checkstyle: 行長100文字超（コメント・Javadoc含む）
-- Checkstyle: publicメンバーへのJavadoc漏れ
-- Checkstyle: ワイルドカードインポート
-- SpotBugs: リフレクションによるprivateフィールドアクセス（必要なら `protected` スコープで対処）
+Common violations:
+- Checkstyle: line length exceeding 100 characters (including comments and Javadoc)
+- Checkstyle: missing Javadoc on public members
+- Checkstyle: wildcard imports
+- SpotBugs: private field access via reflection (use `protected` scope if necessary)
 
-## アーキテクチャ概要
+## Architecture Overview
 
-Excelファイルで定義されたDB/クラス仕様を読み込み、JPA Entity・DAO・Business Logic・Spring設定等のJavaソースコードを自動生成するツール。
+A tool that reads DB/class specifications defined in Excel files and auto-generates Java source code for JPA Entities, DAOs, Business Logic, Spring configuration, etc.
 
-### モジュール構成
+### Module Structure
 
-| モジュール | パッケージング | 役割 |
+| Module | Packaging | Role |
 |---|---|---|
-| `ecuacion-tool-code-generator-core` | JAR | コード生成エンジン本体 |
-| `ecuacion-tool-code-generator-batch` | JAR (Spring Boot Batch) | バッチ実行インターフェース |
-| `ecuacion-tool-code-generator-web` | WAR (Spring Boot Web) | Web UIインターフェース（Excelアップロード→ZIPダウンロード） |
+| `ecuacion-tool-code-generator-core` | JAR | Core code generation engine |
+| `ecuacion-tool-code-generator-batch` | JAR (Spring Boot Batch) | Batch execution interface |
+| `ecuacion-tool-code-generator-web` | WAR (Spring Boot Web) | Web UI interface (Excel upload → ZIP download) |
 
-### 処理パイプライン (core)
+### Processing Pipeline (core)
 
 ```
-Excelファイル
-  → ReadExcelFilesBlf（Excel読み込み → DTO変換）
-  → CheckAndComplementDataBlf（バリデーション・補完）
-  → GenerationBlf（各Generatorを呼び出してソースコード生成）
-  → 出力ファイル
+Excel file
+  → ReadExcelFilesBlf (read Excel → convert to DTOs)
+  → CheckAndComplementDataBlf (validation and complementing)
+  → GenerationBlf (invoke each Generator to produce source code)
+  → Output files
 ```
 
-**起点クラス:** `MainController.execute(inputDir, outputDir)`
+**Entry point:** `MainController.execute(inputDir, outputDir)`
 
-スレッドセーフな生成コンテキスト（システム名・出力先・テーブル情報等）は `ThreadLocal<Info>` で管理される。
+The thread-safe generation context (system name, output destination, table info, etc.) is managed via `ThreadLocal<Info>`.
 
-### Generator一覧 (core: `generator/` パッケージ)
+### Generator List (core: `generator/` package)
 
-全Generatorは `AbstractGen` を継承し、`GenerationBlf` からまとめて呼び出される。
+All Generators extend `AbstractGen` and are called collectively from `GenerationBlf`.
 
-| Generator | 生成物 |
+| Generator | Output |
 |---|---|
 | `EntityGen`, `EntityBodyGen` | JPA Entity |
 | `BlGen` | Business Logic |
-| `DaoGen`, `SqlPropertiesGen` | DAO + SQLプロパティ |
+| `DaoGen`, `SqlPropertiesGen` | DAO + SQL properties |
 | `EnumGen` | Enum |
-| `ConfigGen`, `ConstantGen` | 設定・定数クラス |
+| `ConfigGen`, `ConstantGen` | Configuration and constant classes |
 | `AdviceGen` | Spring AOP Advice |
-| `PropertiesFileGen` | バリデーションメッセージ用propertiesファイル |
+| `PropertiesFileGen` | Validation message properties file |
 | `RecordGen`, `PerTableBaseRecordGen` | Record/DTO |
-| `UtilGen`, `DataTypeGen` | ユーティリティ・データ型クラス |
+| `UtilGen`, `DataTypeGen` | Utility and data type classes |
 
-### Batch モジュール
+### Batch Module
 
-`BatchStarterTasklet` が `MainController.execute()` を呼び出す。
+`BatchStarterTasklet` calls `MainController.execute()`.
 
-- 入力: `../ecuacion-tool-code-generator-batch/ecuacion-tool-code-generator-excel-format`
-- 出力: `./products/`
+- Input: `../ecuacion-tool-code-generator-batch/ecuacion-tool-code-generator-excel-format`
+- Output: `./products/`
 
-### Web モジュール
+### Web Module
 
-`SourceDownloadController` (`/public/sourceDownload`) → `SourceDownloadService` の流れ。
+Flow: `SourceDownloadController` (`/public/sourceDownload`) → `SourceDownloadService`
 
-1. Excelファイルアップロード
-2. `{app.work-root-dir}/{timestamp}-{threadId}/inputExcel/` に一時保存
-3. `MainController.execute()` で生成
-4. 生成結果をZIP圧縮してダウンロード提供
+1. Upload Excel file
+2. Save temporarily to `{app.work-root-dir}/{timestamp}-{threadId}/inputExcel/`
+3. Generate via `MainController.execute()`
+4. Compress generated output to ZIP and provide for download
 
-## 主要な依存ライブラリ
+## Key Dependencies
 
-- `ecuacion-splib` (spring base classes), `ecuacion-util-poi` (Excel処理), `ecuacion-lib` (共通ユーティリティ)
-- `zip4j` (ZIP生成、webモジュール)
-- `hsqldb` (Spring Batch用インメモリDB、batchモジュール)
+- `ecuacion-splib` (spring base classes), `ecuacion-util-poi` (Excel processing), `ecuacion-lib` (common utilities)
+- `zip4j` (ZIP generation, web module)
+- `hsqldb` (in-memory DB for Spring Batch, batch module)
