@@ -241,7 +241,7 @@ public class BlGen extends AbstractGen {
     final String itemNameKeysStr =
         "new String[] {"
             + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "rec.getItem(\"",
-                "\").getItemNameKey(\"" + StringUtils.uncapitalize(entityName) + "\")")
+                "\").getItemNameKey()")
             + "}";
 
     sb.append(T2 + "Optional<" + entityName + "> optional = repo.findBy"
