@@ -26,12 +26,12 @@ import org.apache.commons.lang3.StringUtils;
 public class CodeGenUtil {
 
   public static final List<DataTypeKataEnum> numberDataTypeList =
-      Arrays.asList(new DataTypeKataEnum[] {DataTypeKataEnum.BYTE, DataTypeKataEnum.SHORT,
-          DataTypeKataEnum.INTEGER, DataTypeKataEnum.LONG});
+      List.of(DataTypeKataEnum.BYTE, DataTypeKataEnum.SHORT,
+          DataTypeKataEnum.INTEGER, DataTypeKataEnum.LONG);
 
   public static final List<DataTypeKataEnum> dateTimeDataTypeList =
-      Arrays.asList(new DataTypeKataEnum[] {DataTypeKataEnum.TIMESTAMP, DataTypeKataEnum.DATE,
-          DataTypeKataEnum.TIME, DataTypeKataEnum.DATE_TIME});
+      List.of(DataTypeKataEnum.TIMESTAMP, DataTypeKataEnum.DATE,
+          DataTypeKataEnum.TIME, DataTypeKataEnum.DATE_TIME);
 
   public static final List<DataTypeKataEnum> ofEntityTypeMethodAvailableDataTypeList =
       ListUtils.union(ListUtils.union(numberDataTypeList, dateTimeDataTypeList),
@@ -426,14 +426,14 @@ public class CodeGenUtil {
   }
 
   public String softDeleteColCaptalCamel() {
-    return StringUtil.getUpperCamelFromSnake(info.removedDataRootInfo.getColumnName());
+    return StringUtil.getUpperCamelFromSnake(info.getRemovedDataRootInfo().getColumnName());
   }
 
   public String softDeleteColUpperSnake() {
-    return info.removedDataRootInfo.getColumnName().toUpperCase();
+    return info.getRemovedDataRootInfo().getColumnName().toUpperCase();
   }
 
   public String softDeleteColLowerSnake() {
-    return info.removedDataRootInfo.getColumnName().toLowerCase();
+    return info.getRemovedDataRootInfo().getColumnName().toLowerCase();
   }
 }

@@ -88,7 +88,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
     // soft deleteを使用する場合
     // bidirectionalなrelationがある場合そこにもつける必要あり
-    if (info.sysCmnRootInfo.isFrameworkKindSpring() && info.removedDataRootInfo.isDefined()) {
+    if (info.getSysCmnRootInfo().isFrameworkKindSpring()
+        && info.getRemovedDataRootInfo().isDefined()) {
       if (tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
         importMgr.add("org.hibernate.annotations.Filter", "org.hibernate.annotations.FilterDef");
 
@@ -98,7 +99,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     }
 
     // @Filterを使用する場合はimport
-    if (info.groupRootInfo.isDefined()) {
+    if (info.getGroupRootInfo().isDefined()) {
       if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
         // 共通group定義が存在する場合はそのfilterDefは必ずsystemCommonに出力
         importMgr.add("org.hibernate.annotations.FilterDef", "org.hibernate.annotations.ParamDef",
@@ -111,7 +112,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
       } else {
         if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY
-            && !info.groupRootInfo.getTableNamesWithoutGrouping().contains(tableInfo.getName())) {
+            && !info.getGroupRootInfo().getTableNamesWithoutGrouping()
+                .contains(tableInfo.getName())) {
 
           importMgr.add("org.hibernate.annotations.Filter");
 
@@ -190,8 +192,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
    * 共通のgrouping用FilterDefを出力するために使用。
    */
   protected void getGroupFilterDefAnnotationString(StringBuilder sb) throws BizLogicAppException {
-    getGroupFilterDefAnnotationString(sb, "groupFilter", info.groupRootInfo.getColumnName(),
-        info.groupRootInfo.getDtInfo());
+    getGroupFilterDefAnnotationString(sb, "groupFilter", info.getGroupRootInfo().getColumnName(),
+        info.getGroupRootInfo().getDtInfo());
   }
 
   protected void getGroupFilterDefAnnotationString(StringBuilder sb, String filterName,
@@ -224,10 +226,11 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
   protected void getSoftDeleteAnnotationsString(StringBuilder sb, DbOrClassTableInfo tableInfo)
       throws BizLogicAppException {
-    if (info.sysCmnRootInfo.isFrameworkKindSpring() && info.removedDataRootInfo.isDefined()
+    if (info.getSysCmnRootInfo().isFrameworkKindSpring()
+        && info.getRemovedDataRootInfo().isDefined()
         && tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
       sb.append("@FilterDef(name = \"softDeleteFilter\", defaultCondition = \""
-          + info.removedDataRootInfo.getColumnName() + " = false\")" + RT);
+          + info.getRemovedDataRootInfo().getColumnName() + " = false\")" + RT);
       sb.append("@Filter(name = \"softDeleteFilter\")" + RT);
     }
   }
@@ -264,8 +267,9 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
             sb.append(T1 + "@OrderBy(\"id ASC\")" + RT);
           }
           // bidirectional relationで参照されている場合に必要となる抽出条件
-          MiscSoftDeleteRootInfo softDeleteInfo = MainController.tlInfo.get().removedDataRootInfo;
-          MiscGroupRootInfo groupInfo = MainController.tlInfo.get().groupRootInfo;
+          MiscSoftDeleteRootInfo softDeleteInfo =
+              MainController.tlInfo.get().getRemovedDataRootInfo();
+          MiscGroupRootInfo groupInfo = MainController.tlInfo.get().getGroupRootInfo();
           if (softDeleteInfo.isDefined()) {
             sb.append(T1 + "@Filter(name = \"softDeleteFilter\")" + RT);
           }
@@ -351,8 +355,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     // このリストはdbCommmonの項目も同時に表示するので、あらかじめマージしておく
     ArrayList<DbOrClassColumnInfo> arr = new ArrayList<>();
     arr.addAll(tableInfo.columnList);
-    if (info.dbCommonRootInfo != null) {
-      arr.addAll(info.dbCommonRootInfo.tableList.get(0).columnList.stream()
+    if (info.getDbCommonRootInfo() != null) {
+      arr.addAll(info.getDbCommonRootInfo().tableList.get(0).columnList.stream()
           .filter(e -> !e.getIsJavaOnly()).toList());
     }
 
@@ -515,7 +519,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   // String bidirFieldNameUc = StringUtils.capitalize(bidirFieldName);
   //
   // // ID column of ref-from table
-  // String pkColumnInOrgTable = MainController.tlInfo.get().dbRootInfo.tableList.stream()
+  // String pkColumnInOrgTable = MainController.tlInfo.get().getDbRootInfo().tableList.stream()
   // .filter(tbl -> tbl.getName().equals(info.getOrgTableName())).toList().get(0)
   // .getPkColumn().getName();
   // if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
@@ -707,14 +711,16 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
     // fallback用のファイルを作成。
     gen.writeMapToPropFile(
-        createSortedMapForPropFile(info.sysCmnRootInfo.getDefaultLang(), tableList, entityKind),
+        createSortedMapForPropFile(
+            info.getSysCmnRootInfo().getDefaultLang(), tableList, entityKind),
         "item_names", null);
     // default言語用のファイルを作成
     gen.writeMapToPropFile(
-        createSortedMapForPropFile(info.sysCmnRootInfo.getDefaultLang(), tableList, entityKind),
-        "item_names", info.sysCmnRootInfo.getDefaultLang());
+        createSortedMapForPropFile(
+            info.getSysCmnRootInfo().getDefaultLang(), tableList, entityKind),
+        "item_names", info.getSysCmnRootInfo().getDefaultLang());
     // supportedLangArrに入っているものについて作成
-    for (String lang : info.sysCmnRootInfo.getSupportedLangArr()) {
+    for (String lang : info.getSysCmnRootInfo().getSupportedLangArr()) {
       gen.writeMapToPropFile(createSortedMapForPropFile(lang, tableList, entityKind), "item_names",
           lang);
     }
@@ -861,7 +867,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
    */
   protected void appendHasSoftDeleteFieldGen(StringBuilder sb, DbOrClassTableInfo tableInfo,
       boolean isCallFromSystemCommon) {
-    String colName = ((MiscSoftDeleteRootInfo) info.rootInfoMap.get(DataKindEnum.MISC_REMOVED_DATA))
+    String colName = ((MiscSoftDeleteRootInfo) info.getRootInfoMap()
+        .get(DataKindEnum.MISC_REMOVED_DATA))
         .getColumnName();
     boolean usesSoftDelete = colName != null && !colName.equals("");
 

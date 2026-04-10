@@ -22,7 +22,7 @@ public class EnumGen extends AbstractGen {
 
   @Override
   public void generate() throws AppException, IOException, InterruptedException {
-    List<EnumClassInfo> enumClassList = info.enumRootInfo.enumClassList;
+    List<EnumClassInfo> enumClassList = info.getEnumRootInfo().enumClassList;
 
     // Enum作成
     Logger.log(this, "GEN_ENUM_ENUMS");
@@ -39,14 +39,14 @@ public class EnumGen extends AbstractGen {
     // default言語用のファイルを作成。default言語がen,
     // entity_namesであれば、entity_names.propertiesを、entity_names_en.propertiesと同一内容で作成
     gen.writeMapToPropFile(
-        createSortedMapForPropFile(info.sysCmnRootInfo.getDefaultLang(), enumClassList),
+        createSortedMapForPropFile(info.getSysCmnRootInfo().getDefaultLang(), enumClassList),
         "enum_names", null);
     // entity_names_en.propertiesを作成
     gen.writeMapToPropFile(
-        createSortedMapForPropFile(info.sysCmnRootInfo.getDefaultLang(), enumClassList),
-        "enum_names", info.sysCmnRootInfo.getDefaultLang());
+        createSortedMapForPropFile(info.getSysCmnRootInfo().getDefaultLang(), enumClassList),
+        "enum_names", info.getSysCmnRootInfo().getDefaultLang());
     // supportedLangArrに入っているものについて作成
-    for (String lang : info.sysCmnRootInfo.getSupportedLangArr()) {
+    for (String lang : info.getSysCmnRootInfo().getSupportedLangArr()) {
       gen.writeMapToPropFile(createSortedMapForPropFile(lang, enumClassList), "enum_names", lang);
     }
   }
