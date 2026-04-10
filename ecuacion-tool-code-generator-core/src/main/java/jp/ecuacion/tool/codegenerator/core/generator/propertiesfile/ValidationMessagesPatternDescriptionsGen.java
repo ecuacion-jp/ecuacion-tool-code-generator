@@ -25,16 +25,17 @@ public class ValidationMessagesPatternDescriptionsGen extends AbstractGen {
 
     List<String> langList = new ArrayList<>();
     langList.add("");
-    langList.addAll(info.sysCmnRootInfo.getSupportedLangArr());
+    langList.addAll(info.getSysCmnRootInfo().getSupportedLangArr());
 
     for (String lang : langList) {
       Map<String, String> propMap = new LinkedHashMap<>();
       // 禁則文字チェックに対するメッセージ
-      propMap.put("prohibitedChars", info.sysCmnRootInfo.getProhibitedCharsDesc(lang));
+      propMap.put("prohibitedChars", info.getSysCmnRootInfo().getProhibitedCharsDesc(lang));
 
       // dataTypeに対するメッセージ
-      for (DataTypeInfo dtInfo : info.dataTypeRootInfo.dataTypeList) {
-        String desc = dtInfo.getStringRegExDesc(info.sysCmnRootInfo.getSupportedLangArr(), lang);
+      for (DataTypeInfo dtInfo : info.getDataTypeRootInfo().dataTypeList) {
+        String desc = dtInfo.getStringRegExDesc(
+            info.getSysCmnRootInfo().getSupportedLangArr(), lang);
         if (desc != null) {
           propMap.put(StringUtil.getLowerCamelFromSnake(
               dtInfo.getDataTypeName().substring(3)), desc);

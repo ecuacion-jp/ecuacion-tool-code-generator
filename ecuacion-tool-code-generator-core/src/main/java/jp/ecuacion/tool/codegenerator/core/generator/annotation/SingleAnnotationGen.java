@@ -47,7 +47,7 @@ public abstract class SingleAnnotationGen extends AnnotationGen {
   protected void checkIfElementTypeAvailable(ElementType elementType) throws BizLogicAppException {
     if (!Arrays.asList(getAvailableElmentTypes()).contains(elementType)) {
       throw new BizLogicAppException("MSG_ERR_ANNOTATION_ELEMENT_TYPE_NOT_ALLOWED",
-          info.systemName, this.getClass().getSimpleName(), elementType.toString());
+          info.getSystemName(), this.getClass().getSimpleName(), elementType.toString());
     }
   }
 

@@ -26,8 +26,8 @@ public class UtilGen extends AbstractGen {
   }
 
   private void createJpaFilterUtil() {
-    final boolean grDefined = info.groupRootInfo.isDefined();
-    final MiscGroupRootInfo grInfo = info.groupRootInfo;
+    final boolean grDefined = info.getGroupRootInfo().isDefined();
+    final MiscGroupRootInfo grInfo = info.getGroupRootInfo();
 
     sb.append("package " + rootBasePackage + ".base.util;" + RT2);
 
@@ -40,7 +40,7 @@ public class UtilGen extends AbstractGen {
     sb.append("public class JpaFilterUtil extends SplibJpaFilterUtil {" + RT2);
 
     sb.append(T1 + "public JpaFilterUtil() {" + RT);
-    sb.append(T2 + "super(" + info.removedDataRootInfo.isDefined() + ", " + grDefined + ", "
+    sb.append(T2 + "super(" + info.getRemovedDataRootInfo().isDefined() + ", " + grDefined + ", "
         + (grDefined
             ? "\"" + StringUtil.getLowerCamelFromSnake(grInfo.getColumnName())
                 + "\""
