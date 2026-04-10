@@ -10,6 +10,10 @@
 		<relativePath>..</relativePath>
 	</parent>
 	
+	<properties>
+		<commons-io.commons-io.version>2.21.0</commons-io.commons-io.version>
+	</properties>
+
 	<build>
 		<plugins>
 		
@@ -79,7 +83,12 @@
 		</dependency>
 
 		<!-- other -->
-		
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commons-io.commons-io.version}</version>
+		</dependency>
+			
 		<!-- DB driver -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
