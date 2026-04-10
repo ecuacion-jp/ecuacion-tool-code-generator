@@ -41,6 +41,11 @@
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
+				<configuration>
+					<excludeFilterFile>
+						https://ecuacion-jp.github.io/config/common/spotbugs/exclude.xml,spotbugs-exclude.xml
+					</excludeFilterFile>
+				</configuration>
 			</plugin>
 			
 		</plugins>

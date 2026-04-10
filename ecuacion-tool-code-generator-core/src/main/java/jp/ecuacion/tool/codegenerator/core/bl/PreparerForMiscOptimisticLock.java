@@ -19,7 +19,7 @@ public class PreparerForMiscOptimisticLock {
 
   public void prepare() throws BizLogicAppException {
     MiscOptimisticLockRootInfo lockInfo =
-        (MiscOptimisticLockRootInfo) info.rootInfoMap.get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
+        (MiscOptimisticLockRootInfo) info.getRootInfoMap().get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
     if (lockInfo.isDefined()) {
       // 楽観的排他制御のカラムの情報を、個別のcolumnに設定する
       // （本項目はデータ保持項目が少なく単純なのでこの持ち方に出来たが、削除フラグ等は複雑になるためEntity生成時にまとめて処理している）
@@ -28,14 +28,14 @@ public class PreparerForMiscOptimisticLock {
       // setOptLock(systemName, systemMap, lockInfo, Dict.XML_POST_FIX_CLS);
 
       // 混乱しないため、元データは破棄しておく
-      info.rootInfoMap.remove(DataKindEnum.MISC_OPTIMISTIC_LOCK);
+      info.getRootInfoMap().remove(DataKindEnum.MISC_OPTIMISTIC_LOCK);
     }
   }
 
   private void setOptLock(MiscOptimisticLockRootInfo lockInfo, DataKindEnum dataKind)
       throws BizLogicAppException {
     DbOrClassRootInfo dbRootInfo =
-        (DbOrClassRootInfo) info.rootInfoMap.get(dataKind);
+        (DbOrClassRootInfo) info.getRootInfoMap().get(dataKind);
     if (dbRootInfo != null) {
       for (DbOrClassTableInfo ti : dbRootInfo.tableList) {
         for (DbOrClassColumnInfo ci : ti.columnList) {
@@ -48,7 +48,7 @@ public class PreparerForMiscOptimisticLock {
             } else {
               // カラム名が一緒なのにDataTypeが異なる場合はエラー扱いとする
               throw new BizLogicAppException("MSG_ERR_DT_OF_COL_FOR_OPT_LOCK_DIFFER",
-                  info.systemName, ti.getName(), ci.getName(), ci.getDataType(),
+                  info.getSystemName(), ti.getName(), ci.getName(), ci.getDataType(),
                   lockInfo.getDataTypeName());
             }
           }
