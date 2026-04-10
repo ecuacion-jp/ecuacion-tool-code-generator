@@ -63,25 +63,25 @@ public class GenerationBlf {
   }
 
   private boolean shouldMakeNoGroupQuery(Info info) {
-    if (info.groupRootInfo == null) {
+    if (info.getGroupRootInfo() == null) {
       return false;
     }
 
-    return info.groupRootInfo.getNeedsUngroupedSource();
+    return info.getGroupRootInfo().getNeedsUngroupedSource();
   }
 
   private boolean shouldMakeNoGroupQueryForDaoOnly(Info info) {
-    if (info.groupRootInfo == null) {
+    if (info.getGroupRootInfo() == null) {
       return false;
     }
 
-    return info.groupRootInfo.getDevidesDaoIntoOtherProject();
+    return info.getGroupRootInfo().getDevidesDaoIntoOtherProject();
   }
   
   // xmlファイルの種類ごとに必要なファイルを作成
   public void controlGenerators() throws Exception {
     Logger.log(this, "SINGLE_BORDER");
-    Logger.log(this, "GEN_FOR_SYSTEM", info.systemName, info.getGenPtn().getDisplayName());
+    Logger.log(this, "GEN_FOR_SYSTEM", info.getSystemName(), info.getGenPtn().getDisplayName());
 
     // // generatorにallDtMapを渡す(あえてstatic）
     // AbstractTableOrClassRelatedGen.setAllDtMap(allDtMap);
@@ -104,7 +104,7 @@ public class GenerationBlf {
     // 必要であれば、xmlMapごとgeneratorに渡して、generator側でファイルごとに処理。
     Logger.log(this, "GEN_DICT_AND_MORE");
     boolean isNeeded = false;
-    for (DataKindEnum dataKind : info.rootInfoMap.keySet()) {
+    for (DataKindEnum dataKind : info.getRootInfoMap().keySet()) {
       if (dataKind != DataKindEnum.ENUM && dataKind != DataKindEnum.DATA_TYPE
           && dataKind != DataKindEnum.SYSTEM_COMMON) {
         isNeeded = true;
@@ -115,7 +115,7 @@ public class GenerationBlf {
     if (isNeeded) {
       List<AbstractGen> arrGen = new ArrayList<AbstractGen>();
       arrGen.add(new ConstantGen());
-      if (info.sysCmnRootInfo.isFrameworkKindSpring()) {
+      if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
         arrGen.add(new AdviceGen());
         arrGen.add(new ConfigGen());
       }
@@ -129,7 +129,7 @@ public class GenerationBlf {
       }
     }
 
-    for (DataKindEnum dataKind : info.rootInfoMap.keySet()) {
+    for (DataKindEnum dataKind : info.getRootInfoMap().keySet()) {
 
       if (dataKind == DataKindEnum.ENUM) {
         Logger.log(this, "GEN_ENUM");
@@ -139,7 +139,7 @@ public class GenerationBlf {
         Logger.log(this, "GEN_DT");
         // 一つのファイルの中の複数のdataTypeに対して、行ごとに回して作成。
         // dataTypeの型ごとにgeneratorクラスが異なるため、動的に生成
-        for (DataTypeInfo dtInfo : info.dataTypeRootInfo.dataTypeList) {
+        for (DataTypeInfo dtInfo : info.getDataTypeRootInfo().dataTypeList) {
           DataTypeGen gen = new DataTypeGen(dtInfo);;
           gen.generate();
           gen.generateConverter(false);

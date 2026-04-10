@@ -31,27 +31,27 @@ public class DaoGen extends AbstractDaoRelatedGen {
   public void generate() throws AppException {
 
     // Entity別のbaseDao / baseRepositoryImplを作成
-    for (DbOrClassTableInfo tableInfo : info.dbRootInfo.tableList) {
+    for (DbOrClassTableInfo tableInfo : info.getDbRootInfo().tableList) {
       String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
       // super.makePkList(tableInfo);
-      if (info.sysCmnRootInfo.getUsesUtilJpa()) {
+      if (info.getSysCmnRootInfo().getUsesUtilJpa()) {
         createBaseDaos(tableInfo, entityNameCp);
       }
 
       // springの場合はbaseRepositoryを生成
-      if (info.sysCmnRootInfo.isFrameworkKindSpring()) {
-        createBaseRepository(tableInfo, entityNameCp, info.groupRootInfo);
+      if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
+        createBaseRepository(tableInfo, entityNameCp, info.getGroupRootInfo());
       }
     }
 
     // SystemCommonDaoを作成
-    if (info.sysCmnRootInfo.getUsesUtilJpa()) {
+    if (info.getSysCmnRootInfo().getUsesUtilJpa()) {
       createSystemCommonBaseDao();
     }
 
     // springの場合はbaseRepositoryを生成
-    if (info.sysCmnRootInfo.isFrameworkKindSpring()) {
+    if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
       createSystemCommonBaseRepository();
     }
   }
@@ -67,13 +67,13 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     createBaseDaoImport(ti, entityNameCp);
 
-    MiscGroupRootInfo groupInfo = info.groupRootInfo;
+    MiscGroupRootInfo groupInfo = info.getGroupRootInfo();
 
     sb.append("public abstract class " + entityNameCp + "Base" + postfixCp
         + " extends SystemCommonBase" + postfixCp + "<" + entityNameCp + "> {" + RT2);
 
     // springか否かで生成するコンストラクタを分岐
-    if (info.sysCmnRootInfo.isFrameworkKindSpring()) {
+    if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
       // 単純な引数なしコンストラクタを生成
       sb.append(T1 + "public " + entityNameCp + "Base" + postfixCp + "() {" + RT);
       sb.append(T2 + "super(new " + entityNameCp + "[0]);" + RT);
@@ -222,7 +222,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
             .filter(e -> e.isRelation()).toList();
 
     List<DbOrClassColumnInfo> list = new ArrayList<>(tableInfo.columnList);
-    list.addAll(info.dbCommonRootInfo.tableList.get(0).columnList);
+    list.addAll(info.getDbCommonRootInfo().tableList.get(0).columnList);
     String idColumnName = null;
     for (DbOrClassColumnInfo ci : list) {
       if (ci.isPk()) {
@@ -348,14 +348,14 @@ public class DaoGen extends AbstractDaoRelatedGen {
   }
 
   private void createSystemCommonBaseDao() {
-    final MiscSoftDeleteRootInfo delFlgInfo = info.removedDataRootInfo;
-    final MiscGroupRootInfo groupInfo = info.groupRootInfo;
+    final MiscSoftDeleteRootInfo delFlgInfo = info.getRemovedDataRootInfo();
+    final MiscGroupRootInfo groupInfo = info.getGroupRootInfo();
 
     sb = new StringBuilder();
     // コンストラクタにgroupのカラムを引数としてつけるか否かのフラグ
     final boolean shouldAddGroupArg = (info.getGenPtn() != GeneratePtnEnum.NO_GROUP_QUERY
         && info.getGenPtn() != GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY)
-        && groupInfo.isDefined() && !info.sysCmnRootInfo.isFrameworkKindSpring();
+        && groupInfo.isDefined() && !info.getSysCmnRootInfo().isFrameworkKindSpring();
 
 
     sb.append("package " + rootBasePackage + ".base." + postfixSm + ";" + RT2);
@@ -370,8 +370,8 @@ public class DaoGen extends AbstractDaoRelatedGen {
     }
 
     // enumの使用を確認し、必要なenumのimportを追加
-    if (info.dbCommonRootInfo != null) {
-      for (DbOrClassColumnInfo colInfo : info.dbCommonRootInfo.tableList.get(0).columnList) {
+    if (info.getDbCommonRootInfo() != null) {
+      for (DbOrClassColumnInfo colInfo : info.getDbCommonRootInfo().tableList.get(0).columnList) {
         if (colInfo.getDtInfo().getKata() == DataTypeKataEnum.ENUM) {
           // 本当はここでどのprojectに属するenumなのかを判断する必要があるが、
           // SystemCommonについてはframeworkの場合のみしか実績がないのでいったんそうしておく。
@@ -393,7 +393,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     sb.append(T1 + "@Override" + RT);
     sb.append(T1 + "protected boolean isSpringJpa() {" + RT);
-    sb.append(T2 + "return " + info.sysCmnRootInfo.isFrameworkKindSpring() + ";" + RT);
+    sb.append(T2 + "return " + info.getSysCmnRootInfo().isFrameworkKindSpring() + ";" + RT);
     sb.append(T1 + "}" + RT2);
 
 

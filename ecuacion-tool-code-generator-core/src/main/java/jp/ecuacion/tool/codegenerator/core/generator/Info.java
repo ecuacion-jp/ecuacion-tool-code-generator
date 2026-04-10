@@ -22,25 +22,77 @@ public class Info {
   public String outputDir;
 
   // system unit values
-  public Map<DataKindEnum, AbstractRootInfo> rootInfoMap;
-  public String systemName;
+  private Map<DataKindEnum, AbstractRootInfo> rootInfoMap;
+  private String systemName;
 
   // rootInfo unit values
-  public SystemCommonRootInfo sysCmnRootInfo;
-  public DataTypeRootInfo dataTypeRootInfo;
-  public EnumRootInfo enumRootInfo;
-  public DbOrClassRootInfo dbRootInfo;
-  public DbOrClassRootInfo dbCommonRootInfo;
-  public MiscSoftDeleteRootInfo removedDataRootInfo;
-  public MiscGroupRootInfo groupRootInfo;
-  public MiscOptimisticLockRootInfo optimisticLockRootInfo;
+  private SystemCommonRootInfo sysCmnRootInfo;
+  private DataTypeRootInfo dataTypeRootInfo;
+  private EnumRootInfo enumRootInfo;
+  private DbOrClassRootInfo dbRootInfo;
+  private DbOrClassRootInfo dbCommonRootInfo;
+  private MiscSoftDeleteRootInfo removedDataRootInfo;
+  private MiscGroupRootInfo groupRootInfo;
+  private MiscOptimisticLockRootInfo optimisticLockRootInfo;
 
   private GeneratePtnEnum genPtn;
 
+  /** Returns rootInfoMap. */
+  public Map<DataKindEnum, AbstractRootInfo> getRootInfoMap() {
+    return rootInfoMap;
+  }
+
+  /** Returns systemName. */
+  public String getSystemName() {
+    return systemName;
+  }
+
+  /** Returns sysCmnRootInfo. */
+  public SystemCommonRootInfo getSysCmnRootInfo() {
+    return sysCmnRootInfo;
+  }
+
+  /** Returns dataTypeRootInfo. */
+  public DataTypeRootInfo getDataTypeRootInfo() {
+    return dataTypeRootInfo;
+  }
+
+  /** Returns enumRootInfo. */
+  public EnumRootInfo getEnumRootInfo() {
+    return enumRootInfo;
+  }
+
+  /** Returns dbRootInfo. */
+  public DbOrClassRootInfo getDbRootInfo() {
+    return dbRootInfo;
+  }
+
+  /** Returns dbCommonRootInfo. */
+  public DbOrClassRootInfo getDbCommonRootInfo() {
+    return dbCommonRootInfo;
+  }
+
+  /** Returns removedDataRootInfo. */
+  public MiscSoftDeleteRootInfo getRemovedDataRootInfo() {
+    return removedDataRootInfo;
+  }
+
+  /** Returns groupRootInfo. */
+  public MiscGroupRootInfo getGroupRootInfo() {
+    return groupRootInfo;
+  }
+
+  /** Returns optimisticLockRootInfo. */
+  public MiscOptimisticLockRootInfo getOptimisticLockRootInfo() {
+    return optimisticLockRootInfo;
+  }
+
+  /** Returns genPtn. */
   public GeneratePtnEnum getGenPtn() {
     return genPtn;
   }
 
+  /** Sets genPtn. */
   public void setGenPtn(GeneratePtnEnum genPtn) {
     this.genPtn = genPtn;
   }
