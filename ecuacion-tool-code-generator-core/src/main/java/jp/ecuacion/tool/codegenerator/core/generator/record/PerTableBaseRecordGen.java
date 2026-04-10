@@ -15,7 +15,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
   @Override
   public void generate() throws AppException {
-    internalGenerate(info.dbRootInfo.tableList, false);
+    internalGenerate(info.getDbRootInfo().tableList, false);
   }
 
   public void generateHeader(DbOrClassTableInfo ti) throws AppException {
