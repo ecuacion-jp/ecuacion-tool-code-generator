@@ -23,16 +23,16 @@ public class EntityBodyGen extends EntityGen {
   @Override
   public void generate() throws AppException, IOException, InterruptedException {
 
-    for (DbOrClassTableInfo tableInfo : info.dbRootInfo.tableList) {
+    for (DbOrClassTableInfo tableInfo : info.getDbRootInfo().tableList) {
       sb = new StringBuilder();
       createSource(tableInfo,
-          ((DbOrClassRootInfo) info.rootInfoMap.get(DataKindEnum.DB_COMMON)).tableList
+          ((DbOrClassRootInfo) info.getRootInfoMap().get(DataKindEnum.DB_COMMON)).tableList
               .get(0).columnList);
       outputFile(sb, getFilePath("entity"),
           StringUtil.getUpperCamelFromSnake(tableInfo.getName()) + ".java");
     }
 
-    appendItemNamesProperties(EntityGenKindEnum.ENTITY_BODY, info.dbRootInfo.tableList);
+    appendItemNamesProperties(EntityGenKindEnum.ENTITY_BODY, info.getDbRootInfo().tableList);
   }
 
   public void createSource(DbOrClassTableInfo tableInfo, List<DbOrClassColumnInfo> commonColumnList)
@@ -49,8 +49,8 @@ public class EntityBodyGen extends EntityGen {
     sb.append(tableInfo.getTableAnnotationString(tableInfo) + RT);
 
     // group定義
-    if (info.groupRootInfo.isDefined()
-        && !info.groupRootInfo.getTableNamesWithoutGrouping().contains(tableInfo.getName())) {
+    if (info.getGroupRootInfo().isDefined()
+        && !info.getGroupRootInfo().getTableNamesWithoutGrouping().contains(tableInfo.getName())) {
       if (tableInfo.hasCustomGroupColumn()) {
         DbOrClassColumnInfo customGroupCi = tableInfo.getCustomGroupColumn();
         String filterName = "groupFilter" + StringUtil.getUpperCamelFromSnake(tableInfo.getName());

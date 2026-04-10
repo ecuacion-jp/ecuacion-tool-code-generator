@@ -32,7 +32,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
   public AbstractGen(DataKindEnum xmlFilePostFix) {
     this.xmlFilePostFix = xmlFilePostFix;
     String osName = System.getProperty("os.name");
-    rootBasePackage = info.sysCmnRootInfo.getBasePackage();
+    rootBasePackage = info.getSysCmnRootInfo().getBasePackage();
     rootBasePackageDirectry = rootBasePackage.replaceAll("\\.",
         (osName.equals("Windows")) ? "\\\\" : "/");
   }
@@ -56,7 +56,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
 
   private String getBuildPathRootDirPath(String packageName) {
 
-    String basicPath = info.outputDir + "/" + info.systemName + "/"
+    String basicPath = info.outputDir + "/" + info.getSystemName() + "/"
         + info.getGenPtn().getDirName();
     if (info.getGenPtn() == GeneratePtnEnum.NORMAL
         || info.getGenPtn() == GeneratePtnEnum.NO_GROUP_QUERY) {
@@ -67,7 +67,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
         return basicPath;
 
       } else {
-        return info.outputDir + "/" + info.systemName + "/common";
+        return info.outputDir + "/" + info.getSystemName() + "/common";
       }
     }
   }
@@ -76,7 +76,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
    * @param sb ファイルに出力する文字列を持ったStringBuilder。
    */
   public void outputFile(StringBuilder sb, String path, String fileName) {
-    String charEncoding = info.sysCmnRootInfo.getCharacterEncoding();
+    String charEncoding = info.getSysCmnRootInfo().getCharacterEncoding();
     try {
       File dir = new File(path);
       dir.mkdirs();

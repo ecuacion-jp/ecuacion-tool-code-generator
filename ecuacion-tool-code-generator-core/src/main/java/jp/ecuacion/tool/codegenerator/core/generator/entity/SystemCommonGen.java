@@ -53,7 +53,7 @@ public class SystemCommonGen extends EntityGen {
     outputFile(sb, getFilePath("entity"), "SystemCommon.java");
 
     appendItemNamesProperties(EntityGenKindEnum.ENTITY_SYSTEM_COMMON,
-        info.dbCommonRootInfo.tableList);
+        info.getDbCommonRootInfo().tableList);
   }
 
   public void createSource(DbOrClassTableInfo tableInfo) throws AppException {
@@ -66,7 +66,7 @@ public class SystemCommonGen extends EntityGen {
 
     // class定義
     // grouping定義が存在する場合は、systemCommonには必ずfilter定義が記載される。
-    if (info.groupRootInfo.isDefined()) {
+    if (info.getGroupRootInfo().isDefined()) {
       getGroupFilterDefAnnotationString(sb);
     }
     if (tableInfo.hasGroupColumn()) {

@@ -18,8 +18,8 @@ public class PrepareManager {
     // DBInfo、DbCommonInfoの中で、bidirectionalなrelationがあるものについて、参照先側での追加実装のために参照先側の情報として登録しておく
     List<DbOrClassColumnInfo.RelationRefInfo> relRefInfoList = new ArrayList<>();
     // ループのためDBとDBCommonをまとめたlistを作成
-    List<DbOrClassTableInfo> list = new ArrayList<>(info.dbRootInfo.tableList);
-    list.addAll(info.dbCommonRootInfo.tableList);
+    List<DbOrClassTableInfo> list = new ArrayList<>(info.getDbRootInfo().tableList);
+    list.addAll(info.getDbCommonRootInfo().tableList);
     for (DbOrClassTableInfo ti : list) {
       for (DbOrClassColumnInfo ci : ti.columnList) {
         if (ci.isRelation()) {
@@ -36,7 +36,7 @@ public class PrepareManager {
       boolean found = false;
 
       // 参照先にcommonを使うことは流石にないと思われるのでdbInfoでloop
-      for (DbOrClassTableInfo ti : info.dbRootInfo.tableList) {
+      for (DbOrClassTableInfo ti : info.getDbRootInfo().tableList) {
         for (DbOrClassColumnInfo ci : ti.columnList) {
           if (ti.getName().equals(bdInfo.getDstTableName())
               && ci.getName().equals(bdInfo.getDstColumnName())) {

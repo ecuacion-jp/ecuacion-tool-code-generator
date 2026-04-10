@@ -90,7 +90,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
   public List<DbOrClassColumnInfo> getColumnListIncludingSystemCommon() {
     List<DbOrClassColumnInfo> list = new ArrayList<>(columnList);
-    list.addAll(info.dbCommonRootInfo.tableList.get(0).columnList);
+    list.addAll(info.getDbCommonRootInfo().tableList.get(0).columnList);
 
     return list;
   }
@@ -169,7 +169,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   public DbOrClassColumnInfo getGroupColumnIncludingSystemCommon() {
 
     // group定義がされていない場合はnullを返して終了。
-    if (!info.groupRootInfo.isDefined()) {
+    if (!info.getGroupRootInfo().isDefined()) {
       return null;
     }
 
@@ -182,7 +182,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
       }
     }
 
-    if (info.groupRootInfo.getTableNamesWithoutGrouping().contains(name)) {
+    if (info.getGroupRootInfo().getTableNamesWithoutGrouping().contains(name)) {
       if (groupCiList.size() > 0) {
         throw new RuntimeException("The table is listed in 'TABLE_NAMES_WITHOUT_GROUPING'"
             + " but has group column: table_name = " + name);
@@ -224,7 +224,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   }
 
   public boolean hasSoftDeleteFieldInSystemCommon() throws BizLogicAppException {
-    List<DbOrClassColumnInfo> dbCommonCi = info.dbCommonRootInfo.tableList.get(0).columnList;
+    List<DbOrClassColumnInfo> dbCommonCi = info.getDbCommonRootInfo().tableList.get(0).columnList;
     return softDeleteExistenceCheck(dbCommonCi, getName());
   }
 
@@ -238,7 +238,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   private boolean softDeleteExistenceCheck(List<DbOrClassColumnInfo> columnList, String tableName)
       throws BizLogicAppException {
 
-    MiscSoftDeleteRootInfo removedDataInfo = info.removedDataRootInfo;
+    MiscSoftDeleteRootInfo removedDataInfo = info.getRemovedDataRootInfo();
 
     boolean hasRemovedDataColumn = false;
     for (DbOrClassColumnInfo ci : columnList) {
@@ -249,7 +249,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
         } else {
           // カラム名が一緒なのにDataTypeが異なる場合はエラー扱いとする
           throw new BizLogicAppException("MSG_ERR_DT_OF_COL_FOR_REMOVED_DATA_COL_DIFFER",
-              info.systemName, tableName, ci.getName(), ci.getDataType(),
+              info.getSystemName(), tableName, ci.getName(), ci.getDataType(),
               removedDataInfo.getDataTypeName());
         }
       }
@@ -264,7 +264,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
   private DbOrClassColumnInfo getVersionColumn(List<DbOrClassColumnInfo> columnList) {
     List<DbOrClassColumnInfo> versionColList = columnList.stream()
-        .filter(ci -> ci.getName().equals(info.optimisticLockRootInfo.getColumnName())).toList();
+        .filter(ci -> ci.getName().equals(info.getOptimisticLockRootInfo().getColumnName()))
+        .toList();
 
     return versionColList.size() == 0 ? null : versionColList.get(0);
   }
@@ -372,7 +373,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
   public List<DbOrClassColumnInfo> getRelationColumnWithoutGroupList() {
     return columnList.stream().filter(ci -> ci.isRelation())
-        .filter(ci -> !ci.getName().equals(info.groupRootInfo.getColumnName())).toList();
+        .filter(ci -> !ci.getName().equals(info.getGroupRootInfo().getColumnName())).toList();
   }
 
   public boolean hasRelationColumn() {

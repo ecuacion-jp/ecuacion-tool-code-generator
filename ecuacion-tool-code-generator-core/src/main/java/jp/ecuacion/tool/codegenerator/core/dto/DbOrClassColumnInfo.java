@@ -261,7 +261,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   /** Settings側も加味した上でgroupの項目か否かを返す。 */
   public boolean isGroupColumn() {
-    String groupColumnName = MainController.tlInfo.get().groupRootInfo.getColumnName();
+    String groupColumnName = MainController.tlInfo.get().getGroupRootInfo().getColumnName();
     return (groupColumnName != null && groupColumnName.equals(name)) || isCustomGroupColumn();
   }
 

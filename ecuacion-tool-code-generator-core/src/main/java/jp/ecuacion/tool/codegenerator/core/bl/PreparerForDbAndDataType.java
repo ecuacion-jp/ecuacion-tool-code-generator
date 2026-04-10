@@ -51,7 +51,7 @@ public class PreparerForDbAndDataType {
    */
   private void checkIfDataTypeInEnumExistsInDataTypeInfo() throws AppException {
 
-    EnumRootInfo enumRootInfo = ((EnumRootInfo) info.rootInfoMap.get(DataKindEnum.ENUM));
+    EnumRootInfo enumRootInfo = ((EnumRootInfo) info.getRootInfoMap().get(DataKindEnum.ENUM));
 
     // enumInfoが存在しない場合はスキップ
     if (enumRootInfo == null) {
@@ -59,11 +59,11 @@ public class PreparerForDbAndDataType {
     }
 
     List<String> dataTypeNameList =
-        info.dataTypeRootInfo.dataTypeList.stream().map(dt -> dt.getDataTypeName()).toList();
+        info.getDataTypeRootInfo().dataTypeList.stream().map(dt -> dt.getDataTypeName()).toList();
     enumRootInfo.enumClassList.stream().forEach(en -> {
       if (!dataTypeNameList.contains(en.getDataTypeName())) {
         throw new UncheckedAppException(new BizLogicAppException(
-            "MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION", info.systemName,
+            "MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION", info.getSystemName(),
             DataKindEnum.ENUM.getLabel(), en.getEnumName(), en.getDataTypeName()));
       }
     });
@@ -83,18 +83,18 @@ public class PreparerForDbAndDataType {
   private void checkIfDataTypeInDbOrClassExistsInDataTypeInfoCommon(DataKindEnum dataKind)
       throws AppException {
 
-    DbOrClassRootInfo rootInfo = ((DbOrClassRootInfo) info.rootInfoMap.get(dataKind));
+    DbOrClassRootInfo rootInfo = ((DbOrClassRootInfo) info.getRootInfoMap().get(dataKind));
     if (rootInfo == null) {
       return;
     }
 
     List<String> list =
-        info.dataTypeRootInfo.dataTypeList.stream().map(e -> e.getDataTypeName()).toList();
+        info.getDataTypeRootInfo().dataTypeList.stream().map(e -> e.getDataTypeName()).toList();
     for (DbOrClassTableInfo ti : rootInfo.tableList) {
       for (DbOrClassColumnInfo ci : ti.columnList) {
         if (!list.contains(ci.getDataType())) {
           throw new BizLogicAppException("MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION",
-              ((SystemCommonRootInfo) info.rootInfoMap.get(dataKind)).getSystemName(),
+              ((SystemCommonRootInfo) info.getRootInfoMap().get(dataKind)).getSystemName(),
               dataKind.getLabel(), ti.getName() + "." + ci.getName(), ci.getDataType());
         }
       }
@@ -103,9 +103,9 @@ public class PreparerForDbAndDataType {
 
   private void checkRepeatedEmerge() throws AppException {
 
-    Iterator<DataKindEnum> it = info.rootInfoMap.keySet().iterator();
+    Iterator<DataKindEnum> it = info.getRootInfoMap().keySet().iterator();
     while (it.hasNext()) {
-      AbstractRootInfo rootInfo = info.rootInfoMap.get(it.next());
+      AbstractRootInfo rootInfo = info.getRootInfoMap().get(it.next());
       if (rootInfo instanceof EnumRootInfo) {
         checkRepeatedEmergeEnum((EnumRootInfo) rootInfo);
       }
@@ -127,7 +127,7 @@ public class PreparerForDbAndDataType {
     for (EnumClassInfo ci : rootInfo.enumClassList) {
       // classレベルの重複チェック
       if (clsNameSet.contains(ci.getEnumName())) {
-        throw new BizLogicAppException("MSG_ERR_SAME_ENUM_DEFINED_TWICE", info.systemName,
+        throw new BizLogicAppException("MSG_ERR_SAME_ENUM_DEFINED_TWICE", info.getSystemName(),
             ci.getEnumName());
       }
 
@@ -142,15 +142,15 @@ public class PreparerForDbAndDataType {
       for (EnumValueInfo vi : ci.enumList) {
         // code
         if (valCodeSet.contains(vi.getCode())) {
-          throw new BizLogicAppException("MSG_ERR_SAME_CODE_DEFINED_TWICE_IN_ENUM", info.systemName,
-              ci.getEnumName(), vi.getCode());
+          throw new BizLogicAppException("MSG_ERR_SAME_CODE_DEFINED_TWICE_IN_ENUM",
+              info.getSystemName(), ci.getEnumName(), vi.getCode());
         }
 
         valCodeSet.add(vi.getCode());
         // varName
         if (valVarNameSet.contains(vi.getVarName())) {
           throw new BizLogicAppException("MSG_ERR_SAME_VAR_NAME_DEFINED_TWICE_IN_ENUM",
-              info.systemName, ci.getEnumName(), vi.getVarName());
+              info.getSystemName(), ci.getEnumName(), vi.getVarName());
         }
 
         valVarNameSet.add(vi.getVarName());
@@ -165,7 +165,7 @@ public class PreparerForDbAndDataType {
 
           // dispNameが空欄の場合はエラー
           if (dispName == null || dispName.equals("")) {
-            throw new BizLogicAppException("MSG_ERR_ENUM_DISP_NAME_EMPTY", info.systemName,
+            throw new BizLogicAppException("MSG_ERR_ENUM_DISP_NAME_EMPTY", info.getSystemName(),
                 ci.getEnumName(), vi.getCode(), lang);
           }
 
@@ -176,7 +176,7 @@ public class PreparerForDbAndDataType {
 
           if (valDispNameDuplicateCheckMap.get(lang).contains(dispName)) {
             throw new BizLogicAppException("MSG_ERR_SAME_DISP_NAME_DEFINED_TWICE_IN_ENUM",
-                info.systemName, ci.getEnumName(), dispName);
+                info.getSystemName(), ci.getEnumName(), dispName);
           }
 
           valDispNameDuplicateCheckMap.get(lang).add(dispName);
@@ -189,13 +189,14 @@ public class PreparerForDbAndDataType {
 
     HashSet<String> dtNameSet = new HashSet<String>();
 
-    DataTypeRootInfo dtRootInfo = (DataTypeRootInfo) info.rootInfoMap.get(DataKindEnum.DATA_TYPE);
+    DataTypeRootInfo dtRootInfo =
+        (DataTypeRootInfo) info.getRootInfoMap().get(DataKindEnum.DATA_TYPE);
 
     // dataType自身の中に2回出現がないかを確認
     if (dtRootInfo != null) {
       for (DataTypeInfo dtInfo : dtRootInfo.dataTypeList) {
         if (dtNameSet.contains(dtInfo.getDataTypeName())) {
-          throw new BizLogicAppException("MSG_ERR_SAME_DT_DEFINED_TWICE", info.systemName,
+          throw new BizLogicAppException("MSG_ERR_SAME_DT_DEFINED_TWICE", info.getSystemName(),
               dtInfo.getDataTypeName());
         }
 
@@ -209,9 +210,9 @@ public class PreparerForDbAndDataType {
     HashSet<String> dbCommonColSet = new HashSet<String>();
     // HashSet<String> clsTableSet = null;
 
-    DbOrClassRootInfo dbRootInfo = (DbOrClassRootInfo) info.rootInfoMap.get(DataKindEnum.DB);
+    DbOrClassRootInfo dbRootInfo = (DbOrClassRootInfo) info.getRootInfoMap().get(DataKindEnum.DB);
     DbOrClassRootInfo dbCommonRootInfo =
-        (DbOrClassRootInfo) info.rootInfoMap.get(DataKindEnum.DB_COMMON);
+        (DbOrClassRootInfo) info.getRootInfoMap().get(DataKindEnum.DB_COMMON);
     // DbOrClassRootInfo clsRootInfo = (DbOrClassRootInfo)
     // rootInfoMap.get(DataKindEnum.XML_POST_FIX_CLS);
 
@@ -220,7 +221,7 @@ public class PreparerForDbAndDataType {
     if (dbCommonRootInfo != null && dbCommonRootInfo.tableList.size() > 0) {
       for (DbOrClassColumnInfo col : dbCommonRootInfo.tableList.get(0).columnList) {
         if (dbCommonColSet.contains(col.getName())) {
-          throw new BizLogicAppException("MSG_ERR_SAME_COL_DEFINED_TWICE", info.systemName,
+          throw new BizLogicAppException("MSG_ERR_SAME_COL_DEFINED_TWICE", info.getSystemName(),
               DataKindEnum.DB_COMMON.getLabel(), "（なし）", col.getName());
         }
         dbCommonColSet.add(col.getName());
@@ -228,7 +229,7 @@ public class PreparerForDbAndDataType {
     }
 
     // DBのtable重複チェック処理
-    checkDuplicatedDefinitionOfDbOrClassAndCreateTableSet(info.systemName, dbRootInfo,
+    checkDuplicatedDefinitionOfDbOrClassAndCreateTableSet(info.getSystemName(), dbRootInfo,
         dbCommonColSet, DataKindEnum.DB);
   }
 
@@ -270,20 +271,20 @@ public class PreparerForDbAndDataType {
 
   private void checkKataBetsuSyori() throws AppException {
 
-    DbOrClassRootInfo dbRootInfo = (DbOrClassRootInfo) info.rootInfoMap.get(DataKindEnum.DB);
+    DbOrClassRootInfo dbRootInfo = (DbOrClassRootInfo) info.getRootInfoMap().get(DataKindEnum.DB);
     DbOrClassRootInfo dbCommonRootInfo =
-        (DbOrClassRootInfo) info.rootInfoMap.get(DataKindEnum.DB_COMMON);
+        (DbOrClassRootInfo) info.getRootInfoMap().get(DataKindEnum.DB_COMMON);
 
     // 自動採番
     if (dbRootInfo != null) {
       for (DbOrClassTableInfo tab : dbRootInfo.tableList) {
-        checkKataBetsuShoriAutoIncrement(tab, info.systemName, DataKindEnum.DB);
+        checkKataBetsuShoriAutoIncrement(tab, info.getSystemName(), DataKindEnum.DB);
       }
     }
 
     // dbCommonはカラムのみのためループなし
     if (dbCommonRootInfo != null && dbCommonRootInfo.tableList.size() > 0) {
-      checkKataBetsuShoriAutoIncrement(dbCommonRootInfo.tableList.get(0), info.systemName,
+      checkKataBetsuShoriAutoIncrement(dbCommonRootInfo.tableList.get(0), info.getSystemName(),
           DataKindEnum.DB_COMMON);
     }
   }

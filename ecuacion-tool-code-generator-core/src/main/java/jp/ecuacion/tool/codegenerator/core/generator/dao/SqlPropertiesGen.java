@@ -24,14 +24,14 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
   @Override
   public void generate() throws AppException {
     // 作成不要な場合は終了
-    if (!info.sysCmnRootInfo.getUsesUtilJpa()) {
+    if (!info.getSysCmnRootInfo().getUsesUtilJpa()) {
       return;
     }
 
     // List<SqlInfo> sqlInfoArrForOrmXml = new ArrayList<>();
     List<SqlInfo> sqlInfoArrForNativeSqlProp = new ArrayList<>();
 
-    for (DbOrClassTableInfo tableInfo : info.dbRootInfo.tableList) {
+    for (DbOrClassTableInfo tableInfo : info.getDbRootInfo().tableList) {
       final String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
       makeParts(tableInfo);
@@ -150,7 +150,7 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
         "truncate table " + tableName);
   }
 
-  class SqlInfo {
+  static class SqlInfo {
     private String className;
     private String sqlId;
     private SqlKind sqlKind;
@@ -159,6 +159,7 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
 
     public SqlInfo(String className, String sqlId, SqlKind sqlKind, SqlFileKind sqlFileKind,
         String sql) {
+      this.className = className;
       this.sqlId = sqlId;
       this.sqlKind = sqlKind;
       this.sqlFileKind = sqlFileKind;

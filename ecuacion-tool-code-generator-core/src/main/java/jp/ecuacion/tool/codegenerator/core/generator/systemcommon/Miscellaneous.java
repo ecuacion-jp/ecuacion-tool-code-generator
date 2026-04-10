@@ -17,10 +17,10 @@ public class Miscellaneous extends AbstractGen {
   public void generate() throws AppException, IOException, InterruptedException {
 
     // // PropertyFileUtilが使用するために必要な設定ファイルを生成
-    // generatePropertyFileUtilProperties(info.sysCmnRootInfo);
+    // generatePropertyFileUtilProperties(info.getSysCmnRootInfo());
 
     // code-generatorで生成したソースの中にあるBizLogicAppExceptionに設定するメッセージファイルを生成
-    generateMessagesBaseProperties(info.sysCmnRootInfo);
+    generateMessagesBaseProperties(info.getSysCmnRootInfo());
   }
 
   /**
@@ -44,8 +44,8 @@ public class Miscellaneous extends AbstractGen {
         continue;
       }
 
-      pfGen.copyFileToResourceDir(info.systemName, "src/main/resources", "messages_project", "base",
-          lang, "messages", "base", lang);
+      pfGen.copyFileToResourceDir(info.getSystemName(),
+          "src/main/resources", "messages_project", "base", lang, "messages", "base", lang);
     }
   }
 
