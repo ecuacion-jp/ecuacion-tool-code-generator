@@ -28,10 +28,6 @@ public class GenHelperDateTime extends GenHelperNoNumberObj {
   @Override
   public String[] getNeededImports(DbOrClassColumnInfo columnInfo) {
     String[] rtnStrings = mergeStrings(super.getNeededImports(columnInfo), "java.time.*");
-    if (columnInfo.isAutoIncrement() || columnInfo.isAutoUpdate() || columnInfo.isForcedIncrement()
-        || columnInfo.isForcedUpdate()) {
-      // rtnStrings = mergeStrings(rtnStrings, "jp.ecuacion.lib.core.util.*");
-    }
 
     return rtnStrings;
   }

@@ -26,8 +26,8 @@ public class BlGen extends AbstractGen {
 
   @Override
   public void generate() throws AppException, IOException, InterruptedException {
-    generateBl(true, info.dbCommonRootInfo.tableList);
-    generateBl(false, info.dbRootInfo.tableList);
+    generateBl(true, info.getDbCommonRootInfo().tableList);
+    generateBl(false, info.getDbRootInfo().tableList);
   }
 
   private void generateBl(boolean isSystemCommon, @Valid List<DbOrClassTableInfo> tableList)
