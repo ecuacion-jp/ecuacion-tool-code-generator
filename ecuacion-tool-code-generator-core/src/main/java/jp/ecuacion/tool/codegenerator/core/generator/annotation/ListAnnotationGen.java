@@ -28,7 +28,7 @@ public class ListAnnotationGen extends AnnotationGen {
     // springだと、@Pattern.Listの形式の書き方がエラーになった。
     // 通常のjakartaEEでも、@Pattern.Listを使用せず@Patternを複数併記する方式がOKになっているはずだが
     // 念の為springか否かで作成方法を分けておく
-    if (info.sysCmnRootInfo.isFrameworkKindSpring()) {
+    if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
       boolean is1st = true;
       for (SingleAnnotationGen gen : annotationGens) {
         if (is1st) {

@@ -8,7 +8,7 @@ public class PreparerForDbTable {
 
   public void combine() {
 
-    // Map<String, AbstractRootInfo> rootInfoMap = info.systemMap.get(info.systemName);
+    // Map<String, AbstractRootInfo> rootInfoMap = info.systemMap.get(info.getSystemName());
     // List<DbOrClassTableInfo> tableListFromTableInfo =
     // ((DbOrClassRootInfo) rootInfoMap.get(Constants.XML_POST_FIX_DB_TABLE)).tableList;
     //
