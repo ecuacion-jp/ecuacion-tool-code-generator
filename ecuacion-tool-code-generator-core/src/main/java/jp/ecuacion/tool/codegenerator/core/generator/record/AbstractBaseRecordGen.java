@@ -94,7 +94,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
 
     if (ti.hasColumnWithKata(BOOLEAN)) {
       imp.add("java.util.List", "java.util.Locale",
-          EclibCoreConstants.PKG + ".util.PropertyFileUtil");
+          EclibCoreConstants.PKG + ".util.PropertiesFileUtil");
     }
 
     // Add @Valid imports for relation columns
@@ -479,7 +479,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
             + ci.getNameCpCamel() + "()).getDisplayName(locale);" + RT);
 
       } else if (dtInfo.getKata() == BOOLEAN) {
-        sb.append(T2 + "return PropertyFileUtil.getMessage(locale, \"boolean." + ci.getNameCamel()
+        sb.append(T2 + "return PropertiesFileUtil.getMessage(locale, \"boolean." + ci.getNameCamel()
             + ".\" + " + ci.getNameCamel() + ");" + RT);
       }
 

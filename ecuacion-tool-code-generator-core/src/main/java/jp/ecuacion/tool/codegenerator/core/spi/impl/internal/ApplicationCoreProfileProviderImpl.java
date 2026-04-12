@@ -16,9 +16,9 @@
 package jp.ecuacion.tool.codegenerator.core.spi.impl.internal;
 
 import jp.ecuacion.lib.core.spi.ApplicationCoreProfileProvider;
-import jp.ecuacion.lib.core.spi.impl.AbstractPropertyFileProviderImpl;
+import jp.ecuacion.lib.core.spi.impl.AbstractPropertiesFileProviderImpl;
 
-public class ApplicationCoreProfileProviderImpl extends AbstractPropertyFileProviderImpl
+public class ApplicationCoreProfileProviderImpl extends AbstractPropertiesFileProviderImpl
     implements ApplicationCoreProfileProvider {
 
 }
