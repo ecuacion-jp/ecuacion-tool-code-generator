@@ -16,9 +16,9 @@
 package jp.ecuacion.tool.codegenerator.core.spi.impl.internal;
 
 import jp.ecuacion.lib.core.spi.EnumNamesCoreProvider;
-import jp.ecuacion.lib.core.spi.impl.AbstractPropertyFileProviderImpl;
+import jp.ecuacion.lib.core.spi.impl.AbstractPropertiesFileProviderImpl;
 
-public class EnumNamesCoreProviderImpl extends AbstractPropertyFileProviderImpl
+public class EnumNamesCoreProviderImpl extends AbstractPropertiesFileProviderImpl
     implements EnumNamesCoreProvider {
 
 }

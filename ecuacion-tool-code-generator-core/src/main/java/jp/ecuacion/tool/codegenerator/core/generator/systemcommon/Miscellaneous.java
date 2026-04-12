@@ -16,8 +16,8 @@ public class Miscellaneous extends AbstractGen {
   @Override
   public void generate() throws AppException, IOException, InterruptedException {
 
-    // // PropertyFileUtilが使用するために必要な設定ファイルを生成
-    // generatePropertyFileUtilProperties(info.getSysCmnRootInfo());
+    // // PropertiesFileUtilが使用するために必要な設定ファイルを生成
+    // generatePropertiesFileUtilProperties(info.getSysCmnRootInfo());
 
     // code-generatorで生成したソースの中にあるBizLogicAppExceptionに設定するメッセージファイルを生成
     generateMessagesBaseProperties(info.getSysCmnRootInfo());
