@@ -58,7 +58,7 @@ public class EnumGen extends AbstractGen {
 
     ImportGenUtil importMgr = new ImportGenUtil();
     importMgr.add("java.util.Locale");
-    importMgr.add(EclibCoreConstants.PKG + ".util.PropertyFileUtil");
+    importMgr.add(EclibCoreConstants.PKG + ".util.PropertiesFileUtil");
     sb.append(importMgr.outputStr() + RT);
 
     sb.append("public enum " + enumName + " {" + RT2);
@@ -95,13 +95,13 @@ public class EnumGen extends AbstractGen {
     sb.append(genJavadocMethod("画面で表示するための名称を返す。", "この名称は、getはできるがそれをもとにenumを取得することはできない。",
         "localizeされた言語で返す。"));
     sb.append(T1 + "public String getDisplayName(Locale locale) {" + RT);
-    sb.append(T2 + "return PropertyFileUtil.getEnumName("
+    sb.append(T2 + "return PropertiesFileUtil.getEnumName("
         + "locale, this.getClass().getSimpleName() + \".\" + this.toString());" + RT);
     sb.append(T1 + "}" + RT2);
 
     sb.append(genJavadocMethod("defaultのLocaleを使用。"));
     sb.append(T1 + "public String getDisplayName() {" + RT);
-    sb.append(T2 + "return PropertyFileUtil.getEnumName("
+    sb.append(T2 + "return PropertiesFileUtil.getEnumName("
         + "Locale.getDefault(), this.getClass().getSimpleName() + \".\" + this.toString());" + RT);
     sb.append(T1 + "}" + RT2);
 
