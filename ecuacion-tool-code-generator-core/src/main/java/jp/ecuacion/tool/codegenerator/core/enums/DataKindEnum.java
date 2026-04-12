@@ -1,7 +1,7 @@
 package jp.ecuacion.tool.codegenerator.core.enums;
 
 import java.util.Locale;
-import jp.ecuacion.lib.core.util.PropertyFileUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 
 public enum DataKindEnum {
   //@formatter:off
@@ -10,7 +10,7 @@ public enum DataKindEnum {
   //@formatter:on
 
   public String getLabel() {
-    return PropertyFileUtil.getEnumName(Locale.getDefault(),
+    return PropertiesFileUtil.getEnumName(Locale.getDefault(),
         this.getClass().getSimpleName() + "." + this.toString());
   }
 }

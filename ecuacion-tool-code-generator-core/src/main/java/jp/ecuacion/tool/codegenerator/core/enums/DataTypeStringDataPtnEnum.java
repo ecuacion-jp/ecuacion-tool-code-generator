@@ -1,7 +1,7 @@
 package jp.ecuacion.tool.codegenerator.core.enums;
 
 import java.util.Locale;
-import jp.ecuacion.lib.core.util.PropertyFileUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 
 
 /**
@@ -105,7 +105,7 @@ public enum DataTypeStringDataPtnEnum {
    * 明らかに日本語専用のサイトを作成する場合も多いし、その場合にこの仕組みのほうが楽なので。 またどこかで変わるかもしれないけど。
    */
   public String getDisplayName(Locale locale) {
-    return PropertyFileUtil.getEnumName(locale,
+    return PropertiesFileUtil.getEnumName(locale,
         this.getClass().getSimpleName() + "." + this.toString());
   }
 
@@ -113,7 +113,7 @@ public enum DataTypeStringDataPtnEnum {
    * defaultのLocaleを使用。
    */
   public String getDisplayName() {
-    return PropertyFileUtil.getEnumName(Locale.getDefault(),
+    return PropertiesFileUtil.getEnumName(Locale.getDefault(),
         this.getClass().getSimpleName() + "." + this.toString());
   }
 
