@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
-import jp.ecuacion.lib.core.util.PropertyFileUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.splib.web.service.SplibGeneral1FormService;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.web.form.SourceDownloadForm;
@@ -45,7 +45,7 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
     String dateTimeString =
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss.SSS"));
     String threadIdString = Long.valueOf(Thread.currentThread().threadId()).toString();
-    String rootDir = PropertyFileUtil.getApplication("app.work-root-dir") + "/" + dateTimeString
+    String rootDir = PropertiesFileUtil.getApplication("app.work-root-dir") + "/" + dateTimeString
         + "-" + threadIdString;
 
     String inputDir = rootDir + "/" + "inputExcel";
