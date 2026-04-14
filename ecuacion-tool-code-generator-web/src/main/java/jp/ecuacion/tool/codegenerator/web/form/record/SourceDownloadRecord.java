@@ -1,11 +1,13 @@
 package jp.ecuacion.tool.codegenerator.web.form.record;
 
+import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.splib.core.record.SplibRecord;
 import jp.ecuacion.splib.web.item.HtmlItem;
 import jp.ecuacion.splib.web.item.HtmlItemContainer;
 import jp.ecuacion.tool.codegenerator.web.constant.Constants;
 import org.springframework.web.multipart.MultipartFile;
 
+@ItemNameKeyClass("SourceDownload")
 public class SourceDownloadRecord extends SplibRecord implements HtmlItemContainer {
 
   private MultipartFile fileToUpload;
