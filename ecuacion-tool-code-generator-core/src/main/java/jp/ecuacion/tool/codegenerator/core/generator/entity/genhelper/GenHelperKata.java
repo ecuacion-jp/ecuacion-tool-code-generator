@@ -5,9 +5,6 @@ import jp.ecuacion.tool.codegenerator.core.generator.AbstractGenHelper;
 
 public abstract class GenHelperKata extends AbstractGenHelper {
 
-  // protected abstract String getEntityAccessor(String columnNameCp, String columnNameSm,
-  // String dataType);
-
   public String[] getNeededImports(DbOrClassColumnInfo columnInfo) {
     return new String[] {};
   }
