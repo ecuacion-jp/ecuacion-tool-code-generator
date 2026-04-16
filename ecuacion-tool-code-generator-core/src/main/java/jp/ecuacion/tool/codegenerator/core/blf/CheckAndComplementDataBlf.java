@@ -112,7 +112,7 @@ public class CheckAndComplementDataBlf {
         if (colInfo.isPk()) {
           // Surrogate Keyが2項目あるのはNGなのでチェックしておく
           if (hasS) {
-            throw new BizLogicAppException("MSG_ERR_SURROGATE_KEY_DUPLICATED");
+            throw new BizLogicAppException("MSG_ERR_SURROGATE_KEY_DUPLICATED", tableInfo.getName());
           }
 
           hasS = true;
