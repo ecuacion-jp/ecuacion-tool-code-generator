@@ -28,7 +28,7 @@ public class GenHelperDate extends GenHelperNoNumberObj {
 
   @Override
   public String[] getNeededImports(DbOrClassColumnInfo columnInfo) {
-    String[] rtnStrings = mergeStrings(super.getNeededImports(columnInfo), "java.time.*");
+    String[] rtnStrings = super.getNeededImports(columnInfo);
     if (columnInfo.isAutoIncrement() || columnInfo.isAutoUpdate() || columnInfo.isForcedIncrement()
         || columnInfo.isForcedUpdate()) {
       rtnStrings = mergeStrings(rtnStrings, EclibCoreConstants.PKG + ".util.*");
