@@ -1,6 +1,6 @@
 package jp.ecuacion.tool.codegenerator.web.form.record;
 
-import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.splib.core.record.SplibRecord;
 import jp.ecuacion.splib.web.item.HtmlItem;
 import jp.ecuacion.splib.web.item.HtmlItemContainer;

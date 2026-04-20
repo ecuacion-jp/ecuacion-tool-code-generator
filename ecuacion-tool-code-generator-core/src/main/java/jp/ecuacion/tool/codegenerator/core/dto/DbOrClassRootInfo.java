@@ -54,11 +54,11 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
         if (ci.getRelationKind() != null) {
 
           // nullableな場合はエラー（redmine#463参照）
-          if (ci.isNullable()) {
-            throw new BizLogicAppException(
-                "MSG_ERR_CONSISTENCY_CHECK_NULLABLE_ENTITY_COLUMN_CANNOT_HAVE_RELATIONS",
-                ti.getName(), ci.getName());
-          }
+          // if (ci.isNullable()) {
+          // throw new BizLogicAppException(
+          // "MSG_ERR_CONSISTENCY_CHECK_NULLABLE_ENTITY_COLUMN_CANNOT_HAVE_RELATIONS",
+          // ti.getName(), ci.getName());
+          // }
         }
       }
     }
