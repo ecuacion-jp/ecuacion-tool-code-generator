@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
+import jp.ecuacion.lib.core.exception.unchecked.AppRuntimeException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
@@ -59,7 +59,7 @@ public class CodeGenUtil {
       boolean isAllUc = Pattern.compile("[A-Z0-9_].*").matcher(camelOrSnakeString).find();
       boolean isAllLc = Pattern.compile("[a-z0-9_].*").matcher(camelOrSnakeString).find();
       if (!isAllUc && !isAllLc) {
-        throw new UncheckedAppException(
+        throw new AppRuntimeException(
             new BizLogicAppException("MSG_ERR_STRING_NEITHER_CAMEL_NOR_SNAKE", camelOrSnakeString));
       }
 
