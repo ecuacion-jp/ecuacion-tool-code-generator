@@ -197,30 +197,30 @@ public class BlGen extends AbstractGen {
   private void generateDuplicateCheck(DbOrClassTableInfo ti) {
     sb.append(T1 + "private void duplicateCheck(boolean isCheckFromAllGroups, List<"
         + ti.getNameCpCamel() + "> entityList, " + ti.getNameCpCamel()
-        + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+        + "BaseRecord rec, String... targetItemPropertyPaths) {" + RT);
     sb.append(T2 + "internalDuplicateCheck(isCheckFromAllGroups, entityList, rec, \""
         + ti.getNameCamel() + "\", \"id\", " + "targetItemPropertyPaths);" + RT);
     sb.append(T1 + "}" + RT2);
 
     sb.append(T1 + "public void duplicateCheck(List<" + ti.getNameCpCamel() + "> entityList, "
         + ti.getNameCpCamel()
-        + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+        + "BaseRecord rec, String... targetItemPropertyPaths) {" + RT);
     sb.append(T2 + "duplicateCheck(false, entityList, rec, targetItemPropertyPaths);" + RT);
     sb.append(T1 + "}" + RT2);
 
     sb.append(T1 + "public void duplicateCheck(" + ti.getNameCpCamel() + "BaseRecord rec, "
-        + "String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+        + "String... targetItemPropertyPaths) {" + RT);
     sb.append(T2 + "duplicateCheck(repo.findAll(), rec, targetItemPropertyPaths);" + RT);
     sb.append(T1 + "}" + RT2);
 
     sb.append(T1 + "public void duplicateCheckFromAllGroups(List<" + ti.getNameCpCamel()
         + "> entityList, " + ti.getNameCpCamel()
-        + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+        + "BaseRecord rec, String... targetItemPropertyPaths) {" + RT);
     sb.append(T2 + "duplicateCheck(true, entityList, rec, targetItemPropertyPaths);" + RT);
     sb.append(T1 + "}" + RT2);
 
     sb.append(T1 + "public void duplicateCheckFromAllGroups(" + ti.getNameCpCamel()
-        + "BaseRecord rec, String... targetItemPropertyPaths) throws BizLogicAppException {" + RT);
+        + "BaseRecord rec, String... targetItemPropertyPaths) {" + RT);
     sb.append(T2
         + "duplicateCheckFromAllGroups(repo.findAllFromAllGroups(), rec, targetItemPropertyPaths);"
         + RT);
@@ -237,7 +237,7 @@ public class BlGen extends AbstractGen {
         .map(ci -> code.generateString(ci, ColFormat.ITEM_PROPERTY_PATH)).toList();
 
     sb.append(T1 + "public void naturalKeyDuplicateCheck(" + entityName
-        + "BaseRecord rec) throws BizLogicAppException {" + RT);
+        + "BaseRecord rec) {" + RT);
     final String itemNameKeysStr =
         "new String[] {"
             + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "rec.getItem(\"",
@@ -277,7 +277,7 @@ public class BlGen extends AbstractGen {
 
       String methodDefPrefix =
           "public void childExistenceCheck" + refInfo.getOrgTableNameCpCamel() + "(";
-      String methodDefPostfix = ") throws BizLogicAppException {";
+      String methodDefPostfix = ") {";
       String msgId = "jp.ecuacion.splib.core.entity." + refInfo.getOrgTableNameCamel();
       String checkMethodPrefix = "internalChildExistenceCheck(" + refInfo.getOrgTableNameCamel()
           + "Repo.findBy" + code.generateString(relOrgCi, ColFormat.QUERY_METHOD) + "(";
@@ -318,12 +318,12 @@ public class BlGen extends AbstractGen {
       String mtdArg = code.getJavaKata(ti.getPkColumn()) + " " + fiName;
 
       sb.append(T1 + "public void allChildrenExistenceChecks(" + mtdArg
-          + ") throws BizLogicAppException {" + RT);
+          + ") {" + RT);
       sb.append(T2 + "allChildrenExistenceChecks(" + fiName + ", null);" + RT);
       sb.append(T1 + "}" + RT2);
 
       sb.append(T1 + "public void allChildrenExistenceChecks(" + mtdArg
-          + ", String messageId, Class<?>... clses) throws BizLogicAppException {" + RT);
+          + ", String messageId, Class<?>... clses) {" + RT);
       sb.append(T2 + "List<Class<?>> skipList = Arrays.asList(clses);" + RT2);
       for (RelationRefInfo refInfo : ti.getPkColumn().getRelationRefInfoList()) {
         sb.append(T2 + "if (!skipList.contains(" + code.capitalCamel(refInfo.getOrgTableName())
