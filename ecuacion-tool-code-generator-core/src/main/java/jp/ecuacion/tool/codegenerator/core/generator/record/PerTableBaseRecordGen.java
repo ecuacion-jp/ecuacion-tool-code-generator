@@ -23,7 +23,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     generateHeaderCommon(ti, rootBasePackage + ".base.entity." + ti.getNameCpCamel(),
         "jp.ecuacion.splib.core.container.*", "jp.ecuacion.lib.core.item.*",
         "jp.ecuacion.lib.core.util.StringUtil",
-        "jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass");
+        "jp.ecuacion.lib.core.annotation.ItemNameKeyClass");
 
     sb.append("@ItemNameKeyClass(\"" + ti.getNameCamel() + "\")" + RT);
     sb.append("public abstract class " + ti.getNameCpCamel()

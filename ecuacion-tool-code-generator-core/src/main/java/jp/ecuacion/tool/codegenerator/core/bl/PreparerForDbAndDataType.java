@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
-import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
+import jp.ecuacion.lib.core.exception.unchecked.AppRuntimeException;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
@@ -62,7 +62,7 @@ public class PreparerForDbAndDataType {
         info.getDataTypeRootInfo().dataTypeList.stream().map(dt -> dt.getDataTypeName()).toList();
     enumRootInfo.enumClassList.stream().forEach(en -> {
       if (!dataTypeNameList.contains(en.getDataTypeName())) {
-        throw new UncheckedAppException(new BizLogicAppException(
+        throw new AppRuntimeException(new BizLogicAppException(
             "MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION", info.getSystemName(),
             DataKindEnum.ENUM.getLabel(), en.getEnumName(), en.getDataTypeName()));
       }
