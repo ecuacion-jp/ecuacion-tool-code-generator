@@ -2,7 +2,6 @@ package jp.ecuacion.tool.codegenerator.core.bl;
 
 import java.util.ArrayList;
 import java.util.List;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
@@ -11,7 +10,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
 public class PrepareManager {
 
-  public void prepare() throws AppException {
+  public void prepare() {
 
     Info info = MainController.tlInfo.get();
 

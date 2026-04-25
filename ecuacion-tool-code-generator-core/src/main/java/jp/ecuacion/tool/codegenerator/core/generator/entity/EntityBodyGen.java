@@ -2,7 +2,6 @@ package jp.ecuacion.tool.codegenerator.core.generator.entity;
 
 import java.io.IOException;
 import java.util.List;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
@@ -21,7 +20,7 @@ public class EntityBodyGen extends EntityGen {
   }
 
   @Override
-  public void generate() throws AppException, IOException, InterruptedException {
+  public void generate() throws IOException, InterruptedException {
 
     for (DbOrClassTableInfo tableInfo : info.getDbRootInfo().tableList) {
       sb = new StringBuilder();
@@ -35,8 +34,8 @@ public class EntityBodyGen extends EntityGen {
     appendItemNamesProperties(EntityGenKindEnum.ENTITY_BODY, info.getDbRootInfo().tableList);
   }
 
-  public void createSource(DbOrClassTableInfo tableInfo, List<DbOrClassColumnInfo> commonColumnList)
-      throws AppException {
+  public void createSource(DbOrClassTableInfo tableInfo,
+      List<DbOrClassColumnInfo> commonColumnList) {
 
     final String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 

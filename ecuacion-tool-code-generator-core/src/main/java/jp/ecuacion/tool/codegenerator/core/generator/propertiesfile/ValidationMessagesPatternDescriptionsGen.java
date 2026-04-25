@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
@@ -19,7 +18,7 @@ public class ValidationMessagesPatternDescriptionsGen extends AbstractGen {
   }
 
   @Override
-  public void generate() throws AppException, IOException, InterruptedException {
+  public void generate() throws IOException, InterruptedException {
     PropertiesFileGen gen = new PropertiesFileGen();
     Info info = MainController.tlInfo.get();
 

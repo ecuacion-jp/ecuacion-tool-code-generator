@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumClassInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -21,7 +20,7 @@ public class EnumGen extends AbstractGen {
   }
 
   @Override
-  public void generate() throws AppException, IOException, InterruptedException {
+  public void generate() throws IOException, InterruptedException {
     List<EnumClassInfo> enumClassList = info.getEnumRootInfo().enumClassList;
 
     // Enum作成

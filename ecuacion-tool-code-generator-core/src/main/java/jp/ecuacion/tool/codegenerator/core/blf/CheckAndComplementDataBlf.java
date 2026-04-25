@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.bl.CheckAndComplementFileLevelConsistencyCheckBl;
 import jp.ecuacion.tool.codegenerator.core.bl.PrepareManager;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 public class CheckAndComplementDataBlf {
 
   public Map<String, DataTypeInfo> execute(Info info, String systemName,
-      Map<DataKindEnum, AbstractRootInfo> rootInfoMap) throws AppException {
+      Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
 
     final SystemCommonRootInfo systemCommon =
         (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON);
@@ -65,8 +65,7 @@ public class CheckAndComplementDataBlf {
     return dtMap;
   }
 
-  private void checkForChildTable(String sysName, DbOrClassRootInfo dbOrClassRootInfo)
-      throws BizLogicAppException {
+  private void checkForChildTable(String sysName, DbOrClassRootInfo dbOrClassRootInfo) {
     List<String> tableNameSet = dbOrClassRootInfo.tableList.stream().map(e -> e.getName()).toList();
 
     for (DbOrClassTableInfo ti : dbOrClassRootInfo.tableList) {
@@ -75,8 +74,8 @@ public class CheckAndComplementDataBlf {
 
           // relation: refering to table name existence check
           if (!tableNameSet.contains(ci.getRelationRefTable())) {
-            throw new BizLogicAppException("MSG_ERR_DB_REFER_TO_TABLE_NAME_NOT_FOUND", sysName,
-                ti.getName(), ci.getName(), ci.getRelationRefTable());
+            new Violations().add(new BusinessViolation("MSG_ERR_DB_REFER_TO_TABLE_NAME_NOT_FOUND",
+                sysName, ti.getName(), ci.getName(), ci.getRelationRefTable())).throwIfAny();
           }
 
           DbOrClassTableInfo refTi = dbOrClassRootInfo.tableList.stream()
@@ -85,8 +84,8 @@ public class CheckAndComplementDataBlf {
           // relation: refering to column name existence check
           List<String> refTiColNameList = refTi.columnList.stream().map(e -> e.getName()).toList();
           if (!refTiColNameList.contains(ci.getRelationRefCol())) {
-            throw new BizLogicAppException("MSG_ERR_DB_REFER_TO_COLUMN_NAME_NOT_FOUND", sysName,
-                ti.getName(), ci.getName(), ci.getRelationRefCol());
+            new Violations().add(new BusinessViolation("MSG_ERR_DB_REFER_TO_COLUMN_NAME_NOT_FOUND",
+                sysName, ti.getName(), ci.getName(), ci.getRelationRefCol())).throwIfAny();
           }
         }
       }
@@ -94,7 +93,7 @@ public class CheckAndComplementDataBlf {
   }
 
   private void checkAndComplementForParentAndChildTable(DbOrClassRootInfo dbCommonRootInfo,
-      DbOrClassRootInfo dbRootInfo) throws BizLogicAppException {
+      DbOrClassRootInfo dbRootInfo) {
     // 情報付加のため再度ループ
     for (DbOrClassTableInfo tableInfo : dbRootInfo.tableList) {
       // テーブル単位の情報取得
@@ -112,7 +111,8 @@ public class CheckAndComplementDataBlf {
         if (colInfo.isPk()) {
           // Surrogate Keyが2項目あるのはNGなのでチェックしておく
           if (hasS) {
-            throw new BizLogicAppException("MSG_ERR_SURROGATE_KEY_DUPLICATED", tableInfo.getName());
+            new Violations().add(new BusinessViolation(
+                "MSG_ERR_SURROGATE_KEY_DUPLICATED", tableInfo.getName())).throwIfAny();
           }
 
           hasS = true;
@@ -125,7 +125,8 @@ public class CheckAndComplementDataBlf {
 
       // PKは必須。SystemCommonだけは特別扱い。
       if (!tableInfo.getName().equals("SYSTEM_COMMON") && !hasS) {
-        throw new BizLogicAppException("MSG_ERR_PK_REQUIRED", tableInfo.getName());
+        new Violations().add(
+            new BusinessViolation("MSG_ERR_PK_REQUIRED", tableInfo.getName())).throwIfAny();
       }
 
       tableInfo.setHasUniqueConstraint(hasU);
@@ -135,7 +136,7 @@ public class CheckAndComplementDataBlf {
   /** tableとgroupの間のチェック。 */
   private void checkAndComplementForTableAndGroup(String systemName,
       DbOrClassRootInfo dbCommonRootInfo, DbOrClassRootInfo dbRootInfo,
-      MiscGroupRootInfo groupRootInfo) throws BizLogicAppException {
+      MiscGroupRootInfo groupRootInfo) {
 
     final String colName = groupRootInfo.getColumnName();
 
@@ -157,7 +158,8 @@ public class CheckAndComplementDataBlf {
     // 親にも子にも存在するのはNGだが、「親にも子にも同一のカラム存在チェック」で引っかかるためここではチェックしない。
     // 親にも子にも存在しないチェックはしておく。
     if (!parentTableHasGroupCol && !childTableHasGroupCol) {
-      throw new BizLogicAppException("MSG_ERR_COMMON_GROUP_COL_NOT_FOUND", systemName);
+      new Violations().add(
+          new BusinessViolation("MSG_ERR_COMMON_GROUP_COL_NOT_FOUND", systemName)).throwIfAny();
     }
 
     // 共通設定として「group_id」をgroupを表すカラム名としている場合に、そのマスタとなるgroupテーブル上では、group_idではなくidというカラム名で持ちたいことがある。
@@ -165,8 +167,8 @@ public class CheckAndComplementDataBlf {
 
     // systemCommonに「グループ識別項目」を持つのは意味がわからないのでエラー。（共通設定のgroupを使用すべき）
     if (dbCommonRootInfo.tableList.get(0).hasCustomGroupColumn()) {
-      throw new BizLogicAppException("MSG_ERR_SYSTEM_COMMON_ENTITY_CANNOT_HAVE_CUSTOM_GROUP_COLUMN",
-          systemName);
+      new Violations().add(new BusinessViolation(
+          "MSG_ERR_SYSTEM_COMMON_ENTITY_CANNOT_HAVE_CUSTOM_GROUP_COLUMN", systemName)).throwIfAny();
     }
 
     // 子テーブルで「グループ識別項目」が2つあるのはエラーとする
@@ -179,8 +181,8 @@ public class CheckAndComplementDataBlf {
         customGroupTableName = ti.getName();
         customGroupColumnName = ti.getCustomGroupColumn().getName();
         if (numOfCustomGroupColumns > 1) {
-          throw new BizLogicAppException("MSG_ERR_MULTIPLE_CUSTOM_GROUP_COLUMN_CANNOT_EXIST",
-              systemName);
+          new Violations().add(new BusinessViolation(
+              "MSG_ERR_MULTIPLE_CUSTOM_GROUP_COLUMN_CANNOT_EXIST", systemName)).throwIfAny();
         }
       }
     }
@@ -212,8 +214,7 @@ public class CheckAndComplementDataBlf {
   }
 
   private void putDataTypeInfoIntoColInfo(String systemName,
-      Map<DataKindEnum, AbstractRootInfo> rootInfoMap, Map<String, DataTypeInfo> dtMap)
-      throws BizLogicAppException {
+      Map<DataKindEnum, AbstractRootInfo> rootInfoMap, Map<String, DataTypeInfo> dtMap) {
 
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
 
@@ -246,11 +247,11 @@ public class CheckAndComplementDataBlf {
   }
 
   private DataTypeInfo checkAndGetDataTypeInfo(Map<String, DataTypeInfo> dtMap, String dataTypeName,
-      String systemName, String placeInfo) throws BizLogicAppException {
+      String systemName, String placeInfo) {
     DataTypeInfo dtInfo = dtMap.get(dataTypeName);
     if (dtInfo == null) {
-      throw new BizLogicAppException("MSG_ERR_DESIGNATED_DT_NOT_EXIST_IN_DT_INFO", dataTypeName,
-          systemName, placeInfo);
+      new Violations().add(new BusinessViolation("MSG_ERR_DESIGNATED_DT_NOT_EXIST_IN_DT_INFO",
+          dataTypeName, systemName, placeInfo)).throwIfAny();
     }
 
     return dtInfo;

@@ -1,6 +1,5 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 /**
@@ -20,6 +19,6 @@ public class MiscOptimisticLockRootInfo extends AbstractColAttrRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() throws BizLogicAppException {
+  public void consistencyCheckAndCoplementData() {
   }
 }

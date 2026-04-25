@@ -1,7 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.annotation;
 
 import java.lang.annotation.ElementType;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 
 /**
  * 以下のような、Listでannotationを引数で持つパターンのannotationを作成する場合のgenerator.
@@ -21,7 +20,7 @@ public class ListAnnotationGen extends AnnotationGen {
   }
 
   @Override
-  public String generateString(ElementType elementType) throws BizLogicAppException {
+  public String generateString(ElementType elementType) {
 
     StringBuilder sb = new StringBuilder();
 

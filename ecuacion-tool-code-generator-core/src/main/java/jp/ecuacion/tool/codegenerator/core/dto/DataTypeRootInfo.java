@@ -3,7 +3,6 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 
@@ -23,7 +22,7 @@ public class DataTypeRootInfo extends AbstractRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() throws BizLogicAppException {
+  public void consistencyCheckAndCoplementData() {
     // ExcelDataTypeReaderが、PoiStringTableToBeanReaderを使用しているため
     // excel読み込み時にチェックしていることから再度の実行は必要なし。
   }

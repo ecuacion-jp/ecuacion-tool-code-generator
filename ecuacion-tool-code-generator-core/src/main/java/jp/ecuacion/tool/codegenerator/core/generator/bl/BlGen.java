@@ -3,7 +3,6 @@ package jp.ecuacion.tool.codegenerator.core.generator.bl;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefInfo;
@@ -25,13 +24,12 @@ public class BlGen extends AbstractGen {
   }
 
   @Override
-  public void generate() throws AppException, IOException, InterruptedException {
+  public void generate() throws IOException, InterruptedException {
     generateBl(true, info.getDbCommonRootInfo().tableList);
     generateBl(false, info.getDbRootInfo().tableList);
   }
 
-  private void generateBl(boolean isSystemCommon, @Valid List<DbOrClassTableInfo> tableList)
-      throws AppException {
+  private void generateBl(boolean isSystemCommon, @Valid List<DbOrClassTableInfo> tableList) {
 
     for (DbOrClassTableInfo ti : tableList) {
       String entityNameCp = StringUtil.getUpperCamelFromSnake(ti.getName());
@@ -61,8 +59,7 @@ public class BlGen extends AbstractGen {
     }
   }
 
-  public void generateHeader(boolean isSystemCommon, DbOrClassTableInfo ti, String entityNameCp)
-      throws AppException {
+  public void generateHeader(boolean isSystemCommon, DbOrClassTableInfo ti, String entityNameCp) {
     sb.append("package " + rootBasePackage + ".base.bl;" + RT2);
 
     ImportGenUtil importMgr = new ImportGenUtil();
@@ -75,8 +72,7 @@ public class BlGen extends AbstractGen {
     } else {
       importMgr.add("org.springframework.beans.factory.annotation.Autowired",
           "jp.ecuacion.splib.jpa.repository.SplibRepository", rootBasePackage + ".base.record.*",
-          rootBasePackage + ".base.repository.*", "jp.ecuacion.lib.core.exception.checked.*",
-          "java.util.List");
+          rootBasePackage + ".base.repository.*", "java.util.List");
 
       if (ti.columnList.stream().filter(ci -> ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
           || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP).toList().size() > 0) {
@@ -85,7 +81,7 @@ public class BlGen extends AbstractGen {
     }
 
     if (ti.hasUniqueConstraint()) {
-      importMgr.add("jp.ecuacion.lib.core.exception.checked.*", "java.util.Optional");
+      importMgr.add("java.util.Optional");
     }
 
     if (!isSystemCommon && ti.getPkColumn().getRelationRefInfoList().size() > 0) {
@@ -126,7 +122,7 @@ public class BlGen extends AbstractGen {
   private void getFindAndOptimisticLockingCheckRec(DbOrClassTableInfo ti, String entityNameCp) {
 
     sb.append(T1 + "public " + entityNameCp + " findAndOptimisticLockingCheck(" + entityNameCp
-        + "BaseRecord rec) throws AppException {" + RT);
+        + "BaseRecord rec) {" + RT);
     sb.append(T2 + "return findAndOptimisticLockingCheck(rec.get"
         + code.capitalCamel(ti.getPkColumn().getName()) + "OfEntityDataType(), " + "rec.get"
         + ti.getVersionColumnIncludingSystemCommon().getNameCpCamel() + "OfEntityDataType());"
@@ -166,8 +162,7 @@ public class BlGen extends AbstractGen {
     relFieldList.stream().forEach(ci -> relString.append(
         ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
     sb.append(T1 + "public " + entityName + " insertOrUpdate(" + code.capitalCamel(ti.getName())
-        + "BaseRecord rec" + dateTimeString + relString
-        + ", String... skipUpdateFields) throws AppException {" + RT);
+        + "BaseRecord rec" + dateTimeString + relString + ", String... skipUpdateFields) {" + RT);
     sb.append(T2 + entityName + " e = null;" + RT);
     sb.append(T2 + "boolean isInsert = rec.get" + idField + "() == null || rec.get" + idField
         + "().equals(\"\");" + RT2);
@@ -203,8 +198,7 @@ public class BlGen extends AbstractGen {
     sb.append(T1 + "}" + RT2);
 
     sb.append(T1 + "public void duplicateCheck(List<" + ti.getNameCpCamel() + "> entityList, "
-        + ti.getNameCpCamel()
-        + "BaseRecord rec, String... targetItemPropertyPaths) {" + RT);
+        + ti.getNameCpCamel() + "BaseRecord rec, String... targetItemPropertyPaths) {" + RT);
     sb.append(T2 + "duplicateCheck(false, entityList, rec, targetItemPropertyPaths);" + RT);
     sb.append(T1 + "}" + RT2);
 
@@ -236,13 +230,10 @@ public class BlGen extends AbstractGen {
     List<String> itemPropertyPathList = ti.columnList.stream().filter(ci -> ci.isUniqueConstraint())
         .map(ci -> code.generateString(ci, ColFormat.ITEM_PROPERTY_PATH)).toList();
 
-    sb.append(T1 + "public void naturalKeyDuplicateCheck(" + entityName
-        + "BaseRecord rec) {" + RT);
+    sb.append(T1 + "public void naturalKeyDuplicateCheck(" + entityName + "BaseRecord rec) {" + RT);
     final String itemNameKeysStr =
-        "new String[] {"
-            + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ", "rec.getItem(\"",
-                "\").getItemNameKey()")
-            + "}";
+        "new String[] {" + StringUtil.getSeparatedValuesString(itemPropertyPathList, ", ",
+            "rec.getItem(\"", "\").getItemNameKey()") + "}";
 
     sb.append(T2 + "Optional<" + entityName + "> optional = repo.findBy"
         + StringUtils.capitalize(code.naturalKeyUncapitalCamelAndRelConsidered(ti)) + "("
@@ -317,8 +308,7 @@ public class BlGen extends AbstractGen {
       String fiName = ti.getPkColumn().getNameCamel();
       String mtdArg = code.getJavaKata(ti.getPkColumn()) + " " + fiName;
 
-      sb.append(T1 + "public void allChildrenExistenceChecks(" + mtdArg
-          + ") {" + RT);
+      sb.append(T1 + "public void allChildrenExistenceChecks(" + mtdArg + ") {" + RT);
       sb.append(T2 + "allChildrenExistenceChecks(" + fiName + ", null);" + RT);
       sb.append(T1 + "}" + RT2);
 

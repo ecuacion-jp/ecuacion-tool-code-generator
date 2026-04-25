@@ -3,8 +3,8 @@ package jp.ecuacion.tool.codegenerator.core.generator.annotation.validator;
 import java.lang.annotation.ElementType;
 import java.util.Arrays;
 import java.util.List;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.FieldSingleAnnotationGen;
@@ -44,9 +44,9 @@ public abstract class ValidatorGen extends FieldSingleAnnotationGen {
   @Override
   protected void checkIfElementTypeAvailable(ElementType elementType) {
     if (!Arrays.asList(getAvailableElmentTypes()).contains(elementType)) {
-      throw new RuntimeException(
-          new BizLogicAppException("MSG_ERR_VALIDATOR_ELEMENT_TYPE_NOT_ALLOWED",
-              info.getSystemName(), this.getClass().getSimpleName(), elementType.toString()));
+      new Violations().add(new BusinessViolation("MSG_ERR_VALIDATOR_ELEMENT_TYPE_NOT_ALLOWED",
+          info.getSystemName(), this.getClass().getSimpleName(), elementType.toString()))
+          .throwIfAny();
     }
   }
 
@@ -54,7 +54,7 @@ public abstract class ValidatorGen extends FieldSingleAnnotationGen {
   private void checkIfKataAvailable() {
     List<DataTypeKataEnum> kataList = Arrays.asList(getAvailableKatas());
     if (!kataList.contains(dtInfo.getKata())) {
-      throw new EclibRuntimeException("The specified Kata not allowed. (system name: "
+      throw new RuntimeException("The specified Kata not allowed. (system name: "
           + info.getSystemName() + ", annotation name: " + this.annotationName + ", dataType name: "
           + dtInfo.getDataTypeName() + ", dataType: " + dtInfo.getKata().toString() + ")");
     }

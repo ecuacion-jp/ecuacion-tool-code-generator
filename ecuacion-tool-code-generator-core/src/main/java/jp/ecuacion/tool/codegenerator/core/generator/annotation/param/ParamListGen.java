@@ -3,7 +3,6 @@ package jp.ecuacion.tool.codegenerator.core.generator.annotation.param;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 
 /** 
@@ -27,11 +26,7 @@ public class ParamListGen extends ParamGen {
   public String generateString() {
     ArrayList<String> arr = new ArrayList<>();
     paramList.forEach(param -> {
-      try {
-        arr.add(param.generateString());
-      } catch (BizLogicAppException ex) {
-        throw new RuntimeException(ex);
-      }
+      arr.add(param.generateString());
     });
     return StringUtil.getCsvWithSpace((String[]) arr.toArray(new String[0]));
   }

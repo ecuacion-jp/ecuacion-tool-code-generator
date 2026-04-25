@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
-import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
@@ -53,7 +53,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append("package " + rootBasePackage + ".base.entity;" + RT);
   }
 
-  protected void appendImport(StringBuilder sb, DbOrClassTableInfo tableInfo) throws AppException {
+  protected void appendImport(StringBuilder sb, DbOrClassTableInfo tableInfo) {
     ImportGenUtil importMgr = new ImportGenUtil();
     final String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
@@ -191,13 +191,13 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   /**
    * 共通のgrouping用FilterDefを出力するために使用。
    */
-  protected void getGroupFilterDefAnnotationString(StringBuilder sb) throws BizLogicAppException {
+  protected void getGroupFilterDefAnnotationString(StringBuilder sb) {
     getGroupFilterDefAnnotationString(sb, "groupFilter", info.getGroupRootInfo().getColumnName(),
         info.getGroupRootInfo().getDtInfo());
   }
 
   protected void getGroupFilterDefAnnotationString(StringBuilder sb, String filterName,
-      String colName, DataTypeInfo dtInfo) throws BizLogicAppException {
+      String colName, DataTypeInfo dtInfo) {
 
     String fieldNameLc = StringUtil.getLowerCamelFromSnake(colName);
 
@@ -210,12 +210,11 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   /**
    * 共通のgrouping用Filterを出力するために使用。
    */
-  protected void getGroupFilterAnnotationString(StringBuilder sb) throws BizLogicAppException {
+  protected void getGroupFilterAnnotationString(StringBuilder sb) {
     getGroupFilterAnnotationString(sb, "groupFilter");
   }
 
-  protected void getGroupFilterAnnotationString(StringBuilder sb, String filterName)
-      throws BizLogicAppException {
+  protected void getGroupFilterAnnotationString(StringBuilder sb, String filterName) {
     ParamListGen paramGenList = new ParamListGen();
     paramGenList.add(new ParamGenWithSingleValue("name", filterName, true));
 
@@ -224,8 +223,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(filter.generateString(ElementType.TYPE) + RT);
   }
 
-  protected void getSoftDeleteAnnotationsString(StringBuilder sb, DbOrClassTableInfo tableInfo)
-      throws BizLogicAppException {
+  protected void getSoftDeleteAnnotationsString(StringBuilder sb, DbOrClassTableInfo tableInfo) {
     if (info.getSysCmnRootInfo().isFrameworkKindSpring()
         && info.getRemovedDataRootInfo().isDefined()
         && tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
@@ -390,8 +388,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "public " + tableNameCp + "() {" + "}" + RT2);
   }
 
-  protected void appendRecConstructor(StringBuilder sb, DbOrClassTableInfo ti, String entityNameCp)
-      throws BizLogicAppException {
+  protected void appendRecConstructor(StringBuilder sb, DbOrClassTableInfo ti,
+      String entityNameCp) {
     // recを引数としたコンストラクタ
     sb.append(T1 + "/** A constructor with record argument */" + RT);
 
@@ -462,11 +460,11 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   // String kataUc = code.getJavaKata(ci);
   //
   // // relationがある場合は、インスタンス生成を行う
-  // String relFieldNameUc = StringUtils.capitalize(ci.getRelationFieldName());
+  // String relFieldNameUc = StringUtil.capitalize(ci.getRelationFieldName());
   // if (ci.isRelation()) {
   // String entityName = StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
   // sb.append(T2 + ci.getRelationFieldName() + " = rec.get" + relFieldNameUc
-  // + "() == null ? null : new " + StringUtils.capitalize(entityName) + "(rec.get"
+  // + "() == null ? null : new " + StringUtil.capitalize(entityName) + "(rec.get"
   // + relFieldNameUc + "());" + RT);
   //
   // } else {
@@ -513,10 +511,10 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   // if (ci.isReferedByBidirectionalRelation()) {
   // for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
   // String entityNameUc = StringUtil.getUpperCamelFromSnake(info.getOrgTableName());
-  // String entityNameLc = StringUtils.uncapitalize(entityNameUc);
+  // String entityNameLc = StringUtil.uncapitalize(entityNameUc);
   //
   // String bidirFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
-  // String bidirFieldNameUc = StringUtils.capitalize(bidirFieldName);
+  // String bidirFieldNameUc = StringUtil.capitalize(bidirFieldName);
   //
   // // ID column of ref-from table
   // String pkColumnInOrgTable = MainController.tlInfo.get().getDbRootInfo().tableList.stream()
@@ -525,15 +523,15 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   // if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
   // sb.append(T2 + bidirFieldName + " = rec.get" + bidirFieldNameUc + "() == null || rec.get"
   // + bidirFieldNameUc + "().get" + StringUtil.getUpperCamelFromSnake(pkColumnInOrgTable)
-  // + "() == null ? null : new " + StringUtils.capitalize(entityNameLc) + "(rec.get"
+  // + "() == null ? null : new " + StringUtil.capitalize(entityNameLc) + "(rec.get"
   // + bidirFieldNameUc + "());" + RT);
   //
   // } else {
   // sb.append(
-  // T2 + "if (rec.get" + StringUtils.capitalize(bidirFieldName) + "() != null) {" + RT);
+  // T2 + "if (rec.get" + StringUtil.capitalize(bidirFieldName) + "() != null) {" + RT);
   // sb.append(T3 + bidirFieldName + " = new ArrayList<>();" + RT);
   // sb.append(T3 + "for (" + entityNameUc + "BaseRecord " + entityNameLc + "Rec : rec.get"
-  // + StringUtils.capitalize(bidirFieldName) + "()) {" + RT);
+  // + StringUtil.capitalize(bidirFieldName) + "()) {" + RT);
   // sb.append(T4 + bidirFieldName + ".add(new " + entityNameUc + "(" + entityNameLc + "Rec));"
   // + RT);
   // sb.append(T3 + "}" + RT);
@@ -561,7 +559,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     return dateTimeString.toString() + relString.toString();
   }
 
-  protected void appendUpdate(StringBuilder sb, DbOrClassTableInfo ti) throws BizLogicAppException {
+  protected void appendUpdate(StringBuilder sb, DbOrClassTableInfo ti) {
     sb.append(T1 + "public void update(" + code.baseRecDef(ti.getName()) + args(ti)
         + ", String... skipUpdateFields) {" + RT);
 
@@ -577,8 +575,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "}" + RT2);
   }
 
-  private void fields(StringBuilder sb, DbOrClassTableInfo ti, boolean isUpdate)
-      throws BizLogicAppException {
+  private void fields(StringBuilder sb, DbOrClassTableInfo ti, boolean isUpdate) {
     List<DbOrClassColumnInfo> baseList =
         ti.columnList.stream().filter(e -> !e.getIsJavaOnly()).toList();
 
@@ -706,7 +703,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
    */
   protected void appendItemNamesProperties(EntityGenKindEnum entityKind,
       List<DbOrClassTableInfo> tableList)
-      throws IOException, InterruptedException, BizLogicAppException {
+      throws IOException, InterruptedException {
     PropertiesFileGen gen = new PropertiesFileGen();
 
     // fallback用のファイルを作成。
@@ -727,7 +724,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   }
 
   protected void appendAutoInsertOrUpdateGen(StringBuilder sb, DbOrClassTableInfo tableInfo,
-      boolean isUpdate, boolean isFromSystemCommon) throws BizLogicAppException {
+      boolean isUpdate, boolean isFromSystemCommon) {
 
     // 対象となるfieldが一つもない場合はそもそも本メソッドを作りたくないのでその判断を先にする
     boolean needsMethod = false;
@@ -784,7 +781,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
             + ((dtInfo.getKata() == DataTypeKataEnum.LONG) ? "L" : "") + ";" + RT);
 
       } else {
-        throw new BizLogicAppException("MSG_ERR_IMPOSSIBLE");
+        new Violations().add(new BusinessViolation("MSG_ERR_IMPOSSIBLE")).throwIfAny();
       }
     }
 

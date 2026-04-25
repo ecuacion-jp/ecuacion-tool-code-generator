@@ -1,7 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.systemcommon;
 
 import java.io.IOException;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
@@ -14,7 +13,7 @@ public class Miscellaneous extends AbstractGen {
   }
 
   @Override
-  public void generate() throws AppException, IOException, InterruptedException {
+  public void generate() throws IOException, InterruptedException {
 
     // // PropertiesFileUtilが使用するために必要な設定ファイルを生成
     // generatePropertiesFileUtilProperties(info.getSysCmnRootInfo());

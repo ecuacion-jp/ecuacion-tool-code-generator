@@ -1,7 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.record;
 
 import java.util.List;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -14,11 +13,11 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
   }
 
   @Override
-  public void generate() throws AppException {
+  public void generate() {
     internalGenerate(info.getDbRootInfo().tableList, false);
   }
 
-  public void generateHeader(DbOrClassTableInfo ti) throws AppException {
+  public void generateHeader(DbOrClassTableInfo ti) {
 
     generateHeaderCommon(ti, rootBasePackage + ".base.entity." + ti.getNameCpCamel(),
         "jp.ecuacion.splib.core.container.*", "jp.ecuacion.lib.core.item.*",
@@ -31,7 +30,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
   }
 
   @Override
-  protected void generateMethods(DbOrClassTableInfo ti) throws AppException {
+  protected void generateMethods(DbOrClassTableInfo ti) {
     createIdsAndOptimisticLockVersions(ti);
   }
 

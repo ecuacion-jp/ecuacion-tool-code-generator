@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.generator.ToolForCodeGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.AnnotationGen;
@@ -19,11 +18,7 @@ public class AnnotationGenUtil extends ToolForCodeGen {
     List<String> strList = new ArrayList<>();
     annotationGenList.forEach(annotationGen -> {
       String tab = (elementType == ElementType.TYPE) ? "" : T1;
-      try {
-        strList.add(tab + annotationGen.generateString(elementType) + RT);
-      } catch (BizLogicAppException ex) {
-        throw new RuntimeException(ex);
-      }
+      strList.add(tab + annotationGen.generateString(elementType) + RT);
     });
 
     StringBuilder sb = new StringBuilder();

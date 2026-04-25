@@ -1,6 +1,7 @@
 package jp.ecuacion.tool.codegenerator.core.bl;
 
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
@@ -17,7 +18,7 @@ public class PreparerForMiscOptimisticLock {
     this.info = MainController.tlInfo.get();
   }
 
-  public void prepare() throws BizLogicAppException {
+  public void prepare() {
     MiscOptimisticLockRootInfo lockInfo =
         (MiscOptimisticLockRootInfo) info.getRootInfoMap().get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
     if (lockInfo.isDefined()) {
@@ -32,8 +33,7 @@ public class PreparerForMiscOptimisticLock {
     }
   }
 
-  private void setOptLock(MiscOptimisticLockRootInfo lockInfo, DataKindEnum dataKind)
-      throws BizLogicAppException {
+  private void setOptLock(MiscOptimisticLockRootInfo lockInfo, DataKindEnum dataKind) {
     DbOrClassRootInfo dbRootInfo =
         (DbOrClassRootInfo) info.getRootInfoMap().get(dataKind);
     if (dbRootInfo != null) {
@@ -47,9 +47,9 @@ public class PreparerForMiscOptimisticLock {
               ci.setOptLock(true);
             } else {
               // カラム名が一緒なのにDataTypeが異なる場合はエラー扱いとする
-              throw new BizLogicAppException("MSG_ERR_DT_OF_COL_FOR_OPT_LOCK_DIFFER",
+              new Violations().add(new BusinessViolation("MSG_ERR_DT_OF_COL_FOR_OPT_LOCK_DIFFER",
                   info.getSystemName(), ti.getName(), ci.getName(), ci.getDataType(),
-                  lockInfo.getDataTypeName());
+                  lockInfo.getDataTypeName())).throwIfAny();
             }
           }
         }

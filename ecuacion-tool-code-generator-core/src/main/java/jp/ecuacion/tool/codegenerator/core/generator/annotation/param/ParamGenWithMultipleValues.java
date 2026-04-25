@@ -1,7 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.annotation.param;
 
 import java.lang.annotation.ElementType;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.AnnotationGen;
 
 public class ParamGenWithMultipleValues extends ParamGen {
@@ -24,7 +23,7 @@ public class ParamGenWithMultipleValues extends ParamGen {
   }
 
   @Override
-  public String generateString() throws BizLogicAppException {
+  public String generateString() {
     String literalChar = (isStringLiteral) ? "\"" : "";
     boolean usesAnnotation = (annotations != null);
     int length = (usesAnnotation) ? annotations.length : values.length;

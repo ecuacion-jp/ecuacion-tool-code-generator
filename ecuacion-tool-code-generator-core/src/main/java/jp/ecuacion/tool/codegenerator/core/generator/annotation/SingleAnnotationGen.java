@@ -2,7 +2,8 @@ package jp.ecuacion.tool.codegenerator.core.generator.annotation;
 
 import java.lang.annotation.ElementType;
 import java.util.Arrays;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGen;
 
 /** 
@@ -20,7 +21,7 @@ public abstract class SingleAnnotationGen extends AnnotationGen {
     return elementType;
   }
 
-  public String generateString(ElementType elementType) throws BizLogicAppException {
+  public String generateString(ElementType elementType) {
     // チェック
     checkIfElementTypeAvailable(elementType);
     check();
@@ -44,10 +45,11 @@ public abstract class SingleAnnotationGen extends AnnotationGen {
    *
    * @param elementType elementType
    */
-  protected void checkIfElementTypeAvailable(ElementType elementType) throws BizLogicAppException {
+  protected void checkIfElementTypeAvailable(ElementType elementType) {
     if (!Arrays.asList(getAvailableElmentTypes()).contains(elementType)) {
-      throw new BizLogicAppException("MSG_ERR_ANNOTATION_ELEMENT_TYPE_NOT_ALLOWED",
-          info.getSystemName(), this.getClass().getSimpleName(), elementType.toString());
+      new Violations().add(new BusinessViolation("MSG_ERR_ANNOTATION_ELEMENT_TYPE_NOT_ALLOWED",
+          info.getSystemName(), this.getClass().getSimpleName(), elementType.toString()))
+          .throwIfAny();
     }
   }
 

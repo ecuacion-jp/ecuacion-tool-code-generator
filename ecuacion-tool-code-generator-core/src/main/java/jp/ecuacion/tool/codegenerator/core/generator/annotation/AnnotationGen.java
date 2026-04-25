@@ -1,7 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.annotation;
 
 import java.lang.annotation.ElementType;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.tool.codegenerator.core.generator.ToolForCodeGen;
 
 /**
@@ -25,7 +24,7 @@ public abstract class AnnotationGen extends ToolForCodeGen {
    *
    * @param elementType elementType
    */
-  public abstract String generateString(ElementType elementType) throws BizLogicAppException;
+  public abstract String generateString(ElementType elementType);
 
   public String getAnnotationName() {
     return annotationName;

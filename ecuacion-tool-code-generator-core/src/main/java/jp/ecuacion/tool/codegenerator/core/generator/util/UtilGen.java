@@ -1,7 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.util;
 
 import java.io.IOException;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -16,7 +15,7 @@ public class UtilGen extends AbstractGen {
   }
 
   @Override
-  public void generate() throws AppException, IOException, InterruptedException {
+  public void generate() throws IOException, InterruptedException {
     // Util作成
     Logger.log(this, "GEN_UTIL");
 

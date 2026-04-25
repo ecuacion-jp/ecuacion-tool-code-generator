@@ -3,7 +3,8 @@ package jp.ecuacion.tool.codegenerator.core.controller;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.blf.CheckAndComplementDataBlf;
 import jp.ecuacion.tool.codegenerator.core.blf.GenerationBlf;
 import jp.ecuacion.tool.codegenerator.core.blf.ReadExcelFilesBlf;
@@ -58,7 +59,7 @@ public class MainController {
     }
   }
 
-  private Info prepare(String inputDir, String outputDir) throws BizLogicAppException {
+  private Info prepare(String inputDir, String outputDir) {
     // Delete previously created files.
     Logger.log(this, "DELETE_LAST_TIME_FILE");
     delete(new File(outputDir));
@@ -66,7 +67,8 @@ public class MainController {
     // Throw an exception if the directory does not exist.
     new File(inputDir).mkdirs();
     if (!new File(inputDir).exists() || !new File(inputDir).isDirectory()) {
-      throw new BizLogicAppException("MSG_ERR_INFO_XML_DIR_NOT_EXIST", inputDir);
+      new Violations().add(new BusinessViolation("MSG_ERR_INFO_XML_DIR_NOT_EXIST", inputDir))
+          .throwIfAny();
     }
 
     // Create and set Info.

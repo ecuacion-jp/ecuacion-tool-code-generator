@@ -3,7 +3,9 @@ package jp.ecuacion.tool.codegenerator.core.constant;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.exception.ViolationException;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 
@@ -133,8 +135,10 @@ public class Constants {
       return stringDataPtnRegExMap.get(key);
 
     } else {
-      throw new RuntimeException(
-          new BizLogicAppException("MSG_ERR_STRING_DATA_PTN_NOT_FOUND", key));
+      Violations violations =
+          new Violations().add(new BusinessViolation("MSG_ERR_STRING_DATA_PTN_NOT_FOUND", key));
+      violations.throwIfAny();
+      throw new ViolationException(violations);
     }
   }
 }
