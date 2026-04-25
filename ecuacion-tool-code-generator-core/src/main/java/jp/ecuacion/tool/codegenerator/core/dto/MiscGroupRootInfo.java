@@ -3,7 +3,6 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
@@ -62,7 +61,7 @@ public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() throws BizLogicAppException {
+  public void consistencyCheckAndCoplementData() {
     
   }
 

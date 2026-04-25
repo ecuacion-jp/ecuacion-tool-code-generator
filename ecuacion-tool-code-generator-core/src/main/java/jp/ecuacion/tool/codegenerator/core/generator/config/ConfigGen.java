@@ -1,6 +1,5 @@
 package jp.ecuacion.tool.codegenerator.core.generator.config;
 
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
@@ -11,7 +10,7 @@ public class ConfigGen extends AbstractGen {
   }
 
   @Override
-  public void generate() throws AppException {
+  public void generate() {
     createSource();
 
     outputFile(sb, getFilePath("config"), "BaseConfig.java");

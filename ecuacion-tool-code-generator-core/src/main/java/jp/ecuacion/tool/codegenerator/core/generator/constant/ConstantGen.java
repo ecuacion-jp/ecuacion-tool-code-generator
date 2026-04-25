@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
@@ -16,7 +15,7 @@ public class ConstantGen extends AbstractGen {
   }
 
   @Override
-  public void generate() throws AppException, IOException, InterruptedException {
+  public void generate() throws IOException, InterruptedException {
     createSource();
 
     outputFile(sb, getFilePath("constant"), "BaseConstants.java");

@@ -1,7 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.record;
 
 import java.util.Arrays;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
@@ -15,11 +14,11 @@ public class SystemCommonBaseRecordGen extends AbstractBaseRecordGen {
   }
 
   @Override
-  public void generate() throws AppException {
+  public void generate() {
     internalGenerate(Arrays.asList(new DbOrClassTableInfo[] {info.getCommonTableInfo()}), true);
   }
 
-  public void generateHeader(DbOrClassTableInfo tableInfo) throws AppException {
+  public void generateHeader(DbOrClassTableInfo tableInfo) {
 
     generateHeaderCommon(tableInfo, "jp.ecuacion.splib.core.record.SplibRecord",
         rootBasePackage + ".base.entity.SystemCommon", "jp.ecuacion.splib.core.container.*");
@@ -28,6 +27,6 @@ public class SystemCommonBaseRecordGen extends AbstractBaseRecordGen {
   }
 
   @Override
-  protected void generateMethods(DbOrClassTableInfo ti) throws AppException {
+  protected void generateMethods(DbOrClassTableInfo ti) {
   }
 }
