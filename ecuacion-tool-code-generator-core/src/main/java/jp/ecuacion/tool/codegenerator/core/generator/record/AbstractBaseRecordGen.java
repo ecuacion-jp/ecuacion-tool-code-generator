@@ -18,7 +18,6 @@ import java.lang.annotation.ElementType;
 import java.util.Arrays;
 import java.util.List;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
@@ -39,16 +38,15 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
 
   protected CodeGenUtil code = new CodeGenUtil();
 
-  protected abstract void generateHeader(DbOrClassTableInfo ti) throws AppException;
+  protected abstract void generateHeader(DbOrClassTableInfo ti);
 
-  protected abstract void generateMethods(DbOrClassTableInfo ti) throws AppException;
+  protected abstract void generateMethods(DbOrClassTableInfo ti);
 
   public AbstractBaseRecordGen(DataKindEnum xmlFilePostFix) {
     super(xmlFilePostFix);
   }
 
-  protected void internalGenerate(List<DbOrClassTableInfo> tiList, boolean isSystemCommon)
-      throws AppException {
+  protected void internalGenerate(List<DbOrClassTableInfo> tiList, boolean isSystemCommon) {
     for (DbOrClassTableInfo ti : tiList) {
       sb = new StringBuilder();
 
@@ -208,8 +206,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     sb.append(T2 + "}" + RT);
   }
 
-  public void generateConstEntityArgCommon(DbOrClassTableInfo ti, boolean isSystemCommon)
-      throws AppException {
+  public void generateConstEntityArgCommon(DbOrClassTableInfo ti, boolean isSystemCommon) {
     boolean bl = ti.hasAnyRelationsOrRefs();
 
     sb.append(T1 + "public " + ti.getNameCpCamel() + "BaseRecord(" + ti.getNameCpCamel()
@@ -314,8 +311,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     }
   }
 
-  protected void createConstRecArgCommon(DbOrClassTableInfo ti, boolean isSystemCommon)
-      throws AppException {
+  protected void createConstRecArgCommon(DbOrClassTableInfo ti, boolean isSystemCommon) {
 
     boolean bl = ti.hasAnyRelationsOrRefs();
 

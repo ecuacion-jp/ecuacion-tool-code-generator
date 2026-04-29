@@ -3,7 +3,6 @@ package jp.ecuacion.tool.codegenerator.core.reader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
@@ -35,7 +34,7 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
 
 
   public HashMap<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
-      throws EncryptedDocumentException, IOException, AppException {
+      throws EncryptedDocumentException, IOException {
 
     HashMap<DataKindEnum, AbstractRootInfo> rtnMap = new HashMap<>();
 
