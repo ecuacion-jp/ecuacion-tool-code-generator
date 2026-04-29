@@ -6,8 +6,9 @@ import jakarta.validation.ConstraintValidatorContext;
 public class StrBooleanValidator implements ConstraintValidator<StrBoolean, String> {
 
   @Override
-  public void initialize(StrBoolean constraintAnnotation) {}
+  public void initialize(@SuppressWarnings("null") StrBoolean constraintAnnotation) {}
 
+  @SuppressWarnings("null")
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
     // null, ""はfalse, "○"はtrueを表す
