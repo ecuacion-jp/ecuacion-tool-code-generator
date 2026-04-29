@@ -1,10 +1,10 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jakarta.validation.Valid;
+import jakarta.validation.Validation;
 import java.util.ArrayList;
 import java.util.List;
-import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.util.ValidationUtil;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 public class EnumRootInfo extends AbstractRootInfo {
@@ -47,8 +47,10 @@ public class EnumRootInfo extends AbstractRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() throws AppException {
-    ValidationUtil.validateThenThrow(this);
+  public void consistencyCheckAndCoplementData() {
+    new Violations()
+        .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(this))
+        .throwIfAny();
     
     for (EnumClassInfo info : enumClassList) {
       info.afterReading();
