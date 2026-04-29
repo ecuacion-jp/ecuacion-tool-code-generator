@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
@@ -28,7 +27,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
   }
 
   @Override
-  public void generate() throws AppException {
+  public void generate() {
 
     // Entity別のbaseDao / baseRepositoryImplを作成
     for (DbOrClassTableInfo tableInfo : info.getDbRootInfo().tableList) {
@@ -56,7 +55,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
     }
   }
 
-  public void createBaseDaos(DbOrClassTableInfo ti, String entityNameCp) throws AppException {
+  public void createBaseDaos(DbOrClassTableInfo ti, String entityNameCp) {
     sb = new StringBuilder();
 
     final boolean isNoGroupQuery = info.getGenPtn() == GeneratePtnEnum.NO_GROUP_QUERY
@@ -184,7 +183,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
     outputFile(sb, getFilePath(postfixSm), entityNameCp + "Base" + postfixCp + ".java");
   }
 
-  private void createBaseDaoImport(DbOrClassTableInfo ti, String entityNameCp) throws AppException {
+  private void createBaseDaoImport(DbOrClassTableInfo ti, String entityNameCp) {
     ImportGenUtil importMgr = new ImportGenUtil();
     importMgr.add("java.util.*", "jakarta.persistence.EntityManager",
         rootBasePackage + ".base.entity." + entityNameCp);
@@ -213,7 +212,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
   }
 
   private void createBaseRepository(DbOrClassTableInfo tableInfo, String tableNameCp,
-      MiscGroupRootInfo groupInfo) throws AppException {
+      MiscGroupRootInfo groupInfo) {
 
     sb = new StringBuilder();
 
@@ -315,7 +314,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
   }
 
   private void createBaseRepositoryImport(DbOrClassTableInfo tableInfo, String tableNameCp,
-      List<DbOrClassColumnInfo> relFieldList) throws AppException {
+      List<DbOrClassColumnInfo> relFieldList) {
     ImportGenUtil importMgr = new ImportGenUtil();
     importMgr.add("java.util.*", rootBasePackage + ".base.entity." + tableNameCp,
         "org.springframework.data.jpa.repository.*",

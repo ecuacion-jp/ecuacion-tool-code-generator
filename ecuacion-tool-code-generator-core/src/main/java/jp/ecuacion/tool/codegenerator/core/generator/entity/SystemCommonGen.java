@@ -2,7 +2,6 @@ package jp.ecuacion.tool.codegenerator.core.generator.entity;
 
 import java.io.IOException;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -10,7 +9,7 @@ import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
 public class SystemCommonGen extends EntityGen {
 
-  public SystemCommonGen() throws AppException {
+  public SystemCommonGen() {
     super(DataKindEnum.DB_COMMON);
   }
 
@@ -19,7 +18,7 @@ public class SystemCommonGen extends EntityGen {
   }
 
   @Override
-  public void generate() throws AppException, IOException, InterruptedException {
+  public void generate() throws IOException, InterruptedException {
 
     DbOrClassTableInfo tableInfo = info.getCommonTableInfo();
     if (tableInfo != null) {
@@ -56,7 +55,7 @@ public class SystemCommonGen extends EntityGen {
         info.getDbCommonRootInfo().tableList);
   }
 
-  public void createSource(DbOrClassTableInfo tableInfo) throws AppException {
+  public void createSource(DbOrClassTableInfo tableInfo) {
 
     final String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 

@@ -10,9 +10,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.AnnotationGen;
@@ -56,7 +56,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return StringUtil.getLowerCamelFromSnake(getName());
   }
 
-  public void setTableName(String tableName) throws AppException {
+  public void setTableName(String tableName) {
     this.name = tableName;
   }
 
@@ -219,11 +219,11 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * soft delete
    */
 
-  public boolean hasSoftDeleteFieldExcludingSystemCommon() throws BizLogicAppException {
+  public boolean hasSoftDeleteFieldExcludingSystemCommon() {
     return softDeleteExistenceCheck(columnList, getName());
   }
 
-  public boolean hasSoftDeleteFieldInSystemCommon() throws BizLogicAppException {
+  public boolean hasSoftDeleteFieldInSystemCommon() {
     List<DbOrClassColumnInfo> dbCommonCi = info.getDbCommonRootInfo().tableList.get(0).columnList;
     return softDeleteExistenceCheck(dbCommonCi, getName());
   }
@@ -231,12 +231,11 @@ public class DbOrClassTableInfo extends AbstractInfo {
   /**
    * これは前述の2つの値から決まるので、個別にfieldは持たずmethodのみ用意しておく.
    */
-  public boolean hasSoftDeleteFieldInludingSystemCommon() throws BizLogicAppException {
+  public boolean hasSoftDeleteFieldInludingSystemCommon() {
     return hasSoftDeleteFieldExcludingSystemCommon() || hasSoftDeleteFieldInSystemCommon();
   }
 
-  private boolean softDeleteExistenceCheck(List<DbOrClassColumnInfo> columnList, String tableName)
-      throws BizLogicAppException {
+  private boolean softDeleteExistenceCheck(List<DbOrClassColumnInfo> columnList, String tableName) {
 
     MiscSoftDeleteRootInfo removedDataInfo = info.getRemovedDataRootInfo();
 
@@ -248,9 +247,11 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
         } else {
           // カラム名が一緒なのにDataTypeが異なる場合はエラー扱いとする
-          throw new BizLogicAppException("MSG_ERR_DT_OF_COL_FOR_REMOVED_DATA_COL_DIFFER",
-              info.getSystemName(), tableName, ci.getName(), ci.getDataType(),
-              removedDataInfo.getDataTypeName());
+          new Violations()
+              .add(new BusinessViolation("MSG_ERR_DT_OF_COL_FOR_REMOVED_DATA_COL_DIFFER",
+                  info.getSystemName(), tableName, ci.getName(), ci.getDataType(),
+                  removedDataInfo.getDataTypeName()))
+              .throwIfAny();
         }
       }
     }
@@ -298,7 +299,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return hasUniqueConstraint;
   }
 
-  public String getTableAnnotationString(DbOrClassTableInfo tableInfo) throws BizLogicAppException {
+  public String getTableAnnotationString(DbOrClassTableInfo tableInfo) {
     ParamListGen paramGenList = new ParamListGen();
     // name
     paramGenList.add(new ParamGenWithSingleValue("name", tableInfo.getName(), true));
@@ -446,8 +447,9 @@ public class DbOrClassTableInfo extends AbstractInfo {
     List<String> index = new ArrayList<>();
     for (int i = 1; i <= indexMap.size(); i++) {
       if (!indexMap.containsKey(i)) {
-        throw new RuntimeException(new BizLogicAppException(
-            "MSG_ERR_INDEX_NUMBER_NOT_CONTINUOUS_FROM_1", "", name, Integer.toString(indexSerial)));
+        new Violations().add(new BusinessViolation(
+            "MSG_ERR_INDEX_NUMBER_NOT_CONTINUOUS_FROM_1", "", name, Integer.toString(indexSerial)))
+            .throwIfAny();
       }
 
       index.add(indexMap.get(i).getName());
@@ -456,7 +458,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return index.toArray(new String[index.size()]);
   }
 
-  public void dataConsistencyCheck() throws AppException {
+  public void dataConsistencyCheck() {
     for (DbOrClassColumnInfo info : columnList) {
       info.afterReading();
     }

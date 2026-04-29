@@ -2,7 +2,6 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
@@ -66,5 +65,5 @@ public class MiscSoftDeleteRootInfo extends AbstractColAttrRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() throws BizLogicAppException {}
+  public void consistencyCheckAndCoplementData() {}
 }
