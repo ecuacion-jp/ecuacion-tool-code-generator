@@ -10,6 +10,7 @@ import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author yosuke.tanaka
@@ -17,7 +18,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
  */
 public abstract class AbstractGen extends ToolForCodeGen {
 
-  protected DataKindEnum xmlFilePostFix;
+  protected @Nullable DataKindEnum xmlFilePostFix;
   protected String rootBasePackage;
   protected String rootBasePackageDirectry;
 
@@ -29,7 +30,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
   // // static変数に渡すことにした
   // protected static HashMap<String, HashMap<String, DataTypeInfo>> allDtMap;
 
-  public AbstractGen(DataKindEnum xmlFilePostFix) {
+  public AbstractGen(@Nullable DataKindEnum xmlFilePostFix) {
     this.xmlFilePostFix = xmlFilePostFix;
     String osName = System.getProperty("os.name");
     rootBasePackage = info.getSysCmnRootInfo().getBasePackage();
@@ -54,7 +55,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
     return getBuildPathRootDirPath(null) + "/src/base/resources";
   }
 
-  private String getBuildPathRootDirPath(String packageName) {
+  private String getBuildPathRootDirPath(@Nullable String packageName) {
 
     String basicPath = info.outputDir + "/" + info.getSystemName() + "/"
         + info.getGenPtn().getDirName();
@@ -98,12 +99,12 @@ public abstract class AbstractGen extends ToolForCodeGen {
   // Javadoc関連
   // ==============
 
-  protected String genJavadocFromXml(String javadoc, boolean isIndented) {
+  protected String genJavadocFromXml(@Nullable String javadoc, boolean isIndented) {
     String indent = (isIndented) ? T1 : "";
     return indent + JD_ST + RT + genJavadocPartFromXml(javadoc, isIndented) + indent + JD_END + RT;
   }
 
-  protected String genJavadocPartFromXml(String javadoc, boolean isIndented) {
+  protected String genJavadocPartFromXml(@Nullable String javadoc, boolean isIndented) {
     if (javadoc == null) {
       javadoc = "";
     }
@@ -137,6 +138,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
     return genJavadocMethod(getStrAlFromA(args));
   }
 
+  @SuppressWarnings("unused")
   protected String genJavadocCommon(List<String> arr, boolean isIndented) {
 
     String rtn = "";

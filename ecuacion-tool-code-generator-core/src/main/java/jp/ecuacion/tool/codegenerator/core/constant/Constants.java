@@ -83,7 +83,7 @@ public class Constants {
   // 汎用の正規表現
   //
   /** 全半角（制限なし） ※制限なしのためコード生成なし。 */
-  private static final String REG_EX_ALL = null;
+  private static final @org.jspecify.annotations.Nullable String REG_EX_ALL = null;
   /** 半角。 */
   private static final String REG_EX_HAN = "^[a-zA-Z0-9 -/:-@\\\\[-\\\\`\\\\{-\\\\~]*$";
   /** 半角数字。 */

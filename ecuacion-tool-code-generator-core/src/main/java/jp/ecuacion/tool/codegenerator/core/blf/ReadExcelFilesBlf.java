@@ -51,7 +51,9 @@ public class ReadExcelFilesBlf {
     // excel読み込み（ここでは純粋な読み込み、各objectへの格納のみ。データ補完は実施なし）
     rootInfoMap.putAll(new ExcelGeneralSettingsReader().readAndGetMap(file.getAbsolutePath()));
     SystemCommonRootInfo sysCmnRootInfo =
-        (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON);
+        java.util.Objects.requireNonNull(
+            (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
+            "SYSTEM_COMMON must be populated by ExcelGeneralSettingsReader");
 
     // dataType
     rootInfoMap.put(DataKindEnum.DATA_TYPE,
