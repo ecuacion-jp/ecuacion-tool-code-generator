@@ -38,8 +38,17 @@ public class ColumnGen extends FieldSingleAnnotationGen {
     plistGen.add(new ParamGenWithSingleValue("nullable",
         Boolean.valueOf(ci.isNullable()).toString(), DataTypeKataEnum.BOOLEAN));
     if (dtInfo.getKata() == DataTypeKataEnum.STRING || dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-      String strLength = (dtInfo.getKata() == DataTypeKataEnum.ENUM) ? dtInfo.getEnumCodeLength()
-          : dtInfo.getMaxLength().toString();
+      String strLength;
+      if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
+        strLength = dtInfo.getEnumCodeLength();
+      } else {
+        Integer maxLength = dtInfo.getMaxLength();
+        if (maxLength == null) {
+          throw new IllegalStateException(
+              "STRING data type requires maxLength: " + dtInfo.getDataTypeName());
+        }
+        strLength = maxLength.toString();
+      }
       plistGen.add(new ParamGenWithSingleValue("length", strLength, DataTypeKataEnum.INTEGER));
     }
     // 数字のautoIncrementの際に、postgreSQLのcolumnの型をserial/bigSerialにするための設定
@@ -74,6 +83,7 @@ public class ColumnGen extends FieldSingleAnnotationGen {
     return plistGen;
   }
 
+  @SuppressWarnings("null")
   @Override
   protected DataTypeKataEnum[] getAvailableKatas() {
     // 全てOK

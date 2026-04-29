@@ -15,6 +15,7 @@ import jp.ecuacion.lib.core.util.FileUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
+import org.jspecify.annotations.Nullable;
 
 public class PropertiesFileGen extends AbstractGen {
 
@@ -22,8 +23,9 @@ public class PropertiesFileGen extends AbstractGen {
     super(DataKindEnum.OTHER);
   }
 
-  public void writeMapToPropFile(Map<String, String> propMap, String filenamePrefix, String lang)
-      throws IOException, InterruptedException {
+  /** Writes the given properties map to the file, optionally suffixed by language. */
+  public void writeMapToPropFile(Map<String, String> propMap, String filenamePrefix,
+      @Nullable String lang) throws IOException, InterruptedException {
 
     String propFileName = getFileName(filenamePrefix, lang);
     String path = getResourcesPath();
@@ -51,7 +53,7 @@ public class PropertiesFileGen extends AbstractGen {
     outputPropFile(origFileSb.toString() + sb.toString(), path, propFileName);
   }
 
-  static String getFileName(String filenamePrefix, String lang) {
+  static String getFileName(String filenamePrefix, @Nullable String lang) {
     if (lang == null || lang.equals("")) {
       return filenamePrefix + "_" + Constants.PROJECT_TYPE + ".properties";
 

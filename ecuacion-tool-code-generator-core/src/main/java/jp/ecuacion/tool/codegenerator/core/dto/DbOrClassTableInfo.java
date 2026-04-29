@@ -22,6 +22,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWi
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 
+@SuppressWarnings("NullAway.Init")
 public class DbOrClassTableInfo extends AbstractInfo {
   @Valid
   public List<DbOrClassColumnInfo> columnList = new ArrayList<>();
@@ -34,6 +35,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   // private boolean isSurrogateKeyStorategy = false;
   private boolean hasUniqueConstraint = false;
 
+  @SuppressWarnings("null")
   public DbOrClassTableInfo() {
 
   }
@@ -74,6 +76,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return false;
   }
 
+  /** Returns the column matching the given name, or {@code null} if absent. */
+  @SuppressWarnings({"NullAway", "null"})
   public DbOrClassColumnInfo getColumn(String colName) {
     for (DbOrClassColumnInfo ci : columnList) {
       if (ci.getName().equals(colName)) {
@@ -107,6 +111,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return columnList.stream().filter(ci -> ci.getDtInfo().getKata() == kata).toList();
   }
 
+  @SuppressWarnings("null")
   public boolean hasColumnWithAnyOfKatas(DataTypeKataEnum... katas) {
     List<DataTypeKataEnum> tableKataList =
         columnList.stream().map(ci -> ci.getDtInfo().getKata()).toList();
@@ -129,6 +134,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * pk
    */
 
+  /** Returns the primary-key column, or {@code null} if no column is marked as PK. */
+  @SuppressWarnings({"NullAway", "null"})
   public DbOrClassColumnInfo getPkColumn() {
     List<DbOrClassColumnInfo> list = columnList.stream().filter(ci -> ci.isPk()).toList();
     return list.size() == 0 ? null : list.get(0);
@@ -151,6 +158,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return getGroupColumn() != null;
   }
 
+  /** Returns the group column for this table, or {@code null} if absent. */
+  @SuppressWarnings({"NullAway", "null"})
   public DbOrClassColumnInfo getGroupColumn() {
     // commonを含めないので、ここでは整合性は細かく確認せず単純にあればtrueを返して終了。
     for (DbOrClassColumnInfo ci : columnList) {
@@ -166,6 +175,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return getGroupColumnIncludingSystemCommon() != null;
   }
 
+  /** Returns the group column considering SYSTEM_COMMON, or {@code null} if not applicable. */
+  @SuppressWarnings({"NullAway", "null"})
   public DbOrClassColumnInfo getGroupColumnIncludingSystemCommon() {
 
     // group定義がされていない場合はnullを返して終了。
@@ -205,6 +216,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return getCustomGroupColumn() != null;
   }
 
+  /** Returns the custom group column, or {@code null} if absent. */
+  @SuppressWarnings({"NullAway", "null"})
   public DbOrClassColumnInfo getCustomGroupColumn() {
     for (DbOrClassColumnInfo ci : columnList) {
       if (ci.isCustomGroupColumn()) {
@@ -263,6 +276,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * version
    */
 
+  @SuppressWarnings({"NullAway", "null"})
   private DbOrClassColumnInfo getVersionColumn(List<DbOrClassColumnInfo> columnList) {
     List<DbOrClassColumnInfo> versionColList = columnList.stream()
         .filter(ci -> ci.getName().equals(info.getOptimisticLockRootInfo().getColumnName()))
@@ -271,6 +285,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return versionColList.size() == 0 ? null : versionColList.get(0);
   }
 
+  /** Returns the version column for optimistic locking, or {@code null} if absent. */
+  @SuppressWarnings("NullAway")
   public DbOrClassColumnInfo getVersionColumn() {
     return getVersionColumn(columnList);
   }
@@ -452,7 +468,12 @@ public class DbOrClassTableInfo extends AbstractInfo {
             .throwIfAny();
       }
 
-      index.add(indexMap.get(i).getName());
+      DbOrClassColumnInfo indexedCol = indexMap.get(i);
+      if (indexedCol == null) {
+        throw new IllegalStateException(
+            "Index column missing for index serial " + indexSerial + " on table " + name);
+      }
+      index.add(indexedCol.getName());
     }
 
     return index.toArray(new String[index.size()]);
