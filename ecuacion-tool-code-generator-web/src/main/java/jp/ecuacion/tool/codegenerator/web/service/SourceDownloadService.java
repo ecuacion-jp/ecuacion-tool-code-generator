@@ -8,8 +8,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.splib.web.service.SplibGeneral1FormService;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.web.form.SourceDownloadForm;
@@ -98,16 +99,15 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
     }
   }
 
-  private void check(String originalFileName) throws BizLogicAppException {
+  private void check(String originalFileName) {
     if (originalFileName.equals("")) {
-      // ファイル指定なしでsubmitされた
-      throw new BizLogicAppException(new String[] {"fileToUpload"},
-          "SOURCE_DOWNLOAD_MESSAGE_FILE_NOT_DESIGNATED");
+      new Violations().add(new BusinessViolation(new String[] {"fileToUpload"},
+          "SOURCE_DOWNLOAD_MESSAGE_FILE_NOT_DESIGNATED")).throwIfAny();
     }
 
     if (!originalFileName.endsWith(".xlsx")) {
-      // ファイルの拡張子が.xlsxではない
-      throw new BizLogicAppException("SOURCE_DOWNLOAD_MESSAGE_FILE_EXTENSION_UNAVAILABLE");
+      new Violations().add(new BusinessViolation(
+          "SOURCE_DOWNLOAD_MESSAGE_FILE_EXTENSION_UNAVAILABLE")).throwIfAny();
     }
   }
 }

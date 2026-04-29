@@ -1,13 +1,13 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jakarta.validation.Valid;
+import jakarta.validation.Validation;
 import java.util.ArrayList;
 import java.util.List;
-import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.util.ValidationUtil;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 
@@ -29,8 +29,10 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
     return tableList.size() > 0;
   }
 
-  public void consistencyCheckAndCoplementData() throws AppException {
-    ValidationUtil.validateThenThrow(this);
+  public void consistencyCheckAndCoplementData() {
+    new Violations()
+        .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(this))
+        .throwIfAny();
 
     for (DbOrClassTableInfo tbl : tableList) {
       tbl.dataConsistencyCheck();
@@ -43,7 +45,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
     systemCommonCheck();
   }
 
-  private void childEntityCheck() throws BizLogicAppException {
+  private void childEntityCheck() {
 
     for (DbOrClassTableInfo ti : tableList) {
 
@@ -64,14 +66,14 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
     }
   }
 
-  private void systemCommonCheck() throws AppException {
-    
+  private void systemCommonCheck() {
+
     if (fileKind.equals(DataKindEnum.DB_COMMON)) {
 
       // そもそもtableはあって一つ
       if (tableList.size() > 1) {
-        throw new BizLogicAppException(
-            "MSG_ERR_CONSISTENCY_CHECK_SYSTEM_COMMON_ENTITY_MUST_BE_0_OR_1");
+        new Violations().add(new BusinessViolation(
+            "MSG_ERR_CONSISTENCY_CHECK_SYSTEM_COMMON_ENTITY_MUST_BE_0_OR_1")).throwIfAny();
       }
 
       if (tableList.size() == 0) {
@@ -83,15 +85,16 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
 
       // 名称はSystemCommon
       if (!ti.getName().equals("SYSTEM_COMMON")) {
-        throw new BizLogicAppException(
-            "MSG_ERR_CONSISTENCY_CHECK_NAME_OF_SYSTEM_COMMON_ENTITY_CANNOT_BE_CHANGED");
+        new Violations().add(new BusinessViolation(
+            "MSG_ERR_CONSISTENCY_CHECK_NAME_OF_SYSTEM_COMMON_ENTITY_CANNOT_BE_CHANGED"))
+            .throwIfAny();
       }
 
       // SystemCommonにはrelationを保持しないルール。（redmine#465）
       for (DbOrClassColumnInfo ci : ti.columnList) {
         if (ci.getRelationKind() != null) {
-          throw new BizLogicAppException(
-              "MSG_ERR_CONSISTENCY_CHECK_SYSTEM_COMMON_ENTITY_CANNOT_HAVE_RELATIONS");
+          new Violations().add(new BusinessViolation(
+              "MSG_ERR_CONSISTENCY_CHECK_SYSTEM_COMMON_ENTITY_CANNOT_HAVE_RELATIONS")).throwIfAny();
         }
       }
     }

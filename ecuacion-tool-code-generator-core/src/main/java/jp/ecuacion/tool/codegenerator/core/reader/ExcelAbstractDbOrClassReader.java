@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
@@ -37,7 +36,7 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
   }
 
   public HashMap<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
-      throws EncryptedDocumentException, IOException, AppException {
+      throws EncryptedDocumentException, IOException {
 
     HashMap<DataKindEnum, AbstractRootInfo> rtnMap = new HashMap<>();
     DbOrClassRootInfo rootInfo = new DbOrClassRootInfo(fileKind);

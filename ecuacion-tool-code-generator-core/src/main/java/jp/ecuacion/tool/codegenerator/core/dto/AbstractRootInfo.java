@@ -1,6 +1,5 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 public abstract class AbstractRootInfo extends AbstractInfo {
@@ -22,5 +21,5 @@ public abstract class AbstractRootInfo extends AbstractInfo {
   }
   
   /** excelから読み込んだデータに対し、jakarta validationでチェックできない選択必須などのチェックを行う。 */
-  public abstract void consistencyCheckAndCoplementData() throws AppException;
+  public abstract void consistencyCheckAndCoplementData();
 }
