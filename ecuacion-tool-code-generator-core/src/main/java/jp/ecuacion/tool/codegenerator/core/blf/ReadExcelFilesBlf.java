@@ -1,9 +1,10 @@
 package jp.ecuacion.tool.codegenerator.core.blf;
 
+import jakarta.validation.Validation;
 import java.io.File;
 import java.util.HashMap;
 import jp.ecuacion.lib.core.logging.DetailLogger;
-import jp.ecuacion.lib.core.util.ValidationUtil;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController.SkipException;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
@@ -65,7 +66,9 @@ public class ReadExcelFilesBlf {
 
     // まとめてvalidation・同一RootInfo内のデータ補完
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
-      ValidationUtil.validateThenThrow(rootInfo);
+      new Violations()
+          .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(rootInfo))
+          .throwIfAny();
       rootInfo.consistencyCheckAndCoplementData();
     }
 

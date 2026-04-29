@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
@@ -196,5 +195,5 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() throws BizLogicAppException {}
+  public void consistencyCheckAndCoplementData() {}
 }

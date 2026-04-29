@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Properties;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.util.FileUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -24,7 +23,7 @@ public class PropertiesFileGen extends AbstractGen {
   }
 
   public void writeMapToPropFile(Map<String, String> propMap, String filenamePrefix, String lang)
-      throws IOException, InterruptedException, BizLogicAppException {
+      throws IOException, InterruptedException {
 
     String propFileName = getFileName(filenamePrefix, lang);
     String path = getResourcesPath();

@@ -5,10 +5,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.exception.unchecked.AppRuntimeException;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
@@ -50,7 +49,6 @@ public class CodeGenUtil {
    * <li>uncapitalized camel(ex. "accGroup")</li>
    * </ol>
    *
-   * @throws BizLogicAppException BizLogicAppException
    */
   private boolean isSnake(String camelOrSnakeString) {
     if (camelOrSnakeString.contains("_")) {
@@ -59,8 +57,8 @@ public class CodeGenUtil {
       boolean isAllUc = Pattern.compile("[A-Z0-9_].*").matcher(camelOrSnakeString).find();
       boolean isAllLc = Pattern.compile("[a-z0-9_].*").matcher(camelOrSnakeString).find();
       if (!isAllUc && !isAllLc) {
-        throw new AppRuntimeException(
-            new BizLogicAppException("MSG_ERR_STRING_NEITHER_CAMEL_NOR_SNAKE", camelOrSnakeString));
+        new Violations().add(new BusinessViolation(
+            "MSG_ERR_STRING_NEITHER_CAMEL_NOR_SNAKE", camelOrSnakeString)).throwIfAny();
       }
 
       return true;
@@ -193,7 +191,7 @@ public class CodeGenUtil {
         switch (formatType) {
           case ITEM_PROPERTY_PATH, SET, GET, GET_OF_ENTITY_DATA_TYPE -> sb.append(".");
           case QUERY_METHOD -> sb.append("_");
-          default -> throw new EclibRuntimeException("Unexpected.");
+          default -> throw new RuntimeException("Unexpected.");
         }
       }
 
@@ -215,7 +213,7 @@ public class CodeGenUtil {
             currentCi.isRelation() ? currentCi.getRelationFieldName() : currentCi.getNameCamel());
         case QUERY_METHOD -> sb.append(currentCi.isRelation() ? currentCi.getRelationFieldNameCp()
             : currentCi.getNameCpCamel());
-        default -> throw new EclibRuntimeException("Unexpected.");
+        default -> throw new RuntimeException("Unexpected.");
       }
 
       if (currentCi.isRelation()) {
@@ -270,7 +268,7 @@ public class CodeGenUtil {
             .append((is1st ? StringUtils.uncapitalize(colNameUc) : colNameUc));
         case UNCAPITAL_CAMEL_AND_REL_CONSIDERED -> sb.append(
             (is1st ? StringUtils.uncapitalize(colNameUcRelUnderscore) : colNameUcRelUnderscore));
-        default -> throw new EclibRuntimeException("ColListFormat not designated.");
+        default -> throw new RuntimeException("ColListFormat not designated.");
       }
     }
 
@@ -378,23 +376,23 @@ public class CodeGenUtil {
    * var
    */
 
-  public String varIsNotNull(String formattedString) throws BizLogicAppException {
+  public String varIsNotNull(String formattedString) {
     return formattedString + " != null";
   }
 
-  public String ifVarIsNotNull(String formattedString) throws BizLogicAppException {
+  public String ifVarIsNotNull(String formattedString) {
     return "if (" + formattedString + " != null) ";
   }
 
-  public String set(String fieldOrColumnName, String argString) throws BizLogicAppException {
+  public String set(String fieldOrColumnName, String argString) {
     return "set" + capitalCamel(fieldOrColumnName) + "(" + argString + ")";
   }
 
-  public String baseRec(String entityOrTableName) throws BizLogicAppException {
+  public String baseRec(String entityOrTableName) {
     return capitalCamel(entityOrTableName) + "BaseRecord";
   }
 
-  public String baseRecDef(String entityOrTableName) throws BizLogicAppException {
+  public String baseRecDef(String entityOrTableName) {
     String uc = capitalCamel(entityOrTableName);
     return uc + "BaseRecord rec";
   }
@@ -403,19 +401,19 @@ public class CodeGenUtil {
    * recGet
    */
 
-  public String recGet(String fieldOrColumnName) throws BizLogicAppException {
+  public String recGet(String fieldOrColumnName) {
     return "rec.get" + capitalCamel(fieldOrColumnName) + "()";
   }
 
-  public String recGetIsNull(String fieldOrColumnName) throws BizLogicAppException {
+  public String recGetIsNull(String fieldOrColumnName) {
     return recGet(fieldOrColumnName) + " == null";
   }
 
-  public String recGetIsNotNull(String fieldOrColumnName) throws BizLogicAppException {
+  public String recGetIsNotNull(String fieldOrColumnName) {
     return varIsNotNull(recGet(fieldOrColumnName));
   }
 
-  public String ifRecGetIsNotNull(String fieldOrColumnName) throws BizLogicAppException {
+  public String ifRecGetIsNotNull(String fieldOrColumnName) {
     return "if (" + recGet(fieldOrColumnName) + " != null) ";
   }
 

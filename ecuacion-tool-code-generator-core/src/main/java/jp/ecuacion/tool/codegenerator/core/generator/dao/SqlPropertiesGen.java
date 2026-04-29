@@ -2,7 +2,6 @@ package jp.ecuacion.tool.codegenerator.core.generator.dao;
 
 import java.util.ArrayList;
 import java.util.List;
-import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
@@ -22,7 +21,7 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
   }
 
   @Override
-  public void generate() throws AppException {
+  public void generate() {
     // 作成不要な場合は終了
     if (!info.getSysCmnRootInfo().getUsesUtilJpa()) {
       return;
