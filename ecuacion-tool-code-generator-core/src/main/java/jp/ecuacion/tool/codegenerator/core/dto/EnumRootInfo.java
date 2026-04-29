@@ -7,6 +7,7 @@ import java.util.List;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
+@SuppressWarnings("NullAway.Init")
 public class EnumRootInfo extends AbstractRootInfo {
 
   private String dataTypeNamePrefix;
@@ -15,6 +16,7 @@ public class EnumRootInfo extends AbstractRootInfo {
   @Valid
   public List<EnumClassInfo> enumClassList = new ArrayList<EnumClassInfo>();
 
+  @SuppressWarnings("null")
   public EnumRootInfo() {
     super(DataKindEnum.ENUM);
   }

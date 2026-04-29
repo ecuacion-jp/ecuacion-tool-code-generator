@@ -22,11 +22,13 @@ public class EntityBodyGen extends EntityGen {
   @Override
   public void generate() throws IOException, InterruptedException {
 
+    DbOrClassRootInfo dbCommon =
+        java.util.Objects.requireNonNull(
+            (DbOrClassRootInfo) info.getRootInfoMap().get(DataKindEnum.DB_COMMON),
+            "DB_COMMON must be populated");
     for (DbOrClassTableInfo tableInfo : info.getDbRootInfo().tableList) {
       sb = new StringBuilder();
-      createSource(tableInfo,
-          ((DbOrClassRootInfo) info.getRootInfoMap().get(DataKindEnum.DB_COMMON)).tableList
-              .get(0).columnList);
+      createSource(tableInfo, dbCommon.tableList.get(0).columnList);
       outputFile(sb, getFilePath("entity"),
           StringUtil.getUpperCamelFromSnake(tableInfo.getName()) + ".java");
     }

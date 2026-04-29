@@ -37,6 +37,7 @@ public class GeneratedValueGen extends FieldSingleAnnotationGen {
     return new ElementType[] {java.lang.annotation.ElementType.FIELD};
   }
 
+  @SuppressWarnings("null")
   @Override
   protected DataTypeKataEnum[] getAvailableKatas() {
     // 全てOK
