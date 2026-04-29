@@ -7,6 +7,7 @@ import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import org.apache.commons.lang3.StringUtils;
 
+@SuppressWarnings("NullAway.Init")
 public abstract class AbstractColAttrRootInfo extends AbstractRootInfo {
 
   @Size(min = 1, max = 30)
@@ -22,10 +23,12 @@ public abstract class AbstractColAttrRootInfo extends AbstractRootInfo {
 
   private DataTypeInfo dtInfo;
 
+  @SuppressWarnings("null")
   public AbstractColAttrRootInfo(DataKindEnum fileKind) {
     super(fileKind);
   }
 
+  @SuppressWarnings("null")
   public AbstractColAttrRootInfo(DataKindEnum fileKind, String columnName, String dataTypeName) {
     super(fileKind);
     this.columnName = columnName;

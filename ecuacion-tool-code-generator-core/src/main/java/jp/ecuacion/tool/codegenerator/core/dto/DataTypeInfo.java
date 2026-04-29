@@ -29,6 +29,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Valida
 import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
+import org.jspecify.annotations.Nullable;
 
 @EmptyWhen(
     propertyPath = {"minLength", "maxLength", "stringDataPtn", "stringAllowsProhibitedCharacters",
@@ -51,6 +52,7 @@ import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
 @EmptyWhen(propertyPath = {"notNeedsTimezone"}, conditionPropertyPath = "kata",
     conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
     conditionValueString = {"DATE_TIME", "TIMESTAMP"})
+@SuppressWarnings("NullAway.Init")
 public class DataTypeInfo extends StringExcelTableBean {
 
   public static String[] HEADER_LABELS =
@@ -106,6 +108,7 @@ public class DataTypeInfo extends StringExcelTableBean {
         "numDigitFraction", "enumCodeLength", "notNeedsTimezone", "remarks"};
   }
 
+  @SuppressWarnings("null")
   public DataTypeInfo(List<String> colList) {
     super(colList);
   }
@@ -118,7 +121,7 @@ public class DataTypeInfo extends StringExcelTableBean {
     return DataTypeKataEnum.valueOf(kata);
   }
 
-  private Integer getMinLength() {
+  private @Nullable Integer getMinLength() {
     return minLength == null ? null : toInteger(minLength);
   }
 
@@ -127,7 +130,7 @@ public class DataTypeInfo extends StringExcelTableBean {
    *
    * @return integer
    */
-  public Integer getMaxLength() {
+  public @Nullable Integer getMaxLength() {
     return maxLength == null ? null : toInteger(maxLength);
   }
 
@@ -147,11 +150,11 @@ public class DataTypeInfo extends StringExcelTableBean {
     return stringRegExDescLangSupport03;
   }
 
-  private Integer getNumDigitInteger() {
+  private @Nullable Integer getNumDigitInteger() {
     return numDigitInteger == null ? null : toInteger(numDigitInteger);
   }
 
-  private Integer getNumDigitFraction() {
+  private @Nullable Integer getNumDigitFraction() {
     return numDigitFraction == null ? null : toInteger(numDigitFraction);
   }
 
@@ -241,7 +244,8 @@ public class DataTypeInfo extends StringExcelTableBean {
     }
   }
 
-  public String getStringRegExDesc(List<String> supportedLangArr, String lang) {
+  /** Returns the regex description for the given language, or {@code null} if absent. */
+  public @Nullable String getStringRegExDesc(List<String> supportedLangArr, String lang) {
     List<String> descList = Arrays.asList(new String[] {stringRegExDescLangSupport01,
         stringRegExDescLangSupport02, stringRegExDescLangSupport03});
 

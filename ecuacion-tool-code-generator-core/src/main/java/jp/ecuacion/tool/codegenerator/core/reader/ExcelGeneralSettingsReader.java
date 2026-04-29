@@ -12,6 +12,14 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.util.poi.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
 import org.apache.poi.EncryptedDocumentException;
 
+/**
+ * Reads the "general settings" sheet from the input Excel file.
+ *
+ * <p>NullAway is suppressed at class level: this reader is allowed to assume that every property
+ *     key listed by the template exists, and any missing key surfaces as a downstream validation
+ *     error rather than as a typed null check here.</p>
+ */
+@SuppressWarnings("NullAway")
 public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableReader {
 
   private static final String[] headerLabels = new String[] {"分類", "分類説明", "項目", "説明", "値", "備考"};

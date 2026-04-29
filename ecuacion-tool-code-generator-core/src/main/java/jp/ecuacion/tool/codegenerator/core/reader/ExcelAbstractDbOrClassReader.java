@@ -55,7 +55,9 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
         rootInfo.tableList.add(existingTableMap.get(colList.get(COL_TABLE_NAME)));
       }
 
-      DbOrClassTableInfo info = existingTableMap.get(colList.get(COL_TABLE_NAME));
+      DbOrClassTableInfo info = java.util.Objects.requireNonNull(
+          existingTableMap.get(colList.get(COL_TABLE_NAME)),
+          "Table info just inserted into existingTableMap must be present");
       info.columnList.add(new DbOrClassColumnInfo(colList, sysCmnRootInfo.getDefaultLang(),
           sysCmnRootInfo.getSupportLang1(), sysCmnRootInfo.getSupportLang2(),
           sysCmnRootInfo.getSupportLang3()));

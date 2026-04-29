@@ -47,7 +47,9 @@ public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader {
         rootInfo.enumClassList.add(existingEnumClassMap.get(colList.get(COL_DATA_TYPE_NAME)));
       }
 
-      EnumClassInfo info = existingEnumClassMap.get(colList.get(COL_DATA_TYPE_NAME));
+      EnumClassInfo info = java.util.Objects.requireNonNull(
+          existingEnumClassMap.get(colList.get(COL_DATA_TYPE_NAME)),
+          "EnumClassInfo just inserted into existingEnumClassMap must be present");
       info.enumList.add(new EnumValueInfo(colList, sysCmnRootInfo));
     }
 

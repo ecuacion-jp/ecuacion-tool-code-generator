@@ -22,8 +22,11 @@ public class PrepareManager {
     for (DbOrClassTableInfo ti : list) {
       for (DbOrClassColumnInfo ci : ti.columnList) {
         if (ci.isRelation()) {
+          jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum relationKind =
+              java.util.Objects.requireNonNull(ci.getRelationKind(),
+                  "isRelation() guarantees getRelationKind() is non-null");
           relRefInfoList.add(new DbOrClassColumnInfo.RelationRefInfo(ci.isRelationBidirectinal(),
-              ci.getRelationKind().getInverse(), ci.getRelationRefTable(), ci.getRelationRefCol(),
+              relationKind.getInverse(), ci.getRelationRefTable(), ci.getRelationRefCol(),
               ci.getRelationRefFieldName(), ti.getName(),
               StringUtil.getLowerCamelFromSnake(ci.getName()), ci.getRelationFieldName()));
         }

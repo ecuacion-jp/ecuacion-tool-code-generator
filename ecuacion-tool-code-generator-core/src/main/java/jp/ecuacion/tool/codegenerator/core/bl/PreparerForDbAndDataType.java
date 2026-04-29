@@ -48,6 +48,7 @@ public class PreparerForDbAndDataType {
   /**
    * enumに存在するdataType名がdataTypeInfoに存在するかをチェック。
    */
+  @SuppressWarnings("null")
   private void checkIfDataTypeInEnumExistsInDataTypeInfo() {
 
     EnumRootInfo enumRootInfo = ((EnumRootInfo) info.getRootInfoMap().get(DataKindEnum.ENUM));
@@ -79,6 +80,7 @@ public class PreparerForDbAndDataType {
   /**
    * DbOrClassに存在するdataType名がdataTypeInfoに存在するかをチェックするための共通処理。
    */
+  @SuppressWarnings("null")
   private void checkIfDataTypeInDbOrClassExistsInDataTypeInfoCommon(DataKindEnum dataKind) {
 
     DbOrClassRootInfo rootInfo = ((DbOrClassRootInfo) info.getRootInfoMap().get(dataKind));
@@ -88,12 +90,15 @@ public class PreparerForDbAndDataType {
 
     List<String> list =
         info.getDataTypeRootInfo().dataTypeList.stream().map(e -> e.getDataTypeName()).toList();
+    SystemCommonRootInfo sysCmnRootInfoForKind = java.util.Objects.requireNonNull(
+        (SystemCommonRootInfo) info.getRootInfoMap().get(dataKind),
+        "RootInfo for " + dataKind + " must be present");
     for (DbOrClassTableInfo ti : rootInfo.tableList) {
       for (DbOrClassColumnInfo ci : ti.columnList) {
         if (!list.contains(ci.getDataType())) {
           new Violations().add(new BusinessViolation(
               "MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION",
-              ((SystemCommonRootInfo) info.getRootInfoMap().get(dataKind)).getSystemName(),
+              sysCmnRootInfoForKind.getSystemName(),
               dataKind.getLabel(), ti.getName() + "." + ci.getName(), ci.getDataType()))
               .throwIfAny();
         }
@@ -236,7 +241,8 @@ public class PreparerForDbAndDataType {
   }
 
   private HashSet<String> checkDuplicatedDefinitionOfDbOrClassAndCreateTableSet(String systemName,
-      DbOrClassRootInfo rootInfo, HashSet<String> dbCommonColSet, DataKindEnum dataKind) {
+      @org.jspecify.annotations.Nullable DbOrClassRootInfo rootInfo, HashSet<String> dbCommonColSet,
+      DataKindEnum dataKind) {
     HashSet<String> tableSet = new HashSet<String>();
 
     if (rootInfo != null) {
