@@ -8,6 +8,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 
+@SuppressWarnings("NullAway.Init")
 public class SqlPropertiesGen extends AbstractDaoRelatedGen {
 
   StringBuilder sbWhere;
@@ -16,6 +17,7 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
 
   String sqlRt = " \\n \\";
 
+  @SuppressWarnings("null")
   public SqlPropertiesGen() {
     super(DataKindEnum.DB);
   }
@@ -105,6 +107,7 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
         SqlFileKind.NATIVE_SQL_PROPERTIES, sql.toString());
   }
 
+  @SuppressWarnings("null")
   private String insertCommonSqlPart(DbOrClassTableInfo tableInfo) {
     StringBuilder sbInsert = new StringBuilder();
     boolean is1stTime = true;

@@ -2,13 +2,14 @@ package jp.ecuacion.tool.codegenerator.core.generator.annotation;
 
 import java.lang.annotation.ElementType;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Fieldに付加するannotationのgenerator.
  */
 public abstract class FieldSingleAnnotationGen extends SingleAnnotationGen {
 
-  public FieldSingleAnnotationGen(String annotationName, ElementType elementType) {
+  public FieldSingleAnnotationGen(String annotationName, @Nullable ElementType elementType) {
     super(annotationName, elementType);
   }
 

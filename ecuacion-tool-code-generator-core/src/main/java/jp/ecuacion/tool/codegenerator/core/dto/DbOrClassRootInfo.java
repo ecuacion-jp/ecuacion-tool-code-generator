@@ -39,32 +39,24 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
     }
     
     // 子のentityの場合のみのチェック
-    childEntityCheck();
+    // childEntityCheck();
 
     // systemCommonの場合のみのチェック
     systemCommonCheck();
   }
 
-  private void childEntityCheck() {
-
-    for (DbOrClassTableInfo ti : tableList) {
-
-      // 項目単位のチェック
-      for (DbOrClassColumnInfo ci : ti.columnList) {
-
-        // relationを持つ場合（SystemCommonではrelationを持たないのでこちらにチェックを実装）
-        if (ci.getRelationKind() != null) {
-
-          // nullableな場合はエラー（redmine#463参照）
-          // if (ci.isNullable()) {
-          // throw new BizLogicAppException(
-          // "MSG_ERR_CONSISTENCY_CHECK_NULLABLE_ENTITY_COLUMN_CANNOT_HAVE_RELATIONS",
-          // ti.getName(), ci.getName());
-          // }
-        }
-      }
-    }
-  }
+  // 将来のチェック追加用に残しているが現時点では内容なし（redmine#463参照）
+  // private void childEntityCheck() {
+  //   for (DbOrClassTableInfo ti : tableList) {
+  //     for (DbOrClassColumnInfo ci : ti.columnList) {
+  //       if (ci.getRelationKind() != null && ci.isNullable()) {
+  //         throw new BizLogicAppException(
+  //             "MSG_ERR_CONSISTENCY_CHECK_NULLABLE_ENTITY_COLUMN_CANNOT_HAVE_RELATIONS",
+  //             ti.getName(), ci.getName());
+  //       }
+  //     }
+  //   }
+  // }
 
   private void systemCommonCheck() {
 
