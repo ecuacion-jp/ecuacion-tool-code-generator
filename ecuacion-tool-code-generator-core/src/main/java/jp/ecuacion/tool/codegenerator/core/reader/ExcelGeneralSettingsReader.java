@@ -9,7 +9,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.util.poi.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
+import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
 import org.apache.poi.EncryptedDocumentException;
 
 /**
@@ -25,7 +25,7 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
   private static final String[] headerLabels = new String[] {"分類", "分類説明", "項目", "説明", "値", "備考"};
 
   public ExcelGeneralSettingsReader() {
-    super("各種設定", headerLabels, null, 1, null);
+    super("各種設定", headerLabels);
   }
 
   private static int COL_KIND = 0;
