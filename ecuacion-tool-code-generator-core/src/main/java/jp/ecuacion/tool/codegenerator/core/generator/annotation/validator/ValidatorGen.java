@@ -10,11 +10,13 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.FieldSingleAnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
+import org.jspecify.annotations.Nullable;
 
+@SuppressWarnings("NullAway.Init")
 public abstract class ValidatorGen extends FieldSingleAnnotationGen {
 
   protected DataTypeInfo dtInfo;
-  protected String id;
+  protected @Nullable String id;
 
   public abstract boolean isJakartaEeStandardValidator();
 
@@ -62,6 +64,7 @@ public abstract class ValidatorGen extends FieldSingleAnnotationGen {
 
   protected abstract void getParamGenWithoutFieldId(ParamListGen plistGen);
 
+  @SuppressWarnings("null")
   @Override
   protected ParamListGen getParamGen() {
     ParamListGen plistGen = new ParamListGen();

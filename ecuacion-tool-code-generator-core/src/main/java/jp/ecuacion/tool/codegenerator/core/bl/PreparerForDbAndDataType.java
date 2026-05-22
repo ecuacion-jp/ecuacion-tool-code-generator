@@ -20,7 +20,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumClassInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
@@ -48,6 +47,7 @@ public class PreparerForDbAndDataType {
   /**
    * enumに存在するdataType名がdataTypeInfoに存在するかをチェック。
    */
+  @SuppressWarnings("null")
   private void checkIfDataTypeInEnumExistsInDataTypeInfo() {
 
     EnumRootInfo enumRootInfo = ((EnumRootInfo) info.getRootInfoMap().get(DataKindEnum.ENUM));
@@ -79,6 +79,7 @@ public class PreparerForDbAndDataType {
   /**
    * DbOrClassに存在するdataType名がdataTypeInfoに存在するかをチェックするための共通処理。
    */
+  @SuppressWarnings("null")
   private void checkIfDataTypeInDbOrClassExistsInDataTypeInfoCommon(DataKindEnum dataKind) {
 
     DbOrClassRootInfo rootInfo = ((DbOrClassRootInfo) info.getRootInfoMap().get(dataKind));
@@ -93,7 +94,7 @@ public class PreparerForDbAndDataType {
         if (!list.contains(ci.getDataType())) {
           new Violations().add(new BusinessViolation(
               "MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION",
-              ((SystemCommonRootInfo) info.getRootInfoMap().get(dataKind)).getSystemName(),
+              info.getSystemName(),
               dataKind.getLabel(), ti.getName() + "." + ci.getName(), ci.getDataType()))
               .throwIfAny();
         }
@@ -236,7 +237,8 @@ public class PreparerForDbAndDataType {
   }
 
   private HashSet<String> checkDuplicatedDefinitionOfDbOrClassAndCreateTableSet(String systemName,
-      DbOrClassRootInfo rootInfo, HashSet<String> dbCommonColSet, DataKindEnum dataKind) {
+      @org.jspecify.annotations.Nullable DbOrClassRootInfo rootInfo, HashSet<String> dbCommonColSet,
+      DataKindEnum dataKind) {
     HashSet<String> tableSet = new HashSet<String>();
 
     if (rootInfo != null) {

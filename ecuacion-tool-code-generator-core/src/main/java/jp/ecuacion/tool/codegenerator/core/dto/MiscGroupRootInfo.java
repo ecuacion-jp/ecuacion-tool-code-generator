@@ -7,6 +7,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 
+@SuppressWarnings("NullAway.Init")
 public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
 
   private List<String> tableNamesWithoutGrouping;
@@ -19,10 +20,12 @@ public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
   private String customGroupTableName;
   private String customGroupColumnName;
 
+  @SuppressWarnings("null")
   public MiscGroupRootInfo() {
     super(DataKindEnum.MISC_GROUP);
   }
 
+  @SuppressWarnings("null")
   public MiscGroupRootInfo(String columnName, String dataTypeName, String tableNamesWithoutGrouping,
       String needsUngroupedSource, String devidesDaoIntoOtherProject) {
 

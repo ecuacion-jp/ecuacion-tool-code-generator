@@ -23,6 +23,14 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Validates and complements data parsed from Excel before code generation runs.
+ *
+ * <p>NullAway is suppressed at class level because every value retrieved from
+ *     {@code rootInfoMap} via {@code Map.get(...)} is treated as present at this stage of the
+ *     pipeline; missing entries are reported as business validation errors elsewhere.</p>
+ */
+@SuppressWarnings("NullAway")
 public class CheckAndComplementDataBlf {
 
   public Map<String, DataTypeInfo> execute(Info info, String systemName,
@@ -65,6 +73,7 @@ public class CheckAndComplementDataBlf {
     return dtMap;
   }
 
+  @SuppressWarnings("null")
   private void checkForChildTable(String sysName, DbOrClassRootInfo dbOrClassRootInfo) {
     List<String> tableNameSet = dbOrClassRootInfo.tableList.stream().map(e -> e.getName()).toList();
 
@@ -134,6 +143,7 @@ public class CheckAndComplementDataBlf {
   }
 
   /** tableとgroupの間のチェック。 */
+  @SuppressWarnings("null")
   private void checkAndComplementForTableAndGroup(String systemName,
       DbOrClassRootInfo dbCommonRootInfo, DbOrClassRootInfo dbRootInfo,
       MiscGroupRootInfo groupRootInfo) {
@@ -246,6 +256,7 @@ public class CheckAndComplementDataBlf {
     }
   }
 
+  @SuppressWarnings("null")
   private DataTypeInfo checkAndGetDataTypeInfo(Map<String, DataTypeInfo> dtMap, String dataTypeName,
       String systemName, String placeInfo) {
     DataTypeInfo dtInfo = dtMap.get(dataTypeName);
