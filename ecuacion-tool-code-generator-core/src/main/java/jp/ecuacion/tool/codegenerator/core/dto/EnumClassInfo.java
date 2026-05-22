@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
-import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
+import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 
 @SuppressWarnings("NullAway.Init")
 public class EnumClassInfo extends StringExcelTableBean {

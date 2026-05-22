@@ -21,7 +21,7 @@ public class SourceDownloadRecord extends SplibRecord implements HtmlItemContain
   }
 
   @Override
-  public HtmlItem[] getHtmlItems() {
+  public HtmlItem[] customizedItems() {
     return mergeHtmlItems(htmlItems, Constants.COMMON_HTML_ITEMS);
   }
 
