@@ -13,10 +13,12 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Offers a container for needed data to generate various codes.
  */
+@SuppressWarnings({"NullAway.Init", "null"})
 public class Info {
   // all systems common
   public String outputDir;
@@ -25,7 +27,7 @@ public class Info {
   private Map<DataKindEnum, AbstractRootInfo> rootInfoMap;
   private String systemName;
 
-  // rootInfo unit values
+  // rootInfo unit values; populated together with rootInfoMap before the generators run.
   private SystemCommonRootInfo sysCmnRootInfo;
   private DataTypeRootInfo dataTypeRootInfo;
   private EnumRootInfo enumRootInfo;
@@ -97,6 +99,14 @@ public class Info {
     this.genPtn = genPtn;
   }
 
+  /**
+   * Sets root-info unit values from the given systemName and rootInfoMap.
+   *
+   * <p>NullAway is suppressed because absent map entries leave the corresponding fields
+   *     {@code null}; downstream callers expect them to be present once relevant generators run.
+   * </p>
+   */
+  @SuppressWarnings("NullAway")
   public void setRootInfoUnitValues(String systemName,
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
 
@@ -120,13 +130,25 @@ public class Info {
    * table
    */
 
-  public DbOrClassTableInfo getCommonTableInfo() {
+  /** Returns the common table info or {@code null} when DB_COMMON is not present. */
+  public @Nullable DbOrClassTableInfo getCommonTableInfo() {
     return rootInfoMap.containsKey(DataKindEnum.DB_COMMON) ? dbCommonRootInfo.tableList.get(0)
         : null;
   }
 
+  /**
+   * Returns the table info matching the given snake-case name.
+   *
+   * <p>Throws an {@link IllegalStateException} if no table with the given name exists; callers are
+   *     expected to look up tables they know to be present in the parsed data.</p>
+   */
   public DbOrClassTableInfo getTableInfo(String nameSnakeCase) {
-    return dbRootInfo.tableList.stream().collect(Collectors.toMap(ti -> ti.getName(), ti -> ti))
-        .get(nameSnakeCase);
+    DbOrClassTableInfo ti =
+        dbRootInfo.tableList.stream().collect(Collectors.toMap(t -> t.getName(), t -> t))
+            .get(nameSnakeCase);
+    if (ti == null) {
+      throw new IllegalStateException("Table not found: " + nameSnakeCase);
+    }
+    return ti;
   }
 }

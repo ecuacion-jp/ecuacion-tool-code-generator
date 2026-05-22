@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -146,7 +145,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
     } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
       // 親entity
-      importMgr.add(EclibCoreConstants.PKG_PARENT + ".jpa.entity.EclibEntity");
+      importMgr.add("jp.ecuacion.splib.jpa.entity.SplibEntity");
       // baseRecord
       importMgr.add(rootBasePackage + ".base.record.SystemCommonBaseRecord");
       // auditing. springの場合のみ。本当はsystemCommon決め打ちではないのだが、簡易的にこうしておく
@@ -298,8 +297,11 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
         code.classDotField(tableName, ci)));
 
     if (ci.isRelation()) {
+      jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum relationKind =
+          java.util.Objects.requireNonNull(ci.getRelationKind(),
+              "isRelation() guarantees getRelationKind() is non-null");
       sb.append(T1 + "@Valid" + RT);
-      sb.append(T1 + ci.getRelationKind().getName() + "(fetch = FetchType."
+      sb.append(T1 + relationKind.getName() + "(fetch = FetchType."
           + (ci.getRelationIsEager() ? "EAGER" : "LAZY") + ", cascade = {CascadeType.DETACH})"
           + RT);
       sb.append(T1 + "@OnDelete(action = OnDeleteAction.CASCADE)" + RT);
@@ -644,8 +646,11 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     }
   }
 
-  private void appendAccessorForRelation(StringBuilder sb, String relEntityName,
-      String relFieldName, boolean isReferedByBidirectionalRelation, RelationRefInfo info) {
+  private void appendAccessorForRelation(StringBuilder sb,
+      @org.jspecify.annotations.Nullable String relEntityName,
+      @org.jspecify.annotations.Nullable String relFieldName,
+      boolean isReferedByBidirectionalRelation,
+      @org.jspecify.annotations.Nullable RelationRefInfo info) {
     // bidirectionの参照先の場合で、かつoneToManyの場合、それを考慮したfieldName, relEntityNameの値に変更
     if (info != null && info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
       relFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
@@ -864,9 +869,10 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
    */
   protected void appendHasSoftDeleteFieldGen(StringBuilder sb, DbOrClassTableInfo tableInfo,
       boolean isCallFromSystemCommon) {
-    String colName = ((MiscSoftDeleteRootInfo) info.getRootInfoMap()
-        .get(DataKindEnum.MISC_REMOVED_DATA))
-        .getColumnName();
+    MiscSoftDeleteRootInfo softDeleteRootInfo = java.util.Objects.requireNonNull(
+        (MiscSoftDeleteRootInfo) info.getRootInfoMap().get(DataKindEnum.MISC_REMOVED_DATA),
+        "MISC_REMOVED_DATA must be populated");
+    String colName = softDeleteRootInfo.getColumnName();
     boolean usesSoftDelete = colName != null && !colName.equals("");
 
     boolean containsSoftDeleteField = (tableInfo.columnList.stream().map(e -> e.getName())

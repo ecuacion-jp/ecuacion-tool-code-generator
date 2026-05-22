@@ -21,6 +21,7 @@ public class AdviceGen extends AbstractGen {
 
     ImportGenUtil importMgr = new ImportGenUtil();
     importMgr.add("jp.ecuacion.splib.jpa.advice.SplibSoftDeleteAdvice",
+        "jp.ecuacion.splib.jpa.util.SplibJpaFilterUtil",
         "org.aspectj.lang.annotation.*", "org.springframework.stereotype.Component");
     sb.append(importMgr.outputStr() + RT);
 
@@ -28,6 +29,9 @@ public class AdviceGen extends AbstractGen {
     sb.append("@Component" + RT);
 
     sb.append("public class SoftDeleteAdvice extends SplibSoftDeleteAdvice {" + RT2);
+    sb.append("  protected SoftDeleteAdvice(SplibJpaFilterUtil filterUtil) {" + RT);
+    sb.append("    super(filterUtil);" + RT);
+    sb.append("  }" + RT2);
 
     sb.append("}" + RT);
   }
