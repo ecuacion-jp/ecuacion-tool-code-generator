@@ -21,7 +21,7 @@ module jp.ecuacion.tool.codegenerator.core {
   requires spring.context;
   requires spring.beans;
   requires jp.ecuacion.splib.core;
-  requires jp.ecuacion.util.poi;
+  requires jp.ecuacion.util.excel;
   requires java.sql;
   requires org.apache.commons.lang3;
   requires jakarta.annotation;

@@ -19,7 +19,7 @@ import jp.ecuacion.tool.codegenerator.core.reader.ExcelDbCommonReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelDbReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelEnumReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelGeneralSettingsReader;
-import jp.ecuacion.util.poi.excel.table.reader.concrete.StringOneLineHeaderExcelTableToBeanReader;
+import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableToBeanReader;
 
 /**
  * Reads Excel Format and returns read data.
@@ -58,7 +58,7 @@ public class ReadExcelFilesBlf {
     // dataType
     rootInfoMap.put(DataKindEnum.DATA_TYPE,
         new DataTypeRootInfo(new StringOneLineHeaderExcelTableToBeanReader<DataTypeInfo>(
-            DataTypeInfo.class, "dataType定義", DataTypeInfo.HEADER_LABELS, null, 1, null)
+            DataTypeInfo.class, "dataType定義", DataTypeInfo.HEADER_LABELS)
                 .readToBean(file.getAbsolutePath())));
 
     rootInfoMap.putAll(new ExcelEnumReader(sysCmnRootInfo).readAndGetMap(file.getAbsolutePath()));
