@@ -11,7 +11,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.util.poi.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
+import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
 import org.apache.poi.EncryptedDocumentException;
 
 public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderExcelTableReader {
@@ -30,7 +30,7 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
 
   public ExcelAbstractDbOrClassReader(@Nonnull String sheetName, DataKindEnum fileKind,
       SystemCommonRootInfo systemCommonRootInfo) {
-    super(sheetName, headerLabels, null, 1, null);
+    super(sheetName, headerLabels);
     this.fileKind = fileKind;
     sysCmnRootInfo = systemCommonRootInfo;
   }

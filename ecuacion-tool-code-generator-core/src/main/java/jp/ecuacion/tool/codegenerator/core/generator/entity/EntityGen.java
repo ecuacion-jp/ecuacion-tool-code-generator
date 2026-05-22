@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -146,7 +145,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
     } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
       // 親entity
-      importMgr.add(EclibCoreConstants.PKG_PARENT + ".jpa.entity.EclibEntity");
+      importMgr.add("jp.ecuacion.splib.jpa.entity.SplibEntity");
       // baseRecord
       importMgr.add(rootBasePackage + ".base.record.SystemCommonBaseRecord");
       // auditing. springの場合のみ。本当はsystemCommon決め打ちではないのだが、簡易的にこうしておく

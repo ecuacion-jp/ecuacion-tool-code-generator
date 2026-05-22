@@ -20,7 +20,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumClassInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
@@ -90,15 +89,12 @@ public class PreparerForDbAndDataType {
 
     List<String> list =
         info.getDataTypeRootInfo().dataTypeList.stream().map(e -> e.getDataTypeName()).toList();
-    SystemCommonRootInfo sysCmnRootInfoForKind = java.util.Objects.requireNonNull(
-        (SystemCommonRootInfo) info.getRootInfoMap().get(dataKind),
-        "RootInfo for " + dataKind + " must be present");
     for (DbOrClassTableInfo ti : rootInfo.tableList) {
       for (DbOrClassColumnInfo ci : ti.columnList) {
         if (!list.contains(ci.getDataType())) {
           new Violations().add(new BusinessViolation(
               "MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION",
-              sysCmnRootInfoForKind.getSystemName(),
+              info.getSystemName(),
               dataKind.getLabel(), ti.getName() + "." + ci.getName(), ci.getDataType()))
               .throwIfAny();
         }

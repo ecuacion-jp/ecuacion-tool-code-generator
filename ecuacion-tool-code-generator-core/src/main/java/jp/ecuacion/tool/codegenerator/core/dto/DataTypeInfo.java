@@ -28,7 +28,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.SizeGe
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.ValidatorGen;
 import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
-import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
+import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.jspecify.annotations.Nullable;
 
 @EmptyWhen(

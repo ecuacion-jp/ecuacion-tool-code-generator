@@ -24,7 +24,7 @@ import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.tool.codegenerator.core.validation.StrPk;
-import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
+import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 
 @NotEmptyWhen(
