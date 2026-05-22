@@ -426,8 +426,9 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     }
   }
 
-  private void createAccessorForRelation(String relEntityNameLw, String relFieldName,
-      RelationRefInfo info) {
+  private void createAccessorForRelation(@org.jspecify.annotations.Nullable String relEntityNameLw,
+      @org.jspecify.annotations.Nullable String relFieldName,
+      @org.jspecify.annotations.Nullable RelationRefInfo info) {
     String relDataType = StringUtils.capitalize(relEntityNameLw) + "BaseRecord";
     if (info != null && info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
       relFieldName = info.getEmptyConsideredFieldNameToReferFromTable();

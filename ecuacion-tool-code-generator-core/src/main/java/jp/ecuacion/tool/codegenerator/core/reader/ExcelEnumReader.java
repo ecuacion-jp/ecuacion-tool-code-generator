@@ -10,7 +10,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.util.poi.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
+import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
 import org.apache.poi.EncryptedDocumentException;
 
 public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader {
@@ -24,7 +24,7 @@ public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader {
       "dispName（追加言語1）", "dispName（追加言語2）", "dispName（追加言語3）"};
 
   public ExcelEnumReader(SystemCommonRootInfo sysCmnRootInfo) {
-    super("enum定義", headerLabels, null, 1, null);
+    super("enum定義", headerLabels);
     this.sysCmnRootInfo = sysCmnRootInfo;
   }
 
@@ -47,7 +47,9 @@ public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader {
         rootInfo.enumClassList.add(existingEnumClassMap.get(colList.get(COL_DATA_TYPE_NAME)));
       }
 
-      EnumClassInfo info = existingEnumClassMap.get(colList.get(COL_DATA_TYPE_NAME));
+      EnumClassInfo info = java.util.Objects.requireNonNull(
+          existingEnumClassMap.get(colList.get(COL_DATA_TYPE_NAME)),
+          "EnumClassInfo just inserted into existingEnumClassMap must be present");
       info.enumList.add(new EnumValueInfo(colList, sysCmnRootInfo));
     }
 

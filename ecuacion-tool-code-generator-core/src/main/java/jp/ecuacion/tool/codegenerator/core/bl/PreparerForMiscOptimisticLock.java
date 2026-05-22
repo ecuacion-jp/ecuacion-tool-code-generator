@@ -21,7 +21,7 @@ public class PreparerForMiscOptimisticLock {
   public void prepare() {
     MiscOptimisticLockRootInfo lockInfo =
         (MiscOptimisticLockRootInfo) info.getRootInfoMap().get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
-    if (lockInfo.isDefined()) {
+    if (lockInfo != null && lockInfo.isDefined()) {
       // 楽観的排他制御のカラムの情報を、個別のcolumnに設定する
       // （本項目はデータ保持項目が少なく単純なのでこの持ち方に出来たが、削除フラグ等は複雑になるためEntity生成時にまとめて処理している）
       setOptLock(lockInfo, DataKindEnum.DB);
@@ -33,6 +33,7 @@ public class PreparerForMiscOptimisticLock {
     }
   }
 
+  @SuppressWarnings({"unused"})
   private void setOptLock(MiscOptimisticLockRootInfo lockInfo, DataKindEnum dataKind) {
     DbOrClassRootInfo dbRootInfo =
         (DbOrClassRootInfo) info.getRootInfoMap().get(dataKind);

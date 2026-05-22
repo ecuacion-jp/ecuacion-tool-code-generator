@@ -24,7 +24,7 @@ import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.tool.codegenerator.core.validation.StrPk;
-import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
+import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 
 @NotEmptyWhen(
@@ -36,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
     conditionOperator = NOT_EQUAL_TO, conditionValueString = "bidirectional")
 @EmptyWhen(propertyPath = "relationIsEager", conditionPropertyPath = "relationKind",
     conditionValue = EMPTY)
+@SuppressWarnings("NullAway.Init")
 public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   private List<RelationRefInfo> relationRefInfoList = new ArrayList<>();
@@ -117,6 +118,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
   //@formatter:on
 
+  @SuppressWarnings("null")
   public DbOrClassColumnInfo(List<String> colList) {
     super(colList);
   }
@@ -138,6 +140,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     }
   }
 
+  @SuppressWarnings("null")
   public static DbOrClassColumnInfo cloneWithoutRelationRelated(DbOrClassColumnInfo ci) {
     String[] arr = new String[] {null, ci.getDisplayName(), ci.getName(), ci.getDataType(), null,
         ci.getIsJavaOnlyString(), ci.getPkKindString(), ci.isNullable,
@@ -278,7 +281,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return getRelationKind() != null;
   }
 
-  public RelationKindEnum getRelationKind() {
+  public @org.jspecify.annotations.Nullable RelationKindEnum getRelationKind() {
     return RelationKindEnum.getEnumFromName(relationKind);
   }
 
@@ -326,15 +329,15 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return ReaderUtil.boolStrToBoolean(relationIsEager);
   }
 
-  public Integer getIndex1() {
+  public @org.jspecify.annotations.Nullable Integer getIndex1() {
     return toInteger(index1);
   }
 
-  public Integer getIndex2() {
+  public @org.jspecify.annotations.Nullable Integer getIndex2() {
     return toInteger(index2);
   }
 
-  public Integer getIndex3() {
+  public @org.jspecify.annotations.Nullable Integer getIndex3() {
     return toInteger(index3);
   }
 

@@ -3,12 +3,14 @@ package jp.ecuacion.tool.codegenerator.core.generator.annotation.param;
 import java.lang.annotation.ElementType;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.AnnotationGen;
 
+@SuppressWarnings("NullAway.Init")
 public class ParamGenWithMultipleValues extends ParamGen {
   private String key;
   private String[] values;
   private AnnotationGen[] annotations;
   private boolean isStringLiteral;
 
+  @SuppressWarnings("null")
   public ParamGenWithMultipleValues(String key, String[] values, boolean isStringLiteral) {
     this.key = key;
     this.values = values;
@@ -16,6 +18,7 @@ public class ParamGenWithMultipleValues extends ParamGen {
   }
 
   /** valueがannotationの場合あり。 */
+  @SuppressWarnings("null")
   public ParamGenWithMultipleValues(String key, AnnotationGen[] annotations) {
     this.key = key;
     this.annotations = annotations;

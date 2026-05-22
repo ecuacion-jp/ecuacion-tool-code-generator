@@ -1,22 +1,25 @@
 package jp.ecuacion.tool.codegenerator.core.enums;
 
+import org.jspecify.annotations.Nullable;
+
 public enum RelationKindEnum {
-  
+
   ONE_TO_ONE("@OneToOne"), MANY_TO_ONE("@ManyToOne"), ONE_TO_MANY("@OneToMany");
-  
+
   private String name;
-  
+
   private RelationKindEnum(String name) {
     this.name = name;
   }
-  
-  public static RelationKindEnum getEnumFromName(String name) {
+
+  /** Returns the enum constant whose annotation name matches, or {@code null} if none does. */
+  public static @Nullable RelationKindEnum getEnumFromName(String name) {
     for (RelationKindEnum anEnum : RelationKindEnum.values()) {
       if (anEnum.getName().equals(name)) {
         return anEnum;
       }
     }
-    
+
     return null;
   }
   

@@ -221,6 +221,7 @@ public class BlGen extends AbstractGen {
     sb.append(T1 + "}" + RT2);
   }
 
+  @SuppressWarnings("null")
   private void generateNaturalKeyDuplicateCheck(DbOrClassTableInfo ti) {
     if (!ti.hasUniqueConstraint()) {
       return;

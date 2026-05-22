@@ -16,6 +16,7 @@ public class SimpleFieldAnnotationGen extends FieldSingleAnnotationGen {
     super(annotationName, ElementType.FIELD);
   }
 
+  @SuppressWarnings("null")
   @Override
   protected DataTypeKataEnum[] getAvailableKatas() {
     return DataTypeKataEnum.values();

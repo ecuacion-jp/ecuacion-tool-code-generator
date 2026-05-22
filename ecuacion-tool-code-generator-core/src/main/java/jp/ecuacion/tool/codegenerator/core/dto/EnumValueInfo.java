@@ -9,9 +9,10 @@ import java.util.List;
 import java.util.Map;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
-import jp.ecuacion.util.poi.excel.table.bean.StringExcelTableBean;
+import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 
+@SuppressWarnings("NullAway.Init")
 public class EnumValueInfo extends StringExcelTableBean {
 
   @StrBoolean
@@ -41,6 +42,7 @@ public class EnumValueInfo extends StringExcelTableBean {
   }
   //@formatter:on
 
+  @SuppressWarnings("null")
   public EnumValueInfo(List<String> colList, SystemCommonRootInfo sysCmnRootInfo) {
     super(colList);
 
@@ -76,7 +78,8 @@ public class EnumValueInfo extends StringExcelTableBean {
     return dispNameMap;
   }
 
-  public String getDisplayName(String localeString) {
+  /** Returns the display name for the given locale, or {@code null} if absent. */
+  public @org.jspecify.annotations.Nullable String getDisplayName(String localeString) {
     return dispNameMap.get(localeString);
   }
 
