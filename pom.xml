@@ -5,6 +5,29 @@
 	<artifactId>ecuacion-tool-code-generator-parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
+	<name>${project.artifactId}</name>
+	<description>A code generator tool that reads DB item definition files (Excel format) and auto-generates Java source code for Spring Boot + JPA applications.</description>
+	<url>https://github.com/ecuacion-jp/ecuacion-tool-code-generator</url>
+	<organization>
+		<name>ecuacion.jp</name>
+	</organization>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>ecuacion.jp</name>
+			<email>info@ecuacion.jp</email>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:https://github.com/ecuacion-jp/ecuacion-tool-code-generator.git</connection>
+		<developerConnection>scm:git:https://github.com/ecuacion-jp/ecuacion-tool-code-generator.git</developerConnection>
+		<url>https://github.com/ecuacion-jp/ecuacion-tool-code-generator</url>
+	</scm>
 	<parent>
 		<groupId>jp.ecuacion.splib</groupId>
 		<artifactId>ecuacion-splib-parent</artifactId>
@@ -80,5 +103,22 @@
 		<module>ecuacion-tool-code-generator-batch</module>
 		<module>ecuacion-tool-code-generator-web</module>
 	</modules>
+
+	<profiles>
+		<profile>
+			<id>ecuacion-repository</id>
+			<properties>
+				<mvn.prof-id>ecuacion-repository</mvn.prof-id>
+				<wagon.skip>false</wagon.skip>
+			</properties>
+			<repositories>
+				<repository>
+					<id>ecuacion-repo-http</id>
+					<name>ecuacion-repo-http</name>
+					<url>https://maven-repo.ecuacion.jp/public</url>
+				</repository>
+			</repositories>
+		</profile>
+	</profiles>
 
 </project>

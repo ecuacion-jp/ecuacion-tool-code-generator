@@ -40,9 +40,6 @@ public class PreparerForMiscOptimisticLock {
     if (dbRootInfo != null) {
       for (DbOrClassTableInfo ti : dbRootInfo.tableList) {
         for (DbOrClassColumnInfo ci : ti.columnList) {
-          if (ci.getName() == null) {
-            System.out.println("here!");
-          }
           if (ci.getName().equals(lockInfo.getColumnName())) {
             if (ci.getDataType().equals(lockInfo.getDataTypeName())) {
               ci.setOptLock(true);
