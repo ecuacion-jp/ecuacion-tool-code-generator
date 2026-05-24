@@ -8,14 +8,13 @@ import jp.ecuacion.tool.codegenerator.web.constant.Constants;
 import org.springframework.web.multipart.MultipartFile;
 
 @ItemNameKeyClass("SourceDownload")
-@SuppressWarnings("NullAway.Init")
+@SuppressWarnings({"NullAway.Init", "null"})
 public class SourceDownloadRecord extends SplibRecord implements HtmlItemContainer {
 
   private MultipartFile fileToUpload;
 
   public static HtmlItem[] htmlItems = new HtmlItem[] {};
 
-  @SuppressWarnings("null")
   public SourceDownloadRecord() {
     super();
   }

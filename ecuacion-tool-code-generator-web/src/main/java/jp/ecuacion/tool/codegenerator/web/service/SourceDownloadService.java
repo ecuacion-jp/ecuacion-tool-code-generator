@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.splib.web.service.SplibGeneral1FormService;
@@ -45,7 +46,8 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
   }
 
   public ResponseEntity<Resource> execute(MultipartFile multipartFile) throws Exception {
-    final String originalFileName = multipartFile.getOriginalFilename();
+    final String originalFileName =
+        Objects.requireNonNull(multipartFile.getOriginalFilename());
 
     check(originalFileName);
 

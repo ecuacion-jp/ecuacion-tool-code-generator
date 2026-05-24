@@ -17,7 +17,7 @@ public class Logger {
   /**
    * ログ出力結果を試験しやすいように、メッセージを出力する際にLoggerをかませる。
    */
-  public static void log(Object object, String msgId, String... msgArgs) {
+  public static void log(Object object, String msgId, Object... msgArgs) {
 
     if (object.getClass().getName().equals("java.lang.String")) {
       throw new RuntimeException(
@@ -33,7 +33,7 @@ public class Logger {
   /**
    * ログ出力結果を試験しやすいように、メッセージを出力する際にLoggerをかませる。
    */
-  public static void log(Class<?> cls, String msgId, String... msgArgs) {
+  public static void log(Class<?> cls, String msgId, Object... msgArgs) {
     String logMsg = PropertiesFileUtil.getMessage(Locale.ENGLISH, msgId, msgArgs);
     msgList.add(logMsg);
 
