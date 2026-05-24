@@ -141,3 +141,12 @@ ecuacion-tool-code-generator-excel-format
 
 # mac
 .DS_Store
+
+# VSCode
+.vscode
+
+# allure
+.allure
+
+# Claude Code
+.claude/
