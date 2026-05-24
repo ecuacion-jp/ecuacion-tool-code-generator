@@ -63,12 +63,8 @@ public class Constants {
 
   // 型関連のString取得
 
-  public static final HashMap<DataTypeKataEnum, String> JAVA_KATA_MAP =
-      new HashMap<DataTypeKataEnum, String>() {
-        {
-          put(DataTypeKataEnum.INTEGER, "Integer");
-        }
-      };
+  public static final Map<DataTypeKataEnum, String> JAVA_KATA_MAP =
+      Map.of(DataTypeKataEnum.INTEGER, "Integer");
 
   // その他
 
