@@ -1,7 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.entity;
 
 import java.io.IOException;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -31,14 +30,14 @@ public class SystemCommonGen extends EntityGen {
       // ヘッダ情報定義
       appendPackage(sb);
       ImportGenUtil importMgr = new ImportGenUtil();
-      importMgr.add(EclibCoreConstants.PKG + ".jpa.entity.EclibEntity");
+      importMgr.add("jp.ecuacion.splib.jpa.entity.SplibEntity");
       importMgr.add("jakarta.persistence.*", "java.io.Serializable");
       importMgr.add(rootBasePackage + ".base.record.SystemCommonBaseRecord");
       sb.append(importMgr.outputStr() + RT);
       // クラス定義
       sb.append("@MappedSuperclass" + RT);
       sb.append("public abstract class SystemCommon "
-          + "extends EclibEntity implements Serializable {" + RT2);
+          + "extends SplibEntity implements Serializable {" + RT2);
       sb.append(T1 + "private static final long serialVersionUID = 1L;" + RT2);
       sb.append(T1 + "public SystemCommon() {}" + RT);
       sb.append(T1 + "public SystemCommon(SystemCommonBaseRecord rec) {super();}" + RT2);
@@ -78,7 +77,7 @@ public class SystemCommonGen extends EntityGen {
     sb.append("@MappedSuperclass" + RT);
     sb.append("@EntityListeners(AuditingEntityListener.class)" + RT);
     sb.append(
-        "public abstract class SystemCommon extends EclibEntity implements Serializable {"
+        "public abstract class SystemCommon extends SplibEntity implements Serializable {"
             + RT2);
 
     appendSerialVersionUid(sb);

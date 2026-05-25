@@ -6,6 +6,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.FieldSingleAnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
+import org.jspecify.annotations.Nullable;
 
 public class IdGen extends FieldSingleAnnotationGen {
 
@@ -22,6 +23,7 @@ public class IdGen extends FieldSingleAnnotationGen {
     return new ElementType[] {java.lang.annotation.ElementType.FIELD};
   }
 
+  @SuppressWarnings("null")
   @Override
   protected DataTypeKataEnum[] getAvailableKatas() {
     // 全てOK
@@ -29,7 +31,7 @@ public class IdGen extends FieldSingleAnnotationGen {
   }
 
   @Override
-  protected ParamListGen getParamGen() {
+  protected @Nullable ParamListGen getParamGen() {
     return null;
   }
 

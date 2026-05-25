@@ -4,6 +4,7 @@ public class ReaderUtil {
   
   public static final String YES = "○";
   
+  @SuppressWarnings("unused")
   public static boolean boolStrToBoolean(String boolStr) {
     if (boolStr == null) {
       return false;

@@ -3,35 +3,22 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jp.ecuacion.tool.ecuacion-tool-code-generator</groupId>
 	<artifactId>ecuacion-tool-code-generator-parent</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<parent>
 		<groupId>jp.ecuacion.splib</groupId>
 		<artifactId>ecuacion-splib-parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
 		<relativePath>../ecuacion-splib</relativePath>
 	</parent>
+	
 	<properties>
 		<app.name>ecuacion-tool-code-generator</app.name>
 		<app.version>0.0.1-SNAPSHOT</app.version>
+		<!-- Run NullAway only; disable all other Error Prone checks for private apps. -->
+		<errorprone.extra.args>-XepDisableAllChecks</errorprone.extra.args>
 	</properties>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				
-				<!-- checkstyle: setting "private-apps" suppression filter file -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-checkstyle-plugin</artifactId>
-					<configuration>
-						<propertiesLocation>${checkstyle.config.site}/checkstyle-for-private-apps.properties</propertiesLocation>
-					</configuration>
-				</plugin>
-			
-			</plugins>
-		</pluginManagement>
-	</build>
-	
 	<dependencyManagement>
 		<dependencies>
 
@@ -51,5 +38,6 @@
 		<module>ecuacion-tool-code-generator-batch</module>
 		<module>ecuacion-tool-code-generator-web</module>
 	</modules>
+
 
 </project>
