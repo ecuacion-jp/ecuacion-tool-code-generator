@@ -29,8 +29,11 @@ public class SourceDownloadController
       BindingResult result) throws Exception {
     prepare(model, form);
 
+    ResponseEntity<Resource> responseEntity =
+        getService().execute(form.getSourceDownload().getFileToUpload());
+
     addCookieForDownloadButton();
 
-    return getService().execute(form.getSourceDownload().getFileToUpload());
+    return responseEntity;
   }
 }

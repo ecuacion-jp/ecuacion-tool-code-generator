@@ -22,7 +22,7 @@ public class ConfigGen extends AbstractGen {
     ImportGenUtil importMgr = new ImportGenUtil();
     importMgr.add("org.springframework.context.annotation.ComponentScan",
         "org.springframework.context.annotation.Configuration",
-        "org.springframework.boot.autoconfigure.domain.EntityScan", "java.time.OffsetDateTime",
+        "org.springframework.boot.persistence.autoconfigure.EntityScan", "java.time.OffsetDateTime",
         "java.time.temporal.TemporalAccessor", "java.util.Optional",
         "org.springframework.context.annotation.Bean",
         "org.springframework.context.annotation.PropertySource",
