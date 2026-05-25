@@ -5,19 +5,21 @@ import java.util.Arrays;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGen;
+import org.jspecify.annotations.Nullable;
 
-/** 
+/**
  * ListAnnotationGen以外の、Listでannotationを持たない普通のAnnotationのgenerator.
  */
 public abstract class SingleAnnotationGen extends AnnotationGen {
 
   /** 通常のAnnotationを生成する際のコンストラクタ。 */
-  public SingleAnnotationGen(String annotationName, ElementType elementType) {
+  public SingleAnnotationGen(String annotationName, @Nullable ElementType elementType) {
     super(annotationName, elementType);
   }
 
   /** AnnotationGenManagerでも使うので、getterを作っておく。 */
-  public ElementType getElementType() {
+  @Override
+  public @Nullable ElementType getElementType() {
     return elementType;
   }
 
@@ -27,15 +29,16 @@ public abstract class SingleAnnotationGen extends AnnotationGen {
     check();
 
     // 文字列生成
-    if (getParamGen() == null || getParamGen().generateString().equals("")) {
+    ParamGen paramGen = getParamGen();
+    if (paramGen == null || paramGen.generateString().equals("")) {
       return "@" + annotationName;
     } else {
-      return "@" + annotationName + "(" + getParamGen().generateString() + ")";
+      return "@" + annotationName + "(" + paramGen.generateString() + ")";
     }
   }
 
   /** annotation毎に固有なパラメータを取得するメソッド。 */
-  protected abstract ParamGen getParamGen();
+  protected abstract @Nullable ParamGen getParamGen();
 
   /** 本メソッドを継承するオブジェクト内で追加でチェックすることがあれば継承。なくても一応継承して^^;。 */
   protected abstract void check();

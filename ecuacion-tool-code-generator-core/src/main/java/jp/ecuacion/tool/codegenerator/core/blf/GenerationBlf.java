@@ -62,6 +62,7 @@ public class GenerationBlf {
     }
   }
 
+  @SuppressWarnings("unused")
   private boolean shouldMakeNoGroupQuery(Info info) {
     if (info.getGroupRootInfo() == null) {
       return false;
@@ -70,6 +71,7 @@ public class GenerationBlf {
     return info.getGroupRootInfo().getNeedsUngroupedSource();
   }
 
+  @SuppressWarnings("unused")
   private boolean shouldMakeNoGroupQueryForDaoOnly(Info info) {
     if (info.getGroupRootInfo() == null) {
       return false;

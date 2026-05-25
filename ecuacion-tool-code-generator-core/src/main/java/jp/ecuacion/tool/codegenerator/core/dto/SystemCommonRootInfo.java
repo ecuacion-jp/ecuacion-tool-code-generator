@@ -184,7 +184,8 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
     return prohibitedCharsDescSupportLang3;
   }
 
-  public String getProhibitedCharsDesc(String lang) {
+  /** Returns the prohibited-chars description for the given language, or {@code null} if absent. */
+  public @org.jspecify.annotations.Nullable String getProhibitedCharsDesc(String lang) {
     return prohibitedCharsDescLangMap.get(lang);
   }
 

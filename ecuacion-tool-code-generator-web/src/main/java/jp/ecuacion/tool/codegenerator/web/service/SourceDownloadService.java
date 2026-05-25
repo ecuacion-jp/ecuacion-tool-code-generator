@@ -8,14 +8,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import jp.ecuacion.lib.core.util.PropertiesFileUtil;
+import java.util.Objects;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.splib.web.service.SplibGeneral1FormService;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.web.form.SourceDownloadForm;
 import net.lingala.zip4j.ZipFile;
+import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
@@ -30,23 +33,28 @@ import org.springframework.web.multipart.MultipartFile;
 @Scope("prototype")
 public class SourceDownloadService extends SplibGeneral1FormService<SourceDownloadForm> {
 
-  @Override
-  public void page(SourceDownloadForm form, UserDetails loginUser) throws Exception {}
+  @Autowired
+  private Environment env;
 
   @Override
-  public void prepareForm(SourceDownloadForm form, UserDetails loginUser) {
+  public void page(@Nullable SourceDownloadForm form, @Nullable UserDetails loginUser)
+      throws Exception {}
+
+  @Override
+  public void prepareForm(@Nullable SourceDownloadForm form, @Nullable UserDetails loginUser) {
 
   }
 
   public ResponseEntity<Resource> execute(MultipartFile multipartFile) throws Exception {
-    final String originalFileName = multipartFile.getOriginalFilename();
+    final String originalFileName =
+        Objects.requireNonNull(multipartFile.getOriginalFilename());
 
     check(originalFileName);
 
     String dateTimeString =
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss.SSS"));
     String threadIdString = Long.valueOf(Thread.currentThread().threadId()).toString();
-    String rootDir = PropertiesFileUtil.getApplication("app.work-root-dir") + "/" + dateTimeString
+    String rootDir = env.getProperty("app.work-root-dir") + "/" + dateTimeString
         + "-" + threadIdString;
 
     String inputDir = rootDir + "/" + "inputExcel";
@@ -106,8 +114,9 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
     }
 
     if (!originalFileName.endsWith(".xlsx")) {
-      new Violations().add(new BusinessViolation(
-          "SOURCE_DOWNLOAD_MESSAGE_FILE_EXTENSION_UNAVAILABLE")).throwIfAny();
+      new Violations()
+          .add(new BusinessViolation("SOURCE_DOWNLOAD_MESSAGE_FILE_EXTENSION_UNAVAILABLE"))
+          .throwIfAny();
     }
   }
 }

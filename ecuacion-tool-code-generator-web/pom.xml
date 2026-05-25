@@ -9,9 +9,6 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<properties>
-		<altDeploymentRepository>ecuacion-repo-sftp-private::${repository.ecuacion-repo-sftp-root}</altDeploymentRepository>
-	</properties>
 	
 	<build>
 		<plugins>

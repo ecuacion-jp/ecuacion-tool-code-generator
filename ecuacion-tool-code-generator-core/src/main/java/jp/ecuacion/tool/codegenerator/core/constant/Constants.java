@@ -63,12 +63,8 @@ public class Constants {
 
   // 型関連のString取得
 
-  public static final HashMap<DataTypeKataEnum, String> JAVA_KATA_MAP =
-      new HashMap<DataTypeKataEnum, String>() {
-        {
-          put(DataTypeKataEnum.INTEGER, "Integer");
-        }
-      };
+  public static final Map<DataTypeKataEnum, String> JAVA_KATA_MAP =
+      Map.of(DataTypeKataEnum.INTEGER, "Integer");
 
   // その他
 
@@ -83,7 +79,7 @@ public class Constants {
   // 汎用の正規表現
   //
   /** 全半角（制限なし） ※制限なしのためコード生成なし。 */
-  private static final String REG_EX_ALL = null;
+  private static final @org.jspecify.annotations.Nullable String REG_EX_ALL = null;
   /** 半角。 */
   private static final String REG_EX_HAN = "^[a-zA-Z0-9 -/:-@\\\\[-\\\\`\\\\{-\\\\~]*$";
   /** 半角数字。 */

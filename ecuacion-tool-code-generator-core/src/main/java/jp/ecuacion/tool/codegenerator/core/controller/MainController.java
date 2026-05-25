@@ -45,7 +45,9 @@ public class MainController {
 
       // Put data to info.
       String systemName =
-          ((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON)).getSystemName();
+          java.util.Objects.requireNonNull(
+              (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
+              "SYSTEM_COMMON must be populated").getSystemName();
       info.setRootInfoUnitValues(systemName, rootInfoMap);
 
       // 2. Check and complement data
