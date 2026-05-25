@@ -5,85 +5,20 @@
 	<artifactId>ecuacion-tool-code-generator-parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>${project.artifactId}</name>
-	<description>A code generator tool that reads DB item definition files (Excel format) and auto-generates Java source code for Spring Boot + JPA applications.</description>
-	<url>https://github.com/ecuacion-jp/ecuacion-tool-code-generator</url>
-	<organization>
-		<name>ecuacion.jp</name>
-	</organization>
-	<licenses>
-		<license>
-			<name>Apache License, Version 2.0</name>
-			<url>https://www.apache.org/licenses/LICENSE-2.0</url>
-		</license>
-	</licenses>
-	<developers>
-		<developer>
-			<name>ecuacion.jp</name>
-			<email>info@ecuacion.jp</email>
-		</developer>
-	</developers>
-	<scm>
-		<connection>scm:git:https://github.com/ecuacion-jp/ecuacion-tool-code-generator.git</connection>
-		<developerConnection>scm:git:https://github.com/ecuacion-jp/ecuacion-tool-code-generator.git</developerConnection>
-		<url>https://github.com/ecuacion-jp/ecuacion-tool-code-generator</url>
-	</scm>
 	<parent>
 		<groupId>jp.ecuacion.splib</groupId>
 		<artifactId>ecuacion-splib-parent</artifactId>
 		<version>0.0.2-SNAPSHOT</version>
 		<relativePath>../ecuacion-splib</relativePath>
 	</parent>
+	
 	<properties>
 		<app.name>ecuacion-tool-code-generator</app.name>
 		<app.version>0.0.1-SNAPSHOT</app.version>
+		<!-- Run NullAway only; disable all other Error Prone checks for private apps. -->
+		<errorprone.extra.args>-XepDisableAllChecks</errorprone.extra.args>
 	</properties>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-
-				<!-- checkstyle: setting "private-apps" suppression filter file -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-checkstyle-plugin</artifactId>
-					<configuration>
-						<propertiesLocation>${checkstyle.config.site}/checkstyle-for-private-apps.properties</propertiesLocation>
-					</configuration>
-				</plugin>
-
-				<!-- maven-compiler-plugin: limit ErrorProne to NullAway only -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<executions>
-						<execution>
-							<id>default-compile</id>
-							<configuration>
-								<compilerArgs>
-									<arg>-XDcompilePolicy=simple</arg>
-									<arg>-XDshould-stop.ifError=FLOW</arg>
-									<arg>-Xplugin:ErrorProne -XepDisableAllChecks -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true</arg>
-								</compilerArgs>
-							</configuration>
-						</execution>
-						<execution>
-							<id>default-testCompile</id>
-							<configuration>
-								<compilerArgs>
-									<arg>-XDcompilePolicy=simple</arg>
-									<arg>-XDshould-stop.ifError=FLOW</arg>
-									<arg>-Xplugin:ErrorProne -XepDisableAllChecks -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true</arg>
-								</compilerArgs>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-
-			</plugins>
-		</pluginManagement>
-	</build>
-	
 	<dependencyManagement>
 		<dependencies>
 
@@ -104,21 +39,5 @@
 		<module>ecuacion-tool-code-generator-web</module>
 	</modules>
 
-	<profiles>
-		<profile>
-			<id>ecuacion-repository</id>
-			<properties>
-				<mvn.prof-id>ecuacion-repository</mvn.prof-id>
-				<wagon.skip>false</wagon.skip>
-			</properties>
-			<repositories>
-				<repository>
-					<id>ecuacion-repo-http</id>
-					<name>ecuacion-repo-http</name>
-					<url>https://maven-repo.ecuacion.jp/public</url>
-				</repository>
-			</repositories>
-		</profile>
-	</profiles>
 
 </project>
