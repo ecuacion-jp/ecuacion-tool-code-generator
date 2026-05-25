@@ -25,9 +25,4 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 @Configuration
 @EnableWebSecurity
 public class AppSecurityConfig extends SplibWebNoLoginSecurityConfig {
-
-  @Override
-  protected String getAccessDeniedPage() {
-    return "/public/error";
-  }
 }
