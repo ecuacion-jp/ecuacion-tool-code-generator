@@ -31,6 +31,7 @@ import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.jspecify.annotations.Nullable;
 
+/** TODO. */
 @EmptyWhen(
     propertyPath = {"minLength", "maxLength", "stringDataPtn", "stringAllowsProhibitedCharacters",
         "stringRegEx", "stringRegExDescLangDefault", "stringRegExDescLangSupport01",
@@ -108,6 +109,7 @@ public class DataTypeInfo extends StringExcelTableBean {
         "numDigitFraction", "enumCodeLength", "notNeedsTimezone", "remarks"};
   }
 
+  /** TODO. */
   @SuppressWarnings("null")
   public DataTypeInfo(List<String> colList) {
     super(colList);
@@ -194,6 +196,7 @@ public class DataTypeInfo extends StringExcelTableBean {
     return StringUtil.getLowerCamelFromSnake(dataTypeName.substring(3));
   }
 
+  /** TODO. */
   public void checksAndComplements(SystemCommonRootInfo sysCmnRootInfo) {
     createValidators(sysCmnRootInfo);
   }

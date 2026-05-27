@@ -12,20 +12,29 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWi
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Abstract base class for all validator annotation generators, handling parameter assembly and type
+ * checking.
+ */
 @SuppressWarnings("NullAway.Init")
 public abstract class ValidatorGen extends FieldSingleAnnotationGen {
 
   protected DataTypeInfo dtInfo;
   protected @Nullable String id;
 
+  /** Returns {@code true} if this validator is a Jakarta EE standard annotation. */
   public abstract boolean isJakartaEeStandardValidator();
 
-  /** ひとつのvalidatorを作成する場合に使用。 */
+  /** Constructor used when creating a single validator. */
   public ValidatorGen(String annotationName, DataTypeInfo dtInfo) {
     super(getAnnotationName(annotationName), null);
     this.dtInfo = dtInfo;
   }
 
+  /**
+   * Strips the {@code "Field"} prefix from the annotation name to produce the actual annotation
+   * identifier.
+   */
   public static String getAnnotationName(String annotationName) {
     return annotationName.replace("Field", "");
   }
@@ -42,7 +51,10 @@ public abstract class ValidatorGen extends FieldSingleAnnotationGen {
         java.lang.annotation.ElementType.TYPE};
   }
 
-  /** エラーメッセージの内容を変更するためにoverride。 */
+  /**
+   * Overrides the parent to use a validator-specific error message when the element type is not
+   * allowed.
+   */
   @Override
   protected void checkIfElementTypeAvailable(ElementType elementType) {
     if (!Arrays.asList(getAvailableElmentTypes()).contains(elementType)) {
@@ -52,7 +64,9 @@ public abstract class ValidatorGen extends FieldSingleAnnotationGen {
     }
   }
 
-  /** 今回の型がgetAllowedKataに含まれているかを確認。 */
+  /**
+   * Verifies that the current data type is included in the set of allowed katas for this validator.
+   */
   private void checkIfKataAvailable() {
     List<DataTypeKataEnum> kataList = Arrays.asList(getAvailableKatas());
     if (!kataList.contains(dtInfo.getKata())) {
@@ -62,6 +76,10 @@ public abstract class ValidatorGen extends FieldSingleAnnotationGen {
     }
   }
 
+  /**
+   * Adds validator-specific parameters (excluding the fieldId parameter) to the given parameter
+   * list generator.
+   */
   protected abstract void getParamGenWithoutFieldId(ParamListGen plistGen);
 
   @SuppressWarnings("null")

@@ -6,8 +6,13 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
+/**
+ * Generates the SystemCommon entity source file that serves as the mapped superclass for all
+ * entities.
+ */
 public class SystemCommonGen extends EntityGen {
 
+  /** Constructs an instance for the DB_COMMON data kind. */
   public SystemCommonGen() {
     super(DataKindEnum.DB_COMMON);
   }
@@ -54,6 +59,7 @@ public class SystemCommonGen extends EntityGen {
         info.getDbCommonRootInfo().tableList);
   }
 
+  /** Generates and appends the full SystemCommon class source from the given table info. */
   public void createSource(DbOrClassTableInfo tableInfo) {
 
     final String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());

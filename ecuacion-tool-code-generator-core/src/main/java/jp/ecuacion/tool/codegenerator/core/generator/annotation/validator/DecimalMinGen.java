@@ -7,20 +7,24 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.INTEGER
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.LONG;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.SHORT;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.STRING;
+
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 
+/** Generator for the {@code @DecimalMin} validator annotation. */
 public class DecimalMinGen extends ValidatorGen {
 
   private String minVal;
 
+  /** Constructs a DecimalMinGen with the given data type information and minimum value string. */
   public DecimalMinGen(DataTypeInfo dtInfo, String minVal) {
     super("DecimalMin", dtInfo);
     this.minVal = minVal;
   }
 
+  /** Returns {@code true} if a non-empty minimum value is specified. */
   public static boolean needsValidator(String numMinVal) {
     return numMinVal != null && !numMinVal.equals("");
   }

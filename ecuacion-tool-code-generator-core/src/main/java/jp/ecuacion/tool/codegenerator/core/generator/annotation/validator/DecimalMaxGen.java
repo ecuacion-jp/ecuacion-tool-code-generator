@@ -7,20 +7,26 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.INTEGER
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.LONG;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.SHORT;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.STRING;
+
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 
+/**
+ * Generator for the {@code @DecimalMax} (mapped to {@code @FieldDecimalMax}) validator annotation.
+ */
 public class DecimalMaxGen extends ValidatorGen {
 
   private String maxVal;
 
+  /** Constructs a DecimalMaxGen with the given data type information and maximum value string. */
   public DecimalMaxGen(DataTypeInfo dtInfo, String maxVal) {
     super("FieldDecimalMax", dtInfo);
     this.maxVal = maxVal;
   }
 
+  /** Returns {@code true} if a non-empty maximum value is specified. */
   public static boolean needsValidator(String numMaxVal) {
     return numMaxVal != null && !numMaxVal.equals("");
   }

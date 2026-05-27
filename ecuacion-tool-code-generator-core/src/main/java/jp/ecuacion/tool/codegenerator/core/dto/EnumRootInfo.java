@@ -7,6 +7,7 @@ import java.util.List;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
+/** TODO. */
 @SuppressWarnings("NullAway.Init")
 public class EnumRootInfo extends AbstractRootInfo {
 
@@ -16,6 +17,7 @@ public class EnumRootInfo extends AbstractRootInfo {
   @Valid
   public List<EnumClassInfo> enumClassList = new ArrayList<EnumClassInfo>();
 
+  /** TODO. */
   @SuppressWarnings("null")
   public EnumRootInfo() {
     super(DataKindEnum.ENUM);
@@ -39,6 +41,7 @@ public class EnumRootInfo extends AbstractRootInfo {
     this.dispNameLangArr = dispNameLangArr;
   }
 
+  /** TODO. */
   public void addDispNameLang(String lang) {
     dispNameLangArr.add(lang);
   }

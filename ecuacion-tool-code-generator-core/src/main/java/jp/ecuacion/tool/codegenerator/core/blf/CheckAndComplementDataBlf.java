@@ -33,6 +33,10 @@ import org.apache.commons.lang3.StringUtils;
 @SuppressWarnings("NullAway")
 public class CheckAndComplementDataBlf {
 
+  /**
+    * Validates and complements data in the given rootInfoMap, then returns a map from data-type
+    * name to DataTypeInfo.
+   */
   public Map<String, DataTypeInfo> execute(Info info, String systemName,
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
 
@@ -142,7 +146,10 @@ public class CheckAndComplementDataBlf {
     }
   }
 
-  /** tableとgroupの間のチェック。 */
+  /**
+   * Checks consistency between table definitions and group definitions, and complements
+   * group-related data.
+   */
   @SuppressWarnings("null")
   private void checkAndComplementForTableAndGroup(String systemName,
       DbOrClassRootInfo dbCommonRootInfo, DbOrClassRootInfo dbRootInfo,
@@ -202,7 +209,10 @@ public class CheckAndComplementDataBlf {
     groupRootInfo.setCustomGroupColumnName(customGroupColumnName);
   }
 
-  // dtMapを作成
+  /**
+   * Creates and returns a map keyed by DataTypeInfo name, built from the data-type entries in
+   * rootInfoMap.
+   */
   public Map<String, DataTypeInfo> createDataTypeMap(String systemName,
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
     // 一つ目のStringはシステム名、2つ目はdataType名。全てのdataTypeInfoをこれに詰める

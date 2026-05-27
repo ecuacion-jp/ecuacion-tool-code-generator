@@ -3,6 +3,7 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
+
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -27,6 +28,10 @@ import jp.ecuacion.tool.codegenerator.core.validation.StrPk;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+  * Holds the column-level attributes read from the DB or class specification sheet in the Excel
+  * file.
+ */
 @NotEmptyWhen(
     propertyPath = {"relationDirection", "relationFieldName", "relationRefTable", "relationRefCol"},
     conditionPropertyPath = "relationKind", conditionValue = EMPTY,
@@ -97,7 +102,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   private String supportedLang2;
   private String supportedLang3;
 
-  /** 利便性のために追加。 */
+  /** Added for convenience; holds the resolved DataTypeInfo for this column. */
   private DataTypeInfo dtInfo;
 
   private CodeGenUtil code = new CodeGenUtil();
@@ -118,11 +123,16 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
   //@formatter:on
 
+  /** Constructs a column info instance by parsing the given raw column value list. */
   @SuppressWarnings("null")
   public DbOrClassColumnInfo(List<String> colList) {
     super(colList);
   }
 
+  /**
+   * Constructs a column info instance and builds the display-name map from the provided locale
+   * strings.
+   */
   public DbOrClassColumnInfo(List<String> colList, String localeDefault, String locale1,
       String locale2, String locale3) {
 
@@ -140,6 +150,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     }
   }
 
+  /** Creates a shallow copy of the given column info with all relation-related fields cleared. */
   @SuppressWarnings("null")
   public static DbOrClassColumnInfo cloneWithoutRelationRelated(DbOrClassColumnInfo ci) {
     String[] arr = new String[] {null, ci.getDisplayName(), ci.getName(), ci.getDataType(), null,
@@ -168,6 +179,10 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return relationRefInfoList.stream().filter(info -> info.isBidirectional).toList();
   }
 
+  /**
+   * Returns {@code true} if this column is the target of at least one bidirectional relation
+   * reference.
+   */
   public boolean hasBidirectionalRelationRef() {
     return getBidirectionalRelationRefInfoList() != null
         && getBidirectionalRelationRefInfoList().size() != 0;
@@ -187,6 +202,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   // dispName
+  /** Returns the user-friendly display name of this column. */
   public String getDisplayName() {
     return userFriendlyName;
   }
@@ -195,6 +211,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return new HashMap<String, String>(userFriendlyNameMap);
   }
 
+  /** Adds the given display name to the locale-keyed display-name map. */
   public void addDispNameToMap(String localeString, String dispName) {
     userFriendlyNameMap.put(localeString, dispName);
   }
@@ -261,7 +278,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return updatedValue;
   }
 
-  /** Settings側も加味した上でgroupの項目か否かを返す。 */
+  /** Settings側も加味した上でgroupの項目か否かを返す。. */
   public boolean isGroupColumn() {
     String groupColumnName = MainController.tlInfo.get().getGroupRootInfo().getColumnName();
     return (groupColumnName != null && groupColumnName.equals(name)) || isCustomGroupColumn();
@@ -276,7 +293,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return isOptLock;
   }
 
-  /** relationのcolumnかを判断するメソッド。 */
+  /** relationのcolumnかを判断するメソッド。. */
   public boolean isRelation() {
     return getRelationKind() != null;
   }
@@ -356,10 +373,15 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return supportedLang3;
   }
 
+  /**
+   * Returns {@code true} if this column has either an outbound relation or an inbound bidirectional
+   * relation reference.
+   */
   public boolean hasAnyRelationsOrRefs() {
     return isRelation() || hasBidirectionalRelationRef();
   }
 
+  /** Holds reference information for a relation pointing back to this column's owner table. */
   public static class RelationRefInfo {
     private boolean isBidirectional;
     private RelationKindEnum relationKind;
@@ -372,6 +394,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
     private CodeGenUtil code = new CodeGenUtil();
 
+    /** Constructs a relation-reference info with all required relationship metadata. */
     public RelationRefInfo(boolean isBidirectional, RelationKindEnum relationKind,
         String dstTableName, String dstColumnName, String dstFieldNameToReferOrgTable,
         String orgTableName, String orgFieldName, String orgFieldNameToReferDst) {
@@ -425,6 +448,10 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
       return orgFieldNameToReferDst;
     }
 
+    /**
+     * Returns the field name used to refer back to the original table, defaulting to the
+     * lower-camel table name when not explicitly set.
+     */
     public String getEmptyConsideredFieldNameToReferFromTable() {
       String fieldNamePostfix = (relationKind == RelationKindEnum.ONE_TO_ONE) ? "" : "List";
       return StringUtils.isEmpty(dstFieldNameToReferOrgTable)
@@ -442,7 +469,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   /**
-   * DataTypeInfo#getValidatorList に加えて、@NotEmptyの情報を追加
+   * DataTypeInfo#getValidatorList に加えて、@NotEmptyの情報を追加..
    *
    * @param forEntity Entityの場合true、Recordの場合false
    * @return {@code List<ValidatorGen>}

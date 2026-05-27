@@ -6,8 +6,10 @@ import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
+/** TODO. */
 public class CheckAndComplementFileLevelConsistencyCheckBl {
 
+  /** TODO. */
   public void check(String systemName, Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
     checkIfNeededXmlExist(systemName, rootInfoMap);
   }

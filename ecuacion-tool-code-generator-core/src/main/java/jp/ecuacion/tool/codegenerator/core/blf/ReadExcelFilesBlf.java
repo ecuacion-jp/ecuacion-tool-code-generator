@@ -22,16 +22,15 @@ import jp.ecuacion.tool.codegenerator.core.reader.ExcelGeneralSettingsReader;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableToBeanReader;
 
 /**
- * Reads Excel Format and returns read data.
+ * Reads Excel files and returns parsed data grouped by {@link DataKindEnum}.
  */
 public class ReadExcelFilesBlf {
 
   private DetailLogger detailLog = new DetailLogger(this);
   
   /**
-   * 戻り値はsystemMap： systemNameをキーとして、systemごとに振り分けられたxmlMapを値に持つリスト。
-   * それぞれのxmlMapには、xmlファイル名をキーとして、そのrooList（SuperRootInfo型）がセットで納められている
-   * ※SuperRootInfoには複数の実装がある（enumRootInfoなど）
+    * Reads the given Excel file and returns a map from each {@link DataKindEnum} to its
+    * corresponding root-info object.
    */
   public HashMap<DataKindEnum, AbstractRootInfo> execute(File file) throws Exception {
 

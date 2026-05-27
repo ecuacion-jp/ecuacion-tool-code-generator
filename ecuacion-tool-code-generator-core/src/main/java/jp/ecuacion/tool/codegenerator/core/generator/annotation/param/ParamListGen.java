@@ -5,19 +5,21 @@ import java.util.Arrays;
 import java.util.List;
 import jp.ecuacion.lib.core.util.StringUtil;
 
-/** 
- * 複数のパラメータを付加する場合に使用。
- * 
- * <p>
- * 個々のパラメータはParamGenで作成し、それを複数引数に取ることで複数項目の文字列を作成。
- * ParamListGenと言いながら、これもParamGenの子。
+/**
+ * A ParamGen that aggregates multiple ParamGen instances into a comma-separated parameter string.
+ *
+ * <p>Each individual parameter is produced by a ParamGen, and multiple parameters are joined
+  * to form the complete annotation parameter list. Despite its name, ParamListGen itself extends
+  * ParamGen.
  * </p>
  */
 public class ParamListGen extends ParamGen {
   private List<ParamGen> paramList = new ArrayList<>();
 
+  /** Constructs an empty ParamListGen with no initial parameters. */
   public ParamListGen() {}
 
+  /** Constructs a ParamListGen with the given initial parameters. */
   public ParamListGen(ParamGen... params) {
     paramList = Arrays.asList(params);
   }
@@ -31,6 +33,7 @@ public class ParamListGen extends ParamGen {
     return StringUtil.getCsvWithSpace((String[]) arr.toArray(new String[0]));
   }
 
+  /** Adds a parameter generator to the list. */
   public void add(ParamGen param) {
     paramList.add(param);
   }

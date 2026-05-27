@@ -14,6 +14,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
+/** TODO. */
 public class MainController {
 
   /** 
@@ -102,6 +103,7 @@ public class MainController {
     }
   }
 
+  /** TODO. */
   public static class SkipException extends Exception {
     private static final long serialVersionUID = 1L;
   }

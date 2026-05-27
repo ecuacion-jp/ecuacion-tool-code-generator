@@ -6,12 +6,18 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.FieldSingleAnnot
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Generator for the Jakarta Bean Validation {@code @Valid} annotation, triggering cascaded
+ * validation.
+ */
 public class ValidGen extends FieldSingleAnnotationGen {
 
+  /** Constructs a ValidGen for the given element type. */
   public ValidGen(ElementType elementType) {
     super("Valid", elementType);
   }
 
+  /** Returns {@code true} since the {@code @Valid} annotation is always required. */
   public static boolean needsValidator(String columnName) {
     return true;
   }

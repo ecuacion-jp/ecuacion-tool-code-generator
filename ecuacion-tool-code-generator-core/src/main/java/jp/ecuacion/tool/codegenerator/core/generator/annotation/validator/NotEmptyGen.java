@@ -15,13 +15,19 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.SHORT;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.STRING;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIME;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIMESTAMP;
+
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 
+/**
+ * Generator for the {@code @FieldNotEmpty} or {@code @FieldNotNull} validator annotation, chosen
+ * based on data type.
+ */
 public class NotEmptyGen extends ValidatorGen {
 
+  /** Constructs a NotEmptyGen, selecting the appropriate annotation name based on the data type. */
   public NotEmptyGen(DataTypeInfo dtInfo) {
     super(getAnnotationName(dtInfo), dtInfo);
   }
@@ -30,6 +36,10 @@ public class NotEmptyGen extends ValidatorGen {
     return (dtInfo.getKata() == DataTypeKataEnum.STRING) ? "FieldNotEmpty" : "FieldNotNull";
   }
 
+  /**
+   * Returns {@code true} if the column requires a not-empty or not-null validator based on its
+   * attributes.
+   */
   public static boolean needsValidator(DbOrClassColumnInfo ci) {
 
     // LstUpdTimeカラムで、@FieldNotEmptyを付けると、@PreUpdateを付けていても更新エラーが出る（insert時はPreInsertはちゃんときくのだが・・・）

@@ -28,14 +28,20 @@ import jp.ecuacion.tool.codegenerator.core.generator.systemcommon.Miscellaneous;
 import jp.ecuacion.tool.codegenerator.core.generator.util.UtilGen;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
+/** Orchestrates all code-generation steps for a single system. */
 public class GenerationBlf {
-  
+
   private Info info;
 
+  /** Constructs this BLF and initialises the {@code info} field from the thread-local. */
   public GenerationBlf(Info info) {
     this.info = MainController.tlInfo.get();
   }
   
+  /**
+   * Determines which generation patterns are needed and delegates to {@link #controlGenerators()}
+   * for each.
+   */
   public void execute() throws Exception {
     // 1システムについても複数パターンの生成が必要な場合があるので、パターンを配列で持ち、それをループで実行する形をとる
     List<GeneratePtnEnum> arr = new ArrayList<>();
@@ -80,7 +86,10 @@ public class GenerationBlf {
     return info.getGroupRootInfo().getDevidesDaoIntoOtherProject();
   }
   
-  // xmlファイルの種類ごとに必要なファイルを作成
+  /**
+   * Invokes the appropriate generators for each data kind defined in the current generation
+   * pattern.
+   */
   public void controlGenerators() throws Exception {
     Logger.log(this, "SINGLE_BORDER");
     Logger.log(this, "GEN_FOR_SYSTEM", info.getSystemName(), info.getGenPtn().getDisplayName());

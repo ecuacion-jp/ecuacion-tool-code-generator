@@ -11,8 +11,13 @@ import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
+/**
+ * Generates ValidationMessagesPatternDescriptions properties files containing regex pattern
+ * descriptions for each language.
+ */
 public class ValidationMessagesPatternDescriptionsGen extends AbstractGen {
 
+  /** Constructs an instance with no specific data kind. */
   public ValidationMessagesPatternDescriptionsGen() {
     super(null);
   }

@@ -15,10 +15,12 @@ import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColListFor
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
+/** TODO. */
 public class BlGen extends AbstractGen {
 
   private CodeGenUtil code = new CodeGenUtil();
 
+  /** TODO. */
   public BlGen() {
     super(null);
   }
@@ -59,6 +61,7 @@ public class BlGen extends AbstractGen {
     }
   }
 
+  /** TODO. */
   public void generateHeader(boolean isSystemCommon, DbOrClassTableInfo ti, String entityNameCp) {
     sb.append("package " + rootBasePackage + ".base.bl;" + RT2);
 

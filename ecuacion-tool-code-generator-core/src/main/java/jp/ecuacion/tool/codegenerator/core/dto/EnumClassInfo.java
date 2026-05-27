@@ -11,6 +11,7 @@ import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 
+/** TODO. */
 @SuppressWarnings("NullAway.Init")
 public class EnumClassInfo extends StringExcelTableBean {
 
@@ -36,6 +37,7 @@ public class EnumClassInfo extends StringExcelTableBean {
   }
   //@formatter:on
 
+  /** TODO. */
   @SuppressWarnings("null")
   public EnumClassInfo(List<String> colList) {
     super(colList);

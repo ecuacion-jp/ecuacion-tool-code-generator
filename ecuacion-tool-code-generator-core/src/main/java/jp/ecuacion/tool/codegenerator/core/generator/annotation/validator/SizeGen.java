@@ -2,12 +2,17 @@ package jp.ecuacion.tool.codegenerator.core.generator.annotation.validator;
 
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BIG_DECIMAL;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.STRING;
+
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Generator for the {@code @SizeString} validator annotation, constraining the minimum and maximum
+ * length of a string or BigDecimal field.
+ */
 public class SizeGen extends ValidatorGen {
 
   private @Nullable Integer minSize;
@@ -31,6 +36,7 @@ public class SizeGen extends ValidatorGen {
   }
 
 
+  /** Adds min and/or max size parameters to the given parameter list generator. */
   @SuppressWarnings("null")
   protected void getParamGenWithoutFieldId(ParamListGen plistGen) {
 
