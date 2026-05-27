@@ -18,10 +18,12 @@ import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
+/** Generates base DAO and Spring Data JPA repository source files for each entity. */
 public class DaoGen extends AbstractDaoRelatedGen {
 
   private CodeGenUtil code = new CodeGenUtil();
 
+  /** Constructs an instance for the specified data kind. */
   public DaoGen(DataKindEnum xmlFilePostFix) {
     super(xmlFilePostFix);
   }
@@ -55,6 +57,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
     }
   }
 
+  /** Creates base DAO source files for the given table. */
   public void createBaseDaos(DbOrClassTableInfo ti, String entityNameCp) {
     sb = new StringBuilder();
 

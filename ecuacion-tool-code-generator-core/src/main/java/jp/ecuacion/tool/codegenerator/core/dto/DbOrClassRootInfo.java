@@ -11,6 +11,7 @@ import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 
+/** TODO. */
 public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer {
   @Override
   public Item[] customizedItems() {
@@ -20,6 +21,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
   @Valid
   public List<DbOrClassTableInfo> tableList = new ArrayList<DbOrClassTableInfo>();
 
+  /** TODO. */
   public DbOrClassRootInfo(DataKindEnum fileKind) {
     super(fileKind);
   }
@@ -29,6 +31,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
     return tableList.size() > 0;
   }
 
+  /** TODO. */
   public void consistencyCheckAndCoplementData() {
     new Violations()
         .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(this))

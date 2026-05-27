@@ -14,6 +14,10 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
 import org.apache.poi.EncryptedDocumentException;
 
+/**
+ * Abstract reader that parses a DB or class specification sheet and builds a {@link
+ * jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo}.
+ */
 public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderExcelTableReader {
 
   private static int COL_TABLE_NAME = 0;
@@ -28,6 +32,7 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
           "関連：direction", "関連：参照元変数名", "関連：参照先テーブル", "関連：参照先カラム", "関連：参照先変数名", "関連：eager", "index1",
           "index2", "index3", "備考", "表示名（追加言語1）", "表示名（追加言語2）", "表示名（追加言語3）"};
 
+  /** Constructs an instance for the given sheet name, data kind, and system-common root info. */
   public ExcelAbstractDbOrClassReader(@Nonnull String sheetName, DataKindEnum fileKind,
       SystemCommonRootInfo systemCommonRootInfo) {
     super(sheetName, headerLabels);
@@ -35,6 +40,7 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
     sysCmnRootInfo = systemCommonRootInfo;
   }
 
+  /** Reads the Excel file at the given path and returns a data-kind-to-root-info map. */
   public HashMap<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
       throws EncryptedDocumentException, IOException {
 

@@ -5,78 +5,78 @@ import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 
 
 /**
- * varchar型の項目のデータパターン。<br>
+ * varchar型の項目のデータパターン。.<br>
  * 個別プロジェクトから参照する場合は、Enumだけを参照するのではなく、dataTypeごと参照する
  */
 public enum DataTypeStringDataPtnEnum {
 
   /**
-   * 全半角（制限なし）。
+   * 全半角（制限なし）。.
    */
   REG_EX_ALL("001"),
 
   /**
-   * 全角。
+   * 全角。.
    */
   REG_EX_HAN("100"),
 
   /**
-   * 半角。
+   * 半角。.
    */
   REG_EX_HAN_NUM("101"),
 
   /**
-   * 半角数字。
+   * 半角数字。.
    */
   REG_EX_HAN_UC("102"),
 
   /**
-   * 英大文字。
+   * 英大文字。.
    */
   REG_EX_HAN_UC_US("103"),
 
   /**
-   * 英大文字＋_。
+   * 英大文字＋_。.
    */
   REG_EX_HAN_LC("104"),
 
   /**
-   * 英小文字。
+   * 英小文字。.
    */
   REG_EX_HAN_LC_US("105"),
 
   /**
-   * 英小文字＋_。
+   * 英小文字＋_。.
    */
   REG_EX_HAN_NUM_UC("106"),
 
   /**
-   * 半角数字＋英大文字。
+   * 半角数字＋英大文字。.
    */
   REG_EX_HAN_NUM_UC_US("107"),
 
   /**
-   * 半角数字＋英大文字＋_。
+   * 半角数字＋英大文字＋_。.
    */
   REG_EX_HAN_NUM_LC("108"),
 
   /**
-   * 半角数字＋英小文字。
+   * 半角数字＋英小文字。.
    */
   REG_EX_HAN_NUM_LC_US("109"),
 
   /**
-   * 半角数字＋英小文字＋_。
+   * 半角数字＋英小文字＋_。.
    */
   REG_EX_HAN_NUM_UC_LC("110"),
 
   /**
-   * 半角英字。
+   * 半角英字。.
    */
   REG_EX_HAN_NUM_UC_LC_US("111"),
 
   /**
-   * 半角英字＋_。
+   * 半角英字＋_。.
    */
   REG_EX_ZEN("112");
 
@@ -87,21 +87,21 @@ public enum DataTypeStringDataPtnEnum {
   }
 
   /**
-   * codeを返す。 codeがnull, 空文字の場合は、Enum生成時にチェックエラーとなるため考慮不要
+   * codeを返す。. codeがnull, 空文字の場合は、Enum生成時にチェックエラーとなるため考慮不要
    */
   public String getCode() {
     return code;
   }
 
   /**
-   * nameを返す。 nameがnull, 空文字の場合は、Enum生成時にチェックエラーとなるため考慮不要
+   * nameを返す。. nameがnull, 空文字の場合は、Enum生成時にチェックエラーとなるため考慮不要
    */
   public String getName() {
     return this.toString();
   }
 
   /**
-   * 画面で表示するための名称を返す。 この名称は、getはできるがそれをもとにenumを取得することはできない。 localizeされた言語で返す。
+   * 画面で表示するための名称を返す。. この名称は、getはできるがそれをもとにenumを取得することはできない。 localizeされた言語で返す。
    * 明らかに日本語専用のサイトを作成する場合も多いし、その場合にこの仕組みのほうが楽なので。 またどこかで変わるかもしれないけど。
    */
   public String getDisplayName(Locale locale) {
@@ -110,7 +110,7 @@ public enum DataTypeStringDataPtnEnum {
   }
 
   /**
-   * defaultのLocaleを使用。
+   * defaultのLocaleを使用。.
    */
   public String getDisplayName() {
     return PropertiesFileUtil.getEnumName(Locale.getDefault(),
@@ -118,8 +118,8 @@ public enum DataTypeStringDataPtnEnum {
   }
 
   /**
-   * 引数のcodeがEnum内に存在すればtrue、しなければfalseを返す。<br>
-   * codeがnullまたは空文字の場合はfalseを返す。
+    * Returns {@code true} if the given code matches one of the enum constants; returns {@code
+    * false} for null or empty input.
    */
   public static boolean hasEnum(String code) {
     for (DataTypeStringDataPtnEnum enu : DataTypeStringDataPtnEnum.values()) {
@@ -133,7 +133,7 @@ public enum DataTypeStringDataPtnEnum {
 
   /**
    * 引数のnameがEnum内に存在すればtrue、しなければfalseを返す。<br>
-   * nameがnullまたは空文字の場合はfalseを返す。
+   * nameがnullまたは空文字の場合はfalseを返す。.
    */
   public static boolean hasEnumFromName(String name) {
     for (DataTypeStringDataPtnEnum enu : DataTypeStringDataPtnEnum.values()) {

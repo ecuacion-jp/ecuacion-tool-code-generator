@@ -3,8 +3,10 @@ package jp.ecuacion.tool.codegenerator.core.generator.config;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
+/** TODO. */
 public class ConfigGen extends AbstractGen {
 
+  /** TODO. */
   public ConfigGen() {
     super(null);
   }
@@ -16,6 +18,7 @@ public class ConfigGen extends AbstractGen {
     outputFile(sb, getFilePath("config"), "BaseConfig.java");
   }
 
+  /** TODO. */
   public void createSource() {
     sb.append("package " + rootBasePackage + ".base.config;" + RT2);
 

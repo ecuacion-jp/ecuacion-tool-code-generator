@@ -3,7 +3,7 @@ package jp.ecuacion.tool.codegenerator.core.generator;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 
 /**
- * 各種Generatorはこれを継承して作成する。 このクラスは単なるツールなのだが、頻度の高い定数をここに定義しておくと、クラス名.T1のように 書かなくても済むので非常に楽。
+ * Base class for all code generator tools, providing commonly used string constants.
  */
 public abstract class ToolForCodeGen {
   // 定数
@@ -21,6 +21,7 @@ public abstract class ToolForCodeGen {
 
   protected Info info;
   
+  /** Constructs an instance and binds the thread-local generation info. */
   public ToolForCodeGen() {
     this.info = MainController.tlInfo.get();
   }

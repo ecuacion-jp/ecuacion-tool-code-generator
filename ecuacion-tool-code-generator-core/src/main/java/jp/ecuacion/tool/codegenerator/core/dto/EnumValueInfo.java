@@ -12,6 +12,7 @@ import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 
+/** TODO. */
 @SuppressWarnings("NullAway.Init")
 public class EnumValueInfo extends StringExcelTableBean {
 
@@ -42,6 +43,7 @@ public class EnumValueInfo extends StringExcelTableBean {
   }
   //@formatter:on
 
+  /** TODO. */
   @SuppressWarnings("null")
   public EnumValueInfo(List<String> colList, SystemCommonRootInfo sysCmnRootInfo) {
     super(colList);
@@ -83,6 +85,7 @@ public class EnumValueInfo extends StringExcelTableBean {
     return dispNameMap.get(localeString);
   }
 
+  /** TODO. */
   public void getDisplayName(String localeString, String displayName) {
     dispNameMap.put(localeString, displayName);
   }

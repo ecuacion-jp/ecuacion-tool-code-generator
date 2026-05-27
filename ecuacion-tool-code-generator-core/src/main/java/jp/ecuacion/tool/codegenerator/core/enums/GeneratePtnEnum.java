@@ -1,5 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.enums;
 
+/** TODO. */
 public enum GeneratePtnEnum {
 
   NORMAL("normal", "通常"), NO_GROUP_QUERY("no-group-query", "グループ指定なし"), DAO_ONLY_GROUP_NORMAL(

@@ -5,14 +5,17 @@ import java.lang.annotation.ElementType;
 /**
  * 以下のような、Listでannotationを引数で持つパターンのannotationを作成する場合のgenerator.
  * 
- * <p>
- * &#64;FieldPattern.List({ &#64;FieldPattern(...), &#64;FieldPattern(...) })
+ * <p>&#64;FieldPattern.List({ &#64;FieldPattern(...), &#64;FieldPattern(...) })
  * </p>
  */
 public class ListAnnotationGen extends AnnotationGen {
 
   SingleAnnotationGen[] annotationGens;
 
+  /**
+   * Constructs a ListAnnotationGen with the given annotation name, element type, and component
+   * annotation generators.
+   */
   public ListAnnotationGen(String annotationName, ElementType elementType,
       SingleAnnotationGen... singleAnnotationGens) {
     super(annotationName, elementType);

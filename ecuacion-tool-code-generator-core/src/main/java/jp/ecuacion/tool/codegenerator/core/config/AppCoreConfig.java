@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 
+/** TODO. */
 @Configuration
 @ComponentScan("jp.ecuacion.splib.jpa.config"
     )

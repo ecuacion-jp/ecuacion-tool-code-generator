@@ -2,6 +2,7 @@ package jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper;
 
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 
+/** Generation helper for Timestamp and DateTime data type columns. */
 public class GenHelperTimestamp extends GenHelperNoNumberObj {
   @Override
   protected String getStringParamSetter(String columnNameCp, String columnNameSm, String dataType) {

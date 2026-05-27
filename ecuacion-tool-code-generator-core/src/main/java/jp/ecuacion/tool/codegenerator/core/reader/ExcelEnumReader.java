@@ -13,6 +13,10 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
 import org.apache.poi.EncryptedDocumentException;
 
+/**
+ * Reads the enum definition sheet from the Excel file and builds an {@link
+ * jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo}.
+ */
 public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader {
 
   private static int COL_DATA_TYPE_NAME = 0;
@@ -23,11 +27,13 @@ public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader {
       "code", "varName", "dispName（デフォルト言語）", "備考",
       "dispName（追加言語1）", "dispName（追加言語2）", "dispName（追加言語3）"};
 
+  /** Constructs an instance that targets the enum definition sheet. */
   public ExcelEnumReader(SystemCommonRootInfo sysCmnRootInfo) {
     super("enum定義", headerLabels);
     this.sysCmnRootInfo = sysCmnRootInfo;
   }
 
+  /** Reads the Excel file at the given path and returns a data-kind-to-root-info map. */
   public HashMap<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
       throws EncryptedDocumentException, IOException {
 

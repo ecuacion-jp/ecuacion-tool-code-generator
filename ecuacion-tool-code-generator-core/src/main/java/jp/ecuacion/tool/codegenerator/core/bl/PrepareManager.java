@@ -8,8 +8,10 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
+/** TODO. */
 public class PrepareManager {
 
+  /** TODO. */
   public void prepare() {
 
     Info info = MainController.tlInfo.get();

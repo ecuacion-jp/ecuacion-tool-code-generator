@@ -13,8 +13,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import org.jspecify.annotations.Nullable;
 
 /**
- * @author yosuke.tanaka
- *
+ * Abstract base class for all code generators that produce Java source files.
  */
 public abstract class AbstractGen extends ToolForCodeGen {
 
@@ -30,6 +29,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
   // // static変数に渡すことにした
   // protected static HashMap<String, HashMap<String, DataTypeInfo>> allDtMap;
 
+  /** Constructs an instance with the given XML file postfix identifying the data kind. */
   public AbstractGen(@Nullable DataKindEnum xmlFilePostFix) {
     this.xmlFilePostFix = xmlFilePostFix;
     String osName = System.getProperty("os.name");
@@ -38,19 +38,24 @@ public abstract class AbstractGen extends ToolForCodeGen {
         (osName.equals("Windows")) ? "\\\\" : "/");
   }
 
-  /** */
+  /** Executes the code generation process and produces the output source files. */
   public abstract void generate() throws Exception;
 
+  /** Returns the output directory path for the given package name. */
   protected String getFilePath(String myPackage) {
     return getFilePathWithSrcKind(myPackage, true);
   }
 
+  /**
+   * Returns the full output file path for the given package, incorporating the source kind root.
+   */
   protected String getFilePathWithSrcKind(String myPackage, boolean isDirForCopyEveryTime) {
     return getBuildPathRootDirPath(myPackage) + Constants.PATH_SEPARATOR
         + Constants.DIR_SRC_JAVA_PATH + rootBasePackageDirectry + Constants.PATH_SEPARATOR + "base"
         + Constants.PATH_SEPARATOR + myPackage;
   }
 
+  /** Returns the path to the base resources output directory. */
   public String getResourcesPath() {
     return getBuildPathRootDirPath(null) + "/src/base/resources";
   }
@@ -74,7 +79,11 @@ public abstract class AbstractGen extends ToolForCodeGen {
   }
 
   /**
-   * @param sb ファイルに出力する文字列を持ったStringBuilder。
+   * Writes the content of the given StringBuilder to a file at the specified path.
+   *
+   * @param sb the StringBuilder holding the content to write to the file
+   * @param path the directory path where the file will be created
+   * @param fileName the name of the file to write
    */
   public void outputFile(StringBuilder sb, String path, String fileName) {
     String charEncoding = info.getSysCmnRootInfo().getCharacterEncoding();
@@ -99,11 +108,13 @@ public abstract class AbstractGen extends ToolForCodeGen {
   // Javadoc関連
   // ==============
 
+  /** Generates a complete Javadoc block from an XML-sourced description string. */
   protected String genJavadocFromXml(@Nullable String javadoc, boolean isIndented) {
     String indent = (isIndented) ? T1 : "";
     return indent + JD_ST + RT + genJavadocPartFromXml(javadoc, isIndented) + indent + JD_END + RT;
   }
 
+  /** Generates the inner lines of a Javadoc block from an XML-sourced description string. */
   protected String genJavadocPartFromXml(@Nullable String javadoc, boolean isIndented) {
     if (javadoc == null) {
       javadoc = "";
@@ -114,30 +125,39 @@ public abstract class AbstractGen extends ToolForCodeGen {
         + RT;
   }
 
+  /** Generates a class-level Javadoc block from the given list of description lines. */
   protected String genJavadocClass(List<String> arr) {
     return genJavadocCommon(arr, false);
   }
 
+  /** Generates a class-level Javadoc block from the given description strings. */
   protected String genJavadocClass(String... args) {
     return genJavadocClass(getStrAlFromA(args));
   }
 
+  /** Generates an indented field-level Javadoc block from the given list of description lines. */
   protected String genJavadocVar(List<String> arr) {
     return genJavadocCommon(arr, true);
   }
 
+  /** Generates an indented field-level Javadoc block from the given description strings. */
   protected String genJavadocVar(String... args) {
     return genJavadocVar(getStrAlFromA(args));
   }
 
+  /** Generates an indented method-level Javadoc block from the given list of description lines. */
   protected String genJavadocMethod(List<String> arr) {
     return genJavadocCommon(arr, true);
   }
 
+  /** Generates an indented method-level Javadoc block from the given description strings. */
   protected String genJavadocMethod(String... args) {
     return genJavadocMethod(getStrAlFromA(args));
   }
 
+  /**
+   * Generates a Javadoc block from the given lines, optionally applying one level of indentation.
+   */
   @SuppressWarnings("unused")
   protected String genJavadocCommon(List<String> arr, boolean isIndented) {
 

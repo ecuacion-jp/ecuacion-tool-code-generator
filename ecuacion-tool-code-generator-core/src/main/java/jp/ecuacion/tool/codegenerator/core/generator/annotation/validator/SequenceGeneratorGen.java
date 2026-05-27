@@ -4,6 +4,7 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BYTE;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.INTEGER;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.LONG;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.SHORT;
+
 import java.lang.annotation.ElementType;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,10 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWi
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 import jp.ecuacion.tool.codegenerator.core.generator.entity.EntityGenKindEnum;
 
+/**
+ * Generator for the JPA {@code @SequenceGenerator} annotation, defining the sequence used for
+ * auto-increment columns.
+ */
 public class SequenceGeneratorGen extends FieldSingleAnnotationGen {
 
   private String tableName;
@@ -23,6 +28,10 @@ public class SequenceGeneratorGen extends FieldSingleAnnotationGen {
   private EntityGenKindEnum entityGenKindEnum;
   private DataTypeInfo dtInfo;
 
+  /**
+   * Constructs a SequenceGeneratorGen with the given element type, data type, table name, column
+   * name, and entity generation kind.
+   */
   public SequenceGeneratorGen(ElementType elementType, DataTypeInfo dtInfo, String tableName,
       String columnName, EntityGenKindEnum entityGenKindEnum) {
     super("SequenceGenerator", elementType);
@@ -32,6 +41,10 @@ public class SequenceGeneratorGen extends FieldSingleAnnotationGen {
     this.dtInfo = dtInfo;
   }
 
+  /**
+   * Returns {@code true} if the column requires a sequence generator, delegating to {@link
+   * GeneratedValueGen#needsValidator}.
+   */
   public static boolean needsValidator(DbOrClassColumnInfo colInfo,
       HashMap<String, HashMap<String, DataTypeInfo>> allDtMap,
       HashMap<String, HashMap<String, AbstractRootInfo>> systemMap, String systemName) {

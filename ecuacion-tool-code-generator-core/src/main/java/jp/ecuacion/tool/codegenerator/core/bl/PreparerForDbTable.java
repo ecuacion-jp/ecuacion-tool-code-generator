@@ -1,11 +1,14 @@
 package jp.ecuacion.tool.codegenerator.core.bl;
 
+/** TODO. */
 public class PreparerForDbTable {
 
+  /** TODO. */
   public PreparerForDbTable() {
     // this.info = CodeGeneratorAction.tlInfo.get();
   }
 
+  /** TODO. */
   public void combine() {
 
     // Map<String, AbstractRootInfo> rootInfoMap = info.systemMap.get(info.getSystemName());

@@ -8,10 +8,15 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.FieldSingleAnnot
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 
+/**
+ * Generator for the JPA {@code @Column} annotation, setting name, nullable, length, and column
+ * definition.
+ */
 public class ColumnGen extends FieldSingleAnnotationGen {
 
   private DbOrClassColumnInfo ci;
 
+  /** Constructs a ColumnGen for the given element type and column information. */
   public ColumnGen(ElementType elementType, DbOrClassColumnInfo ci) {
     super("Column", elementType);
     this.ci = ci;
@@ -20,6 +25,7 @@ public class ColumnGen extends FieldSingleAnnotationGen {
   @Override
   protected void check() {}
 
+  /** Returns {@code true} since the {@code @Column} annotation is always required. */
   public static boolean needsValidator(String columnName) {
     return true;
   }

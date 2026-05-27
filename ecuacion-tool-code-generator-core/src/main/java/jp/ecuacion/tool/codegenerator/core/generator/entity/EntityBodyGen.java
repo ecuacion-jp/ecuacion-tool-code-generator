@@ -8,8 +8,10 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
+/** TODO. */
 public class EntityBodyGen extends EntityGen {
 
+  /** TODO. */
   public EntityBodyGen(DataKindEnum xmlFilePostFix, boolean isPkPart) {
     super(xmlFilePostFix);
   }
@@ -36,6 +38,7 @@ public class EntityBodyGen extends EntityGen {
     appendItemNamesProperties(EntityGenKindEnum.ENTITY_BODY, info.getDbRootInfo().tableList);
   }
 
+  /** TODO. */
   public void createSource(DbOrClassTableInfo tableInfo,
       List<DbOrClassColumnInfo> commonColumnList) {
 

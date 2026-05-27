@@ -8,15 +8,21 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWi
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 
+/**
+ * Generator for the JPA {@code @Convert} annotation, specifying the converter class for enum
+ * columns.
+ */
 public class ConvertGen extends FieldSingleAnnotationGen {
   private DataTypeInfo dtInfo;
   private CodeGenUtil code = new CodeGenUtil();
 
+  /** Constructs a ConvertGen for the given element type and data type information. */
   public ConvertGen(ElementType elementType, DataTypeInfo dtInfo) {
     super("Convert", elementType);
     this.dtInfo = dtInfo;
   }
 
+  /** Returns {@code true} if the data type is an enum, requiring a {@code @Convert} annotation. */
   public static boolean needsValidator(DataTypeInfo dtInfo) {
     return dtInfo.getKata() == DataTypeKataEnum.ENUM;
   }
