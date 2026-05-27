@@ -19,7 +19,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.PathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +29,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+/** Processes source code generation requests and packages the output as a ZIP archive 
+ * for download. */
 @Service
 @Scope("prototype")
 public class SourceDownloadService extends SplibGeneral1FormService<SourceDownloadForm> {
@@ -45,6 +47,7 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
 
   }
 
+  /** Generates source code from the uploaded Excel file and returns the result as a ZIP archive. */
   public ResponseEntity<Resource> execute(MultipartFile multipartFile) throws Exception {
     final String originalFileName =
         Objects.requireNonNull(multipartFile.getOriginalFilename());
@@ -90,7 +93,7 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
     zipFile.close();
 
     Path zipFilePath = Path.of(outputDir, outputFilename);
-    Resource resource = new PathResource(zipFilePath);
+    Resource resource = new FileSystemResource(zipFilePath);
 
     return ResponseEntity.ok().contentType(getContentType(zipFilePath))
         .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
