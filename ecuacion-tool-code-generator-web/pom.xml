@@ -20,24 +20,6 @@
 				<artifactId>maven-war-plugin</artifactId>
 			</plugin>
 
-			<!-- maven-source-plugin (outputs a jar of source) -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-
-			<!-- checkstyle -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-			</plugin>
-			
-			<!-- spotbugs -->
-			<plugin>
-				<groupId>com.github.spotbugs</groupId>
-				<artifactId>spotbugs-maven-plugin</artifactId>
-			</plugin>
-			
 		</plugins>
 		<resources>
 			<resource><directory>src/main/resources</directory></resource>
