@@ -13,15 +13,18 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
+/** Configures Spring Batch job and step beans for the code generator batch module. */
 @Configuration
 @ComponentScan(
     basePackages = "jp.ecuacion.splib.batch.config" + ",jp.ecuacion.util.codegenerator.core.config")
 public class AppBatchConfig extends SplibAppParentBatchConfig {
 
+  /**
+   * Provides a config for batch.
+   */
   protected AppBatchConfig(SplibJobExecutionListener jobExecutionListener,
       SplibStepExecutionListener stepExecutionListener, SplibExceptionHandler exceptionHandler) {
     super(jobExecutionListener, stepExecutionListener, exceptionHandler);
-    // TODO Auto-generated constructor stub
   }
 
   @Bean

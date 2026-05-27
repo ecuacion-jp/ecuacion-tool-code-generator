@@ -13,17 +13,20 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+/** Handles HTTP requests for the source code download feature. */
 @Controller
 @Scope("prototype")
 @RequestMapping("/public/sourceDownload")
 public class SourceDownloadController
     extends SplibGeneral1FormController<SourceDownloadForm, SourceDownloadService> {
 
+  /** Constructs a new instance. */
   public SourceDownloadController() {
     super("sourceDownload");
 
   }
 
+  /** Downloads the generated source code as a ZIP file. */
   @PostMapping(value = "action", params = "action=download")
   public ResponseEntity<Resource> download(Model model, @Validated SourceDownloadForm form,
       BindingResult result) throws Exception {

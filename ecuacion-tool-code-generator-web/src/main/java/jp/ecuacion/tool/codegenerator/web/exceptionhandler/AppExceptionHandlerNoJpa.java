@@ -7,6 +7,7 @@ import jp.ecuacion.splib.web.util.SplibLoginStateUtil;
 import org.jspecify.annotations.Nullable;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
+/** Handles exceptions for the web application without JPA support. */
 @ControllerAdvice
 public class AppExceptionHandlerNoJpa extends SplibExceptionHandler {
 
