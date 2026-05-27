@@ -9,6 +9,7 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.stereotype.Component;
 
+/** Executes the code generation process as a Spring Batch tasklet. */
 @Component
 public class BatchStarterTasklet implements Tasklet {
 

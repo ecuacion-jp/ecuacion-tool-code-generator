@@ -6,8 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
+/** Starts the code generator web application. */
 @SpringBootApplication
 public class WebApplication extends SpringBootServletInitializer {
+  /** Starts the Spring Boot web application. */
   public static void main(String[] args) {
     SpringApplication.run(WebApplication.class, args);
   }
