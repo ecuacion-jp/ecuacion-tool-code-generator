@@ -6,16 +6,14 @@ import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 
-/**
- * @author 庸介
- *
- */
+/** Logging wrapper that collects log messages into an in-memory list for test verification. */
 public class Logger {
 
   public static ArrayList<String> msgList = new ArrayList<String>();
 
   /**
-   * ログ出力結果を試験しやすいように、メッセージを出力する際にLoggerをかませる。
+   * Resolves the message for the given id and args, appends it to the in-memory list,
+   * and writes it to the underlying detail logger.
    */
   public static void log(Object object, String msgId, Object... msgArgs) {
 
@@ -31,7 +29,8 @@ public class Logger {
   }
 
   /**
-   * ログ出力結果を試験しやすいように、メッセージを出力する際にLoggerをかませる。
+   * Resolves the message for the given id and args, appends it to the in-memory list,
+   * and writes it to the underlying detail logger using the supplied class as the logger name.
    */
   public static void log(Class<?> cls, String msgId, Object... msgArgs) {
     String logMsg = PropertiesFileUtil.getMessage(Locale.ENGLISH, msgId, msgArgs);

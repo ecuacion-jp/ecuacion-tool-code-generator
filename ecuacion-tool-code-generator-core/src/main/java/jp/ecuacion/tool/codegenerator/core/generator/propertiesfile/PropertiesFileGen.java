@@ -17,8 +17,10 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import org.jspecify.annotations.Nullable;
 
+/** Generates and manages properties files such as item_names and enum_names for each language. */
 public class PropertiesFileGen extends AbstractGen {
 
+  /** Constructs an instance for the OTHER data kind. */
   public PropertiesFileGen() {
     super(DataKindEnum.OTHER);
   }
@@ -80,6 +82,10 @@ public class PropertiesFileGen extends AbstractGen {
   @Override
   public void generate() throws Exception {}
 
+  /**
+   * Copies a properties file from the classpath to the resources output directory, renaming it
+   * according to the given prefix and language.
+   */
   public void copyFileToResourceDir(String systemName, String fromFilePath,
       String fromFilenamePrefix, String fromProjectType, String fromLang, String filenamePrefix,
       String projectType, String lang) throws IOException, InterruptedException {

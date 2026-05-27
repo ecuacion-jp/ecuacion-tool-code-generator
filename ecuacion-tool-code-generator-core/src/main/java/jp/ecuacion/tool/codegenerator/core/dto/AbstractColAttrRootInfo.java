@@ -7,6 +7,7 @@ import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import org.apache.commons.lang3.StringUtils;
 
+/** TODO. */
 @SuppressWarnings("NullAway.Init")
 public abstract class AbstractColAttrRootInfo extends AbstractRootInfo {
 
@@ -15,7 +16,7 @@ public abstract class AbstractColAttrRootInfo extends AbstractRootInfo {
   private String columnName;
 
   /**
-   * dataTypeはDB項目定義で持っているので重複提議にはなるのだが、同一のdataTypeを使用していることを確認する為に敢えて項目を設けている。
+   * dataTypeはDB項目定義で持っているので重複提議にはなるのだが、同一のdataTypeを使用していることを確認する為に敢えて項目を設けている。.
    */
   @Size(min = 1, max = 30)
   @Pattern(regexp = Constants.REG_EX_UP_NUM_US)
@@ -23,11 +24,13 @@ public abstract class AbstractColAttrRootInfo extends AbstractRootInfo {
 
   private DataTypeInfo dtInfo;
 
+  /** TODO. */
   @SuppressWarnings("null")
   public AbstractColAttrRootInfo(DataKindEnum fileKind) {
     super(fileKind);
   }
 
+  /** TODO. */
   @SuppressWarnings("null")
   public AbstractColAttrRootInfo(DataKindEnum fileKind, String columnName, String dataTypeName) {
     super(fileKind);
@@ -72,7 +75,7 @@ public abstract class AbstractColAttrRootInfo extends AbstractRootInfo {
   }
 
   /**
-   * 指定のtableに指定の項目が含まれるかをチェックする。
+   * 指定のtableに指定の項目が含まれるかをチェックする。.
    */
   protected boolean checkIfColIncludedInTable(DbOrClassTableInfo tableInfo, String colName,
       String dataTypeName) {
@@ -87,7 +90,7 @@ public abstract class AbstractColAttrRootInfo extends AbstractRootInfo {
   }
 
   /**
-   * dbCommonと個別tableの両方を見て、指定のカラムがテーブルに含まれているかを確認する。 「含まれている」の定義は、「カラム名が同一」かつ「データタイプ名が同一」。
+   * dbCommonと個別tableの両方を見て、指定のカラムがテーブルに含まれているかを確認する。 「含まれている」の定義は、「カラム名が同一」かつ「データタイプ名が同一」。.
    */
   public boolean hasColInTable(DbOrClassTableInfo tableInfo, DbOrClassTableInfo cmnTableInfo) {
     return (checkIfColIncludedInTable(tableInfo, columnName, dataTypeName)

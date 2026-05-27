@@ -6,8 +6,10 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 
+/** Generates miscellaneous system-common files such as the messages base properties file. */
 public class Miscellaneous extends AbstractGen {
 
+  /** Constructs an instance for the system-common data kind. */
   public Miscellaneous() {
     super(DataKindEnum.SYSTEM_COMMON);
   }
@@ -23,10 +25,8 @@ public class Miscellaneous extends AbstractGen {
   }
 
   /**
-   * code-generatorで生成したソースの中にあるBizLogicAppExceptionに設定するメッセージファイルを生成
-   * BizLogicAppExceptionのメッセージ。ユーザが見るメッセージではなく開発者が見るもの。
-   * そのため日本語があれば問題ないのだが、クライアントロケールがja以外の場合はその言語で出てしまうので、通常標準ロケールに設定される英語は用意しておく。
-   * ※enのファイルに日本語のメッセージを書いてもいいんだが、気分で一応英語にしておく。。。
+   * Generates the messages_project_base properties files for each configured language
+   * by copying the template from the classpath resources directory.
    */
   private void generateMessagesBaseProperties(SystemCommonRootInfo sysCmnRootInfo)
       throws IOException, InterruptedException {

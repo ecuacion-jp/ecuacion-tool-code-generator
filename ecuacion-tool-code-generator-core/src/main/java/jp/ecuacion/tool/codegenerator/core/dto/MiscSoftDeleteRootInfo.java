@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Size;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
+/** TODO. */
 @SuppressWarnings("NullAway.Init")
 public class MiscSoftDeleteRootInfo extends AbstractColAttrRootInfo {
 
@@ -18,11 +19,13 @@ public class MiscSoftDeleteRootInfo extends AbstractColAttrRootInfo {
   @Pattern(regexp = Constants.REG_EX_AL_NUM_US_CM_DOT)
   private String additionalMethodArgs;
 
+  /** TODO. */
   @SuppressWarnings("null")
   public MiscSoftDeleteRootInfo() {
     super(DataKindEnum.MISC_REMOVED_DATA);
   }
 
+  /** TODO. */
   public MiscSoftDeleteRootInfo(String columnName, String dataTypeName, String initialValue,
       String removeMethodName, String updatedValue, String additionalMethodArgs) {
 

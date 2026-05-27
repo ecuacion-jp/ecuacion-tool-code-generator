@@ -3,6 +3,7 @@ package jp.ecuacion.tool.codegenerator.core.enums;
 import java.util.Locale;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 
+/** TODO. */
 public enum DataKindEnum {
   //@formatter:off
   SYSTEM_COMMON, DATA_TYPE, ENUM, DB, DB_COMMON, 

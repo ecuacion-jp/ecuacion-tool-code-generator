@@ -2,6 +2,7 @@ package jp.ecuacion.tool.codegenerator.core.enums;
 
 import org.jspecify.annotations.Nullable;
 
+/** TODO. */
 public enum RelationKindEnum {
 
   ONE_TO_ONE("@OneToOne"), MANY_TO_ONE("@ManyToOne"), ONE_TO_MANY("@OneToMany");
@@ -27,6 +28,7 @@ public enum RelationKindEnum {
     return name;
   }
   
+  /** TODO. */
   public RelationKindEnum getInverse() {
     if (this == ONE_TO_ONE) {
       return ONE_TO_ONE;

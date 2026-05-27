@@ -8,17 +8,23 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.FieldSingleAnnot
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 
+/**
+ * Generator for the JPA {@code @GeneratedValue} annotation, using a named sequence generator
+ * strategy.
+ */
 public class GeneratedValueGen extends FieldSingleAnnotationGen {
 
   private String tableName;
   private String columnName;
 
+  /** Constructs a GeneratedValueGen for the given element type, table name, and column name. */
   public GeneratedValueGen(ElementType elementType, String tableName, String columnName) {
     super("GeneratedValue", elementType);
     this.tableName = tableName;
     this.columnName = columnName;
   }
 
+  /** Returns {@code true} if the column is an auto-increment integer or long primary key column. */
   public static boolean needsValidator(DbOrClassColumnInfo colInfo) {
 
     DataTypeInfo dtInfo = colInfo.getDtInfo();

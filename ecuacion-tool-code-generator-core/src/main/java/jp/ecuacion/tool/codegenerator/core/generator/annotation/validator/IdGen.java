@@ -8,12 +8,15 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.FieldSingleAnnot
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 import org.jspecify.annotations.Nullable;
 
+/** Generator for the JPA {@code @Id} annotation, marking a field as the primary key. */
 public class IdGen extends FieldSingleAnnotationGen {
 
+  /** Constructs an IdGen for the given element type and data type information. */
   public IdGen(ElementType elementType, DataTypeInfo dtInfo) {
     super("Id", elementType);
   }
 
+  /** Returns {@code true} if the column is a primary key. */
   public static boolean needsValidator(DbOrClassColumnInfo colInfo) {
     return colInfo.isPk();
   }

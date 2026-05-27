@@ -1,8 +1,10 @@
 package jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper;
 
 
+/** TODO. */
 public class GenHelperBoolean extends GenHelperNoNumberObj {
 
+  /** TODO. */
   protected String getStringParamSetter(String columnNameCp, String columnNameSm, String dataType) {
     StringBuilder sb = new StringBuilder();
 

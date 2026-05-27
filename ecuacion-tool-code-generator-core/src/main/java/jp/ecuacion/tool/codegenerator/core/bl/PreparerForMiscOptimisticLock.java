@@ -10,14 +10,17 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
+/** TODO. */
 public class PreparerForMiscOptimisticLock {
 
   private Info info;
 
+  /** TODO. */
   public PreparerForMiscOptimisticLock() {
     this.info = MainController.tlInfo.get();
   }
 
+  /** TODO. */
   public void prepare() {
     MiscOptimisticLockRootInfo lockInfo =
         (MiscOptimisticLockRootInfo) info.getRootInfoMap().get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
@@ -33,7 +36,6 @@ public class PreparerForMiscOptimisticLock {
     }
   }
 
-  @SuppressWarnings({"unused"})
   private void setOptLock(MiscOptimisticLockRootInfo lockInfo, DataKindEnum dataKind) {
     DbOrClassRootInfo dbRootInfo =
         (DbOrClassRootInfo) info.getRootInfoMap().get(dataKind);

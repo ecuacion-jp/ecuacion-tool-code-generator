@@ -3,8 +3,10 @@ package jp.ecuacion.tool.codegenerator.core.generator.advice;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
+/** Generator that produces the {@code SoftDeleteAdvice} aspect class source file. */
 public class AdviceGen extends AbstractGen {
 
+  /** Constructs an AdviceGen instance. */
   public AdviceGen() {
     super(null);
   }
@@ -16,6 +18,9 @@ public class AdviceGen extends AbstractGen {
     outputFile(sb, getFilePath("advice"), "SoftDeleteAdvice.java");
   }
 
+  /**
+   * Builds the source code string for the SoftDeleteAdvice class into the internal StringBuilder.
+   */
   public void createSource() {
     sb.append("package " + rootBasePackage + ".base.advice;" + RT2);
 

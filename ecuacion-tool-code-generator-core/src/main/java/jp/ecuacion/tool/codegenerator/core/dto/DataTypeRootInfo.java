@@ -6,8 +6,10 @@ import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 
+/** TODO. */
 public class DataTypeRootInfo extends AbstractRootInfo {
 
+  /** TODO. */
   public DataTypeRootInfo(List<DataTypeInfo> list) {
     super(DataKindEnum.DATA_TYPE);
     this.dataTypeList = list;

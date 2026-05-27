@@ -24,6 +24,7 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
 
   private static final String[] headerLabels = new String[] {"分類", "分類説明", "項目", "説明", "値", "備考"};
 
+  /** Constructs an instance that targets the general-settings sheet. */
   public ExcelGeneralSettingsReader() {
     super("各種設定", headerLabels);
   }
@@ -41,6 +42,10 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
   private static String GROUP_OPTIMISTIC_LOCKING = "OPTIMISTIC_LOCKING";
 
 
+  /**
+   * Reads the Excel file at the given path and returns a data-kind-to-root-info map for all setting
+   * groups.
+   */
   public HashMap<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
       throws EncryptedDocumentException, IOException {
 

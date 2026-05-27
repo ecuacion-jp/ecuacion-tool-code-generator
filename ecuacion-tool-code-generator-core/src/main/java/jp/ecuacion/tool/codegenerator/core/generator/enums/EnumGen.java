@@ -13,8 +13,13 @@ import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFi
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
+/**
+ * Generates enum Java source files and the corresponding enum_names properties files for all
+ * configured languages.
+ */
 public class EnumGen extends AbstractGen {
 
+  /** Constructs an instance for the ENUM data kind. */
   public EnumGen() {
     super(DataKindEnum.ENUM);
   }

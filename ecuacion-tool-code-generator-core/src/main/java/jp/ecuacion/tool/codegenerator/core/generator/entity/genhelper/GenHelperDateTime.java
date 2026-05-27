@@ -2,6 +2,7 @@ package jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper;
 
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 
+/** TODO. */
 public class GenHelperDateTime extends GenHelperNoNumberObj {
   @Override
   protected String getStringParamSetter(String columnNameCp, String columnNameSm, String dataType) {

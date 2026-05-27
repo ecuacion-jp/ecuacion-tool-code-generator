@@ -8,8 +8,10 @@ import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
+/** Generates the {@code BaseConstants} Java class and the {@code application.properties} file. */
 public class ConstantGen extends AbstractGen {
 
+  /** Constructs a ConstantGen with no table-level data kind. */
   public ConstantGen() {
     super(null);
   }
@@ -32,6 +34,7 @@ public class ConstantGen extends AbstractGen {
 
   }
 
+  /** Builds the source code for the {@code BaseConstants} class into the internal string buffer. */
   public void createSource() {
     sb.append("package " + rootBasePackage + ".base.constant;" + RT2);
 

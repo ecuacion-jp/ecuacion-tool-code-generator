@@ -38,20 +38,28 @@ import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Abstract base class for entity code generators providing shared logic for fields,
+ * constructors, accessors, and properties.
+ */
 public abstract class EntityGen extends AbstractDaoRelatedGen {
 
   private CodeGenUtil code = new CodeGenUtil();
 
+  /** Constructs an instance for the specified data kind. */
   public EntityGen(DataKindEnum dataKind) {
     super(dataKind);
   }
 
+  /** Returns the enum value that identifies what kind of entity this generator produces. */
   protected abstract EntityGenKindEnum getEntityGenKindEnum();
 
+  /** Appends the package declaration to the given StringBuilder. */
   protected void appendPackage(StringBuilder sb) {
     sb.append("package " + rootBasePackage + ".base.entity;" + RT);
   }
 
+  /** Appends all necessary import statements for the given table to the StringBuilder. */
   protected void appendImport(StringBuilder sb, DbOrClassTableInfo tableInfo) {
     ImportGenUtil importMgr = new ImportGenUtil();
     final String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
@@ -188,13 +196,17 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   }
 
   /**
-   * 共通のgrouping用FilterDefを出力するために使用。
+   * Appends the common grouping FilterDef annotation string to the StringBuilder.
    */
   protected void getGroupFilterDefAnnotationString(StringBuilder sb) {
     getGroupFilterDefAnnotationString(sb, "groupFilter", info.getGroupRootInfo().getColumnName(),
         info.getGroupRootInfo().getDtInfo());
   }
 
+  /**
+   * Appends a FilterDef annotation with the given filter name and column details to the
+   * StringBuilder.
+   */
   protected void getGroupFilterDefAnnotationString(StringBuilder sb, String filterName,
       String colName, DataTypeInfo dtInfo) {
 
@@ -207,12 +219,13 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   }
 
   /**
-   * 共通のgrouping用Filterを出力するために使用。
+   * Appends the common grouping Filter annotation string to the StringBuilder.
    */
   protected void getGroupFilterAnnotationString(StringBuilder sb) {
     getGroupFilterAnnotationString(sb, "groupFilter");
   }
 
+  /** Appends a Filter annotation with the given filter name to the StringBuilder. */
   protected void getGroupFilterAnnotationString(StringBuilder sb, String filterName) {
     ParamListGen paramGenList = new ParamListGen();
     paramGenList.add(new ParamGenWithSingleValue("name", filterName, true));
@@ -222,6 +235,10 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(filter.generateString(ElementType.TYPE) + RT);
   }
 
+  /**
+   * Appends soft delete FilterDef and Filter annotation strings if soft delete is configured for
+   * the table.
+   */
   protected void getSoftDeleteAnnotationsString(StringBuilder sb, DbOrClassTableInfo tableInfo) {
     if (info.getSysCmnRootInfo().isFrameworkKindSpring()
         && info.getRemovedDataRootInfo().isDefined()
@@ -232,14 +249,16 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     }
   }
 
-  // serialVersionUID。1固定
+  /** Appends the serialVersionUID constant declaration (fixed to 1) to the StringBuilder. */
   protected void appendSerialVersionUid(StringBuilder sb) {
     sb.append(T1 + "private static final long serialVersionUID = 1L;" + RT2);
   }
 
   /**
-   * @param tableInfo Entity, EntityPkはこの値が必須。それ以外はnullでよい。(isPkPart == nullならばtableInfo ==
-   *        nullであるという前提に立っている）
+   * Appends field declarations for all non-Java-only columns of the given table.
+   *
+   * @param tableInfo Entity info required for proper field generation; must not be null
+   *     for entity body or PK.
    */
   protected void appendField(StringBuilder sb, DbOrClassTableInfo tableInfo,
       List<DbOrClassColumnInfo> colInfoList) {
@@ -327,7 +346,9 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   }
 
   /**
-   * @param tableNameCp Entity, Pkの場合のみ値が必要。それ以外はnullを渡してもOK。
+   * Appends FIELD_xxx static constant declarations for all non-Java-only columns.
+   *
+   * @param tableNameCp Required only for Entity and Pk entity kinds; may be null otherwise.
    */
   protected void appendFieldName(StringBuilder sb, String tableNameCp,
       DbOrClassTableInfo tableInfo) {
@@ -341,6 +362,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(RT);
   }
 
+  /** Appends the getFieldNameArr() override method listing all field names as a String array. */
   protected void appendFieldNameArr(StringBuilder sb, DbOrClassTableInfo tableInfo,
       String entityNameCp, boolean isInGetPkOfSurrogateKeyStrategyEntity) {
     // systemCommonについては作成しない
@@ -385,11 +407,13 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "}" + RT2);
   }
 
+  /** Appends the default no-args constructor declaration. */
   protected void appendDefaultConstructor(StringBuilder sb, String tableNameCp) {
     sb.append(T1 + JD_ST + "defaultコンストラクタ" + JD_END + RT);
     sb.append(T1 + "public " + tableNameCp + "() {" + "}" + RT2);
   }
 
+  /** Appends a constructor that accepts a BaseRecord argument and initializes fields from it. */
   protected void appendRecConstructor(StringBuilder sb, DbOrClassTableInfo ti,
       String entityNameCp) {
     // recを引数としたコンストラクタ
@@ -412,6 +436,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "}" + RT2);
   }
 
+  /** Appends a constructor taking the natural key columns as arguments. */
   protected void appendNaturalKeyConstructor(StringBuilder sb, DbOrClassTableInfo tableInfo,
       String entityNameCp) {
     sb.append(T1 + "/**" + RT);
@@ -561,6 +586,9 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     return dateTimeString.toString() + relString.toString();
   }
 
+  /**
+   * Appends the update() method that copies non-null field values from the record to the entity.
+   */
   protected void appendUpdate(StringBuilder sb, DbOrClassTableInfo ti) {
     sb.append(T1 + "public void update(" + code.baseRecDef(ti.getName()) + args(ti)
         + ", String... skipUpdateFields) {" + RT);
@@ -604,6 +632,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     }
   }
 
+  /** Appends getter and setter methods for all non-Java-only columns of the table. */
   protected void appendAccessor(StringBuilder sb, DbOrClassTableInfo tableInfo) {
     for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
         .toList()) {
@@ -668,6 +697,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "}" + RT2);
   }
 
+  /** Returns the Java type name for the given column, considering enum types. */
   protected String getEnumConsideredKata(DbOrClassColumnInfo ci) {
     return code.getJavaKata(ci);
   }
@@ -704,7 +734,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   }
 
   /**
-   * item_names_xx.propertiesを作成するための共通処理。
+   * Common processing to create item_names_xx.properties files for each configured language.
    */
   protected void appendItemNamesProperties(EntityGenKindEnum entityKind,
       List<DbOrClassTableInfo> tableList)
@@ -728,6 +758,10 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     }
   }
 
+  /**
+   * Appends the PrePersist or PreUpdate lifecycle callback method that auto-sets default field
+   * values.
+   */
   protected void appendAutoInsertOrUpdateGen(StringBuilder sb, DbOrClassTableInfo tableInfo,
       boolean isUpdate, boolean isFromSystemCommon) {
 
@@ -794,7 +828,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   }
 
   /**
-   * 各cInfoに対して、preInsert/preUpdateが必要かを判断する。
+    * Returns {@code true} if the given column requires an automatic value to be set on insert or
+    * update.
    */
   private boolean needsAutoInsertOrUpdate(DbOrClassColumnInfo colInfo, boolean isUpdate) {
     DataTypeInfo dtInfo = colInfo.getDtInfo();
@@ -813,7 +848,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     return false;
   }
 
-  /** Pkの各項目を引数で与える場合の( )内の文字列を取得。 **/
+  /** Returns the argument list string for PK columns to be used inside parentheses. */
   protected String getPkArgList(DbOrClassTableInfo tableInfo,
       List<DbOrClassColumnInfo> commonColumnList, boolean areAllArgsString) {
     // String pk1, Integer pk2, ...
@@ -841,6 +876,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     return lclSb.toString();
   }
 
+  /** Returns a merged list combining the table's own columns with the common column list. */
   protected List<DbOrClassColumnInfo> getMergedColumnList(DbOrClassTableInfo tableInfo,
       List<DbOrClassColumnInfo> commonColumnList) {
     // commonColumnListをmergeしたlistを作成
@@ -852,19 +888,20 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   }
 
   /**
-   * Entityとしての削除フラグの保持有無を返すメソッドを生成。
-   * 
-   * <p>
-   * 当entityに削除フラグ項目を持っている場合（SystemCommonからの呼び出しの場合、
-   * 個々のEntityではなくSystemCommonに項目を持っている場合）は、具体的にメソッドとして定義。
-   * SystemCommonからの呼び出しだが、個々のentity側で定義される場合は、abstractメソッドとして定義を行う。
+    * Generates the hasSoftDeleteField() method indicating whether the entity holds a soft delete
+    * flag column.
+   *
+   * <p>When the entity has the soft delete column the method returns true; when the column is in a
+   * different class (e.g. SystemCommon), the method is generated as abstract (called from
+   * SystemCommon) or omitted (called from a per-table entity).
    * </p>
-   * 具体的には、
    * <ul>
-   * <li>1-1.「SystemCommonからの呼び出し」かつ「削除フラグ使用」かつ「削除フラグ項目を持っていない」場合はabstract定義</li>
-   * <li>1-2.「SystemCommonからの呼び出しでない」かつ「削除フラグ使用」かつ「削除フラグ項目を持っていない」場合は出力なしで終了</li>
-   * <li>2.「削除フラグ使用」かつ「削除フラグ項目を持っている」場合はtrueを返す</li>
-   * <li>3. 上記2パターン以外の場合はfalseを返す</li>
+    * <li>1-1. Called from SystemCommon AND soft delete used AND column not present: abstract
+    * definition.</li>
+    * <li>1-2. Not called from SystemCommon AND soft delete used AND column not present: no
+    * output.</li>
+   * <li>2. Soft delete used AND column present: returns true.</li>
+   * <li>3. Otherwise: returns false.</li>
    * </ul>
    */
   protected void appendHasSoftDeleteFieldGen(StringBuilder sb, DbOrClassTableInfo tableInfo,
@@ -892,7 +929,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   }
 
   /**
-   * entityのフィールドに付加するvalidatorを生成。
+    * Generates the annotation strings to be attached to entity fields, including validators and JPA
+    * annotations.
    */
   private String getEntityFieldAnnotations(EntityGenKindEnum entityGenKindEnum, String tableName,
       DbOrClassColumnInfo colInfo, String id) {

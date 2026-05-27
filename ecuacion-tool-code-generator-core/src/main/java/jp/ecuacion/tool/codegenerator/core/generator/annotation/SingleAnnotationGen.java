@@ -12,17 +12,18 @@ import org.jspecify.annotations.Nullable;
  */
 public abstract class SingleAnnotationGen extends AnnotationGen {
 
-  /** 通常のAnnotationを生成する際のコンストラクタ。 */
+  /** Constructor used when creating a normal annotation. */
   public SingleAnnotationGen(String annotationName, @Nullable ElementType elementType) {
     super(annotationName, elementType);
   }
 
-  /** AnnotationGenManagerでも使うので、getterを作っておく。 */
+  /** Returns the element type; overridden here because it is also used by AnnotationGenManager. */
   @Override
   public @Nullable ElementType getElementType() {
     return elementType;
   }
 
+  /** Generates the annotation string after validating the element type and running checks. */
   public String generateString(ElementType elementType) {
     // チェック
     checkIfElementTypeAvailable(elementType);
@@ -37,14 +38,14 @@ public abstract class SingleAnnotationGen extends AnnotationGen {
     }
   }
 
-  /** annotation毎に固有なパラメータを取得するメソッド。 */
+  /** Returns the parameter generator specific to this annotation. */
   protected abstract @Nullable ParamGen getParamGen();
 
-  /** 本メソッドを継承するオブジェクト内で追加でチェックすることがあれば継承。なくても一応継承して^^;。 */
+  /** Performs any additional annotation-specific checks; subclasses should override when needed. */
   protected abstract void check();
 
   /**
-   * 指定のElementTypeをサポートしていることを確認。
+   * Verifies that the given element type is supported by this annotation generator.
    *
    * @param elementType elementType
    */
@@ -57,7 +58,7 @@ public abstract class SingleAnnotationGen extends AnnotationGen {
   }
 
   /**
-   * 使用可能なElementType(FIELD, METHODなど）を設定。 インスタンスごとに代わるものではないが、わかりやすく継承して持たせたいのでインスタンスメソッドにする
+   * Returns the element types (e.g., FIELD, METHOD) to which this annotation can be applied.
    */
   protected abstract ElementType[] getAvailableElmentTypes();
 }

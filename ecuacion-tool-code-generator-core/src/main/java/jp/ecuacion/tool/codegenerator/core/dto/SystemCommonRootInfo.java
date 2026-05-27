@@ -13,6 +13,7 @@ import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import org.apache.commons.lang3.StringUtils;
 
+/** TODO. */
 public class SystemCommonRootInfo extends AbstractRootInfo {
 
   private String templateVersion;
@@ -56,6 +57,7 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
 
   private Map<String, String> prohibitedCharsDescLangMap = new HashMap<>();
   
+  /** TODO. */
   public SystemCommonRootInfo(String templateVersion, String systemName, String basePackage,
       // String projectType,
       String frameworkKind, String usesSpringNamingConvention, String usesUtilJpa,
@@ -121,6 +123,7 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
   // return projectType;
   // }
 
+  /** TODO. */
   public boolean isFrameworkKindSpring() {
     if (frameworkKind.equals("Spring Framework")) {
       return true;
@@ -189,7 +192,7 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
     return prohibitedCharsDescLangMap.get(lang);
   }
 
-  /** これは定義されたないということはない（本当に全部空欄ならエラーになる）ので常にtrue。 */
+  /** これは定義されたないということはない（本当に全部空欄ならエラーになる）ので常にtrue。. */
   @Override
   public boolean isDefined() {
     return true;
