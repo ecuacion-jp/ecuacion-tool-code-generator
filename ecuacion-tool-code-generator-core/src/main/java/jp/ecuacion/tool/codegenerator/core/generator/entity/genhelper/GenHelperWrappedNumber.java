@@ -1,5 +1,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper;
 
+/** Abstract generation helper for wrapped number (Short, Integer, Long) data type columns. */
 public abstract class GenHelperWrappedNumber extends GenHelperKata {
 
   // @Override

@@ -22,6 +22,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWi
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 
+/** TODO. */
 @SuppressWarnings("NullAway.Init")
 public class DbOrClassTableInfo extends AbstractInfo {
   @Valid
@@ -35,11 +36,13 @@ public class DbOrClassTableInfo extends AbstractInfo {
   // private boolean isSurrogateKeyStorategy = false;
   private boolean hasUniqueConstraint = false;
 
+  /** TODO. */
   @SuppressWarnings("null")
   public DbOrClassTableInfo() {
 
   }
 
+  /** TODO. */
   public DbOrClassTableInfo(String tableName) {
     this.name = tableName;
   }
@@ -66,6 +69,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * column
    */
 
+  /** TODO. */
   public boolean hasColumn(String colName) {
     for (DbOrClassColumnInfo ci : columnList) {
       if (ci.getName().equals(colName)) {
@@ -92,6 +96,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * all columns
    */
 
+  /** TODO. */
   public List<DbOrClassColumnInfo> getColumnListIncludingSystemCommon() {
     List<DbOrClassColumnInfo> list = new ArrayList<>(columnList);
     list.addAll(info.getDbCommonRootInfo().tableList.get(0).columnList);
@@ -103,14 +108,17 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * kata
    */
 
+  /** TODO. */
   public boolean hasColumnWithKata(DataTypeKataEnum kata) {
     return columnList.stream().map(ci -> ci.getDtInfo().getKata()).toList().contains(kata);
   }
 
+  /** TODO. */
   public List<DbOrClassColumnInfo> getColumnListWithKata(DataTypeKataEnum kata) {
     return columnList.stream().filter(ci -> ci.getDtInfo().getKata() == kata).toList();
   }
 
+  /** TODO. */
   @SuppressWarnings("null")
   public boolean hasColumnWithAnyOfKatas(DataTypeKataEnum... katas) {
     List<DataTypeKataEnum> tableKataList =
@@ -125,6 +133,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return false;
   }
 
+  /** TODO. */
   public List<DbOrClassColumnInfo> getColumnListWithAnyOfKatas(DataTypeKataEnum... katas) {
     return columnList.stream().filter(ci -> Arrays.asList(katas).contains(ci.getDtInfo().getKata()))
         .toList();
@@ -141,6 +150,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return list.size() == 0 ? null : list.get(0);
   }
 
+  /** TODO. */
   public boolean hasPkColumn() {
     return getPkColumn() != null;
   }
@@ -154,6 +164,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * group
    */
 
+  /** TODO. */
   public boolean hasGroupColumn() {
     return getGroupColumn() != null;
   }
@@ -171,6 +182,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return null;
   }
 
+  /** TODO. */
   public boolean hasGroupColumnIncludingSystemCommon() {
     return getGroupColumnIncludingSystemCommon() != null;
   }
@@ -212,6 +224,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return groupCiList.size() == 0 ? null : groupCiList.get(0);
   }
 
+  /** TODO. */
   public boolean hasCustomGroupColumn() {
     return getCustomGroupColumn() != null;
   }
@@ -232,17 +245,19 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * soft delete
    */
 
+  /** TODO. */
   public boolean hasSoftDeleteFieldExcludingSystemCommon() {
     return softDeleteExistenceCheck(columnList, getName());
   }
 
+  /** TODO. */
   public boolean hasSoftDeleteFieldInSystemCommon() {
     List<DbOrClassColumnInfo> dbCommonCi = info.getDbCommonRootInfo().tableList.get(0).columnList;
     return softDeleteExistenceCheck(dbCommonCi, getName());
   }
 
   /**
-   * これは前述の2つの値から決まるので、個別にfieldは持たずmethodのみ用意しておく.
+   * これは前述の2つの値から決まるので、個別にfieldは持たずmethodのみ用意しておく..
    */
   public boolean hasSoftDeleteFieldInludingSystemCommon() {
     return hasSoftDeleteFieldExcludingSystemCommon() || hasSoftDeleteFieldInSystemCommon();
@@ -291,14 +306,17 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return getVersionColumn(columnList);
   }
 
+  /** TODO. */
   public boolean hasVersionColumn() {
     return getVersionColumn() != null;
   }
 
+  /** TODO. */
   public DbOrClassColumnInfo getVersionColumnIncludingSystemCommon() {
     return getVersionColumn(getColumnListIncludingSystemCommon());
   }
 
+  /** TODO. */
   public boolean hasVersionColumnIncludingSystemCommon() {
     return getGroupColumnIncludingSystemCommon() != null;
   }
@@ -307,14 +325,17 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * unique constraint
    */
 
+  /** TODO. */
   public void setHasUniqueConstraint(boolean hasUniqueConstraint) {
     this.hasUniqueConstraint = hasUniqueConstraint;
   }
 
+  /** TODO. */
   public boolean hasUniqueConstraint() {
     return hasUniqueConstraint;
   }
 
+  /** TODO. */
   public String getTableAnnotationString(DbOrClassTableInfo tableInfo) {
     ParamListGen paramGenList = new ParamListGen();
     // name
@@ -384,32 +405,39 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * relation
    */
 
+  /** TODO. */
   public List<DbOrClassColumnInfo> getRelationColumnList() {
     return columnList.stream().filter(ci -> ci.isRelation()).toList();
   }
 
+  /** TODO. */
   public List<DbOrClassColumnInfo> getRelationColumnWithoutGroupList() {
     return columnList.stream().filter(ci -> ci.isRelation())
         .filter(ci -> !ci.getName().equals(info.getGroupRootInfo().getColumnName())).toList();
   }
 
+  /** TODO. */
   public boolean hasRelationColumn() {
     return getRelationColumnList().size() > 0;
   }
 
+  /** TODO. */
   public boolean hasBidirectionalRelation() {
     return columnList.stream().filter(col -> col.isRelation() && col.isRelationBidirectinal())
         .toList().size() > 0;
   }
   
+  /** TODO. */
   public List<DbOrClassColumnInfo> getBidirectionalRelationRefColumnList() {
     return columnList.stream().filter(col -> col.hasBidirectionalRelationRef()).toList();
   }
 
+  /** TODO. */
   public boolean hasBidirectionalRelationRefColumn() {
     return getBidirectionalRelationRefColumnList().size() > 0;
   }
 
+  /** TODO. */
   public boolean hasAnyRelationsOrRefs() {
     return hasRelationColumn() || hasBidirectionalRelationRefColumn();
   }
@@ -479,6 +507,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return index.toArray(new String[index.size()]);
   }
 
+  /** TODO. */
   public void dataConsistencyCheck() {
     for (DbOrClassColumnInfo info : columnList) {
       info.afterReading();

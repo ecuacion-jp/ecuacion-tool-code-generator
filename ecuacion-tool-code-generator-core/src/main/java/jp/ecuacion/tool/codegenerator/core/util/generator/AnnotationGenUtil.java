@@ -10,9 +10,13 @@ import jp.ecuacion.tool.codegenerator.core.generator.ToolForCodeGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.AnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.ValidatorGen;
 
+/** Utility methods for generating annotation code strings and resolving import requirements. */
 public class AnnotationGenUtil extends ToolForCodeGen {
 
-  /** AnnotationGenのリストからコードを取得。 */
+  /**
+   * Returns the combined annotation code string for all entries in the list, indented for the given
+   * element type.
+   */
   public static String getCode(List<? extends AnnotationGen> annotationGenList,
       ElementType elementType) {
     List<String> strList = new ArrayList<>();
@@ -26,6 +30,7 @@ public class AnnotationGenUtil extends ToolForCodeGen {
     return sb.toString();
   }
 
+  /** Returns the set of import strings required by the given list of validator generators. */
   public static String[] getNeededImports(List<ValidatorGen> list) {
     Set<String> rtnSet = new HashSet<>();
     for (ValidatorGen an : list) {

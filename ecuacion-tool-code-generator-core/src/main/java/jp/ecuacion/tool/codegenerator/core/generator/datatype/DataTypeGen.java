@@ -11,6 +11,7 @@ import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
+/** Generates data type validator annotation and attribute converter source files. */
 public class DataTypeGen extends AbstractGen {
 
   private DataTypeInfo dtInfo;
@@ -19,7 +20,8 @@ public class DataTypeGen extends AbstractGen {
   protected String kata;
 
   private CodeGenUtil code = new CodeGenUtil();
-  
+
+  /** Constructs an instance for the given data type info. */
   public DataTypeGen(DataTypeInfo dtInfo) {
     super(DataKindEnum.DATA_TYPE);
 
@@ -37,6 +39,7 @@ public class DataTypeGen extends AbstractGen {
     genDataType();
   }
 
+  /** Generates the data type validator annotation source file if validators are defined. */
   protected void genDataType() {
 
     // 内部にvalidatorを保持しない場合は作成する意味がないのでスキップ
@@ -74,7 +77,7 @@ public class DataTypeGen extends AbstractGen {
     outputFile(sb, getFilePath("datatype"), dataTypeName + "DataTypeValidator.java");
   }
 
-  /** Converter生成。 */
+  /** Generates the JPA attribute converter class for ENUM type data types. */
   public void generateConverter(boolean refersCommon) {
     // dataType仕様有無で紆余曲折したが、結局dataTypeは使わないこととしたのでenumの場合のみconverterを作成することとした
     if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {

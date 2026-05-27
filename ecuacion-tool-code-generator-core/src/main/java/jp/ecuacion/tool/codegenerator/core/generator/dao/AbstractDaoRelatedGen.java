@@ -3,16 +3,17 @@ package jp.ecuacion.tool.codegenerator.core.generator.dao;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 
-/**
- * @author 庸介
- *
- */
+/** Abstract base class for DAO-related code generators. */
 public abstract class AbstractDaoRelatedGen extends AbstractGen {
 
   protected final String postfixSm;
   protected final String postfixCp;
 
 
+  /**
+   * Constructs an instance and resolves DAO postfix strings based on Spring naming convention
+   * settings.
+   */
   public AbstractDaoRelatedGen(DataKindEnum xmlFilePostFix) {
     super(xmlFilePostFix);
 

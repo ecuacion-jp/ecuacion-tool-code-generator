@@ -8,6 +8,10 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 
+/**
+ * Generates native SQL properties files containing insert, insertAll, and truncate statements for
+ * each entity table.
+ */
 @SuppressWarnings("NullAway.Init")
 public class SqlPropertiesGen extends AbstractDaoRelatedGen {
 
@@ -17,6 +21,7 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
 
   String sqlRt = " \\n \\";
 
+  /** Constructs an instance for the DB data kind. */
   @SuppressWarnings("null")
   public SqlPropertiesGen() {
     super(DataKindEnum.DB);
@@ -51,6 +56,7 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
     }
   }
 
+  /** Writes the collected SQL entries to a properties file at the given path. */
   protected void outputFileForSqlProperties(List<SqlInfo> sqlInfoArr, String path,
       String fileName) {
     StringBuilder sqls = new StringBuilder();

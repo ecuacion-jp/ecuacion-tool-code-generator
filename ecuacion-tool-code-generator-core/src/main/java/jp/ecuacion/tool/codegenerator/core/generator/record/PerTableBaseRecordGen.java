@@ -6,8 +6,13 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
 
+/**
+ * Generates a per-table base record class that extends {@code SystemCommonBaseRecord} and
+ * implements {@code ItemContainer}.
+ */
 public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
+  /** Constructs an instance for the given data kind. */
   public PerTableBaseRecordGen(DataKindEnum dataKind) {
     super(dataKind);
   }
@@ -17,6 +22,10 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     internalGenerate(info.getDbRootInfo().tableList, false);
   }
 
+  /**
+   * Generates the class header with imports for {@code ItemContainer} and the {@code
+   * ItemNameKeyClass} annotation.
+   */
   public void generateHeader(DbOrClassTableInfo ti) {
 
     generateHeaderCommon(ti, rootBasePackage + ".base.entity." + ti.getNameCpCamel(),

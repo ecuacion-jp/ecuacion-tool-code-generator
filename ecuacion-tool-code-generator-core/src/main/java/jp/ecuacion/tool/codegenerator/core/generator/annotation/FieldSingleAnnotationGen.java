@@ -9,12 +9,14 @@ import org.jspecify.annotations.Nullable;
  */
 public abstract class FieldSingleAnnotationGen extends SingleAnnotationGen {
 
+  /** Constructs a FieldSingleAnnotationGen with the given annotation name and element type. */
   public FieldSingleAnnotationGen(String annotationName, @Nullable ElementType elementType) {
     super(annotationName, elementType);
   }
 
-  /** 
-   * 複数のvalidatorを組み合わせて一つのvalidatorを生成する場合に、TYPEが必要になるので追加。
+  /**
+    * Returns the available element types, including TYPE in addition to FIELD to support combined
+    * validators.
    */
   @Override
   protected ElementType[] getAvailableElmentTypes() {
@@ -23,8 +25,8 @@ public abstract class FieldSingleAnnotationGen extends SingleAnnotationGen {
   }
 
   /**
-   * annotation / validatorを付加可能なjavaデータ型を定義。 この中に入っていないものは例外をあげ処理を終了。
-   * インスタンスごとに代わるものではないが、わかりやすく継承して持たせたいのでインスタンスメソッドにする
+   * Returns the Java data types to which this annotation or validator can be applied.
+   * An exception is thrown if the actual type is not included in the returned array.
    */
   protected abstract DataTypeKataEnum[] getAvailableKatas();
 }

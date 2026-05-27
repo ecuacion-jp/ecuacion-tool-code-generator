@@ -3,6 +3,10 @@ package jp.ecuacion.tool.codegenerator.core.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+/**
+ * Validates that a string value represents a boolean in the code-generator convention: null, empty,
+ * or {@code ○}.
+ */
 public class StrBooleanValidator implements ConstraintValidator<StrBoolean, String> {
 
   @Override

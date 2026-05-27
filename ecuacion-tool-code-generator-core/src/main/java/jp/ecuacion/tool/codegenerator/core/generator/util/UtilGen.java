@@ -8,8 +8,13 @@ import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
+/**
+ * Generates the {@code JpaFilterUtil} utility class that configures soft-delete and group
+ * filtering.
+ */
 public class UtilGen extends AbstractGen {
 
+  /** Constructs an instance for the DB data kind. */
   public UtilGen() {
     super(DataKindEnum.DB);
   }

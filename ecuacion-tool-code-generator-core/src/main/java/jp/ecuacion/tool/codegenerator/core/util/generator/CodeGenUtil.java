@@ -82,6 +82,10 @@ public class CodeGenUtil {
    * cases / formats
    */
 
+  /**
+   * Converts the string to lower-camel case, treating it as snake_case when it contains
+   * underscores.
+   */
   public String uncapitalCamel(String camelOrSnakeString) {
     if (isSnake(camelOrSnakeString)) {
       return StringUtil.getLowerCamelFromSnake(camelOrSnakeString);
@@ -91,6 +95,10 @@ public class CodeGenUtil {
     }
   }
 
+  /**
+   * Converts the string to upper-camel case, treating it as snake_case when it contains
+   * underscores.
+   */
   public String capitalCamel(String camelOrSnakeString) {
     if (isSnake(camelOrSnakeString)) {
       return StringUtil.getUpperCamelFromSnake(camelOrSnakeString);
@@ -275,35 +283,42 @@ public class CodeGenUtil {
     return sb.toString();
   }
 
+  /**
+   * Format specifier for generating a single column expression (getter, setter, property path, or
+   * query method name).
+   */
   public static enum ColFormat {
     ITEM_PROPERTY_PATH, SET, GET, GET_OF_ENTITY_DATA_TYPE, QUERY_METHOD
   }
 
+  /**
+   * Format specifier for generating a multi-column expression that joins natural-key columns in
+   * various styles.
+   */
   public static enum ColListFormat {
-    /** naturalKeyをentityからgetする形の "myArg1MyArg2" という形式 */
+    /** JPQL WHERE clause fragment: {@code my_col = :myCol and ...}. */
     JPQL(BetweenColumns.PADDED_AND),
 
-    /**
-     * naturalKeyをsqlの引数にする形の"my_arg_1 = :#{#entity.myArg1} and my_arg_2 = :#{#entity.myArg2}"
-     * という形式
-     */
+    /** Native SQL parameter binding fragment: {@code my_col = :#{#entity.myCol} and ...}. */
     SQL_PARAM(BetweenColumns.PADDED_AND),
 
-    /** naturalKeyをentityからgetする形の "myArg1AndMyArg2" という文字列を保持。table別にmap形式。 */
+    /** Lower-camel concatenation of column names: {@code myArg1AndMyArg2}. */
     UNCAPITAL_CAMEL_AND(BetweenColumns.AND),
 
     /**
-     * naturalKeyをentityからgetする形の "myArg1AndMyArg2" という文字列を保持。table別にmap形式。
-     * ただしnaturalKeyがrelationを持つ場合はAcc_IdAndApp_Idのようになる。repositoryでの使用を想定。
+      * Lower-camel concatenation that appends the referenced column when the natural key includes a
+      * relation,
+     * e.g. {@code accIdAndAppId}.
      */
     UNCAPITAL_CAMEL_AND_REL_CONSIDERED(BetweenColumns.AND),
 
-    /** naturalKeyをentityからgetする形の "e.getMyArg1(), e.getMyArg2()" という文字列を保持。table別にmap形式。 */
+    /** Comma-separated getter calls on an entity: {@code e.getMyArg1(), e.getMyArg2()}. */
     ENTITY_GET(BetweenColumns.PADDED_COMMA),
 
-    /** naturalKeyを引数にとる時の "String myArg1, Integer myArg2" という文字列を保持。table別にmap形式。 */
+    /** Comma-separated field declarations: {@code String myArg1, Integer myArg2}. */
     ENTITY_DEFINE(BetweenColumns.PADDED_COMMA),
 
+    /** Comma-separated {@code rec.getXxx(OfEntityDataType)} calls for building record arguments. */
     REC_GET_OF_ENTITY_DATA_TYPE(BetweenColumns.PADDED_COMMA);
 
     private BetweenColumns betweenColumns;
@@ -348,6 +363,10 @@ public class CodeGenUtil {
     }
   }
 
+  /**
+   * Returns a comma-separated parameter declaration string for the natural-key columns of the given
+   * table.
+   */
   public String naturalKeyDefine(DbOrClassTableInfo ti) {
     return generateString(ti.columnList.stream().filter(ci -> ci.isUniqueConstraint()).toList(),
         ColListFormat.ENTITY_DEFINE);
@@ -357,16 +376,25 @@ public class CodeGenUtil {
    * repository
    */
 
+  /**
+   * Returns the native SQL parameter binding fragment for the natural-key columns of the given
+   * table.
+   */
   public String naturalKeySqlParams(DbOrClassTableInfo ti) {
     return generateString(ti.columnList.stream().filter(ci -> ci.isUniqueConstraint()).toList(),
         ColListFormat.SQL_PARAM);
   }
 
+  /** Returns the lower-camel-concatenated natural-key name string for the given table. */
   public String naturalKeyUncapitalCamelAnd(DbOrClassTableInfo ti) {
     return generateString(ti.columnList.stream().filter(ci -> ci.isUniqueConstraint()).toList(),
         ColListFormat.UNCAPITAL_CAMEL_AND);
   }
 
+  /**
+   * Returns the lower-camel-concatenated natural-key name string, expanding relation columns to
+   * include the referenced column name.
+   */
   public String naturalKeyUncapitalCamelAndRelConsidered(DbOrClassTableInfo ti) {
     return generateString(ti.columnList.stream().filter(ci -> ci.isUniqueConstraint()).toList(),
         ColListFormat.UNCAPITAL_CAMEL_AND_REL_CONSIDERED);
@@ -376,22 +404,36 @@ public class CodeGenUtil {
    * var
    */
 
+  /** Returns a null-check expression string: {@code <formattedString> != null}. */
   public String varIsNotNull(String formattedString) {
     return formattedString + " != null";
   }
 
+  /**
+   * Returns an {@code if}-statement string guarding on non-null: {@code if (<formattedString> !=
+   * null)}.
+   */
   public String ifVarIsNotNull(String formattedString) {
     return "if (" + formattedString + " != null) ";
   }
 
+  /** Returns a setter invocation string: {@code setXxx(<argString>)}. */
   public String set(String fieldOrColumnName, String argString) {
     return "set" + capitalCamel(fieldOrColumnName) + "(" + argString + ")";
   }
 
+  /**
+   * Returns the base-record class name for the given entity or table name, e.g. {@code
+   * MyTableBaseRecord}.
+   */
   public String baseRec(String entityOrTableName) {
     return capitalCamel(entityOrTableName) + "BaseRecord";
   }
 
+  /**
+   * Returns a local variable declaration string for the base record, e.g. {@code MyTableBaseRecord
+   * rec}.
+   */
   public String baseRecDef(String entityOrTableName) {
     String uc = capitalCamel(entityOrTableName);
     return uc + "BaseRecord rec";
@@ -401,36 +443,43 @@ public class CodeGenUtil {
    * recGet
    */
 
+  /** Returns a getter call on the record variable: {@code rec.getXxx()}. */
   public String recGet(String fieldOrColumnName) {
     return "rec.get" + capitalCamel(fieldOrColumnName) + "()";
   }
 
+  /** Returns a null-check expression for a record field: {@code rec.getXxx() == null}. */
   public String recGetIsNull(String fieldOrColumnName) {
     return recGet(fieldOrColumnName) + " == null";
   }
 
+  /** Returns a non-null check expression for a record field: {@code rec.getXxx() != null}. */
   public String recGetIsNotNull(String fieldOrColumnName) {
     return varIsNotNull(recGet(fieldOrColumnName));
   }
 
+  /** Returns an {@code if}-statement string guarding on a non-null record field. */
   public String ifRecGetIsNotNull(String fieldOrColumnName) {
     return "if (" + recGet(fieldOrColumnName) + " != null) ";
   }
 
-  /** Account.mailAddress の形式の文字列を生成. */
+  /** Returns a {@code ClassName.fieldName} expression, e.g. {@code Account.mailAddress}. */
   public String classDotField(String tableName, DbOrClassColumnInfo columnInfo) {
     return StringUtil.getUpperCamelFromSnake(tableName) + "."
         + StringUtil.getLowerCamelFromSnake(columnInfo.getName());
   }
 
+  /** Returns the soft-delete column name in upper-camel case. */
   public String softDeleteColCaptalCamel() {
     return StringUtil.getUpperCamelFromSnake(info.getRemovedDataRootInfo().getColumnName());
   }
 
+  /** Returns the soft-delete column name in upper-snake case. */
   public String softDeleteColUpperSnake() {
     return info.getRemovedDataRootInfo().getColumnName().toUpperCase();
   }
 
+  /** Returns the soft-delete column name in lower-snake case. */
   public String softDeleteColLowerSnake() {
     return info.getRemovedDataRootInfo().getColumnName().toLowerCase();
   }

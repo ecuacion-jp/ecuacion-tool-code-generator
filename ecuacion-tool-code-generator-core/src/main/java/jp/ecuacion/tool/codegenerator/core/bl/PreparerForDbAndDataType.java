@@ -4,6 +4,7 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.DATE_TI
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.INTEGER;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.LONG;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIMESTAMP;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,14 +25,17 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
+/** TODO. */
 public class PreparerForDbAndDataType {
 
   private Info info;
 
+  /** TODO. */
   public PreparerForDbAndDataType() {
     this.info = MainController.tlInfo.get();
   }
 
+  /** TODO. */
   public void prepare() {
     // 複数xml間のdataType存在整合性
     checkIfDataTypeInEnumExistsInDataTypeInfo();
@@ -45,7 +49,7 @@ public class PreparerForDbAndDataType {
   }
 
   /**
-   * enumに存在するdataType名がdataTypeInfoに存在するかをチェック。
+   * enumに存在するdataType名がdataTypeInfoに存在するかをチェック。.
    */
   @SuppressWarnings("null")
   private void checkIfDataTypeInEnumExistsInDataTypeInfo() {
@@ -69,7 +73,7 @@ public class PreparerForDbAndDataType {
   }
 
   /**
-   * DbOrClassに存在するdataType名がdataTypeInfoに存在するかをチェック。
+   * DbOrClassに存在するdataType名がdataTypeInfoに存在するかをチェック。.
    */
   private void checkIfDataTypeInDbOrClassExistsInDataTypeInfo() {
     checkIfDataTypeInDbOrClassExistsInDataTypeInfoCommon(DataKindEnum.DB);
@@ -77,7 +81,7 @@ public class PreparerForDbAndDataType {
   }
 
   /**
-   * DbOrClassに存在するdataType名がdataTypeInfoに存在するかをチェックするための共通処理。
+   * DbOrClassに存在するdataType名がdataTypeInfoに存在するかをチェックするための共通処理。.
    */
   @SuppressWarnings("null")
   private void checkIfDataTypeInDbOrClassExistsInDataTypeInfoCommon(DataKindEnum dataKind) {

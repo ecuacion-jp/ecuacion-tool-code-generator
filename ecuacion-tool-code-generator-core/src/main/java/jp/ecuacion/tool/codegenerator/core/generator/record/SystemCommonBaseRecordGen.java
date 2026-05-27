@@ -9,6 +9,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
  */
 public class SystemCommonBaseRecordGen extends AbstractBaseRecordGen {
 
+  /** Constructs an instance that targets the common DB column definition. */
   public SystemCommonBaseRecordGen() {
     super(DataKindEnum.DB_COMMON);
   }
@@ -18,6 +19,9 @@ public class SystemCommonBaseRecordGen extends AbstractBaseRecordGen {
     internalGenerate(Arrays.asList(new DbOrClassTableInfo[] {info.getCommonTableInfo()}), true);
   }
 
+  /**
+   * Generates the class header that extends {@code SplibRecord} for the system-common base record.
+   */
   public void generateHeader(DbOrClassTableInfo tableInfo) {
 
     generateHeaderCommon(tableInfo, "jp.ecuacion.splib.core.record.SplibRecord",

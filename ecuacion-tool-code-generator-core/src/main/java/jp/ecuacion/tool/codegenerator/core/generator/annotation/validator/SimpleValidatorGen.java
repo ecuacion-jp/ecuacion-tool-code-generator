@@ -4,16 +4,18 @@ import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 
-/** 
- * 引数なしのvalidatorを簡単に作成する。
- * 固定で考えることもない単純なvalidator（@IntegerStringなど）で一生懸命コード行数を増やすのも無駄なので、
- * 個別classをつくらず簡単にvalidatorを作成できる道を作っておく。
+/**
+ * A convenience ValidatorGen for simple, parameter-free validators such as {@code @IntegerString}.
  */
 public class SimpleValidatorGen extends ValidatorGen {
 
   private boolean isJakartaEeStandardValidator;
   private DataTypeKataEnum[] availableKatas;
 
+  /**
+   * Constructs a SimpleValidatorGen with the annotation name, data type, Jakarta EE standard flag,
+   * and allowed katas.
+   */
   public SimpleValidatorGen(String annotationName, DataTypeInfo dtInfo,
       boolean isJakartaEeStandardValidator, DataTypeKataEnum[] availableKatas) {
     super(annotationName, dtInfo);

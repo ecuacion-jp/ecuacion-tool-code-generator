@@ -7,12 +7,14 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.INTEGER
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.LONG;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.SHORT;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.STRING;
+
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 import org.jspecify.annotations.Nullable;
 
+/** Generator for the {@code @Digits} (mapped to {@code @FieldDigits}) validator annotation. */
 public class DigitsGen extends ValidatorGen {
 
   private @Nullable Integer integer;
