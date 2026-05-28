@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.blf;
 
 import java.util.ArrayList;
@@ -43,7 +58,7 @@ public class CheckAndComplementDataBlf {
     final SystemCommonRootInfo systemCommon =
         (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON);
 
-    // 複数RootInfoの中で、RootInfoの存在有無の整合性チェックと補完
+    // Consistency check and complementation for the existence of multiple RootInfos
     new CheckAndComplementFileLevelConsistencyCheckBl().check(systemName, rootInfoMap);
 
     // dataType
@@ -54,24 +69,24 @@ public class CheckAndComplementDataBlf {
     checkForChildTable(systemCommon.getSystemName(),
         (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB));
 
-    // tableの親子間
+    // Between parent and child tables
     checkAndComplementForParentAndChildTable(
         (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON),
         (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB));
 
-    // tableとgroup間
+    // Between table and group
     checkAndComplementForTableAndGroup(systemName,
         (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON),
         (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB),
         (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP));
 
-    // dataTypeInfoのcolInfoへの詰め込み
+    // Store dataTypeInfo into colInfo
     Map<String, DataTypeInfo> dtMap = createDataTypeMap(systemName, rootInfoMap);
 
     // Put dataTypeInfo to info.
     putDataTypeInfoIntoColInfo(systemName, rootInfoMap, dtMap);
 
-    // 複数ファイル間でのデータチェックとデータ整理
+    // Data check and organization across multiple files
     new PrepareManager().prepare();
 
     return dtMap;
@@ -107,22 +122,21 @@ public class CheckAndComplementDataBlf {
 
   private void checkAndComplementForParentAndChildTable(DbOrClassRootInfo dbCommonRootInfo,
       DbOrClassRootInfo dbRootInfo) {
-    // 情報付加のため再度ループ
+    // Loop again to add information
     for (DbOrClassTableInfo tableInfo : dbRootInfo.tableList) {
-      // テーブル単位の情報取得
       boolean hasS = false;
       boolean hasU = false;
 
-      // dbInfoとdbCommonInfoのカラムを合わせないと正しく判断できないためマージ
+      // Merge dbInfo and dbCommonInfo columns since judgment requires both
       List<DbOrClassColumnInfo> commonAddedColumnList = new ArrayList<>();
       commonAddedColumnList.addAll(tableInfo.columnList);
       commonAddedColumnList.addAll(dbCommonRootInfo.tableList.get(0).columnList);
 
       for (DbOrClassColumnInfo colInfo : commonAddedColumnList) {
-        // commonのcolumnも追加
+        // Also include common columns
 
         if (colInfo.isPk()) {
-          // Surrogate Keyが2項目あるのはNGなのでチェックしておく
+          // Check because having two surrogate key columns is not allowed
           if (hasS) {
             new Violations().add(new BusinessViolation(
                 "MSG_ERR_SURROGATE_KEY_DUPLICATED", tableInfo.getName())).throwIfAny();
@@ -136,7 +150,7 @@ public class CheckAndComplementDataBlf {
         }
       }
 
-      // PKは必須。SystemCommonだけは特別扱い。
+      // PK is required. SystemCommon is treated specially.
       if (!tableInfo.getName().equals("SYSTEM_COMMON") && !hasS) {
         new Violations().add(
             new BusinessViolation("MSG_ERR_PK_REQUIRED", tableInfo.getName())).throwIfAny();
@@ -157,12 +171,13 @@ public class CheckAndComplementDataBlf {
 
     final String colName = groupRootInfo.getColumnName();
 
-    // groupの定義がない場合は終了
+    // Exit if group definition is absent
     if (!groupRootInfo.isDefined()) {
       return;
     }
 
-    // groupRootInfoで定義された項目が親子のtableでそれぞれ保持有無の取得（子は任意のtableに存在すればありとみなす）
+    // Check whether the column defined in groupRootInfo exists in the parent/child tables
+    // (the child is considered to have the column if it exists in any child table)
     boolean parentTableHasGroupCol = dbCommonRootInfo.tableList.get(0).hasColumn(colName);
     boolean childTableHasGroupCol = false;
     for (DbOrClassTableInfo ti : dbRootInfo.tableList) {
@@ -172,23 +187,27 @@ public class CheckAndComplementDataBlf {
       }
     }
 
-    // 親にも子にも存在するのはNGだが、「親にも子にも同一のカラム存在チェック」で引っかかるためここではチェックしない。
-    // 親にも子にも存在しないチェックはしておく。
+    // Having the column in both parent and child is invalid, but it is caught by the
+    // "same column exists in both parent and child" check, so it is not checked here.
+    // Do check for the case where it exists in neither parent nor child.
     if (!parentTableHasGroupCol && !childTableHasGroupCol) {
       new Violations().add(
           new BusinessViolation("MSG_ERR_COMMON_GROUP_COL_NOT_FOUND", systemName)).throwIfAny();
     }
 
-    // 共通設定として「group_id」をgroupを表すカラム名としている場合に、そのマスタとなるgroupテーブル上では、group_idではなくidというカラム名で持ちたいことがある。
-    // そのために、各テーブルの設定で「グループ識別項目」という列を持っている。この背景からわかるように、「グループ識別項目」は子テーブルで、あってもひとつのみ存在。
+    // When "group_id" is used as the common group column name, the master group table may want to
+    // hold the column as "id" rather than "group_id". For this purpose each table has a
+    // "custom group column" setting. As this background implies, a custom group column can only
+    // exist in child tables, at most once.
 
-    // systemCommonに「グループ識別項目」を持つのは意味がわからないのでエラー。（共通設定のgroupを使用すべき）
+    // It makes no sense to have a "custom group column" in systemCommon, so treat it as an error.
+    // (The common group setting should be used instead.)
     if (dbCommonRootInfo.tableList.get(0).hasCustomGroupColumn()) {
       new Violations().add(new BusinessViolation(
           "MSG_ERR_SYSTEM_COMMON_ENTITY_CANNOT_HAVE_CUSTOM_GROUP_COLUMN", systemName)).throwIfAny();
     }
 
-    // 子テーブルで「グループ識別項目」が2つあるのはエラーとする
+    // Having more than one "custom group column" in child tables is an error
     int numOfCustomGroupColumns = 0;
     String customGroupTableName = null;
     String customGroupColumnName = null;
@@ -204,7 +223,7 @@ public class CheckAndComplementDataBlf {
       }
     }
 
-    // customGroupの情報を追加
+    // Add customGroup information
     groupRootInfo.setCustomGroupTableName(customGroupTableName);
     groupRootInfo.setCustomGroupColumnName(customGroupColumnName);
   }
@@ -215,16 +234,17 @@ public class CheckAndComplementDataBlf {
    */
   public Map<String, DataTypeInfo> createDataTypeMap(String systemName,
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
-    // 一つ目のStringはシステム名、2つ目はdataType名。全てのdataTypeInfoをこれに詰める
+    // First String is system name, second is dataType name. All dataTypeInfo is stored here.
     Map<String, DataTypeInfo> dtMap = new HashMap<String, DataTypeInfo>();
 
-    // データをdtMapに詰める
-    // 仕様上、dataTypeInfoなしで、dataTypeRefInfoのみを使用しシステムを構築することも可能としているので、存在チェックをかけておく
+    // Fill dtMap with data
+    // By design it is possible to build a system using only dataTypeRefInfo without dataTypeInfo,
+    // so perform an existence check here.
     if (rootInfoMap.get(DataKindEnum.DATA_TYPE) != null) {
-      // Mapを生成
+      // Build the map
 
       DataTypeRootInfo dtRootInfo = (DataTypeRootInfo) rootInfoMap.get(DataKindEnum.DATA_TYPE);
-      // dataTypeListのdataType情報をMapに詰める。
+      // Store the dataType information from dataTypeList into the map.
       for (DataTypeInfo dtInfo : dtRootInfo.dataTypeList) {
         dtMap.put(dtInfo.getDataTypeName(), dtInfo);
       }

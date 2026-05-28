@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jakarta.validation.Valid;
@@ -11,7 +26,10 @@ import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 
-/** TODO. */
+/**
+ * Holds root information for DB or class entity definitions, including the list of tables
+ * and validation logic.
+ */
 public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer {
   @Override
   public Item[] customizedItems() {
@@ -21,7 +39,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
   @Valid
   public List<DbOrClassTableInfo> tableList = new ArrayList<DbOrClassTableInfo>();
 
-  /** TODO. */
+  /** Constructs an instance for the given data kind. */
   public DbOrClassRootInfo(DataKindEnum fileKind) {
     super(fileKind);
   }
@@ -31,7 +49,10 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
     return tableList.size() > 0;
   }
 
-  /** TODO. */
+  /**
+   * Validates all tables and columns via bean validation, then runs SYSTEM_COMMON-specific
+   * consistency checks.
+   */
   public void consistencyCheckAndCoplementData() {
     new Violations()
         .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(this))
@@ -41,14 +62,14 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
       tbl.dataConsistencyCheck();
     }
     
-    // 子のentityの場合のみのチェック
+    // Check only for child entities
     // childEntityCheck();
 
-    // systemCommonの場合のみのチェック
+    // Check only for systemCommon
     systemCommonCheck();
   }
 
-  // 将来のチェック追加用に残しているが現時点では内容なし（redmine#463参照）
+  // Retained for future check additions; currently empty (see redmine#463)
   // private void childEntityCheck() {
   //   for (DbOrClassTableInfo ti : tableList) {
   //     for (DbOrClassColumnInfo ci : ti.columnList) {
@@ -65,7 +86,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
 
     if (fileKind.equals(DataKindEnum.DB_COMMON)) {
 
-      // そもそもtableはあって一つ
+      // There should be at most one table
       if (tableList.size() > 1) {
         new Violations().add(new BusinessViolation(
             "MSG_ERR_CONSISTENCY_CHECK_SYSTEM_COMMON_ENTITY_MUST_BE_0_OR_1")).throwIfAny();
@@ -75,17 +96,17 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
         return;
       }
 
-      // 以下は親entityが存在する場合
+      // The following applies when a parent entity exists
       DbOrClassTableInfo ti = tableList.get(0);
 
-      // 名称はSystemCommon
+      // Name must be SystemCommon
       if (!ti.getName().equals("SYSTEM_COMMON")) {
         new Violations().add(new BusinessViolation(
             "MSG_ERR_CONSISTENCY_CHECK_NAME_OF_SYSTEM_COMMON_ENTITY_CANNOT_BE_CHANGED"))
             .throwIfAny();
       }
 
-      // SystemCommonにはrelationを保持しないルール。（redmine#465）
+      // SystemCommon must not have relations (redmine#465)
       for (DbOrClassColumnInfo ci : ti.columnList) {
         if (ci.getRelationKind() != null) {
           new Violations().add(new BusinessViolation(

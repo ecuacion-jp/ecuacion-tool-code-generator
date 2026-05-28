@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.dao;
 
 import java.util.ArrayList;
@@ -29,7 +44,7 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
 
   @Override
   public void generate() {
-    // 作成不要な場合は終了
+    // Exit if creation is not needed
     if (!info.getSysCmnRootInfo().getUsesUtilJpa()) {
       return;
     }
@@ -48,10 +63,10 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
       // truncate
       sqlInfoArrForNativeSqlProp.add(getTruncateSqlInfo(tableInfo.getName()));
 
-      // propertiesファイルはクラスごとに書き出し
+      // Write the properties file per class
       outputFileForSqlProperties(sqlInfoArrForNativeSqlProp, getFilePath(postfixSm),
           tableNameCp + "Base" + postfixCp + ".nativesql.properties");
-      // リストを空にする
+      // Clear the list
       sqlInfoArrForNativeSqlProp.clear();
     }
   }
@@ -60,7 +75,7 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
   protected void outputFileForSqlProperties(List<SqlInfo> sqlInfoArr, String path,
       String fileName) {
     StringBuilder sqls = new StringBuilder();
-    // jpql/sqlを出力
+    // Output jpql/sql
     sqlInfoArr.forEach(sqlInfo -> sqls.append(sqlInfo.getSqlId() + "=" + sqlInfo.getSql() + RT2));
 
     super.outputFile(sqls, path, fileName);
@@ -91,7 +106,7 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
     StringBuilder sql = new StringBuilder();
     String insertCommonSqlPart = insertCommonSqlPart(tableInfo);
 
-    // insertAll 1行目と後半
+    // insertAll: first line and the latter part
     sql.append("insert into " + tableInfo.getName() + " (" + sqlRt + RT);
     sql.append(insertCommonSqlPart);
     sql.append("{+insertAll ? } returning " + tableInfo.getPkColumn().getName());
@@ -104,7 +119,7 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
     StringBuilder sql = new StringBuilder();
     String insertCommonSqlPart = insertCommonSqlPart(tableInfo);
 
-    // insertAll 1行目と後半
+    // insertAll: first line and the latter part
     sql.append("insert into " + tableInfo.getName() + " (" + sqlRt + RT);
     sql.append(insertCommonSqlPart);
     sql.append("{+insertAll ? } ");
