@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.constant;
 
 import java.io.File;
@@ -27,7 +42,7 @@ public class Constants {
   public static final int OBJECT_CONSTRUCTION_COUNT = 3;
 
   // **
-  // ** パッケージ関連
+  // ** Package-related
   // **
 
   public static final String PROJECT_TYPE = "base";
@@ -42,13 +57,13 @@ public class Constants {
   public static final String PKG_CUSTOM_VALIDATOR = EclibValidationConstants.PKG + ".constraints.*";
 
   // **
-  // ** ディレクトリ関連
+  // ** Directory-related
   // **
 
-  // OS非依存のpath separator.
+  // OS-independent path separator.
   public static final String PATH_SEPARATOR = File.separator;
 
-  /// ** 生成するクラスファイルの置き場所のルートフォルダ名。 * /
+  /// ** Root folder name for placing generated class files. * /
   // public static final String DIR_PRODUCT = "products" + PATH_SEPARATOR;
 
   /** Root path for generated Java source files. */
@@ -59,12 +74,12 @@ public class Constants {
   public static final String DIR_INFO_EXCELS_DEFAULT =
       "../ecuacion-tool-code-generator-batch/ecuacion-tool-code-generator-excel-format";
 
-  // 型関連のString取得
+  // String retrieval for type-related values
 
   public static final Map<DataTypeKataEnum, String> JAVA_KATA_MAP =
       Map.of(DataTypeKataEnum.INTEGER, "Integer");
 
-  // その他
+  // Other
 
   /**
    * Key used to specify the default language.
@@ -74,7 +89,7 @@ public class Constants {
   public static final int LANG_ADDABLE_MAX = 3;
 
   //
-  // 汎用の正規表現
+  // General-purpose regular expressions
   //
   /** All characters (no restriction); no code generation because there is no constraint. */
   private static final @org.jspecify.annotations.Nullable String REG_EX_ALL = null;

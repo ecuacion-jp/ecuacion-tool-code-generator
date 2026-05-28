@@ -1,10 +1,26 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.annotation;
 
 import java.lang.annotation.ElementType;
 
 /**
- * 以下のような、Listでannotationを引数で持つパターンのannotationを作成する場合のgenerator.
- * 
+ * Generator for annotations that hold a list of annotations as arguments, as in the following
+ * pattern:
+ *
  * <p>&#64;FieldPattern.List({ &#64;FieldPattern(...), &#64;FieldPattern(...) })
  * </p>
  */
@@ -27,9 +43,10 @@ public class ListAnnotationGen extends AnnotationGen {
 
     StringBuilder sb = new StringBuilder();
 
-    // springだと、@Pattern.Listの形式の書き方がエラーになった。
-    // 通常のjakartaEEでも、@Pattern.Listを使用せず@Patternを複数併記する方式がOKになっているはずだが
-    // 念の為springか否かで作成方法を分けておく
+    // In Spring, writing @Pattern.List causes an error.
+    // Even in standard Jakarta EE, listing multiple @Pattern annotations without @Pattern.List
+    // should be valid, but the generation method is separated by Spring vs non-Spring as a
+    // precaution.
     if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
       boolean is1st = true;
       for (SingleAnnotationGen gen : annotationGens) {

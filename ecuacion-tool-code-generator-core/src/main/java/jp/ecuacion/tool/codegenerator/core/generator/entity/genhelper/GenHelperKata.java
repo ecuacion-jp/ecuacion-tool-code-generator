@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper;
 
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
@@ -11,7 +26,7 @@ public abstract class GenHelperKata extends AbstractGenHelper {
     return new String[] {};
   }
 
-  /** 2つのStringの配列をmergeして新たなString配列を返す。. */
+  /** Merges two String arrays and returns a new String array. */
   protected String[] mergeStrings(String[] str1, String... strs) {
     String[] rtnStrs = new String[str1.length + strs.length];
     System.arraycopy(str1, 0, rtnStrs, 0, str1.length);
@@ -21,7 +36,8 @@ public abstract class GenHelperKata extends AbstractGenHelper {
   }
 
   /**
-   * "EntityGenHelperXxx"というクラス名のうち、Xxxがそのままjavaの型名を表すようにしているので、. Xxxを取り出すための便利メソッドを用意しておく。
+   * The class name follows the pattern "EntityGenHelperXxx", where Xxx directly represents the Java
+   * type name. This convenience method extracts Xxx from the class name.
    */
   protected String getJavaKataName() {
     return this.getClass().getSimpleName().replace("EntityGenHelper", "");

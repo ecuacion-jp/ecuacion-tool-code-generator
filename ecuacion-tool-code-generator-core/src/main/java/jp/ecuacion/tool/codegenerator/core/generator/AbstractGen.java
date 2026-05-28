@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator;
 
 import java.io.BufferedWriter;
@@ -23,10 +38,10 @@ public abstract class AbstractGen extends ToolForCodeGen {
 
   protected StringBuilder sb = new StringBuilder();
 
-  // // dataType情報は汎用的に使用するため、全systemName毎のdataType情報を集約しておく
-  // // Generator内部で生成すると、作成するファイルの回数だけ生成処理をしてしまうのと、
-  // // Constructorの引数に使用と思ったがコンストラクタ呼び出しが多数あり煩雑なので、
-  // // static変数に渡すことにした
+  // // Since dataType info is used broadly, dataType info for each systemName is aggregated here.
+  // // Generating it inside the generator would repeat the process once per output file.
+  // // It was considered as a constructor argument but that would be cumbersome given how many
+  // // constructors exist, so it is passed via a static variable instead.
   // protected static HashMap<String, HashMap<String, DataTypeInfo>> allDtMap;
 
   /** Constructs an instance with the given XML file postfix identifying the data kind. */
@@ -105,7 +120,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
   }
 
   // ==============
-  // Javadoc関連
+  // Javadoc-related
   // ==============
 
   /** Generates a complete Javadoc block from an XML-sourced description string. */
