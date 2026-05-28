@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.bl;
 
 import jakarta.validation.Valid;
@@ -15,12 +30,12 @@ import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColListFor
 import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
-/** TODO. */
+/** Generates the base business logic classes for each DB table entity. */
 public class BlGen extends AbstractGen {
 
   private CodeGenUtil code = new CodeGenUtil();
 
-  /** TODO. */
+  /** Constructs an instance with no specific table target (generates for all tables). */
   public BlGen() {
     super(null);
   }
@@ -61,7 +76,10 @@ public class BlGen extends AbstractGen {
     }
   }
 
-  /** TODO. */
+  /**
+   * Generates the package declaration, import statements, and class declaration for the base
+   * BL class.
+   */
   public void generateHeader(boolean isSystemCommon, DbOrClassTableInfo ti, String entityNameCp) {
     sb.append("package " + rootBasePackage + ".base.bl;" + RT2);
 

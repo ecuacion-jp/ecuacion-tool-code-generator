@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.blf;
 
 import java.io.File;
@@ -43,7 +58,8 @@ public class GenerationBlf {
    * for each.
    */
   public void execute() throws Exception {
-    // 1システムについても複数パターンの生成が必要な場合があるので、パターンを配列で持ち、それをループで実行する形をとる
+    // A single system may require multiple generation patterns, so patterns are stored in an array
+    // and executed in a loop
     List<GeneratePtnEnum> arr = new ArrayList<>();
 
     if (shouldMakeNoGroupQuery(info)) {
@@ -52,7 +68,7 @@ public class GenerationBlf {
         arr.add(GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY);
 
       } else {
-        // グループ指定なしqueryパターンで生成
+        // Generate with no-group-query pattern
         arr.add(GeneratePtnEnum.NORMAL);
         arr.add(GeneratePtnEnum.NO_GROUP_QUERY);
       }
@@ -61,7 +77,7 @@ public class GenerationBlf {
       arr.add(GeneratePtnEnum.NORMAL);
     }
 
-    // 通常は1システム1パターンだが、複数になる場合は複数に分けて生成
+    // Normally one system produces one pattern; when multiple are needed, generate separately for each
     for (GeneratePtnEnum anEnum : arr) {
       info.setGenPtn(anEnum);
       controlGenerators();
@@ -94,12 +110,13 @@ public class GenerationBlf {
     Logger.log(this, "SINGLE_BORDER");
     Logger.log(this, "GEN_FOR_SYSTEM", info.getSystemName(), info.getGenPtn().getDisplayName());
 
-    // // generatorにallDtMapを渡す(あえてstatic）
+    // // Pass allDtMap to generator (intentionally static)
     // AbstractTableOrClassRelatedGen.setAllDtMap(allDtMap);
 
-    // グループ指定なしを作る場合でかつDaoのみを分けて作成する場合、commonに格納されるファイルは2回作成される。
-    // クラスについては再作成されるので（パフォーマンスが悪い以外は）困らないが、propertiesファイルは上書き作成のため、同じキーの項目が2つずつできることになる。
-    // それだと具合が悪いので、このタイミングでsrc/base/resources/*.propertiesを削除しておく
+    // When building a no-group query and generating only the DAO in a separate project, files stored
+    // in common are generated twice. For classes this is fine (just a performance issue), but
+    // properties files are overwritten, resulting in duplicate keys.
+    // To avoid this, delete src/base/resources/*.properties at this point
     String dirPath = new PropertiesFileGen().getResourcesPath();
     if (new File(dirPath).listFiles() != null) {
       for (File file : new File(dirPath).listFiles()) {
@@ -109,10 +126,11 @@ public class GenerationBlf {
       }
     }
 
-    // ★★dict と abstract 作成
-    // dictは１システムで１つのみ作成。ただし、xmlファイルがenumInfo, dataTypeInfo, systemCommonInfoのみの場合は不要。
-    // まずはdict作成が必要かどうかの判断をする。
-    // 必要であれば、xmlMapごとgeneratorに渡して、generator側でファイルごとに処理。
+    // Generate dict and abstract
+    // dict is created once per system, but not needed when the only xml files are
+    // enumInfo, dataTypeInfo, and systemCommonInfo.
+    // First determine whether dict creation is needed.
+    // If needed, pass the xmlMap to the generator, which processes it file by file.
     Logger.log(this, "GEN_DICT_AND_MORE");
     boolean isNeeded = false;
     for (DataKindEnum dataKind : info.getRootInfoMap().keySet()) {
@@ -148,8 +166,8 @@ public class GenerationBlf {
 
       } else if (dataKind == DataKindEnum.DATA_TYPE) {
         Logger.log(this, "GEN_DT");
-        // 一つのファイルの中の複数のdataTypeに対して、行ごとに回して作成。
-        // dataTypeの型ごとにgeneratorクラスが異なるため、動的に生成
+        // Iterate over multiple dataTypes in a single file row by row.
+        // The generator class differs per dataType kind, so create dynamically
         for (DataTypeInfo dtInfo : info.getDataTypeRootInfo().dataTypeList) {
           DataTypeGen gen = new DataTypeGen(dtInfo);;
           gen.generate();
@@ -174,7 +192,7 @@ public class GenerationBlf {
 
       } else if (dataKind == DataKindEnum.SYSTEM_COMMON) {
         Logger.log(this, "GEN_PROP_FILE");
-        // 雑多なファイルを生成
+        // Generate miscellaneous files
         new Miscellaneous().generate();
       }
     }

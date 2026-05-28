@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.entity;
 
 import java.io.IOException;
@@ -64,8 +79,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     ImportGenUtil importMgr = new ImportGenUtil();
     final String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
-    // import必須のもの
-    // java標準
+    // Required imports
+    // Java standard library
     if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY) {
       importMgr.add("java.util.*");
     }
@@ -74,14 +89,15 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     // persistence
     importMgr.add("jakarta.persistence.*");
 
-    // validationを使う場合は追加
+    // Add when using validation
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       importMgr.add(AnnotationGenUtil.getNeededImports(ci.getValidatorList(true)));
     }
 
-    // 別でjakarta.persistence.*を追加していたとしても、Versionが他の*と重複するため改めて明示的に定義しておく。
+    // Even if jakarta.persistence.* is added separately, Version conflicts with other *, so
+    // explicitly define it again.
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-      // @Versionを使用する場合はimport。
+      // Import when using @Version.
       if (VersionGen.needsValidator(ci.isOptLock())) {
         importMgr.add("jakarta.persistence.Version");
       }
@@ -93,8 +109,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       auditingImport(importMgr, ci.getSpringAuditing(), "LD", "LastModifiedDate");
     }
 
-    // soft deleteを使用する場合
-    // bidirectionalなrelationがある場合そこにもつける必要あり
+    // When using soft delete
+    // Also needs to be added when there is a bidirectional relation
     if (info.getSysCmnRootInfo().isFrameworkKindSpring()
         && info.getRemovedDataRootInfo().isDefined()) {
       if (tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
@@ -105,14 +121,14 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       }
     }
 
-    // @Filterを使用する場合はimport
+    // Import when using @Filter
     if (info.getGroupRootInfo().isDefined()) {
       if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
-        // 共通group定義が存在する場合はそのfilterDefは必ずsystemCommonに出力
+        // When a common group definition exists, its filterDef is always output to systemCommon
         importMgr.add("org.hibernate.annotations.FilterDef", "org.hibernate.annotations.ParamDef",
             "org.hibernate.type.descriptor.java.*");
 
-        // systemCommonに共通group項目を持っている場合
+        // When the common group column exists in systemCommon
         if (tableInfo.hasGroupColumn()) {
           importMgr.add("org.hibernate.annotations.Filter");
         }
@@ -124,49 +140,50 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
           importMgr.add("org.hibernate.annotations.Filter");
 
-          // customGroupColumnを持っている場合は、filterDefなども必要。
+          // When a customGroupColumn is present, filterDef etc. are also needed.
           if (tableInfo.hasCustomGroupColumn()) {
             importMgr.add("org.hibernate.annotations.FilterDef",
                 "org.hibernate.annotations.ParamDef", "org.hibernate.type.descriptor.java.*");
           }
 
-          // Tableがorg.hibernate.annotations.*にも含まれている関係で、明示的な定義が必要になった。。
+          // Explicit definition became necessary because Table is also included in
+          // org.hibernate.annotations.*.
           importMgr.add("jakarta.persistence.Table");
         }
       }
     }
 
-    // relationを使用する場合
+    // When using relations
     if (tableInfo.hasRelationColumn()) {
       importMgr.add("jakarta.validation.*");
       importMgr.add("org.hibernate.annotations.OnDelete",
           "org.hibernate.annotations.OnDeleteAction");
     }
 
-    // entityの種類ごとに必要なもの
+    // Required items per entity kind
     if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY) {
-      // 親entityは同一パッケージ内にいるのでimport不要
+      // Parent entity is in the same package, so no import is needed
       // baseRecord
       importMgr.add(rootBasePackage + ".base.record." + tableNameCp + "BaseRecord");
 
       importMgr.add("jakarta.annotation.Nonnull");
 
     } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
-      // 親entity
+      // Parent entity
       importMgr.add("jp.ecuacion.splib.jpa.entity.SplibEntity");
       // baseRecord
       importMgr.add(rootBasePackage + ".base.record.SystemCommonBaseRecord");
-      // auditing. springの場合のみ。本当はsystemCommon決め打ちではないのだが、簡易的にこうしておく
+      // auditing. Spring only. Not truly hardcoded to systemCommon, but simplified here.
       importMgr.add("org.springframework.data.jpa.domain.support.*");
     }
 
-    // 項目の型別にimport必須のものを取り込む
+    // Add required imports per column data type
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList) {
       DataTypeInfo dtInfo = colInfo.getDtInfo();
       importMgr.add(code.getHelper(dtInfo.getKata()).getNeededImports(colInfo));
     }
 
-    // 使用するenumクラスをimport
+    // Import enum classes used
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList) {
       String dataType = colInfo.getDataType();
       DataTypeInfo dtInfo = colInfo.getDtInfo();
@@ -176,15 +193,15 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
         String importClassStr =
             rootBasePackage + ".base.enums." + code.dataTypeNameToCapitalCamel(dataType) + "Enum";
         importMgr.add(importClassStr);
-        // batch（javaSE環境）だと@ConverterにautoApply =
-        // trueをつけても無視され、明示的に@Convertタグを書く必要がある関係で、Converterのimportが必要
+        // In a batch (Java SE) environment, autoApply = true on @Converter is ignored,
+        // requiring an explicit @Convert tag, so the Converter import is needed.
         importClassStr = rootBasePackage + ".base.converter."
             + code.dataTypeNameToCapitalCamel(dataType) + "Converter";
         importMgr.add(importClassStr);
       }
     }
 
-    // import文を書き出し。クラス宣言との間を一行開けるためにRTを追加。
+    // Output import statements. An extra RT is added to leave a blank line before the class declaration.
     sb.append(importMgr.outputStr() + RT);
   }
 
@@ -266,7 +283,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     for (DbOrClassColumnInfo ci : colInfoList.stream().filter(e -> !e.getIsJavaOnly()).toList()) {
       createFieldInternal(sb, tableInfo.getName(), ci);
 
-      // colが@Idでかつrelationの場合、@MapsIdのために通常の@Idカラムも必要
+      // When a column is both @Id and a relation, a normal @Id column is also needed for @MapsId
       if (ci.isPk() && ci.isRelation()) {
         DbOrClassColumnInfo ci2 = DbOrClassColumnInfo.cloneWithoutRelationRelated(ci);
         createFieldInternal(sb, tableInfo.getName(), ci2);
@@ -282,7 +299,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
             sb.append(T1 + "@OrderBy(\"id ASC\")" + RT);
           }
-          // bidirectional relationで参照されている場合に必要となる抽出条件
+          // Filter condition required when referenced by a bidirectional relation
           MiscSoftDeleteRootInfo softDeleteInfo =
               MainController.tlInfo.get().getRemovedDataRootInfo();
           MiscGroupRootInfo groupInfo = MainController.tlInfo.get().getGroupRootInfo();
@@ -311,7 +328,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     String columnName = StringUtil.getLowerCamelFromSnake(ci.getName());
     String kata = code.getJavaKata(ci);
 
-    // 第二引数は、CommonInfoの場合nullなので、nullを考慮
+    // The second argument may be null in the case of CommonInfo, so null must be considered
     sb.append(getEntityFieldAnnotations(getEntityGenKindEnum(), tableName, ci,
         code.classDotField(tableName, ci)));
 
@@ -338,9 +355,9 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
           + " = new " + StringUtils.capitalize(entityNameUp) + "();" + RT2);
 
     } else {
-      // 通常であればprivateにしてしまってよいのだが、EclibEntityの項目（LST_UPD_TIMEなど）も生成しており、
-      // その場合はprotectedである必要がある。
-      // どうせEntityはfinal classとして作成しているので、ここはprotectedでもいいかなと^^;
+      // Normally private would suffice, but fields defined in EclibEntity (e.g. LST_UPD_TIME) are
+      // also generated and need to be protected.
+      // Since Entity classes are already created as final, protected is fine here anyway.
       sb.append(T1 + "protected " + kata + " " + columnName + ";" + RT2);
     }
   }
@@ -365,7 +382,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   /** Appends the getFieldNameArr() override method listing all field names as a String array. */
   protected void appendFieldNameArr(StringBuilder sb, DbOrClassTableInfo tableInfo,
       String entityNameCp, boolean isInGetPkOfSurrogateKeyStrategyEntity) {
-    // systemCommonについては作成しない
+    // Not generated for systemCommon
     if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
       return;
     }
@@ -374,7 +391,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "public String[] getFieldNameArr() {" + RT);
     sb.append(T2 + "return new String[] {");
 
-    // このリストはdbCommmonの項目も同時に表示するので、あらかじめマージしておく
+    // This list also displays dbCommon columns, so merge them in advance
     ArrayList<DbOrClassColumnInfo> arr = new ArrayList<>();
     arr.addAll(tableInfo.columnList);
     if (info.getDbCommonRootInfo() != null) {
@@ -384,12 +401,12 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
     boolean isFirst = true;
     for (DbOrClassColumnInfo ci : arr) {
-      // surrogateKeyStorategyのBODYにあるgetPk内の場合は、Pk項目のみのFieldInfoを並べるため、Pkでない場合はスキップ
+      // Inside getPk() of a surrogateKeyStrategy BODY, only PK fields are listed, so skip non-PK columns
       if (isInGetPkOfSurrogateKeyStrategyEntity && !ci.isPk()) {
         continue;
       }
 
-      // entityPkの場合はpk項目のみ作成
+      // For entityPk, only PK fields are generated
       if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY) {
 
         if (isFirst) {
@@ -409,17 +426,17 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
   /** Appends the default no-args constructor declaration. */
   protected void appendDefaultConstructor(StringBuilder sb, String tableNameCp) {
-    sb.append(T1 + JD_ST + "defaultコンストラクタ" + JD_END + RT);
+    sb.append(T1 + JD_ST + "Default constructor." + JD_END + RT);
     sb.append(T1 + "public " + tableNameCp + "() {" + "}" + RT2);
   }
 
   /** Appends a constructor that accepts a BaseRecord argument and initializes fields from it. */
   protected void appendRecConstructor(StringBuilder sb, DbOrClassTableInfo ti,
       String entityNameCp) {
-    // recを引数としたコンストラクタ
+    // Constructor that takes a record as argument
     sb.append(T1 + "/** A constructor with record argument */" + RT);
 
-    // BaseRecordの前の部分に"Pk"が入らないように、あえてPkがつかない名前を取得している
+    // Deliberately using the name without "Pk" so that "Pk" is not inserted before "BaseRecord"
     sb.append(T1 + "public " + entityNameCp + "("
         + (this instanceof SystemCommonGen ? "SystemCommon"
             : StringUtil.getUpperCamelFromSnake(ti.getName()))
@@ -440,11 +457,10 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   protected void appendNaturalKeyConstructor(StringBuilder sb, DbOrClassTableInfo tableInfo,
       String entityNameCp) {
     sb.append(T1 + "/**" + RT);
-    sb.append(T1 + " * naturalKeyを引数にとるコンストラクタ。" + RT);
-    sb.append(T1 + " * naturalKeyとsurrogateKeyのコンストラクタを両方作ると重複する可能性があるため、naturalKeyのみとする。" + RT);
-    sb.append(T1 + " * （surrogateKeyは、insertの際は入力しない、"
-        + "selectの際はEntity.getPk(field)でPk取得、updateの際はselectしたものを使用することから、" + RT);
-    sb.append(T1 + " * naturalKeyよりconstructorの引数に設定したい状況は少ないと思われる） " + RT);
+    sb.append(T1 + " * Constructor that takes naturalKey as arguments." + RT);
+    sb.append(T1 + " * Having both a naturalKey and surrogateKey constructor could cause conflicts, so only the naturalKey constructor is provided." + RT);
+    sb.append(T1 + " * (The surrogateKey is not used on insert; on select it is retrieved via Entity.getPk(field);" + RT);
+    sb.append(T1 + " * on update the selected entity is reused, so there are few scenarios where passing it as a constructor argument is preferred.) " + RT);
     sb.append(T1 + " */" + RT);
     sb.append(T1 + "public " + entityNameCp + "(");
     boolean is1st = true;
@@ -486,7 +502,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   // String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
   // String kataUc = code.getJavaKata(ci);
   //
-  // // relationがある場合は、インスタンス生成を行う
+  // // When a relation exists, create an instance
   // String relFieldNameUc = StringUtil.capitalize(ci.getRelationFieldName());
   // if (ci.isRelation()) {
   // String entityName = StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
@@ -519,8 +535,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   // sb.append(T2 + fieldNameLc + " = rec.get" + fieldNameUc + "OfEntityDataType();" + RT);
   //
   // } else if (dtInfo.getKata() == DataTypeKataEnum.BOOLEAN) {
-  // // booleanは、record上ではBooleanで保持されているため、Stringから読み込む場合（userRec ==
-  // // falseの場合）のみBoolean.valueOfを付加
+  // // boolean is stored as Boolean in the record, so Boolean.valueOf is added only when reading
+  // // from a String (i.e., when usesRec == false)
   // sb.append(T2 + leftHandSide
   // + ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
   // : ("Boolean.valueOf(" + StringUtil.getLowerCamelFromSnake(ci.getName())) + ")")
@@ -534,7 +550,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   // }
   // }
   //
-  // // bidirectional relationの参照先カラムの場合はそのfieldの代入も追加
+  // // Also add field assignment for columns that are targets of a bidirectional relation
   // if (ci.isReferedByBidirectionalRelation()) {
   // for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
   // String entityNameUc = StringUtil.getUpperCamelFromSnake(info.getOrgTableName());
@@ -662,7 +678,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       sb.append(T1 + "}" + RT2);
 
       if (ci.isRelation()) {
-        // relationのcolumnの場合は、別途entityを示すfield自体のaccessorも用意しておく
+        // For relation columns, also provide an accessor for the field representing the entity itself
         appendAccessorForRelation(sb, relEntityName, ci.getRelationFieldName(), false, null);
       }
 
@@ -680,7 +696,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       @org.jspecify.annotations.Nullable String relFieldName,
       boolean isReferedByBidirectionalRelation,
       @org.jspecify.annotations.Nullable RelationRefInfo info) {
-    // bidirectionの参照先の場合で、かつoneToManyの場合、それを考慮したfieldName, relEntityNameの値に変更
+    // For a bidirectional reference target with OneToMany, update fieldName and relEntityName accordingly
     if (info != null && info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
       relFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
       relEntityName = "List<" + StringUtils.capitalize(relEntityName) + ">";
@@ -706,7 +722,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       List<DbOrClassTableInfo> tableList, EntityGenKindEnum entityKind) {
     LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
 
-    // 各テーブルに対しmapにfieldの表示名を格納
+    // Store the display name of each field in the map for each table
     if (tableList != null) {
       for (DbOrClassTableInfo tableInfo : tableList) {
         putToMap(lang, tableInfo, map, entityKind);
@@ -719,8 +735,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   private void putToMap(String lang, DbOrClassTableInfo tableInfo,
       LinkedHashMap<String, String> map, EntityGenKindEnum entityKind) {
 
-    // // SystemCommonに持つ項目（例えばcreateTime)に対しても、SystemCommon.createTimeに加えて
-    // // Acc.createTimeも作成する必要があるのでそれも含めたlistを保持
+    // // For fields in SystemCommon (e.g. createTime), in addition to SystemCommon.createTime,
+    // // Acc.createTime must also be created, so the list includes both
 
     for (DbOrClassColumnInfo columnInfo : tableInfo.columnList) {
       String entityName = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
@@ -728,7 +744,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       String dispName = columnInfo.getDisplayNameMap().get(lang);
       map.put(entityName + "." + varName, dispName);
 
-      // // spring mvcでのメッセージ出力時の項目に対応するため、entityNameの頭文字を小文字に変更したものも登録
+      // // Also register with the first letter of entityName lowercased, to match Spring MVC message output
       map.put(StringUtils.uncapitalize(entityName) + "." + varName, dispName);
     }
   }
@@ -741,17 +757,17 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       throws IOException, InterruptedException {
     PropertiesFileGen gen = new PropertiesFileGen();
 
-    // fallback用のファイルを作成。
+    // Create a fallback file.
     gen.writeMapToPropFile(
         createSortedMapForPropFile(
             info.getSysCmnRootInfo().getDefaultLang(), tableList, entityKind),
         "item_names", null);
-    // default言語用のファイルを作成
+    // Create a file for the default language
     gen.writeMapToPropFile(
         createSortedMapForPropFile(
             info.getSysCmnRootInfo().getDefaultLang(), tableList, entityKind),
         "item_names", info.getSysCmnRootInfo().getDefaultLang());
-    // supportedLangArrに入っているものについて作成
+    // Create files for each language listed in supportedLangArr
     for (String lang : info.getSysCmnRootInfo().getSupportedLangArr()) {
       gen.writeMapToPropFile(createSortedMapForPropFile(lang, tableList, entityKind), "item_names",
           lang);
@@ -765,7 +781,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   protected void appendAutoInsertOrUpdateGen(StringBuilder sb, DbOrClassTableInfo tableInfo,
       boolean isUpdate, boolean isFromSystemCommon) {
 
-    // 対象となるfieldが一つもない場合はそもそも本メソッドを作りたくないのでその判断を先にする
+    // If there are no target fields at all, skip generating this method, so check that first
     boolean needsMethod = false;
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList) {
       boolean bl = needsAutoInsertOrUpdate(colInfo, isUpdate);
@@ -779,14 +795,14 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       return;
     }
 
-    // 以下、メソッド作成が必要な場合。
+    // From here: the method needs to be generated.
     sb.append(T1 + ((isUpdate) ? "@PreUpdate" : "@PrePersist") + RT);
     sb.append(T1 + "public void " + ((isUpdate) ? "preUpdate" : "preInsert") + "() {" + RT);
 
-    // SystemAdminでない場合はSystemCommonの同メソッドを呼び出す処理を入れる。
-    // SystemCommonにprePersist / preUpdateがない場合を考慮できていないが・・・
+    // When not called from SystemCommon, include a call to the same method in SystemCommon.
+    // Note: the case where SystemCommon has no prePersist / preUpdate is not yet handled.
     if (!isFromSystemCommon) {
-      sb.append(T2 + "//@PrePersist, @PreUpdateは、子クラスに実装してしまうと親クラス側が呼ばれなくなるため、本メソッドの中で呼び出す" + RT);
+      sb.append(T2 + "// Calling super here because overriding @PrePersist / @PreUpdate in a subclass would prevent the parent class method from being invoked." + RT);
       sb.append(T2 + "super." + ((isUpdate) ? "preUpdate" : "preInsert") + "();" + RT2);
 
     }
@@ -879,7 +895,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   /** Returns a merged list combining the table's own columns with the common column list. */
   protected List<DbOrClassColumnInfo> getMergedColumnList(DbOrClassTableInfo tableInfo,
       List<DbOrClassColumnInfo> commonColumnList) {
-    // commonColumnListをmergeしたlistを作成
+    // Create a list by merging commonColumnList
     List<DbOrClassColumnInfo> mergedList = new ArrayList<>();
     mergedList.addAll(tableInfo.columnList);
     mergedList.addAll(commonColumnList);
@@ -939,13 +955,13 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     // validator
     annotationGenList.addAll(colInfo.getValidatorList(true));
 
-    // relationColumnの場合はこれ以下は不要
+    // Nothing below is needed for relation columns
     if (colInfo.isRelation()) {
-      // 文字列出力。isRelationColumn() == trueの場合はNotEmptyのみが対象。
+      // Output string. When isRelationColumn() == true, only NotEmpty is targeted.
       return AnnotationGenUtil.getCode(annotationGenList, ElementType.FIELD);
     }
 
-    // 以下はisRelationColumn() == falseの場合のみ
+    // The following applies only when isRelationColumn() == false
 
     // id
     if (IdGen.needsValidator(colInfo)) {
@@ -957,7 +973,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       annotationGenList.add(new VersionGen(ElementType.FIELD));
     }
 
-    // 監査関連
+    // Auditing-related
     auditingAnnotation(annotationGenList, colInfo.getSpringAuditing(), "CB", "CreatedBy");
     auditingAnnotation(annotationGenList, colInfo.getSpringAuditing(), "CD", "CreatedDate");
     auditingAnnotation(annotationGenList, colInfo.getSpringAuditing(), "LB", "LastModifiedBy");
@@ -977,7 +993,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
           tableName, colInfo.getName(), entityGenKindEnum));
     }
 
-    // 文字列出力
+    // Output string
     return AnnotationGenUtil.getCode(annotationGenList, ElementType.FIELD);
   }
 

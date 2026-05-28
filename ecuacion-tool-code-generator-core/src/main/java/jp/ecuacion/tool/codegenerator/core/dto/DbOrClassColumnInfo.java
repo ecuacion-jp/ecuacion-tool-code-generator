@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
@@ -46,7 +61,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   private List<RelationRefInfo> relationRefInfoList = new ArrayList<>();
 
-  // ファイルからのデータ取り込みでは使用しなくなったので直接booleanで持つ
+  // No longer used for file data loading, so stored directly as boolean
   private boolean isOptLock = false;
 
   @NotEmpty
@@ -56,7 +71,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   private String userFriendlyName;
 
-  // 多言語に対応するため、dispNameをMapで持つ。キーは言語（jaなど）。デフォルト言語に対するキーはLANG_DEFを使用
+  // Holds dispName as a Map to support multiple languages. Key is the language (e.g. "ja").
+  // LANG_DEF is used as the key for the default language.
   private HashMap<String, String> userFriendlyNameMap = new HashMap<String, String>();
 
   @NotEmpty
@@ -278,7 +294,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return updatedValue;
   }
 
-  /** Settings側も加味した上でgroupの項目か否かを返す。. */
+  /** Returns whether this column is a group column, taking Settings into account. */
   public boolean isGroupColumn() {
     String groupColumnName = MainController.tlInfo.get().getGroupRootInfo().getColumnName();
     return (groupColumnName != null && groupColumnName.equals(name)) || isCustomGroupColumn();
@@ -293,7 +309,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     return isOptLock;
   }
 
-  /** relationのcolumnかを判断するメソッド。. */
+  /** Returns whether this column has a relation configured. */
   public boolean isRelation() {
     return getRelationKind() != null;
   }
@@ -469,15 +485,16 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   /**
-   * DataTypeInfo#getValidatorList に加えて、@NotEmptyの情報を追加..
+   * Returns the validator list, adding {@code @NotEmpty} information on top of
+   * {@code DataTypeInfo#getValidatorList}.
    *
-   * @param forEntity Entityの場合true、Recordの場合false
+   * @param forEntity {@code true} for Entity, {@code false} for Record
    * @return {@code List<ValidatorGen>}
    */
   public List<ValidatorGen> getValidatorList(boolean forEntity) {
     List<ValidatorGen> rtnList = new ArrayList<>();
 
-    // isJavaOnlyの場合はvalidatorなし
+    // No validators when isJavaOnly
     if (getIsJavaOnly()) {
       return rtnList;
     }

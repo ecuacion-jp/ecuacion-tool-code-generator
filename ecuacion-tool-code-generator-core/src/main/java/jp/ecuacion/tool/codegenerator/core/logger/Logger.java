@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.logger;
 
 import java.util.ArrayList;
@@ -19,7 +34,7 @@ public class Logger {
 
     if (object.getClass().getName().equals("java.lang.String")) {
       throw new RuntimeException(
-          "引数に設定された、LoggerのconstructorとなるべきinstanceがStringです。正しい引数を設定してください。");
+          "The instance passed as the first argument, which should be the Logger constructor's caller, is a String. Please pass the correct argument.");
     }
 
     String logMsg = PropertiesFileUtil.getMessage(Locale.ENGLISH, msgId, msgArgs);

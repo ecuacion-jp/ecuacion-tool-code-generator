@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.bl;
 
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.DATE_TIME;
@@ -25,38 +40,44 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
-/** TODO. */
+/**
+ * Performs cross-file consistency checks between DB/class definitions and data type
+ * definitions, and sets up cross-cutting data.
+ */
 public class PreparerForDbAndDataType {
 
   private Info info;
 
-  /** TODO. */
+  /** Constructs an instance and obtains the current thread's {@code Info}. */
   public PreparerForDbAndDataType() {
     this.info = MainController.tlInfo.get();
   }
 
-  /** TODO. */
+  /**
+   * Runs all inter-file consistency checks: data type existence, duplicate names, and
+   * kind-specific processing.
+   */
   public void prepare() {
-    // 複数xml間のdataType存在整合性
+    // Check data type existence consistency across multiple XML/Excel files
     checkIfDataTypeInEnumExistsInDataTypeInfo();
     checkIfDataTypeInDbOrClassExistsInDataTypeInfo();
 
-    // 一つのファイルの中で、同じキーが複数回出てくることに対するチェック
+    // Check for duplicate keys appearing more than once within a single file
     checkRepeatedEmerge();
 
-    // ファイルをまたがるdataTypeの型別処理
+    // Process data types by kind, across files
     checkKataBetsuSyori();
   }
 
   /**
-   * enumに存在するdataType名がdataTypeInfoに存在するかをチェック。.
+   * Checks whether the data type names referenced in enum definitions exist in dataTypeInfo.
    */
   @SuppressWarnings("null")
   private void checkIfDataTypeInEnumExistsInDataTypeInfo() {
 
     EnumRootInfo enumRootInfo = ((EnumRootInfo) info.getRootInfoMap().get(DataKindEnum.ENUM));
 
-    // enumInfoが存在しない場合はスキップ
+    // Skip if enumInfo is absent
     if (enumRootInfo == null) {
       return;
     }
@@ -73,7 +94,7 @@ public class PreparerForDbAndDataType {
   }
 
   /**
-   * DbOrClassに存在するdataType名がdataTypeInfoに存在するかをチェック。.
+   * Checks whether the data type names referenced in DbOrClass definitions exist in dataTypeInfo.
    */
   private void checkIfDataTypeInDbOrClassExistsInDataTypeInfo() {
     checkIfDataTypeInDbOrClassExistsInDataTypeInfoCommon(DataKindEnum.DB);
@@ -81,7 +102,7 @@ public class PreparerForDbAndDataType {
   }
 
   /**
-   * DbOrClassに存在するdataType名がdataTypeInfoに存在するかをチェックするための共通処理。.
+   * Common processing to check whether data type names in DbOrClass exist in dataTypeInfo.
    */
   @SuppressWarnings("null")
   private void checkIfDataTypeInDbOrClassExistsInDataTypeInfoCommon(DataKindEnum dataKind) {
@@ -130,7 +151,7 @@ public class PreparerForDbAndDataType {
     HashSet<String> clsNameSet = new HashSet<String>();
 
     for (EnumClassInfo ci : rootInfo.enumClassList) {
-      // classレベルの重複チェック
+      // Class-level duplicate check
       if (clsNameSet.contains(ci.getEnumName())) {
         new Violations().add(new BusinessViolation("MSG_ERR_SAME_ENUM_DEFINED_TWICE",
             info.getSystemName(), ci.getEnumName())).throwIfAny();
@@ -140,7 +161,7 @@ public class PreparerForDbAndDataType {
 
       HashSet<String> valCodeSet = new HashSet<String>();
       HashSet<String> valVarNameSet = new HashSet<String>();
-      // dispNameは複数言語分存在するので、言語をkeyにして言語別のsetを持つ
+      // dispName exists for multiple languages, so hold a per-language set keyed by language
       HashMap<String, HashSet<String>> valDispNameDuplicateCheckMap =
           new HashMap<String, HashSet<String>>();
 
@@ -161,20 +182,20 @@ public class PreparerForDbAndDataType {
         valVarNameSet.add(vi.getVarName());
 
         // dispName
-        // 複数言語を持っているので、言語ごとにチェックを行う
+        // Since multiple languages are supported, perform a check for each language
         Iterator<String> dispNameLangIt = vi.getDisplayNameMap().keySet().iterator();
 
         while (dispNameLangIt.hasNext()) {
           String lang = dispNameLangIt.next();
           String dispName = vi.getDisplayNameMap().get(lang);
 
-          // dispNameが空欄の場合はエラー
+          // Error if dispName is blank
           if (dispName == null || dispName.equals("")) {
             new Violations().add(new BusinessViolation("MSG_ERR_ENUM_DISP_NAME_EMPTY",
                 info.getSystemName(), ci.getEnumName(), vi.getCode(), lang)).throwIfAny();
           }
 
-          // setが存在しない場合はsetを新規作成
+          // Create a new set if one does not exist yet
           if (!valDispNameDuplicateCheckMap.containsKey(lang)) {
             valDispNameDuplicateCheckMap.put(lang, new HashSet<String>());
           }
@@ -198,7 +219,7 @@ public class PreparerForDbAndDataType {
     DataTypeRootInfo dtRootInfo =
         (DataTypeRootInfo) info.getRootInfoMap().get(DataKindEnum.DATA_TYPE);
 
-    // dataType自身の中に2回出現がないかを確認
+    // Verify that there are no duplicate entries within the dataType definitions themselves
     if (dtRootInfo != null) {
       for (DataTypeInfo dtInfo : dtRootInfo.dataTypeList) {
         if (dtNameSet.contains(dtInfo.getDataTypeName())) {
@@ -222,20 +243,20 @@ public class PreparerForDbAndDataType {
     // DbOrClassRootInfo clsRootInfo = (DbOrClassRootInfo)
     // rootInfoMap.get(DataKindEnum.XML_POST_FIX_CLS);
 
-    // dbCommon自身の中に2回出現がないか
-    // 存在しない場合もあるので、件数を確認
+    // Check for duplicate entries within dbCommon itself
+    // Verify item count since it may not exist
     if (dbCommonRootInfo != null && dbCommonRootInfo.tableList.size() > 0) {
       for (DbOrClassColumnInfo col : dbCommonRootInfo.tableList.get(0).columnList) {
         if (dbCommonColSet.contains(col.getName())) {
           new Violations().add(new BusinessViolation("MSG_ERR_SAME_COL_DEFINED_TWICE",
-              info.getSystemName(), DataKindEnum.DB_COMMON.getLabel(), "（なし）", col.getName()))
+              info.getSystemName(), DataKindEnum.DB_COMMON.getLabel(), "(none)", col.getName()))
               .throwIfAny();
         }
         dbCommonColSet.add(col.getName());
       }
     }
 
-    // DBのtable重複チェック処理
+    // Duplicate check for DB tables
     checkDuplicatedDefinitionOfDbOrClassAndCreateTableSet(info.getSystemName(), dbRootInfo,
         dbCommonColSet, DataKindEnum.DB);
   }
@@ -247,7 +268,7 @@ public class PreparerForDbAndDataType {
 
     if (rootInfo != null) {
       for (DbOrClassTableInfo ti : rootInfo.tableList) {
-        // tableレベルの重複チェック
+        // Table-level duplicate check
         if (tableSet.contains(ti.getName())) {
           new Violations().add(new BusinessViolation("MSG_ERR_SAME_TABLE_DEFINED_TWICE",
               systemName + dataKind.getLabel(), ti.getName())).throwIfAny();
@@ -263,7 +284,7 @@ public class PreparerForDbAndDataType {
                 dataKind.getLabel(), ti.getName(), col.getName())).throwIfAny();
           }
 
-          // dbCommonに存在する項目の場合はエラー
+          // Error if the item already exists in dbCommon
           if (dbCommonColSet.contains(col.getName())) {
             new Violations().add(new BusinessViolation("MSG_ERR_COL_CONTAINED_IN_DB_COMMON",
                 systemName + dataKind.getLabel(), ti.getName(), col.getName())).throwIfAny();
@@ -282,14 +303,14 @@ public class PreparerForDbAndDataType {
     DbOrClassRootInfo dbCommonRootInfo =
         (DbOrClassRootInfo) info.getRootInfoMap().get(DataKindEnum.DB_COMMON);
 
-    // 自動採番
+    // Auto-increment
     if (dbRootInfo != null) {
       for (DbOrClassTableInfo tab : dbRootInfo.tableList) {
         checkKataBetsuShoriAutoIncrement(tab, info.getSystemName(), DataKindEnum.DB);
       }
     }
 
-    // dbCommonはカラムのみのためループなし
+    // dbCommon contains only columns so no loop needed
     if (dbCommonRootInfo != null && dbCommonRootInfo.tableList.size() > 0) {
       checkKataBetsuShoriAutoIncrement(dbCommonRootInfo.tableList.get(0), info.getSystemName(),
           DataKindEnum.DB_COMMON);
@@ -300,12 +321,12 @@ public class PreparerForDbAndDataType {
       DataKindEnum postFix) {
 
     for (DbOrClassColumnInfo col : tableInfo.columnList) {
-      // 自動採番が設定されていない場合はチェック不要のためスキップ
+      // Skip if auto-increment is not configured
       if (!col.isAutoIncrement()) {
         continue;
       }
 
-      // dataType名を取得
+      // Get the dataType name
       DataTypeInfo dataType = col.getDtInfo();
       DataTypeKataEnum en = dataType.getKata();
       if (en != INTEGER && en != LONG && en != TIMESTAMP && en != DATE_TIME

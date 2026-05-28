@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.entity;
 
 import java.io.IOException;
@@ -32,14 +47,14 @@ public class SystemCommonGen extends EntityGen {
     } else {
       sb = new StringBuilder();
 
-      // ヘッダ情報定義
+      // Header definitions
       appendPackage(sb);
       ImportGenUtil importMgr = new ImportGenUtil();
       importMgr.add("jp.ecuacion.splib.jpa.entity.SplibEntity");
       importMgr.add("jakarta.persistence.*", "java.io.Serializable");
       importMgr.add(rootBasePackage + ".base.record.SystemCommonBaseRecord");
       sb.append(importMgr.outputStr() + RT);
-      // クラス定義
+      // Class definition
       sb.append("@MappedSuperclass" + RT);
       sb.append("public abstract class SystemCommon "
           + "extends SplibEntity implements Serializable {" + RT2);
@@ -64,12 +79,12 @@ public class SystemCommonGen extends EntityGen {
 
     final String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
-    // ヘッダ情報定義
+    // Header definitions
     appendPackage(sb);
     appendImport(sb, tableInfo);
 
-    // class定義
-    // grouping定義が存在する場合は、systemCommonには必ずfilter定義が記載される。
+    // Class definition
+    // When a grouping definition exists, a filter definition is always written in systemCommon.
     if (info.getGroupRootInfo().isDefined()) {
       getGroupFilterDefAnnotationString(sb);
     }
@@ -77,7 +92,7 @@ public class SystemCommonGen extends EntityGen {
       getGroupFilterAnnotationString(sb);
     }
 
-    // soft deleteを使用する場合
+    // When using soft delete
     getSoftDeleteAnnotationsString(sb, tableInfo);
 
     sb.append("@MappedSuperclass" + RT);
@@ -88,11 +103,11 @@ public class SystemCommonGen extends EntityGen {
 
     appendSerialVersionUid(sb);
 
-    // 各種field定義
+    // Various field definitions
     appendField(sb, tableInfo, tableInfo.columnList);
     appendFieldName(sb, entityNameCp, tableInfo);
 
-    // 各種コンストラクタ定義
+    // Various constructor definitions
     appendDefaultConstructor(sb, entityNameCp);
     appendRecConstructor(sb, tableInfo, entityNameCp);
 
