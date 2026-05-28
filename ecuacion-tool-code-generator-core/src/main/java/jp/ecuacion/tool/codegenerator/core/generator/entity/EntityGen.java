@@ -134,9 +134,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
         }
 
       } else {
-        if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY
-            && !info.getGroupRootInfo().getTableNamesWithoutGrouping()
-                .contains(tableInfo.getName())) {
+        if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY && !info.getGroupRootInfo()
+            .getTableNamesWithoutGrouping().contains(tableInfo.getName())) {
 
           importMgr.add("org.hibernate.annotations.Filter");
 
@@ -201,7 +200,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       }
     }
 
-    // Output import statements. An extra RT is added to leave a blank line before the class declaration.
+    // Output import statements. An extra RT is added to leave a blank line before the class
+    // declaration.
     sb.append(importMgr.outputStr() + RT);
   }
 
@@ -401,7 +401,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
     boolean isFirst = true;
     for (DbOrClassColumnInfo ci : arr) {
-      // Inside getPk() of a surrogateKeyStrategy BODY, only PK fields are listed, so skip non-PK columns
+      // Inside getPk() of a surrogateKeyStrategy BODY, only PK fields are listed, so skip non-PK
+      // columns
       if (isInGetPkOfSurrogateKeyStrategyEntity && !ci.isPk()) {
         continue;
       }
@@ -458,9 +459,14 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       String entityNameCp) {
     sb.append(T1 + "/**" + RT);
     sb.append(T1 + " * Constructor that takes naturalKey as arguments." + RT);
-    sb.append(T1 + " * Having both a naturalKey and surrogateKey constructor could cause conflicts, so only the naturalKey constructor is provided." + RT);
-    sb.append(T1 + " * (The surrogateKey is not used on insert; on select it is retrieved via Entity.getPk(field);" + RT);
-    sb.append(T1 + " * on update the selected entity is reused, so there are few scenarios where passing it as a constructor argument is preferred.) " + RT);
+    sb.append(
+        T1 + " * Having both a naturalKey and surrogateKey constructor could cause conflicts, "
+            + "so only the naturalKey constructor is provided." + RT);
+    sb.append(T1 + " * (The surrogateKey is not used on insert; "
+        + "on select it is retrieved via Entity.getPk(field);" + RT);
+    sb.append(T1 + " * on update the selected entity is reused, "
+        + "so there are few scenarios where passing it as a constructor argument is preferred.) "
+        + RT);
     sb.append(T1 + " */" + RT);
     sb.append(T1 + "public " + entityNameCp + "(");
     boolean is1st = true;
@@ -678,7 +684,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       sb.append(T1 + "}" + RT2);
 
       if (ci.isRelation()) {
-        // For relation columns, also provide an accessor for the field representing the entity itself
+        // For relation columns, also provide an accessor for the field representing the entity
+        // itself
         appendAccessorForRelation(sb, relEntityName, ci.getRelationFieldName(), false, null);
       }
 
@@ -696,7 +703,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       @org.jspecify.annotations.Nullable String relFieldName,
       boolean isReferedByBidirectionalRelation,
       @org.jspecify.annotations.Nullable RelationRefInfo info) {
-    // For a bidirectional reference target with OneToMany, update fieldName and relEntityName accordingly
+    // For a bidirectional reference target with OneToMany, update fieldName and relEntityName
+    // accordingly
     if (info != null && info.getRelationKind() == RelationKindEnum.ONE_TO_MANY) {
       relFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
       relEntityName = "List<" + StringUtils.capitalize(relEntityName) + ">";
@@ -744,7 +752,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
       String dispName = columnInfo.getDisplayNameMap().get(lang);
       map.put(entityName + "." + varName, dispName);
 
-      // // Also register with the first letter of entityName lowercased, to match Spring MVC message output
+      // // Also register with the first letter of entityName lowercased, to match Spring MVC
+      // message output
       map.put(StringUtils.uncapitalize(entityName) + "." + varName, dispName);
     }
   }
@@ -753,20 +762,15 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
    * Common processing to create item_names_xx.properties files for each configured language.
    */
   protected void appendItemNamesProperties(EntityGenKindEnum entityKind,
-      List<DbOrClassTableInfo> tableList)
-      throws IOException, InterruptedException {
+      List<DbOrClassTableInfo> tableList) throws IOException, InterruptedException {
     PropertiesFileGen gen = new PropertiesFileGen();
 
     // Create a fallback file.
-    gen.writeMapToPropFile(
-        createSortedMapForPropFile(
-            info.getSysCmnRootInfo().getDefaultLang(), tableList, entityKind),
-        "item_names", null);
+    gen.writeMapToPropFile(createSortedMapForPropFile(info.getSysCmnRootInfo().getDefaultLang(),
+        tableList, entityKind), "item_names", null);
     // Create a file for the default language
-    gen.writeMapToPropFile(
-        createSortedMapForPropFile(
-            info.getSysCmnRootInfo().getDefaultLang(), tableList, entityKind),
-        "item_names", info.getSysCmnRootInfo().getDefaultLang());
+    gen.writeMapToPropFile(createSortedMapForPropFile(info.getSysCmnRootInfo().getDefaultLang(),
+        tableList, entityKind), "item_names", info.getSysCmnRootInfo().getDefaultLang());
     // Create files for each language listed in supportedLangArr
     for (String lang : info.getSysCmnRootInfo().getSupportedLangArr()) {
       gen.writeMapToPropFile(createSortedMapForPropFile(lang, tableList, entityKind), "item_names",
@@ -802,7 +806,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     // When not called from SystemCommon, include a call to the same method in SystemCommon.
     // Note: the case where SystemCommon has no prePersist / preUpdate is not yet handled.
     if (!isFromSystemCommon) {
-      sb.append(T2 + "// Calling super here because overriding @PrePersist / @PreUpdate in a subclass would prevent the parent class method from being invoked." + RT);
+      sb.append(T2 + "// Calling super here because overriding @PrePersist / @PreUpdate "
+          + "in a subclass would prevent the parent class method from being invoked." + RT);
       sb.append(T2 + "super." + ((isUpdate) ? "preUpdate" : "preInsert") + "();" + RT2);
 
     }

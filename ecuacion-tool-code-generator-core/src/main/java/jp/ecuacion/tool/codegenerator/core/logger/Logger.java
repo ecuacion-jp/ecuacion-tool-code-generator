@@ -33,8 +33,9 @@ public class Logger {
   public static void log(Object object, String msgId, Object... msgArgs) {
 
     if (object.getClass().getName().equals("java.lang.String")) {
-      throw new RuntimeException(
-          "The instance passed as the first argument, which should be the Logger constructor's caller, is a String. Please pass the correct argument.");
+      throw new RuntimeException("The instance passed as the first argument, "
+          + "which should be the Logger constructor's caller, "
+          + "is a String. Please pass the correct argument.");
     }
 
     String logMsg = PropertiesFileUtil.getMessage(Locale.ENGLISH, msgId, msgArgs);

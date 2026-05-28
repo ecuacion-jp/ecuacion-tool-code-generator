@@ -72,7 +72,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
 
   /** Returns the path to the base resources output directory. */
   public String getResourcesPath() {
-    return getBuildPathRootDirPath(null) + "/src/base/resources";
+    return getBuildPathRootDirPath(null) + "/src/main/resources";
   }
 
   private String getBuildPathRootDirPath(@Nullable String packageName) {
