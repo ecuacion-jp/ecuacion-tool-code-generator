@@ -68,9 +68,8 @@ public class UtilGen extends AbstractGen {
             .getUpperCamelFromSnake(Objects.requireNonNull(grInfo.getCustomGroupTableName())) + "\""
             : "null")
         + ", "
-        + (grDefined
-            ? "\"" + StringUtil.getLowerCamelFromSnake(grInfo.getCustomGroupColumnName()) + "\""
-            : "null")
+        + (grDefined ? "\"" + StringUtil.getLowerCamelFromSnake(
+            Objects.requireNonNull(grInfo.getCustomGroupColumnName())) + "\"" : "null")
         + ");" + RT);
     sb.append(T1 + "}" + RT);
     sb.append("}" + RT);
