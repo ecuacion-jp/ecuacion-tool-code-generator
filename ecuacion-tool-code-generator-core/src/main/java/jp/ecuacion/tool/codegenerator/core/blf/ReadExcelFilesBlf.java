@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.blf;
 
 import jakarta.validation.Validation;
@@ -36,18 +51,19 @@ public class ReadExcelFilesBlf {
 
     detailLog.info("read excel : " + file.getName());
 
-    // fileの中身から見てスキップすべきの場合、continue.
+    // Skip if the file content indicates it should be skipped
     if (shouldSkip(file, "xlsx")) {
       throw new SkipException();
     }
 
-    // excelのシート単位とは異なるのだが、元々のxml時代のファイル分け単位に一旦沿って実装
+    // The unit here differs from Excel sheets, but we follow the file-split unit from the
+    // original XML era for now
     HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap = null;
 
-    // 初期化
+    // Initialize
     rootInfoMap = new HashMap<>();
 
-    // excel読み込み（ここでは純粋な読み込み、各objectへの格納のみ。データ補完は実施なし）
+    // Read Excel (pure reading and storing into objects only; no data complementation here)
     rootInfoMap.putAll(new ExcelGeneralSettingsReader().readAndGetMap(file.getAbsolutePath()));
     SystemCommonRootInfo sysCmnRootInfo =
         java.util.Objects.requireNonNull(
@@ -65,7 +81,7 @@ public class ReadExcelFilesBlf {
     rootInfoMap
         .putAll(new ExcelDbCommonReader(sysCmnRootInfo).readAndGetMap(file.getAbsolutePath()));
 
-    // まとめてvalidation・同一RootInfo内のデータ補完
+    // Batch validation and intra-RootInfo data complementation
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
       new Violations()
           .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(rootInfo))
@@ -73,7 +89,7 @@ public class ReadExcelFilesBlf {
       rootInfo.consistencyCheckAndCoplementData();
     }
 
-    // ファイルがなくてもrootInfoは作成しておく処理（必要なもののみ）
+    // Create rootInfo even when the corresponding file is absent (only for required kinds)
     putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_REMOVED_DATA, new MiscSoftDeleteRootInfo());
     putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_GROUP, new MiscGroupRootInfo());
     putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_OPTIMISTIC_LOCK,
@@ -90,18 +106,18 @@ public class ReadExcelFilesBlf {
   }
 
   private boolean shouldSkip(File file, String extension) {
-    // ディレクトリの場合はスキップ
+    // Skip directories
     if (file.isDirectory()) {
       Logger.log(ReadExcelFilesBlf.class, "MSG_INFO_DIRECTORY_INCLUDED", file.getName());
       return true;
 
     } else if (!file.getName().endsWith("." + extension)) {
-      // xml / excelでない場合はスキップ
+      // Skip files that are not xml / excel
       Logger.log(ReadExcelFilesBlf.class, "MSG_INFO_NON_XML_FILE_INCLUDED", file.getName());
       return true;
 
     } else if (file.getName().startsWith("~$")) {
-      // excelの一時ファイルが勝手にこのファイル名でできるのでスキップ
+      // Skip Excel temporary files that are automatically created with this naming pattern
       return true;
 
     } else {

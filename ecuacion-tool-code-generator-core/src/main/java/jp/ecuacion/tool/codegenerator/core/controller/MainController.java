@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.controller;
 
 import java.io.File;
@@ -14,7 +29,10 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
-/** TODO. */
+/**
+ * Entry controller that drives the code generation pipeline: reads Excel files, validates,
+ * complements, and generates source code.
+ */
 public class MainController {
 
   /** 
@@ -103,7 +121,7 @@ public class MainController {
     }
   }
 
-  /** TODO. */
+  /** Signals that the current Excel file should be skipped during the processing loop. */
   public static class SkipException extends Exception {
     private static final long serialVersionUID = 1L;
   }
