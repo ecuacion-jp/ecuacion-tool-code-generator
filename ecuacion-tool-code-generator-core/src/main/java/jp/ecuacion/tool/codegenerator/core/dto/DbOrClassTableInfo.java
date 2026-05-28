@@ -198,7 +198,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
   /** Returns the group column for this table, or {@code null} if absent. */
   @SuppressWarnings({"NullAway", "null"})
   public DbOrClassColumnInfo getGroupColumn() {
-    // Common columns are not included, so no detailed consistency check here — just return true if found.
+    // Common columns are not included, so no detailed consistency check here — just return true if
+    // found.
     for (DbOrClassColumnInfo ci : columnList) {
       if (ci.isGroupColumn()) {
         return ci;
@@ -460,7 +461,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return columnList.stream().filter(col -> col.isRelation() && col.isRelationBidirectinal())
         .toList().size() > 0;
   }
-  
+
   /**
    * Returns all columns that have a bidirectional relation reference registered from another
    * table.
@@ -531,9 +532,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
     List<String> index = new ArrayList<>();
     for (int i = 1; i <= indexMap.size(); i++) {
       if (!indexMap.containsKey(i)) {
-        new Violations().add(new BusinessViolation(
-            "MSG_ERR_INDEX_NUMBER_NOT_CONTINUOUS_FROM_1", "", name, Integer.toString(indexSerial)))
-            .throwIfAny();
+        new Violations().add(new BusinessViolation("MSG_ERR_INDEX_NUMBER_NOT_CONTINUOUS_FROM_1", "",
+            name, Integer.toString(indexSerial))).throwIfAny();
       }
 
       DbOrClassColumnInfo indexedCol = indexMap.get(i);

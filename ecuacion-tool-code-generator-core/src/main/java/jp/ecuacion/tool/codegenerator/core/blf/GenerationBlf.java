@@ -52,7 +52,7 @@ public class GenerationBlf {
   public GenerationBlf(Info info) {
     this.info = MainController.tlInfo.get();
   }
-  
+
   /**
    * Determines which generation patterns are needed and delegates to {@link #controlGenerators()}
    * for each.
@@ -77,7 +77,8 @@ public class GenerationBlf {
       arr.add(GeneratePtnEnum.NORMAL);
     }
 
-    // Normally one system produces one pattern; when multiple are needed, generate separately for each
+    // Normally one system produces one pattern;
+    // when multiple are needed, generate separately for each
     for (GeneratePtnEnum anEnum : arr) {
       info.setGenPtn(anEnum);
       controlGenerators();
@@ -101,7 +102,7 @@ public class GenerationBlf {
 
     return info.getGroupRootInfo().getDevidesDaoIntoOtherProject();
   }
-  
+
   /**
    * Invokes the appropriate generators for each data kind defined in the current generation
    * pattern.
@@ -113,10 +114,11 @@ public class GenerationBlf {
     // // Pass allDtMap to generator (intentionally static)
     // AbstractTableOrClassRelatedGen.setAllDtMap(allDtMap);
 
-    // When building a no-group query and generating only the DAO in a separate project, files stored
+    // When building a no-group query and generating only the DAO in a separate project, files
+    // stored
     // in common are generated twice. For classes this is fine (just a performance issue), but
     // properties files are overwritten, resulting in duplicate keys.
-    // To avoid this, delete src/base/resources/*.properties at this point
+    // To avoid this, delete src/main/resources/*.properties at this point
     String dirPath = new PropertiesFileGen().getResourcesPath();
     if (new File(dirPath).listFiles() != null) {
       for (File file : new File(dirPath).listFiles()) {
@@ -176,8 +178,7 @@ public class GenerationBlf {
 
       } else if (dataKind == DataKindEnum.DB) {
         Logger.log(this, "GEN_DB");
-        List<AbstractDaoRelatedGen> genArr =
-            new ArrayList<AbstractDaoRelatedGen>();
+        List<AbstractDaoRelatedGen> genArr = new ArrayList<AbstractDaoRelatedGen>();
         genArr.add(new PerTableBaseRecordGen(DataKindEnum.DB));
         genArr.add(new EntityBodyGen(DataKindEnum.DB, false));
 

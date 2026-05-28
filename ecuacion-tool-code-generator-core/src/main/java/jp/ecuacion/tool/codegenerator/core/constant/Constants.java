@@ -68,7 +68,7 @@ public class Constants {
 
   /** Root path for generated Java source files. */
   public static final String DIR_SRC_JAVA_PATH =
-      "src" + PATH_SEPARATOR + "base" + PATH_SEPARATOR + "java" + PATH_SEPARATOR;
+      "src" + PATH_SEPARATOR + "main" + PATH_SEPARATOR + "java" + PATH_SEPARATOR;
 
   /** Default location of Excel input files; may be changed for testing purposes. */
   public static final String DIR_INFO_EXCELS_DEFAULT =

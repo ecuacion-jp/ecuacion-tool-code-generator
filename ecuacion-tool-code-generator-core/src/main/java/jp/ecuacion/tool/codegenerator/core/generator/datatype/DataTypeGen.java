@@ -121,11 +121,14 @@ public class DataTypeGen extends AbstractGen {
       sb.append(T1 + "@Override" + RT);
       sb.append(T1 + "public " + dataTypeName + "Enum convertToEntityAttribute(" + dbKata
           + " obj) {" + RT);
-      sb.append(T2 + "// As long as the DB value is valid no issue will occur, so any problem here is a programming bug and an unchecked exception is appropriate." + RT);
+      sb.append(T2
+          + "// As long as the DB value is valid no issue will occur, "
+          + "so any problem here is a programming bug and an unchecked exception is appropriate."
+          + RT);
       // sb.append(
       // T2 + "return (obj == null) ? null : " + dataTypeName + "Enum.getEnumFromCode(obj);" + RT);
-      sb.append(T2 + "return obj == null ? null : EnumUtil.getEnumFromCode("
-          + dataTypeName + "Enum.class, obj);" + RT);
+      sb.append(T2 + "return obj == null ? null : EnumUtil.getEnumFromCode(" + dataTypeName
+          + "Enum.class, obj);" + RT);
       sb.append(T1 + "}" + RT);
       sb.append("}" + RT);
 
