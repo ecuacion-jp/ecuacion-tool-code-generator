@@ -21,6 +21,7 @@ import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
+import org.jspecify.annotations.Nullable;
 
 /** Holds group-related settings such as the group column and tables excluded from grouping. */
 @SuppressWarnings("NullAway.Init")
@@ -33,8 +34,8 @@ public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
   @StrBoolean
   private String devidesDaoIntoOtherProject;
   
-  private String customGroupTableName;
-  private String customGroupColumnName;
+  private @Nullable String customGroupTableName;
+  private @Nullable String customGroupColumnName;
 
   /** Constructs an empty instance when no group XML file is provided. */
   @SuppressWarnings("null")
@@ -43,7 +44,6 @@ public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
   }
 
   /** Constructs an instance with the group column settings and tables without grouping. */
-  @SuppressWarnings("null")
   public MiscGroupRootInfo(String columnName, String dataTypeName, String tableNamesWithoutGrouping,
       String needsUngroupedSource, String devidesDaoIntoOtherProject) {
 
@@ -86,19 +86,19 @@ public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
     
   }
 
-  public String getCustomGroupTableName() {
+  public @Nullable String getCustomGroupTableName() {
     return customGroupTableName;
   }
 
-  public void setCustomGroupTableName(String customGroupTableName) {
+  public void setCustomGroupTableName(@Nullable String customGroupTableName) {
     this.customGroupTableName = customGroupTableName;
   }
 
-  public String getCustomGroupColumnName() {
+  public @Nullable String getCustomGroupColumnName() {
     return customGroupColumnName;
   }
 
-  public void setCustomGroupColumnName(String customGroupColumnName) {
+  public void setCustomGroupColumnName(@Nullable String customGroupColumnName) {
     this.customGroupColumnName = customGroupColumnName;
   }
 }

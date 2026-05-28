@@ -25,6 +25,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Validates cross-table and cross-file data consistency for the parsed Excel data.
@@ -37,7 +38,8 @@ class DataConsistencyValidator {
 
   /** Validates that relation references in child-table columns point to existing tables/columns. */
   void checkForChildTable(String sysName, DbOrClassRootInfo dbOrClassRootInfo) {
-    List<String> tableNameSet = dbOrClassRootInfo.tableList.stream().map(e -> e.getName()).toList();
+    List<@NonNull String> tableNameSet =
+        dbOrClassRootInfo.tableList.stream().map(e -> e.getName()).toList();
 
     for (DbOrClassTableInfo ti : dbOrClassRootInfo.tableList) {
       for (DbOrClassColumnInfo ci : ti.columnList) {
@@ -53,7 +55,8 @@ class DataConsistencyValidator {
               .collect(Collectors.toMap(e -> e.getName(), e -> e)).get(ci.getRelationRefTable());
 
           // relation: refering to column name existence check
-          List<String> refTiColNameList = refTi.columnList.stream().map(e -> e.getName()).toList();
+          List<@NonNull String> refTiColNameList =
+              refTi.columnList.stream().map(e -> e.getName()).toList();
           if (!refTiColNameList.contains(ci.getRelationRefCol())) {
             new Violations().add(new BusinessViolation("MSG_ERR_DB_REFER_TO_COLUMN_NAME_NOT_FOUND",
                 sysName, ti.getName(), ci.getName(), ci.getRelationRefCol())).throwIfAny();
@@ -83,8 +86,9 @@ class DataConsistencyValidator {
         if (colInfo.isPk()) {
           // Check because having two surrogate key columns is not allowed
           if (hasS) {
-            new Violations().add(new BusinessViolation(
-                "MSG_ERR_SURROGATE_KEY_DUPLICATED", tableInfo.getName())).throwIfAny();
+            new Violations()
+                .add(new BusinessViolation("MSG_ERR_SURROGATE_KEY_DUPLICATED", tableInfo.getName()))
+                .throwIfAny();
           }
           hasS = true;
         }
@@ -96,8 +100,8 @@ class DataConsistencyValidator {
 
       // PK is required. SystemCommon is treated specially.
       if (!tableInfo.getName().equals("SYSTEM_COMMON") && !hasS) {
-        new Violations().add(
-            new BusinessViolation("MSG_ERR_PK_REQUIRED", tableInfo.getName())).throwIfAny();
+        new Violations().add(new BusinessViolation("MSG_ERR_PK_REQUIRED", tableInfo.getName()))
+            .throwIfAny();
       }
 
       tableInfo.setHasUniqueConstraint(hasU);
@@ -133,8 +137,8 @@ class DataConsistencyValidator {
     // "same column exists in both parent and child" check, so it is not checked here.
     // Do check for the case where it exists in neither parent nor child.
     if (!parentTableHasGroupCol && !childTableHasGroupCol) {
-      new Violations().add(
-          new BusinessViolation("MSG_ERR_COMMON_GROUP_COL_NOT_FOUND", systemName)).throwIfAny();
+      new Violations().add(new BusinessViolation("MSG_ERR_COMMON_GROUP_COL_NOT_FOUND", systemName))
+          .throwIfAny();
     }
 
     // When "group_id" is used as the common group column name, the master group table may want to
@@ -145,8 +149,10 @@ class DataConsistencyValidator {
     // It makes no sense to have a "custom group column" in systemCommon, so treat it as an error.
     // (The common group setting should be used instead.)
     if (dbCommonRootInfo.tableList.get(0).hasCustomGroupColumn()) {
-      new Violations().add(new BusinessViolation(
-          "MSG_ERR_SYSTEM_COMMON_ENTITY_CANNOT_HAVE_CUSTOM_GROUP_COLUMN", systemName)).throwIfAny();
+      new Violations()
+          .add(new BusinessViolation("MSG_ERR_SYSTEM_COMMON_ENTITY_CANNOT_HAVE_CUSTOM_GROUP_COLUMN",
+              systemName))
+          .throwIfAny();
     }
 
     // Having more than one "custom group column" in child tables is an error
@@ -159,8 +165,10 @@ class DataConsistencyValidator {
         customGroupTableName = ti.getName();
         customGroupColumnName = ti.getCustomGroupColumn().getName();
         if (numOfCustomGroupColumns > 1) {
-          new Violations().add(new BusinessViolation(
-              "MSG_ERR_MULTIPLE_CUSTOM_GROUP_COLUMN_CANNOT_EXIST", systemName)).throwIfAny();
+          new Violations()
+              .add(new BusinessViolation("MSG_ERR_MULTIPLE_CUSTOM_GROUP_COLUMN_CANNOT_EXIST",
+                  systemName))
+              .throwIfAny();
         }
       }
     }

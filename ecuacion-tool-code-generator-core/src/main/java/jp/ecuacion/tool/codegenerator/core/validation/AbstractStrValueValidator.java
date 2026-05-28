@@ -33,7 +33,7 @@ public abstract class AbstractStrValueValidator<A extends Annotation>
   protected abstract List<String> allowedNonEmptyValues();
 
   @Override
-  public void initialize(@SuppressWarnings("null") A constraintAnnotation) {}
+  public void initialize(A constraintAnnotation) {}
 
   @SuppressWarnings("null")
   @Override

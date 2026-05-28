@@ -39,10 +39,9 @@ public class EntityBodyGen extends EntityGen {
   @Override
   public void generate() throws IOException, InterruptedException {
 
-    DbOrClassRootInfo dbCommon =
-        java.util.Objects.requireNonNull(
-            (DbOrClassRootInfo) info.getRootInfoMap().get(DataKindEnum.DB_COMMON),
-            "DB_COMMON must be populated");
+    DbOrClassRootInfo dbCommon = java.util.Objects.requireNonNull(
+        (DbOrClassRootInfo) info.getRootInfoMap().get(DataKindEnum.DB_COMMON),
+        "DB_COMMON must be populated");
     for (DbOrClassTableInfo tableInfo : info.getDbRootInfo().tableList) {
       sb = new StringBuilder();
       createSource(tableInfo, dbCommon.tableList.get(0).columnList);
@@ -145,9 +144,14 @@ public class EntityBodyGen extends EntityGen {
     sb.append(T1 + "}" + RT2);
 
     sb.append(T1 + "// getSetOfUniqueConstraintFieldList()" + RT);
-    sb.append(T1 + "// Currently only naturalKey is effectively supported, so it is added to the Set and returned." + RT);
-    sb.append(
-        T1 + "// In the future, other unique keys should also be configurable (otherwise auto-deletion of soft-deleted records on insert would not work)." + RT);
+    sb.append(T1
+        + "// Currently only naturalKey is effectively supported, "
+        + "so it is added to the Set and returned."
+        + RT);
+    sb.append(T1
+        + "// In the future, other unique keys should also be configurable "
+        + "(otherwise auto-deletion of soft-deleted records on insert would not work)."
+        + RT);
 
     sb.append(T1 + "@Nonnull" + RT);
     sb.append(T1 + "public Set<List<String>> getSetOfUniqueConstraintFieldList() {" + RT);

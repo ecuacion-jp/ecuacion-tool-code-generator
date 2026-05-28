@@ -106,12 +106,14 @@ public class EnumGen extends AbstractGen {
     sb.append(T2 + "this.code = code;" + RT);
     sb.append(T1 + "}" + RT2);
 
-    sb.append(genJavadocMethod("Returns the code.", "No need to handle null or empty code as a validation error is raised when the Enum is generated."));
+    sb.append(genJavadocMethod("Returns the code.", "No need to handle null or empty code "
+        + "as a validation error is raised when the Enum is generated."));
     sb.append(T1 + "public String getCode() {" + RT);
     sb.append(T2 + "return code;" + RT);
     sb.append(T1 + "}" + RT2);
 
-    sb.append(genJavadocMethod("Returns the display name for use in the UI.", "This name can be retrieved but cannot be used to look up the enum.",
+    sb.append(genJavadocMethod("Returns the display name for use in the UI.",
+        "This name can be retrieved but cannot be used to look up the enum.",
         "Returns in the localized language."));
     sb.append(T1 + "public String getDisplayName(Locale locale) {" + RT);
     sb.append(T2 + "return PropertiesFileUtil.getEnumName("
