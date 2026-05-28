@@ -164,7 +164,6 @@ public class CheckAndComplementDataBlf {
    * Checks consistency between table definitions and group definitions, and complements
    * group-related data.
    */
-  @SuppressWarnings("null")
   private void checkAndComplementForTableAndGroup(String systemName,
       DbOrClassRootInfo dbCommonRootInfo, DbOrClassRootInfo dbRootInfo,
       MiscGroupRootInfo groupRootInfo) {

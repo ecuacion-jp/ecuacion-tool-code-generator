@@ -74,7 +74,7 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
   private String prohibitedCharsDescSupportLang3;
 
   private Map<String, String> prohibitedCharsDescLangMap = new HashMap<>();
-  
+
   /**
    * Constructs an instance with all system-common settings and builds the prohibited-chars
    * description map for each language.
@@ -111,9 +111,8 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
       }
     }
 
-    for (String[] langAndDesc : new String[][] {
-      new String[] {"", prohibitedCharsDescDefaultLang},
-      new String[] {defaultLang, prohibitedCharsDescDefaultLang},
+    for (String[] langAndDesc : new String[][] {new String[] {"", prohibitedCharsDescDefaultLang},
+        new String[] {defaultLang, prohibitedCharsDescDefaultLang},
         new String[] {supportLang1, prohibitedCharsDescSupportLang1},
         new String[] {supportLang2, prohibitedCharsDescSupportLang2},
         new String[] {supportLang3, prohibitedCharsDescSupportLang3}}) {
@@ -213,7 +212,8 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
     return prohibitedCharsDescLangMap.get(lang);
   }
 
-  /** Always returns {@code true} because this info is always defined (all blank values would cause an error). */
+  /** Always returns {@code true} 
+   * because this info is always defined (all blank values would cause an error). */
   @Override
   public boolean isDefined() {
     return true;

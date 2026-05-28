@@ -21,9 +21,10 @@ package jp.ecuacion.tool.codegenerator.core.enums;
  */
 public enum GeneratePtnEnum {
 
-  NORMAL("normal", "normal"), NO_GROUP_QUERY("no-group-query", "no-group-query"), DAO_ONLY_GROUP_NORMAL(
-      "normal",
-      "DAO-only separate group: normal"), DAO_ONLY_GROUP_NO_GROUP_QUERY("no-group-query", "DAO-only separate group: no-group-query");
+  NORMAL("normal", "normal"), NO_GROUP_QUERY("no-group-query",
+      "no-group-query"), DAO_ONLY_GROUP_NORMAL("normal",
+          "DAO-only separate group: normal"), DAO_ONLY_GROUP_NO_GROUP_QUERY("no-group-query",
+              "DAO-only separate group: no-group-query");
 
   private String dirName;
   private String dispName;

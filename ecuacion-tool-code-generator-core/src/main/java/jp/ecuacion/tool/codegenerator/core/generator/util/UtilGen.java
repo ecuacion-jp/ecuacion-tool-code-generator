@@ -16,6 +16,7 @@
 package jp.ecuacion.tool.codegenerator.core.generator.util;
 
 import java.io.IOException;
+import java.util.Objects;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -60,19 +61,15 @@ public class UtilGen extends AbstractGen {
 
     sb.append(T1 + "public JpaFilterUtil() {" + RT);
     sb.append(T2 + "super(" + info.getRemovedDataRootInfo().isDefined() + ", " + grDefined + ", "
-        + (grDefined
-            ? "\"" + StringUtil.getLowerCamelFromSnake(grInfo.getColumnName())
-                + "\""
-            : "null")
+        + (grDefined ? "\""
+            + StringUtil.getLowerCamelFromSnake(grInfo.getColumnName()) + "\"" : "null")
         + ", " + (grInfo.getCustomGroupTableName() != null) + ", "
-        + (grDefined
-            ? "\"groupFilter" + StringUtil
-                .getUpperCamelFromSnake(grInfo.getCustomGroupTableName()) + "\""
+        + (grDefined ? "\"groupFilter" + StringUtil
+            .getUpperCamelFromSnake(Objects.requireNonNull(grInfo.getCustomGroupTableName())) + "\""
             : "null")
         + ", "
         + (grDefined
-            ? "\"" + StringUtil
-                .getLowerCamelFromSnake(grInfo.getCustomGroupColumnName()) + "\""
+            ? "\"" + StringUtil.getLowerCamelFromSnake(grInfo.getCustomGroupColumnName()) + "\""
             : "null")
         + ");" + RT);
     sb.append(T1 + "}" + RT);
