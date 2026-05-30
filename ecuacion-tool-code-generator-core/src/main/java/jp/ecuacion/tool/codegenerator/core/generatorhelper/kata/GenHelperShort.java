@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper;
+package jp.ecuacion.tool.codegenerator.core.generatorhelper.kata;
 
-/** Code generation helper for {@code INTEGER}-type columns. */
-public class GenHelperInteger extends GenHelperWrappedNumber {
+/** Generation helper for Short data type columns. */
+public class GenHelperShort extends GenHelperWrappedNumber {
 
 }

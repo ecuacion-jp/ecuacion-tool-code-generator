@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper;
+package jp.ecuacion.tool.codegenerator.core.generatorhelper.kata;
 
+import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 
 /**
- * Code generation helper for {@code DATE_TIME}-type columns, providing a timestamp-parsing
- * string setter.
+ * Code generation helper for {@code DATE}-type columns, providing a timestamp-parsing string
+ * setter.
  */
-public class GenHelperDateTime extends GenHelperNoNumberObj {
+public class GenHelperDate extends GenHelperNoNumberObj {
   @Override
   protected String getStringParamSetter(String columnNameCp, String columnNameSm, String dataType) {
     StringBuilder sb = new StringBuilder();
@@ -43,7 +44,11 @@ public class GenHelperDateTime extends GenHelperNoNumberObj {
 
   @Override
   public String[] getNeededImports(DbOrClassColumnInfo columnInfo) {
-    String[] rtnStrings = mergeStrings(super.getNeededImports(columnInfo), "java.time.*");
+    String[] rtnStrings = super.getNeededImports(columnInfo);
+    if (columnInfo.isAutoIncrement() || columnInfo.isAutoUpdate() || columnInfo.isForcedIncrement()
+        || columnInfo.isForcedUpdate()) {
+      rtnStrings = mergeStrings(rtnStrings, EclibCoreConstants.PKG + ".util.*");
+    }
 
     return rtnStrings;
   }

@@ -44,9 +44,9 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil.ColFormat;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.AnnotationGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColFormat;
 import org.apache.commons.lang3.StringUtils;
 
 /**

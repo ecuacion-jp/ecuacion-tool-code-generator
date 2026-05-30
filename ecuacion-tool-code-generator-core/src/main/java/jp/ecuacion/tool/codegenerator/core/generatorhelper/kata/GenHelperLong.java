@@ -13,17 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper;
+package jp.ecuacion.tool.codegenerator.core.generatorhelper.kata;
 
-import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
+/** Generation helper for Long data type columns. */
+public class GenHelperLong extends GenHelperWrappedNumber {
 
-/**
- * Code generation helper for {@code BIG_DECIMAL}-type columns, which adds the
- * {@code java.math.BigDecimal} import.
- */
-public class GenHelperBigDecimal extends GenHelperWrappedNumber {
-  @Override
-  public String[] getNeededImports(DbOrClassColumnInfo columnInfo) {
-    return mergeStrings(super.getNeededImports(columnInfo), "java.math.BigDecimal");
-  }
 }

@@ -47,8 +47,8 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Sequen
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.VersionGen;
 import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.AnnotationGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
 /**
