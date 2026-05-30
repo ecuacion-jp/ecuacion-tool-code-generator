@@ -34,7 +34,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
   @Override
   public void generate() {
-    internalGenerate(info.getDbRootInfo().tableList, false);
+    internalGenerate(getInfo().getDbRootInfo().tableList, false);
   }
 
   /**
@@ -70,7 +70,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     for (DbOrClassColumnInfo ci : relColList) {
       String relField = ci.getRelationFieldNameCp();
       DbOrClassColumnInfo pk =
-          info.getTableInfo(ci.getRelationRefTable()).getPkColumnIncludingSystemCommon();
+          getInfo().getTableInfo(ci.getRelationRefTable()).getPkColumnIncludingSystemCommon();
       String refPkGet = code.generateString(pk, ColFormat.GET);
       sb.append(", get" + relField + "() == null || get" + relField + "()." + refPkGet + " == null"
           + "? \"\" : get" + relField + "()." + refPkGet);
@@ -101,7 +101,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     for (DbOrClassColumnInfo ci : relColList) {
       String relFieldGet = "get" + ci.getRelationFieldNameCp() + "()";
       DbOrClassColumnInfo v =
-          info.getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingSystemCommon();
+          getInfo().getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingSystemCommon();
       String refVerGet = code.generateString(v, ColFormat.GET);
       sb.append(", " + relFieldGet + " == null || " + relFieldGet + "." + refVerGet
           + " == null ? \"\" : " + relFieldGet + "." + refVerGet);

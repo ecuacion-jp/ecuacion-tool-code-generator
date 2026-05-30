@@ -117,7 +117,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   /** Returns all columns of this table combined with the SYSTEM_COMMON columns. */
   public List<DbOrClassColumnInfo> getColumnListIncludingSystemCommon() {
     List<DbOrClassColumnInfo> list = new ArrayList<>(columnList);
-    list.addAll(info.getDbCommonRootInfo().tableList.get(0).columnList);
+    list.addAll(getInfo().getDbCommonRootInfo().tableList.get(0).columnList);
 
     return list;
   }
@@ -219,7 +219,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   public DbOrClassColumnInfo getGroupColumnIncludingSystemCommon() {
 
     // Return null immediately if group is not defined
-    if (!info.getGroupRootInfo().isDefined()) {
+    if (!getInfo().getGroupRootInfo().isDefined()) {
       return null;
     }
 
@@ -232,7 +232,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
       }
     }
 
-    if (info.getGroupRootInfo().getTableNamesWithoutGrouping().contains(name)) {
+    if (getInfo().getGroupRootInfo().getTableNamesWithoutGrouping().contains(name)) {
       if (groupCiList.size() > 0) {
         throw new RuntimeException("The table is listed in 'TABLE_NAMES_WITHOUT_GROUPING'"
             + " but has group column: table_name = " + name);
@@ -279,7 +279,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
   /** Returns {@code true} if the SYSTEM_COMMON columns contain the soft-delete flag column. */
   public boolean hasSoftDeleteFieldInSystemCommon() {
-    List<DbOrClassColumnInfo> dbCommonCi = info.getDbCommonRootInfo().tableList.get(0).columnList;
+    List<DbOrClassColumnInfo> dbCommonCi =
+        getInfo().getDbCommonRootInfo().tableList.get(0).columnList;
     return softDeleteExistenceCheck(dbCommonCi, getName());
   }
 
@@ -293,7 +294,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
   private boolean softDeleteExistenceCheck(List<DbOrClassColumnInfo> columnList, String tableName) {
 
-    MiscSoftDeleteRootInfo removedDataInfo = info.getRemovedDataRootInfo();
+    MiscSoftDeleteRootInfo removedDataInfo = getInfo().getRemovedDataRootInfo();
 
     boolean hasRemovedDataColumn = false;
     for (DbOrClassColumnInfo ci : columnList) {
@@ -305,7 +306,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
           // Treat as an error if the column name matches but the DataType differs
           new Violations()
               .add(new BusinessViolation("MSG_ERR_DT_OF_COL_FOR_REMOVED_DATA_COL_DIFFER",
-                  info.getSystemName(), tableName, ci.getName(), ci.getDataType(),
+                  getInfo().getSystemName(), tableName, ci.getName(), ci.getDataType(),
                   removedDataInfo.getDataTypeName()))
               .throwIfAny();
         }
@@ -322,7 +323,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   @SuppressWarnings({"NullAway", "null"})
   private DbOrClassColumnInfo getVersionColumn(List<DbOrClassColumnInfo> columnList) {
     List<DbOrClassColumnInfo> versionColList = columnList.stream()
-        .filter(ci -> ci.getName().equals(info.getOptimisticLockRootInfo().getColumnName()))
+        .filter(ci -> ci.getName().equals(getInfo().getOptimisticLockRootInfo().getColumnName()))
         .toList();
 
     return versionColList.size() == 0 ? null : versionColList.get(0);
@@ -448,7 +449,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   /** Returns all relation columns excluding the group column. */
   public List<DbOrClassColumnInfo> getRelationColumnWithoutGroupList() {
     return columnList.stream().filter(ci -> ci.isRelation())
-        .filter(ci -> !ci.getName().equals(info.getGroupRootInfo().getColumnName())).toList();
+        .filter(ci -> !ci.getName().equals(getInfo().getGroupRootInfo().getColumnName())).toList();
   }
 
   /** Returns {@code true} if this table has at least one relation column. */

@@ -39,7 +39,7 @@ public class SystemCommonGen extends EntityGen {
   @Override
   public void generate() throws IOException, InterruptedException {
 
-    DbOrClassTableInfo tableInfo = info.getCommonTableInfo();
+    DbOrClassTableInfo tableInfo = getInfo().getCommonTableInfo();
     if (tableInfo != null) {
       sb = new StringBuilder();
       createSource(tableInfo);
@@ -71,7 +71,7 @@ public class SystemCommonGen extends EntityGen {
     outputFile(sb, getFilePath("entity"), "SystemCommon.java");
 
     appendItemNamesProperties(EntityGenKindEnum.ENTITY_SYSTEM_COMMON,
-        info.getDbCommonRootInfo().tableList);
+        getInfo().getDbCommonRootInfo().tableList);
   }
 
   /** Generates and appends the full SystemCommon class source from the given table info. */
@@ -85,7 +85,7 @@ public class SystemCommonGen extends EntityGen {
 
     // Class definition
     // When a grouping definition exists, a filter definition is always written in systemCommon.
-    if (info.getGroupRootInfo().isDefined()) {
+    if (getInfo().getGroupRootInfo().isDefined()) {
       getGroupFilterDefAnnotationString(sb);
     }
     if (tableInfo.hasGroupColumn()) {

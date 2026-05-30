@@ -41,7 +41,7 @@ public class ConstantGen extends AbstractGen {
 
     // Create the properties file
     Map<String, String> map = new HashMap<>();
-    map.put("EXCEL_TEMPLATE_VERSION", info.getSysCmnRootInfo().getTemplateVersion());
+    map.put("EXCEL_TEMPLATE_VERSION", getInfo().getSysCmnRootInfo().getTemplateVersion());
     map.put("CODE_GENERATOR_VERSION",
         ResourceBundle.getBundle("version").getString("project.version"));
 

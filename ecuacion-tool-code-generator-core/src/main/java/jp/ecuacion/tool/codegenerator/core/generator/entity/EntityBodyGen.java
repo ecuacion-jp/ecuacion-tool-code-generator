@@ -40,16 +40,16 @@ public class EntityBodyGen extends EntityGen {
   public void generate() throws IOException, InterruptedException {
 
     DbOrClassRootInfo dbCommon = java.util.Objects.requireNonNull(
-        (DbOrClassRootInfo) info.getRootInfoMap().get(DataKindEnum.DB_COMMON),
+        (DbOrClassRootInfo) getInfo().getRootInfoMap().get(DataKindEnum.DB_COMMON),
         "DB_COMMON must be populated");
-    for (DbOrClassTableInfo tableInfo : info.getDbRootInfo().tableList) {
+    for (DbOrClassTableInfo tableInfo : getInfo().getDbRootInfo().tableList) {
       sb = new StringBuilder();
       createSource(tableInfo, dbCommon.tableList.get(0).columnList);
       outputFile(sb, getFilePath("entity"),
           StringUtil.getUpperCamelFromSnake(tableInfo.getName()) + ".java");
     }
 
-    appendItemNamesProperties(EntityGenKindEnum.ENTITY_BODY, info.getDbRootInfo().tableList);
+    appendItemNamesProperties(EntityGenKindEnum.ENTITY_BODY, getInfo().getDbRootInfo().tableList);
   }
 
   /**
@@ -70,8 +70,9 @@ public class EntityBodyGen extends EntityGen {
     sb.append(tableInfo.getTableAnnotationString(tableInfo) + RT);
 
     // Group definition
-    if (info.getGroupRootInfo().isDefined()
-        && !info.getGroupRootInfo().getTableNamesWithoutGrouping().contains(tableInfo.getName())) {
+    if (getInfo().getGroupRootInfo().isDefined()
+        && !getInfo().getGroupRootInfo().getTableNamesWithoutGrouping()
+            .contains(tableInfo.getName())) {
       if (tableInfo.hasCustomGroupColumn()) {
         DbOrClassColumnInfo customGroupCi = tableInfo.getCustomGroupColumn();
         String filterName = "groupFilter" + StringUtil.getUpperCamelFromSnake(tableInfo.getName());

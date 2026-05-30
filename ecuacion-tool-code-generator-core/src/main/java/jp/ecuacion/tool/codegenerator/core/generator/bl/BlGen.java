@@ -42,8 +42,8 @@ public class BlGen extends AbstractGen {
 
   @Override
   public void generate() throws IOException, InterruptedException {
-    generateBl(true, info.getDbCommonRootInfo().tableList);
-    generateBl(false, info.getDbRootInfo().tableList);
+    generateBl(true, getInfo().getDbCommonRootInfo().tableList);
+    generateBl(false, getInfo().getDbRootInfo().tableList);
   }
 
   private void generateBl(boolean isSystemCommon, @Valid List<DbOrClassTableInfo> tableList) {
@@ -284,7 +284,7 @@ public class BlGen extends AbstractGen {
     String repoArgRec = "rec.get" + ti.getPkColumn().getNameCpCamel() + "OfEntityDataType()";
 
     for (RelationRefInfo refInfo : ti.getPkColumn().getRelationRefInfoList()) {
-      DbOrClassTableInfo relOrgTi = info.getTableInfo(refInfo.getOrgTableName());
+      DbOrClassTableInfo relOrgTi = getInfo().getTableInfo(refInfo.getOrgTableName());
       DbOrClassColumnInfo relOrgCi = relOrgTi
           .getColumn(StringUtil.getLowerSnakeFromCamel(refInfo.getOrgFieldName()).toUpperCase());
 
