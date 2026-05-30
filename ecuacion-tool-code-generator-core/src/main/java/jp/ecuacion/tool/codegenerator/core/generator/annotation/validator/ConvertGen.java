@@ -21,7 +21,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.FieldSingleAnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 
 /**
  * Generator for the JPA {@code @Convert} annotation, specifying the converter class for enum

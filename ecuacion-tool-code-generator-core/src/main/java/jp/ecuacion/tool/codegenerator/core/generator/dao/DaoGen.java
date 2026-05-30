@@ -29,8 +29,8 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil.ColFormat;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColFormat;
 
 /** Generates base DAO and Spring Data JPA repository source files for each entity. */
 public class DaoGen extends AbstractDaoRelatedGen {

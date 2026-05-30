@@ -22,8 +22,8 @@ import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.AnnotationGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 
 
 /** Generates data type validator annotation and attribute converter source files. */

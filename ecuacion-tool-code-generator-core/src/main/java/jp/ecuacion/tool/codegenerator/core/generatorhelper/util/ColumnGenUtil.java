@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.core.util.generator;
+package jp.ecuacion.tool.codegenerator.core.generatorhelper.util;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -30,7 +30,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
-import jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper.GenHelperKata;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.kata.GenHelperKata;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 

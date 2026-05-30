@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.core.generator.entity.genhelper;
+/**
+ * Provides utility classes for the source code generators.
+ */
+@NullMarked
+package jp.ecuacion.tool.codegenerator.core.generatorhelper.util;
 
-/** Abstract generation helper for non-numeric object type columns. */
-public abstract class GenHelperNoNumberObj extends GenHelperKata {
-
-  /**
-   * Returns a string setter method implementation for String parameters; returns empty string by
-   * default.
-   */
-  protected String getStringParamSetter(String columnNameCp, String columnNameSm, String dataType) {
-    return "";
-  }
-}
+import org.jspecify.annotations.NullMarked;

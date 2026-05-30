@@ -17,6 +17,7 @@ package jp.ecuacion.tool.codegenerator.core.util.generator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.stream.Stream;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

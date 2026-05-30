@@ -24,9 +24,9 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefIn
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil.ColFormat;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil.ColListFormat;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColFormat;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColListFormat;
 import org.apache.commons.lang3.StringUtils;
 
 /** Generates the base business logic classes for each DB table entity. */
