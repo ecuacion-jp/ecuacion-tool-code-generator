@@ -36,7 +36,7 @@ import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.NotEmptyGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.ValidatorGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.tool.codegenerator.core.validation.StrPk;
@@ -121,7 +121,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   /** Added for convenience; holds the resolved DataTypeInfo for this column. */
   private DataTypeInfo dtInfo;
 
-  private CodeGenUtil code = new CodeGenUtil();
+  private ColumnGenUtil code = new ColumnGenUtil();
 
   //@formatter:off
   @Override
@@ -408,7 +408,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
     private String orgFieldName;
     private String orgFieldNameToReferDst;
 
-    private CodeGenUtil code = new CodeGenUtil();
+    private ColumnGenUtil code = new ColumnGenUtil();
 
     /** Constructs a relation-reference info with all required relationship metadata. */
     public RelationRefInfo(boolean isBidirectional, RelationKindEnum relationKind,

@@ -29,14 +29,13 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil.ColFormat;
 
 /** Generates base DAO and Spring Data JPA repository source files for each entity. */
 public class DaoGen extends AbstractDaoRelatedGen {
 
-  private CodeGenUtil code = new CodeGenUtil();
+  private ColumnGenUtil code = new ColumnGenUtil();
 
   /** Constructs an instance for the specified data kind. */
   public DaoGen(DataKindEnum xmlFilePostFix) {
@@ -202,7 +201,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
   }
 
   private void createBaseDaoImport(DbOrClassTableInfo ti, String entityNameCp) {
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("java.util.*", "jakarta.persistence.EntityManager",
         rootBasePackage + ".base.entity." + entityNameCp);
     if (ti.hasUniqueConstraint()) {
@@ -334,7 +333,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
   private void createBaseRepositoryImport(DbOrClassTableInfo tableInfo, String tableNameCp,
       List<DbOrClassColumnInfo> relFieldList) {
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("java.util.*", rootBasePackage + ".base.entity." + tableNameCp,
         "org.springframework.data.jpa.repository.*",
         "org.springframework.data.repository.query.Param");
@@ -377,7 +376,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     sb.append("package " + rootBasePackage + ".base." + postfixSm + ";" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("jp.ecuacion.util.jpa.dao.AbstractDao",
         rootBasePackage + ".base.entity.SystemCommon");
     importMgr.add("jakarta.annotation.Nonnull");
@@ -496,7 +495,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     sb.append("package " + rootBasePackage + ".base.repository;" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("jp.ecuacion.splib.jpa.repository.SplibRepository",
         "org.springframework.data.repository.NoRepositoryBean");
     sb.append(importMgr.outputStr() + RT);

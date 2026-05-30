@@ -24,11 +24,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-/** Tests for {@link CodeGenUtil}. */
-@DisplayName("CodeGenUtil")
+/** Tests for {@link ColumnGenUtil}. */
+@DisplayName("ColumnGenUtil")
 public class CodeGenUtilTest {
 
-  private final CodeGenUtil sut = new CodeGenUtil();
+  private final ColumnGenUtil sut = new ColumnGenUtil();
 
   @Nested
   @DisplayName("uncapitalCamel()")

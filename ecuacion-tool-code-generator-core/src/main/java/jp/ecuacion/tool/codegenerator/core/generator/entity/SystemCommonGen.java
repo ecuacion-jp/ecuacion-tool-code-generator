@@ -19,7 +19,6 @@ import java.io.IOException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
 /**
  * Generates the SystemCommon entity source file that serves as the mapped superclass for all
@@ -49,7 +48,7 @@ public class SystemCommonGen extends EntityGen {
 
       // Header definitions
       appendPackage(sb);
-      ImportGenUtil importMgr = new ImportGenUtil();
+      ImportBlock importMgr = new ImportBlock();
       importMgr.add("jp.ecuacion.splib.jpa.entity.SplibEntity");
       importMgr.add("jakarta.persistence.*", "java.io.Serializable");
       importMgr.add(rootBasePackage + ".base.record.SystemCommonBaseRecord");

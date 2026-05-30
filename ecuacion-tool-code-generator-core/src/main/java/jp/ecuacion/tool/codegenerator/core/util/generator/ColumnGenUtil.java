@@ -37,7 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Offers utility methods for code generation.
  */
-public class CodeGenUtil {
+public class ColumnGenUtil {
 
   public static final List<DataTypeKataEnum> numberDataTypeList =
       List.of(DataTypeKataEnum.BYTE, DataTypeKataEnum.SHORT,

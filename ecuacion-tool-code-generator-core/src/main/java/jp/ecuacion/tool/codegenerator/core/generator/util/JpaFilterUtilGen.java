@@ -22,16 +22,15 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
 /**
  * Generates the {@code JpaFilterUtil} utility class that configures soft-delete and group
  * filtering.
  */
-public class UtilGen extends AbstractGen {
+public class JpaFilterUtilGen extends AbstractGen {
 
   /** Constructs an instance for the DB data kind. */
-  public UtilGen() {
+  public JpaFilterUtilGen() {
     super(DataKindEnum.DB);
   }
 
@@ -51,7 +50,7 @@ public class UtilGen extends AbstractGen {
 
     sb.append("package " + rootBasePackage + ".base.util;" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("jp.ecuacion.splib.jpa.util.SplibJpaFilterUtil",
         "org.springframework.stereotype.Component");
     sb.append(importMgr.outputStr() + RT);

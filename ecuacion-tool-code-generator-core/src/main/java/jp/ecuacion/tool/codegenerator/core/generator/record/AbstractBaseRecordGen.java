@@ -45,9 +45,8 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil.ColFormat;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -56,7 +55,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
 
-  protected CodeGenUtil code = new CodeGenUtil();
+  protected ColumnGenUtil code = new ColumnGenUtil();
 
   /** Generates the class header (package, imports, class declaration) for the given table. */
   protected abstract void generateHeader(DbOrClassTableInfo ti);
@@ -100,7 +99,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
   protected void generateHeaderCommon(DbOrClassTableInfo ti, String... imps) {
     sb.append("package " + rootBasePackage + ".base.record;" + RT2);
 
-    ImportGenUtil imp = new ImportGenUtil();
+    ImportBlock imp = new ImportBlock();
     imp.add(imps);
 
     // Add kata-dependent imports.
@@ -447,7 +446,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
       sb.append(T1 + "}" + RT2);
 
       // getter with OfEntityDataType
-      if (CodeGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata())) {
+      if (ColumnGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata())) {
         sb.append(T1 + "public " + javaKata + " get" + fiNameCp + "OfEntityDataType() {" + RT);
         sb.append(T2 + "return (get" + fiNameCp + "() == null || get" + fiNameCp
             + "().equals(\"\")) ? null : ");

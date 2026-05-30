@@ -16,12 +16,13 @@
 package jp.ecuacion.tool.codegenerator.core.util.generator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen.ImportBlock;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-/** Tests for {@link ImportGenUtil}. */
-@DisplayName("ImportGenUtil")
+/** Tests for {@link ImportBlock}. */
+@DisplayName("ImportBlock")
 public class ImportGenUtilTest {
 
   @Nested
@@ -31,14 +32,14 @@ public class ImportGenUtilTest {
     @Test
     @DisplayName("empty import set produces empty string")
     void empty() {
-      ImportGenUtil sut = new ImportGenUtil();
+      ImportBlock sut = new ImportBlock();
       assertThat(sut.outputStr()).isEmpty();
     }
 
     @Test
     @DisplayName("single import is output as an import statement")
     void singleImport() {
-      ImportGenUtil sut = new ImportGenUtil();
+      ImportBlock sut = new ImportBlock();
       sut.add("a.b.C");
       assertThat(sut.outputStr()).isEqualTo("import a.b.C;\r\n");
     }
@@ -46,7 +47,7 @@ public class ImportGenUtilTest {
     @Test
     @DisplayName("multiple imports are sorted alphabetically")
     void multipleImportsSorted() {
-      ImportGenUtil sut = new ImportGenUtil();
+      ImportBlock sut = new ImportBlock();
       sut.add("x.y.Z");
       sut.add("a.b.C");
       assertThat(sut.outputStr()).isEqualTo("import a.b.C;\r\nimport x.y.Z;\r\n");
@@ -55,7 +56,7 @@ public class ImportGenUtilTest {
     @Test
     @DisplayName("specific import is removed when a wildcard for the same package is present")
     void wildcardSuppressesSpecificImport() {
-      ImportGenUtil sut = new ImportGenUtil();
+      ImportBlock sut = new ImportBlock();
       sut.add("a.b.*");
       sut.add("a.b.C");
       assertThat(sut.outputStr()).isEqualTo("import a.b.*;\r\n");
@@ -64,7 +65,7 @@ public class ImportGenUtilTest {
     @Test
     @DisplayName("wildcard does not suppress imports from a different package")
     void wildcardDoesNotAffectOtherPackages() {
-      ImportGenUtil sut = new ImportGenUtil();
+      ImportBlock sut = new ImportBlock();
       sut.add("a.b.*");
       sut.add("x.y.Z");
       assertThat(sut.outputStr()).isEqualTo("import a.b.*;\r\nimport x.y.Z;\r\n");
@@ -73,7 +74,7 @@ public class ImportGenUtilTest {
     @Test
     @DisplayName("duplicate adds are deduplicated")
     void duplicatesAreDeduped() {
-      ImportGenUtil sut = new ImportGenUtil();
+      ImportBlock sut = new ImportBlock();
       sut.add("a.b.C", "a.b.C");
       assertThat(sut.outputStr()).isEqualTo("import a.b.C;\r\n");
     }
@@ -86,7 +87,7 @@ public class ImportGenUtilTest {
     @Test
     @DisplayName("existing entry is removed")
     void removesExistingEntry() {
-      ImportGenUtil sut = new ImportGenUtil();
+      ImportBlock sut = new ImportBlock();
       sut.add("a.b.C");
       sut.removeIfContains("a.b.C");
       assertThat(sut.outputStr()).isEmpty();
@@ -95,7 +96,7 @@ public class ImportGenUtilTest {
     @Test
     @DisplayName("absent entry is silently ignored")
     void ignoresAbsentEntry() {
-      ImportGenUtil sut = new ImportGenUtil();
+      ImportBlock sut = new ImportBlock();
       sut.add("a.b.C");
       sut.removeIfContains("x.y.Z");
       assertThat(sut.outputStr()).isEqualTo("import a.b.C;\r\n");

@@ -16,7 +16,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.advice;
 
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
 /** Generator that produces the {@code SoftDeleteAdvice} aspect class source file. */
 public class AdviceGen extends AbstractGen {
@@ -39,7 +38,7 @@ public class AdviceGen extends AbstractGen {
   public void createSource() {
     sb.append("package " + rootBasePackage + ".base.advice;" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("jp.ecuacion.splib.jpa.advice.SplibSoftDeleteAdvice",
         "jp.ecuacion.splib.jpa.util.SplibJpaFilterUtil",
         "org.aspectj.lang.annotation.*", "org.springframework.stereotype.Component");

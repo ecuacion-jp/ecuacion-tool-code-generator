@@ -39,7 +39,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.ValidationMe
 import jp.ecuacion.tool.codegenerator.core.generator.record.PerTableBaseRecordGen;
 import jp.ecuacion.tool.codegenerator.core.generator.record.SystemCommonBaseRecordGen;
 import jp.ecuacion.tool.codegenerator.core.generator.systemcommon.Miscellaneous;
-import jp.ecuacion.tool.codegenerator.core.generator.util.UtilGen;
+import jp.ecuacion.tool.codegenerator.core.generator.util.JpaFilterUtilGen;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
 /** Orchestrates all code-generation steps for a single system. */
@@ -188,7 +188,7 @@ public class GenerationBlf {
           gen.generate();
         }
 
-        new UtilGen().generate();
+        new JpaFilterUtilGen().generate();
 
       } else if (dataKind == DataKindEnum.SYSTEM_COMMON) {
         Logger.log(this, "GEN_PROP_FILE");
