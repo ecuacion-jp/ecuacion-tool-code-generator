@@ -48,7 +48,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
   public AbstractGen(@Nullable DataKindEnum xmlFilePostFix) {
     this.xmlFilePostFix = xmlFilePostFix;
     String osName = System.getProperty("os.name");
-    rootBasePackage = info.getSysCmnRootInfo().getBasePackage();
+    rootBasePackage = getInfo().getSysCmnRootInfo().getBasePackage();
     rootBasePackageDirectry = rootBasePackage.replaceAll("\\.",
         (osName.equals("Windows")) ? "\\\\" : "/");
   }
@@ -77,10 +77,10 @@ public abstract class AbstractGen extends ToolForCodeGen {
 
   private String getBuildPathRootDirPath(@Nullable String packageName) {
 
-    String basicPath = info.outputDir + "/" + info.getSystemName() + "/"
-        + info.getGenPtn().getDirName();
-    if (info.getGenPtn() == GeneratePtnEnum.NORMAL
-        || info.getGenPtn() == GeneratePtnEnum.NO_GROUP_QUERY) {
+    String basicPath = getInfo().outputDir + "/" + getInfo().getSystemName() + "/"
+        + getInfo().getGenPtn().getDirName();
+    if (getInfo().getGenPtn() == GeneratePtnEnum.NORMAL
+        || getInfo().getGenPtn() == GeneratePtnEnum.NO_GROUP_QUERY) {
       return basicPath;
 
     } else {
@@ -88,7 +88,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
         return basicPath;
 
       } else {
-        return info.outputDir + "/" + info.getSystemName() + "/common";
+        return getInfo().outputDir + "/" + getInfo().getSystemName() + "/common";
       }
     }
   }
@@ -101,7 +101,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
    * @param fileName the name of the file to write
    */
   public void outputFile(StringBuilder sb, String path, String fileName) {
-    String charEncoding = info.getSysCmnRootInfo().getCharacterEncoding();
+    String charEncoding = getInfo().getSysCmnRootInfo().getCharacterEncoding();
     try {
       File dir = new File(path);
       dir.mkdirs();

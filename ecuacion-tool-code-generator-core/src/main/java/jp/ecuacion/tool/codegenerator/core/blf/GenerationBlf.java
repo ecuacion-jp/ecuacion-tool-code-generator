@@ -18,7 +18,6 @@ package jp.ecuacion.tool.codegenerator.core.blf;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
@@ -48,9 +47,9 @@ public class GenerationBlf {
 
   private Info info;
 
-  /** Constructs this BLF and initialises the {@code info} field from the thread-local. */
+  /** Constructs this BLF with the given {@link Info}. */
   public GenerationBlf(Info info) {
-    this.info = MainController.tlInfo.get();
+    this.info = info;
   }
 
   /**

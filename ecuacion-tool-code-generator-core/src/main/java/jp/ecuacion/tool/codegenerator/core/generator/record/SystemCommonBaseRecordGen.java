@@ -31,7 +31,8 @@ public class SystemCommonBaseRecordGen extends AbstractBaseRecordGen {
 
   @Override
   public void generate() {
-    internalGenerate(Arrays.asList(new DbOrClassTableInfo[] {info.getCommonTableInfo()}), true);
+    internalGenerate(
+        Arrays.asList(new DbOrClassTableInfo[] {getInfo().getCommonTableInfo()}), true);
   }
 
   /**

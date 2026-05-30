@@ -21,10 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
-import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
 /**
  * Generates ValidationMessagesPatternDescriptions properties files containing regex pattern
@@ -40,21 +38,19 @@ public class ValidationMessagesPatternDescriptionsGen extends AbstractGen {
   @Override
   public void generate() throws IOException, InterruptedException {
     PropertiesFileGen gen = new PropertiesFileGen();
-    Info info = MainController.tlInfo.get();
-
     List<String> langList = new ArrayList<>();
     langList.add("");
-    langList.addAll(info.getSysCmnRootInfo().getSupportedLangArr());
+    langList.addAll(getInfo().getSysCmnRootInfo().getSupportedLangArr());
 
     for (String lang : langList) {
       Map<String, String> propMap = new LinkedHashMap<>();
       // Message for prohibited character check
-      propMap.put("prohibitedChars", info.getSysCmnRootInfo().getProhibitedCharsDesc(lang));
+      propMap.put("prohibitedChars", getInfo().getSysCmnRootInfo().getProhibitedCharsDesc(lang));
 
       // Messages for dataType
-      for (DataTypeInfo dtInfo : info.getDataTypeRootInfo().dataTypeList) {
+      for (DataTypeInfo dtInfo : getInfo().getDataTypeRootInfo().dataTypeList) {
         String desc = dtInfo.getStringRegExDesc(
-            info.getSysCmnRootInfo().getSupportedLangArr(), lang);
+            getInfo().getSysCmnRootInfo().getSupportedLangArr(), lang);
         if (desc != null) {
           propMap.put(StringUtil.getLowerCamelFromSnake(
               dtInfo.getDataTypeName().substring(3)), desc);

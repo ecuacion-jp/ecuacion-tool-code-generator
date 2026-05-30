@@ -128,7 +128,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
 
     // Add @Valid imports for relation columns
     if ((ti.hasRelationColumn() || ti.hasBidirectionalRelationRefColumn())
-        && info.getSysCmnRootInfo().isFrameworkKindSpring()) {
+        && getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
       imp.add("jakarta.validation.Valid");
     }
 
@@ -228,7 +228,8 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
       if (ci.isRelation()) {
         sb.append(T3 + ci.getRelationFieldName() + " = new "
             + StringUtils.capitalize(ci.getRelationRefTableCamel()) + "BaseRecord("
-            + (info.getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs() ? "count" : "")
+            + (getInfo().getTableInfo(ci.getRelationRefTable())
+                .hasAnyRelationsOrRefs() ? "count" : "")
             + ") {public Item[] customizedItems() {return null;}};" + RT);
       }
 
@@ -288,7 +289,8 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
             String refEnNameCp = bi.getOrgTableNameCpCamel();
             String refFiName = bi.getEmptyConsideredFieldNameToReferFromTable();
             String refFiNameCp = StringUtils.capitalize(refFiName);
-            boolean hasRelOrRef = info.getTableInfo(bi.getOrgTableName()).hasAnyRelationsOrRefs();
+            boolean hasRelOrRef =
+                getInfo().getTableInfo(bi.getOrgTableName()).hasAnyRelationsOrRefs();
             String newRecPostfix = ", params" + (hasRelOrRef ? ", count" : "")
                 + ") {public Item[] customizedItems() {return null;}}";
 
@@ -329,7 +331,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
       if (ci.isRelation()) {
         sb.append(isCalledFromB2 ? T2 + "if (count > 0) {" + RT : "");
 
-        boolean hasRel = info.getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs();
+        boolean hasRel = getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs();
         sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getRelationFieldName() + " = new "
             + ci.getRelationRefTableCpCamel() + "BaseRecord(e.get" + ci.getRelationFieldNameCp()
             + "(), params" + (hasRel ? ", count" : "")
@@ -405,7 +407,8 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
       if (ci.isRelation()) {
         sb.append(T2 + "this." + ci.getRelationFieldName() + " = new "
             + ci.getRelationRefTableCpCamel() + "BaseRecord("
-            + (info.getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs() ? "count" : "")
+            + (getInfo().getTableInfo(ci.getRelationRefTable())
+                .hasAnyRelationsOrRefs() ? "count" : "")
             + ") {public Item[] customizedItems() {return null;}};" + RT);
       }
 

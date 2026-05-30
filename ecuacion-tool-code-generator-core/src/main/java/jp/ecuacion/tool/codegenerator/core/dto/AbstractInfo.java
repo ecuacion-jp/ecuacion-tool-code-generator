@@ -18,13 +18,11 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
-/** Base class for info DTO objects that hold a reference to the current thread's {@code Info}. */
+/** Base class for info DTO objects. */
 public abstract class AbstractInfo {
 
-  protected Info info;
-
-  /** Constructs an instance and sets {@code info} from the current thread-local context. */
-  public AbstractInfo() {
-    this.info = MainController.tlInfo.get();
+  /** Returns the current thread's {@link Info} from the thread-local context. */
+  protected Info getInfo() {
+    return MainController.tlInfo.get();
   }
 }

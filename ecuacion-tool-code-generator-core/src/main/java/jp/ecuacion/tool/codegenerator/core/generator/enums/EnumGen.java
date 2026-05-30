@@ -41,7 +41,7 @@ public class EnumGen extends AbstractGen {
 
   @Override
   public void generate() throws IOException, InterruptedException {
-    List<EnumClassInfo> enumClassList = info.getEnumRootInfo().enumClassList;
+    List<EnumClassInfo> enumClassList = getInfo().getEnumRootInfo().enumClassList;
 
     // Create enums
     Logger.log(this, "GEN_ENUM_ENUMS");
@@ -58,14 +58,14 @@ public class EnumGen extends AbstractGen {
     // Create a file for the default language. For example, if the default language is "en",
     // create enum_names.properties with the same content as enum_names_en.properties.
     gen.writeMapToPropFile(
-        createSortedMapForPropFile(info.getSysCmnRootInfo().getDefaultLang(), enumClassList),
+        createSortedMapForPropFile(getInfo().getSysCmnRootInfo().getDefaultLang(), enumClassList),
         "enum_names", null);
     // Create enum_names_en.properties
     gen.writeMapToPropFile(
-        createSortedMapForPropFile(info.getSysCmnRootInfo().getDefaultLang(), enumClassList),
-        "enum_names", info.getSysCmnRootInfo().getDefaultLang());
+        createSortedMapForPropFile(getInfo().getSysCmnRootInfo().getDefaultLang(), enumClassList),
+        "enum_names", getInfo().getSysCmnRootInfo().getDefaultLang());
     // Create files for each language listed in supportedLangArr
-    for (String lang : info.getSysCmnRootInfo().getSupportedLangArr()) {
+    for (String lang : getInfo().getSysCmnRootInfo().getSupportedLangArr()) {
       gen.writeMapToPropFile(createSortedMapForPropFile(lang, enumClassList), "enum_names", lang);
     }
   }

@@ -47,7 +47,7 @@ public class ListAnnotationGen extends AnnotationGen {
     // Even in standard Jakarta EE, listing multiple @Pattern annotations without @Pattern.List
     // should be valid, but the generation method is separated by Spring vs non-Spring as a
     // precaution.
-    if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
+    if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
       boolean is1st = true;
       for (SingleAnnotationGen gen : annotationGens) {
         if (is1st) {
