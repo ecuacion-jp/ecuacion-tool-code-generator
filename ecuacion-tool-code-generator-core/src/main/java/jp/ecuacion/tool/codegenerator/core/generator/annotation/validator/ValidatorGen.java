@@ -74,7 +74,7 @@ public abstract class ValidatorGen extends FieldSingleAnnotationGen {
   protected void checkIfElementTypeAvailable(ElementType elementType) {
     if (!Arrays.asList(getAvailableElmentTypes()).contains(elementType)) {
       new Violations().add(new BusinessViolation("MSG_ERR_VALIDATOR_ELEMENT_TYPE_NOT_ALLOWED",
-          info.getSystemName(), this.getClass().getSimpleName(), elementType.toString()))
+          getInfo().getSystemName(), this.getClass().getSimpleName(), elementType.toString()))
           .throwIfAny();
     }
   }
@@ -86,8 +86,9 @@ public abstract class ValidatorGen extends FieldSingleAnnotationGen {
     List<DataTypeKataEnum> kataList = Arrays.asList(getAvailableKatas());
     if (!kataList.contains(dtInfo.getKata())) {
       throw new RuntimeException("The specified Kata not allowed. (system name: "
-          + info.getSystemName() + ", annotation name: " + this.annotationName + ", dataType name: "
-          + dtInfo.getDataTypeName() + ", dataType: " + dtInfo.getKata().toString() + ")");
+          + getInfo().getSystemName() + ", annotation name: " + this.annotationName
+          + ", dataType name: " + dtInfo.getDataTypeName()
+          + ", dataType: " + dtInfo.getKata().toString() + ")");
     }
   }
 
@@ -101,7 +102,7 @@ public abstract class ValidatorGen extends FieldSingleAnnotationGen {
   @Override
   protected ParamListGen getParamGen() {
     ParamListGen plistGen = new ParamListGen();
-    if (!info.getSysCmnRootInfo().isFrameworkKindSpring() && id != null) {
+    if (!getInfo().getSysCmnRootInfo().isFrameworkKindSpring() && id != null) {
       plistGen.add(new ParamGenWithSingleValue("fieldId", id, DataTypeKataEnum.STRING));
     }
 

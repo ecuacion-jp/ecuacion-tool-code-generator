@@ -51,7 +51,9 @@ public class CodeGenUtil {
       ListUtils.union(ListUtils.union(numberDataTypeList, dateTimeDataTypeList),
           Arrays.asList(new DataTypeKataEnum[] {DataTypeKataEnum.ENUM}));
 
-  private Info info = MainController.tlInfo.get();
+  private Info getInfo() {
+    return MainController.tlInfo.get();
+  }
 
   /**
    * Returns true when the argument string is snake format.
@@ -240,7 +242,7 @@ public class CodeGenUtil {
       }
 
       if (currentCi.isRelation()) {
-        currentCi = info.getTableInfo(currentCi.getRelationRefTable())
+        currentCi = getInfo().getTableInfo(currentCi.getRelationRefTable())
             .getColumn(currentCi.getRelationRefCol());
 
       } else {
@@ -486,16 +488,16 @@ public class CodeGenUtil {
 
   /** Returns the soft-delete column name in upper-camel case. */
   public String softDeleteColCaptalCamel() {
-    return StringUtil.getUpperCamelFromSnake(info.getRemovedDataRootInfo().getColumnName());
+    return StringUtil.getUpperCamelFromSnake(getInfo().getRemovedDataRootInfo().getColumnName());
   }
 
   /** Returns the soft-delete column name in upper-snake case. */
   public String softDeleteColUpperSnake() {
-    return info.getRemovedDataRootInfo().getColumnName().toUpperCase();
+    return getInfo().getRemovedDataRootInfo().getColumnName().toUpperCase();
   }
 
   /** Returns the soft-delete column name in lower-snake case. */
   public String softDeleteColLowerSnake() {
-    return info.getRemovedDataRootInfo().getColumnName().toLowerCase();
+    return getInfo().getRemovedDataRootInfo().getColumnName().toLowerCase();
   }
 }

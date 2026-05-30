@@ -68,7 +68,7 @@ public abstract class SingleAnnotationGen extends AnnotationGen {
   protected void checkIfElementTypeAvailable(ElementType elementType) {
     if (!Arrays.asList(getAvailableElmentTypes()).contains(elementType)) {
       new Violations().add(new BusinessViolation("MSG_ERR_ANNOTATION_ELEMENT_TYPE_NOT_ALLOWED",
-          info.getSystemName(), this.getClass().getSimpleName(), elementType.toString()))
+          getInfo().getSystemName(), this.getClass().getSimpleName(), elementType.toString()))
           .throwIfAny();
     }
   }

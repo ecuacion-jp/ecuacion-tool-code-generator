@@ -33,7 +33,7 @@ public abstract class AbstractDaoRelatedGen extends AbstractGen {
     super(xmlFilePostFix);
 
     // Configure postfix
-    boolean usesSpringName = info.getSysCmnRootInfo().getUsesSpringNamingConvention();
+    boolean usesSpringName = getInfo().getSysCmnRootInfo().getUsesSpringNamingConvention();
     postfixSm = (usesSpringName) ? "repositoryimpl" : "dao";
     postfixCp = (usesSpringName) ? "RepositoryImpl" : "Dao";
   }

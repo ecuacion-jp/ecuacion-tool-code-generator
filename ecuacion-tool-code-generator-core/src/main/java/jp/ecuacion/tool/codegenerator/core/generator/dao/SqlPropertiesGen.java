@@ -45,14 +45,14 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
   @Override
   public void generate() {
     // Exit if creation is not needed
-    if (!info.getSysCmnRootInfo().getUsesUtilJpa()) {
+    if (!getInfo().getSysCmnRootInfo().getUsesUtilJpa()) {
       return;
     }
 
     // List<SqlInfo> sqlInfoArrForOrmXml = new ArrayList<>();
     List<SqlInfo> sqlInfoArrForNativeSqlProp = new ArrayList<>();
 
-    for (DbOrClassTableInfo tableInfo : info.getDbRootInfo().tableList) {
+    for (DbOrClassTableInfo tableInfo : getInfo().getDbRootInfo().tableList) {
       final String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
       makeParts(tableInfo);
@@ -148,8 +148,8 @@ public class SqlPropertiesGen extends AbstractDaoRelatedGen {
         sbInsert.append(T2 + comma + ci.getName() + sqlRt + RT);
       }
     }
-    if (info.getCommonTableInfo() != null) {
-      for (DbOrClassColumnInfo ci : info.getCommonTableInfo().columnList.stream()
+    if (getInfo().getCommonTableInfo() != null) {
+      for (DbOrClassColumnInfo ci : getInfo().getCommonTableInfo().columnList.stream()
           .filter(e -> !e.getIsJavaOnly()).toList()) {
         DataTypeKataEnum kata = ci.getDtInfo().getKata();
         if (!(ci.isAutoIncrement()

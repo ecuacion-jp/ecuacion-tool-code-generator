@@ -31,11 +31,8 @@ import jp.ecuacion.tool.codegenerator.core.generator.Info;
  */
 public class PreparerForMiscOptimisticLock {
 
-  private Info info;
-
-  /** Constructs an instance and obtains the current thread's {@code Info}. */
-  public PreparerForMiscOptimisticLock() {
-    this.info = MainController.tlInfo.get();
+  private Info getInfo() {
+    return MainController.tlInfo.get();
   }
 
   /**
@@ -44,7 +41,8 @@ public class PreparerForMiscOptimisticLock {
    */
   public void prepare() {
     MiscOptimisticLockRootInfo lockInfo =
-        (MiscOptimisticLockRootInfo) info.getRootInfoMap().get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
+        (MiscOptimisticLockRootInfo) getInfo().getRootInfoMap()
+            .get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
     if (lockInfo != null && lockInfo.isDefined()) {
       // Set the optimistic-lock column info into individual columns
       // (This item is simple with few data fields so it can be held this way,
@@ -54,13 +52,13 @@ public class PreparerForMiscOptimisticLock {
       // setOptLock(systemName, systemMap, lockInfo, Dict.XML_POST_FIX_CLS);
 
       // Discard the original data to avoid confusion
-      info.getRootInfoMap().remove(DataKindEnum.MISC_OPTIMISTIC_LOCK);
+      getInfo().getRootInfoMap().remove(DataKindEnum.MISC_OPTIMISTIC_LOCK);
     }
   }
 
   private void setOptLock(MiscOptimisticLockRootInfo lockInfo, DataKindEnum dataKind) {
     DbOrClassRootInfo dbRootInfo =
-        (DbOrClassRootInfo) info.getRootInfoMap().get(dataKind);
+        (DbOrClassRootInfo) getInfo().getRootInfoMap().get(dataKind);
     if (dbRootInfo != null) {
       for (DbOrClassTableInfo ti : dbRootInfo.tableList) {
         for (DbOrClassColumnInfo ci : ti.columnList) {
@@ -70,7 +68,7 @@ public class PreparerForMiscOptimisticLock {
             } else {
               // Treat as an error if the column name matches but the DataType differs
               new Violations().add(new BusinessViolation("MSG_ERR_DT_OF_COL_FOR_OPT_LOCK_DIFFER",
-                  info.getSystemName(), ti.getName(), ci.getName(), ci.getDataType(),
+                  getInfo().getSystemName(), ti.getName(), ci.getName(), ci.getDataType(),
                   lockInfo.getDataTypeName())).throwIfAny();
             }
           }
