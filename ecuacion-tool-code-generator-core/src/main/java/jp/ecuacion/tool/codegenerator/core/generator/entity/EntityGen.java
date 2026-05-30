@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
-import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefInfo;
@@ -111,8 +110,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
     // When using soft delete
     // Also needs to be added when there is a bidirectional relation
-    if (info.getSysCmnRootInfo().isFrameworkKindSpring()
-        && info.getRemovedDataRootInfo().isDefined()) {
+    if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()
+        && getInfo().getRemovedDataRootInfo().isDefined()) {
       if (tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
         importMgr.add("org.hibernate.annotations.Filter", "org.hibernate.annotations.FilterDef");
 
@@ -122,7 +121,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     }
 
     // Import when using @Filter
-    if (info.getGroupRootInfo().isDefined()) {
+    if (getInfo().getGroupRootInfo().isDefined()) {
       if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
         // When a common group definition exists, its filterDef is always output to systemCommon
         importMgr.add("org.hibernate.annotations.FilterDef", "org.hibernate.annotations.ParamDef",
@@ -134,7 +133,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
         }
 
       } else {
-        if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY && !info.getGroupRootInfo()
+        if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY && !getInfo().getGroupRootInfo()
             .getTableNamesWithoutGrouping().contains(tableInfo.getName())) {
 
           importMgr.add("org.hibernate.annotations.Filter");
@@ -216,8 +215,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
    * Appends the common grouping FilterDef annotation string to the StringBuilder.
    */
   protected void getGroupFilterDefAnnotationString(StringBuilder sb) {
-    getGroupFilterDefAnnotationString(sb, "groupFilter", info.getGroupRootInfo().getColumnName(),
-        info.getGroupRootInfo().getDtInfo());
+    getGroupFilterDefAnnotationString(sb, "groupFilter",
+        getInfo().getGroupRootInfo().getColumnName(), getInfo().getGroupRootInfo().getDtInfo());
   }
 
   /**
@@ -257,11 +256,11 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
    * the table.
    */
   protected void getSoftDeleteAnnotationsString(StringBuilder sb, DbOrClassTableInfo tableInfo) {
-    if (info.getSysCmnRootInfo().isFrameworkKindSpring()
-        && info.getRemovedDataRootInfo().isDefined()
+    if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()
+        && getInfo().getRemovedDataRootInfo().isDefined()
         && tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
       sb.append("@FilterDef(name = \"softDeleteFilter\", defaultCondition = \""
-          + info.getRemovedDataRootInfo().getColumnName() + " = false\")" + RT);
+          + getInfo().getRemovedDataRootInfo().getColumnName() + " = false\")" + RT);
       sb.append("@Filter(name = \"softDeleteFilter\")" + RT);
     }
   }
@@ -301,8 +300,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
           }
           // Filter condition required when referenced by a bidirectional relation
           MiscSoftDeleteRootInfo softDeleteInfo =
-              MainController.tlInfo.get().getRemovedDataRootInfo();
-          MiscGroupRootInfo groupInfo = MainController.tlInfo.get().getGroupRootInfo();
+              getInfo().getRemovedDataRootInfo();
+          MiscGroupRootInfo groupInfo = getInfo().getGroupRootInfo();
           if (softDeleteInfo.isDefined()) {
             sb.append(T1 + "@Filter(name = \"softDeleteFilter\")" + RT);
           }
@@ -394,8 +393,8 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     // This list also displays dbCommon columns, so merge them in advance
     ArrayList<DbOrClassColumnInfo> arr = new ArrayList<>();
     arr.addAll(tableInfo.columnList);
-    if (info.getDbCommonRootInfo() != null) {
-      arr.addAll(info.getDbCommonRootInfo().tableList.get(0).columnList.stream()
+    if (getInfo().getDbCommonRootInfo() != null) {
+      arr.addAll(getInfo().getDbCommonRootInfo().tableList.get(0).columnList.stream()
           .filter(e -> !e.getIsJavaOnly()).toList());
     }
 
@@ -566,7 +565,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   // String bidirFieldNameUc = StringUtil.capitalize(bidirFieldName);
   //
   // // ID column of ref-from table
-  // String pkColumnInOrgTable = MainController.tlInfo.get().getDbRootInfo().tableList.stream()
+  // String pkColumnInOrgTable = getInfo().getDbRootInfo().tableList.stream()
   // .filter(tbl -> tbl.getName().equals(info.getOrgTableName())).toList().get(0)
   // .getPkColumn().getName();
   // if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
@@ -766,13 +765,15 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     PropertiesFileGen gen = new PropertiesFileGen();
 
     // Create a fallback file.
-    gen.writeMapToPropFile(createSortedMapForPropFile(info.getSysCmnRootInfo().getDefaultLang(),
+    gen.writeMapToPropFile(createSortedMapForPropFile(
+        getInfo().getSysCmnRootInfo().getDefaultLang(),
         tableList, entityKind), "item_names", null);
     // Create a file for the default language
-    gen.writeMapToPropFile(createSortedMapForPropFile(info.getSysCmnRootInfo().getDefaultLang(),
-        tableList, entityKind), "item_names", info.getSysCmnRootInfo().getDefaultLang());
+    gen.writeMapToPropFile(createSortedMapForPropFile(
+        getInfo().getSysCmnRootInfo().getDefaultLang(),
+        tableList, entityKind), "item_names", getInfo().getSysCmnRootInfo().getDefaultLang());
     // Create files for each language listed in supportedLangArr
-    for (String lang : info.getSysCmnRootInfo().getSupportedLangArr()) {
+    for (String lang : getInfo().getSysCmnRootInfo().getSupportedLangArr()) {
       gen.writeMapToPropFile(createSortedMapForPropFile(lang, tableList, entityKind), "item_names",
           lang);
     }
@@ -928,7 +929,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   protected void appendHasSoftDeleteFieldGen(StringBuilder sb, DbOrClassTableInfo tableInfo,
       boolean isCallFromSystemCommon) {
     MiscSoftDeleteRootInfo softDeleteRootInfo = java.util.Objects.requireNonNull(
-        (MiscSoftDeleteRootInfo) info.getRootInfoMap().get(DataKindEnum.MISC_REMOVED_DATA),
+        (MiscSoftDeleteRootInfo) getInfo().getRootInfoMap().get(DataKindEnum.MISC_REMOVED_DATA),
         "MISC_REMOVED_DATA must be populated");
     String colName = softDeleteRootInfo.getColumnName();
     boolean usesSoftDelete = colName != null && !colName.equals("");

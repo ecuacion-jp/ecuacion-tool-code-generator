@@ -38,7 +38,7 @@ public abstract class AbstractTableGen extends AbstractGen {
    */
   public AbstractTableGen(DataKindEnum xmlFilePostFix) {
     super(xmlFilePostFix);
-    boolean usesSpringName = info.getSysCmnRootInfo().getUsesSpringNamingConvention();
+    boolean usesSpringName = getInfo().getSysCmnRootInfo().getUsesSpringNamingConvention();
     postfixSm = usesSpringName ? "repositoryimpl" : "dao";
     postfixCp = usesSpringName ? "RepositoryImpl" : "Dao";
   }

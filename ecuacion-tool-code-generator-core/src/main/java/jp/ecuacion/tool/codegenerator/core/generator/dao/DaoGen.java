@@ -47,27 +47,27 @@ public class DaoGen extends AbstractDaoRelatedGen {
   public void generate() {
 
     // Create baseDao / baseRepositoryImpl per entity
-    for (DbOrClassTableInfo tableInfo : info.getDbRootInfo().tableList) {
+    for (DbOrClassTableInfo tableInfo : getInfo().getDbRootInfo().tableList) {
       String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
       // super.makePkList(tableInfo);
-      if (info.getSysCmnRootInfo().getUsesUtilJpa()) {
+      if (getInfo().getSysCmnRootInfo().getUsesUtilJpa()) {
         createBaseDaos(tableInfo, entityNameCp);
       }
 
       // Generate baseRepository when using Spring
-      if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
-        createBaseRepository(tableInfo, entityNameCp, info.getGroupRootInfo());
+      if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
+        createBaseRepository(tableInfo, entityNameCp, getInfo().getGroupRootInfo());
       }
     }
 
     // Create SystemCommonDao
-    if (info.getSysCmnRootInfo().getUsesUtilJpa()) {
+    if (getInfo().getSysCmnRootInfo().getUsesUtilJpa()) {
       createSystemCommonBaseDao();
     }
 
     // Generate baseRepository when using Spring
-    if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
+    if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
       createSystemCommonBaseRepository();
     }
   }
@@ -76,21 +76,21 @@ public class DaoGen extends AbstractDaoRelatedGen {
   public void createBaseDaos(DbOrClassTableInfo ti, String entityNameCp) {
     sb = new StringBuilder();
 
-    final boolean isNoGroupQuery = info.getGenPtn() == GeneratePtnEnum.NO_GROUP_QUERY
-        || info.getGenPtn() == GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY;
+    final boolean isNoGroupQuery = getInfo().getGenPtn() == GeneratePtnEnum.NO_GROUP_QUERY
+        || getInfo().getGenPtn() == GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY;
 
     // Declaration and constructor
     sb.append("package " + rootBasePackage + ".base." + postfixSm + ";" + RT2);
 
     createBaseDaoImport(ti, entityNameCp);
 
-    MiscGroupRootInfo groupInfo = info.getGroupRootInfo();
+    MiscGroupRootInfo groupInfo = getInfo().getGroupRootInfo();
 
     sb.append("public abstract class " + entityNameCp + "Base" + postfixCp
         + " extends SystemCommonBase" + postfixCp + "<" + entityNameCp + "> {" + RT2);
 
     // Branch constructor generation depending on whether Spring is used
-    if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
+    if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
       // Generate a simple no-argument constructor
       sb.append(T1 + "public " + entityNameCp + "Base" + postfixCp + "() {" + RT);
       sb.append(T2 + "super(new " + entityNameCp + "[0]);" + RT);
@@ -239,7 +239,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
             .filter(e -> e.isRelation()).toList();
 
     List<DbOrClassColumnInfo> list = new ArrayList<>(tableInfo.columnList);
-    list.addAll(info.getDbCommonRootInfo().tableList.get(0).columnList);
+    list.addAll(getInfo().getDbCommonRootInfo().tableList.get(0).columnList);
     String idColumnName = null;
     for (DbOrClassColumnInfo ci : list) {
       if (ci.isPk()) {
@@ -284,7 +284,8 @@ public class DaoGen extends AbstractDaoRelatedGen {
           T1 + "/** Is generated for existence check when a parent record is deleted. */" + RT);
       sb.append(T1 + "public " + rtnType + "<" + tableInfo.getNameCpCamel() + "> findBy"
           + code.generateString(ci, ColFormat.QUERY_METHOD) + "(" + code.getJavaKata(ci) + " "
-          + info.getTableInfo(ci.getRelationRefTable()).getPkColumn().getNameCamel() + ");" + RT2);
+          + getInfo().getTableInfo(ci.getRelationRefTable())
+              .getPkColumn().getNameCamel() + ");" + RT2);
     }
 
     if (tableInfo.hasSoftDeleteFieldInludingSystemCommon()) {
@@ -364,14 +365,14 @@ public class DaoGen extends AbstractDaoRelatedGen {
   }
 
   private void createSystemCommonBaseDao() {
-    final MiscSoftDeleteRootInfo delFlgInfo = info.getRemovedDataRootInfo();
-    final MiscGroupRootInfo groupInfo = info.getGroupRootInfo();
+    final MiscSoftDeleteRootInfo delFlgInfo = getInfo().getRemovedDataRootInfo();
+    final MiscGroupRootInfo groupInfo = getInfo().getGroupRootInfo();
 
     sb = new StringBuilder();
     // Flag indicating whether to add the group column as a constructor argument
-    final boolean shouldAddGroupArg = (info.getGenPtn() != GeneratePtnEnum.NO_GROUP_QUERY
-        && info.getGenPtn() != GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY)
-        && groupInfo.isDefined() && !info.getSysCmnRootInfo().isFrameworkKindSpring();
+    final boolean shouldAddGroupArg = (getInfo().getGenPtn() != GeneratePtnEnum.NO_GROUP_QUERY
+        && getInfo().getGenPtn() != GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY)
+        && groupInfo.isDefined() && !getInfo().getSysCmnRootInfo().isFrameworkKindSpring();
 
 
     sb.append("package " + rootBasePackage + ".base." + postfixSm + ";" + RT2);
@@ -386,8 +387,9 @@ public class DaoGen extends AbstractDaoRelatedGen {
     }
 
     // Check enum usage and add required enum imports
-    if (info.getDbCommonRootInfo() != null) {
-      for (DbOrClassColumnInfo colInfo : info.getDbCommonRootInfo().tableList.get(0).columnList) {
+    if (getInfo().getDbCommonRootInfo() != null) {
+      for (DbOrClassColumnInfo colInfo :
+          getInfo().getDbCommonRootInfo().tableList.get(0).columnList) {
         if (colInfo.getDtInfo().getKata() == DataTypeKataEnum.ENUM) {
           // Ideally we would determine which project the enum belongs to here, but since
           // SystemCommon has only been used with the framework, it is handled that way for now.
@@ -409,7 +411,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     sb.append(T1 + "@Override" + RT);
     sb.append(T1 + "protected boolean isSpringJpa() {" + RT);
-    sb.append(T2 + "return " + info.getSysCmnRootInfo().isFrameworkKindSpring() + ";" + RT);
+    sb.append(T2 + "return " + getInfo().getSysCmnRootInfo().isFrameworkKindSpring() + ";" + RT);
     sb.append(T1 + "}" + RT2);
 
 

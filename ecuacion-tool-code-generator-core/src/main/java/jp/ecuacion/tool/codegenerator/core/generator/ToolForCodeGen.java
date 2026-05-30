@@ -34,12 +34,9 @@ public abstract class ToolForCodeGen {
   protected static final String JD_ST = "/**";
   protected static final String JD_END = " */";
 
-  protected Info info;
-  
-  /** Constructs an instance and binds the thread-local generation info. */
-  public ToolForCodeGen() {
-    this.info = MainController.tlInfo.get();
+  /** Returns the current thread's {@link Info} from the thread-local context. */
+  protected Info getInfo() {
+    return MainController.tlInfo.get();
   }
-  
 
 }
