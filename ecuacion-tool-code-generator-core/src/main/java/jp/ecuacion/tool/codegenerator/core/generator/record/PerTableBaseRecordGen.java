@@ -19,7 +19,7 @@ import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
+import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil.ColFormat;
 
 /**
  * Generates a per-table base record class that extends {@code SystemCommonBaseRecord} and

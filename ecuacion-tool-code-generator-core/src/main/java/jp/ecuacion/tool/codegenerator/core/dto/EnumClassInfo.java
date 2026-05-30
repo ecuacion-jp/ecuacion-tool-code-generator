@@ -23,7 +23,7 @@ import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 
 /** Holds enum class information read from Excel, including the list of enum values. */
@@ -33,7 +33,7 @@ public class EnumClassInfo extends StringExcelTableBean {
   @Valid
   public List<EnumValueInfo> enumList = new ArrayList<EnumValueInfo>();
 
-  private CodeGenUtil code = new CodeGenUtil();
+  private ColumnGenUtil code = new ColumnGenUtil();
 
   @NotEmpty
   @Size(min = 1, max = 50)

@@ -24,16 +24,15 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefIn
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColListFormat;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil.ColFormat;
+import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil.ColListFormat;
 import org.apache.commons.lang3.StringUtils;
 
 /** Generates the base business logic classes for each DB table entity. */
 public class BlGen extends AbstractGen {
 
-  private CodeGenUtil code = new CodeGenUtil();
+  private ColumnGenUtil code = new ColumnGenUtil();
 
   /** Constructs an instance with no specific table target (generates for all tables). */
   public BlGen() {
@@ -83,7 +82,7 @@ public class BlGen extends AbstractGen {
   public void generateHeader(boolean isSystemCommon, DbOrClassTableInfo ti, String entityNameCp) {
     sb.append("package " + rootBasePackage + ".base.bl;" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
 
     importMgr.add(rootBasePackage + ".base.entity.*");
 

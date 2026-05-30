@@ -48,8 +48,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Versio
 import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -58,7 +57,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public abstract class EntityGen extends AbstractDaoRelatedGen {
 
-  private CodeGenUtil code = new CodeGenUtil();
+  private ColumnGenUtil code = new ColumnGenUtil();
 
   /** Constructs an instance for the specified data kind. */
   public EntityGen(DataKindEnum dataKind) {
@@ -75,7 +74,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
 
   /** Appends all necessary import statements for the given table to the StringBuilder. */
   protected void appendImport(StringBuilder sb, DbOrClassTableInfo tableInfo) {
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     final String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
     // Required imports
@@ -204,7 +203,7 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
     sb.append(importMgr.outputStr() + RT);
   }
 
-  private void auditingImport(ImportGenUtil importMgr, String springAuditing, String keyword,
+  private void auditingImport(ImportBlock importMgr, String springAuditing, String keyword,
       String importClass) {
     if (springAuditing != null && springAuditing.equals(keyword)) {
       importMgr.add("org.springframework.data.annotation." + importClass);
@@ -533,10 +532,10 @@ public abstract class EntityGen extends AbstractDaoRelatedGen {
   // // : StringUtil.getLowerCamelFromSnake(ci.getName()));
   // // sb.append(T2 + leftHandSide + obtainedValue + " == null ? null :
   // // EnumUtil.getEnumFromCode("
-  // // + CodeGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName()) + "Enum.class, "
+  // // + ColumnGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName()) + "Enum.class, "
   // // + obtainedValue + "));" + RT);
   //
-  // } else if (CodeGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata())) {
+  // } else if (ColumnGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata())) {
   // sb.append(T2 + fieldNameLc + " = rec.get" + fieldNameUc + "OfEntityDataType();" + RT);
   //
   // } else if (dtInfo.getKata() == DataTypeKataEnum.BOOLEAN) {

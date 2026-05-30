@@ -23,8 +23,8 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
+import jp.ecuacion.tool.codegenerator.core.util.generator.ColumnGenUtil;
+
 
 /** Generates data type validator annotation and attribute converter source files. */
 public class DataTypeGen extends AbstractGen {
@@ -34,7 +34,7 @@ public class DataTypeGen extends AbstractGen {
   protected String dataTypeName;
   protected String kata;
 
-  private CodeGenUtil code = new CodeGenUtil();
+  private ColumnGenUtil code = new ColumnGenUtil();
 
   /** Constructs an instance for the given data type info. */
   public DataTypeGen(DataTypeInfo dtInfo) {
@@ -66,7 +66,7 @@ public class DataTypeGen extends AbstractGen {
 
     sb.append("package " + rootBasePackage + ".base.datatype;" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("java.lang.annotation.*", "jakarta.validation.*");
 
     importMgr.add(AnnotationGenUtil.getNeededImports(dtInfo.getValidatorList(true)));
