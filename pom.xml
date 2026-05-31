@@ -43,7 +43,7 @@
 			<dependency>
 				<groupId>jp.ecuacion.tool.${app.name}</groupId>
 				<artifactId>${app.name}-core</artifactId>
-				<version>${app.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 		</dependencies>
