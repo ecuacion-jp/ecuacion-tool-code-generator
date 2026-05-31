@@ -22,13 +22,14 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractTableGen;
 
 /**
  * Generates native SQL properties files containing insert, insertAll, and truncate statements for
  * each entity table.
  */
 @SuppressWarnings("NullAway.Init")
-public class SqlPropertiesGen extends AbstractDaoRelatedGen {
+public class SqlPropertiesGen extends AbstractTableGen {
 
   StringBuilder sbWhere;
   StringBuilder sbWhereAndRem;

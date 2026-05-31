@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
+import jp.ecuacion.tool.codegenerator.core.util.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import org.apache.commons.lang3.StringUtils;
 

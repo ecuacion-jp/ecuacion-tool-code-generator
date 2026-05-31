@@ -18,12 +18,12 @@ package jp.ecuacion.tool.codegenerator.core.bl;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
+import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
 /**
  * Propagates optimistic-lock column settings from {@code MiscOptimisticLockRootInfo} into
@@ -31,7 +31,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.Info;
  */
 public class PreparerForMiscOptimisticLock {
 
-  private Info getInfo() {
+  private CodeGenContext getInfo() {
     return MainController.tlInfo.get();
   }
 

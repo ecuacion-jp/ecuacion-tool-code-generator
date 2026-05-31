@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.core.dto;
+package jp.ecuacion.tool.codegenerator.core.generatorhelper.kata;
 
-import jp.ecuacion.tool.codegenerator.core.controller.MainController;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 
-/** Base class for info DTO objects. */
-public abstract class AbstractInfo {
-
-  /** Returns the current thread's {@link CodeGenContext} from the thread-local context. */
-  protected CodeGenContext getInfo() {
-    return MainController.tlInfo.get();
+/**
+ * Code generation helper for {@code BIG_DECIMAL}-type columns, which adds the
+ * {@code java.math.BigDecimal} import.
+ */
+public class GenHelperBigDecimal extends GenHelperWrappedNumber {
+  @Override
+  public String[] getNeededImports(DbOrClassColumnInfo columnInfo) {
+    return mergeStrings(super.getNeededImports(columnInfo), "java.math.BigDecimal");
   }
 }

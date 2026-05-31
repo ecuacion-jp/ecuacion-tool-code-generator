@@ -41,7 +41,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Patter
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.SimpleValidatorGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.SizeGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.ValidatorGen;
-import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
+import jp.ecuacion.tool.codegenerator.core.util.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.jspecify.annotations.Nullable;

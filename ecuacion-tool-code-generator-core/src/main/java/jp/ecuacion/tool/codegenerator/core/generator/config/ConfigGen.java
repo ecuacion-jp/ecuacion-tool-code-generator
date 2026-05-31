@@ -16,7 +16,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.config;
 
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
 /** Generates the {@code BaseConfig} Spring configuration class for the target project. */
 public class ConfigGen extends AbstractGen {
@@ -40,7 +39,7 @@ public class ConfigGen extends AbstractGen {
   public void createSource() {
     sb.append("package " + rootBasePackage + ".base.config;" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("org.springframework.context.annotation.ComponentScan",
         "org.springframework.context.annotation.Configuration",
         "org.springframework.boot.persistence.autoconfigure.EntityScan", "java.time.OffsetDateTime",

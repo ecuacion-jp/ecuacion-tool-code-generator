@@ -13,15 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.core.dto;
+package jp.ecuacion.tool.codegenerator.core.generatorhelper.kata;
 
-import jp.ecuacion.tool.codegenerator.core.controller.MainController;
+/** Generation helper for Long data type columns. */
+public class GenHelperLong extends GenHelperWrappedNumber {
 
-/** Base class for info DTO objects. */
-public abstract class AbstractInfo {
-
-  /** Returns the current thread's {@link CodeGenContext} from the thread-local context. */
-  protected CodeGenContext getInfo() {
-    return MainController.tlInfo.get();
-  }
 }

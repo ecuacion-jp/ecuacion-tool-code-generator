@@ -13,15 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.core.dto;
+package jp.ecuacion.tool.codegenerator.core.generator;
 
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
+import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 
-/** Base class for info DTO objects. */
-public abstract class AbstractInfo {
+/**
+ * Base class for all code generator tools, providing commonly used string constants.
+ */
+public abstract class AbstractCode {
+  // Constants
+  protected static final String T1 = "  ";
+  protected static final String T2 = T1 + T1;
+  protected static final String T3 = T2 + T1;
+  protected static final String T4 = T3 + T1;
+  protected static final String T5 = T4 + T1;
+  protected static final String RT = "\r\n";
+  protected static final String RT2 = "\r\n\r\n";
+  protected static final String SP = " ";
+  protected static final String JD_LN_ST = " * ";
+  protected static final String JD_ST = "/**";
+  protected static final String JD_END = " */";
 
   /** Returns the current thread's {@link CodeGenContext} from the thread-local context. */
   protected CodeGenContext getInfo() {
     return MainController.tlInfo.get();
   }
+
 }
