@@ -20,7 +20,7 @@ import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 /**
  * Base class for all code generator tools, providing commonly used string constants.
  */
-public abstract class ToolForCodeGen {
+public abstract class AbstractCode {
   // Constants
   protected static final String T1 = "  ";
   protected static final String T2 = T1 + T1;

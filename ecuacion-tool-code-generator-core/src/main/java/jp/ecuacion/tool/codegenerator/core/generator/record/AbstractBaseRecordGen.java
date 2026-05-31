@@ -43,7 +43,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
-import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractTableGen;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.AnnotationGenUtil;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColFormat;
@@ -53,7 +53,7 @@ import org.apache.commons.lang3.StringUtils;
  * Abstract base class for record (DTO) source code generators, providing shared header, field,
  * constructor, and accessor generation logic.
  */
-public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
+public abstract class AbstractBaseRecordGen extends AbstractTableGen {
 
   protected ColumnGenUtil code = new ColumnGenUtil();
 

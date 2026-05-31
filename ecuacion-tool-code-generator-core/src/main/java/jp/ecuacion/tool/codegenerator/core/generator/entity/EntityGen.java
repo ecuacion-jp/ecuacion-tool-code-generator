@@ -45,7 +45,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Genera
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.IdGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.SequenceGeneratorGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.VersionGen;
-import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractTableGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.AnnotationGenUtil;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
@@ -55,7 +55,7 @@ import org.apache.commons.lang3.StringUtils;
  * Abstract base class for entity code generators providing shared logic for fields,
  * constructors, accessors, and properties.
  */
-public abstract class EntityGen extends AbstractDaoRelatedGen {
+public abstract class EntityGen extends AbstractTableGen {
 
   private ColumnGenUtil code = new ColumnGenUtil();
 

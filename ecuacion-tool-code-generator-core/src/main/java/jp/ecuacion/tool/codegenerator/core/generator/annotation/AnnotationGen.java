@@ -16,14 +16,14 @@
 package jp.ecuacion.tool.codegenerator.core.generator.annotation;
 
 import java.lang.annotation.ElementType;
-import jp.ecuacion.tool.codegenerator.core.generator.ToolForCodeGen;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractCode;
 import org.jspecify.annotations.Nullable;
 
 /**
   * Abstract base class for all annotation generators, parent of SingleAnnotationGen and
   * ListAnnotationGen.
  */
-public abstract class AnnotationGen extends ToolForCodeGen {
+public abstract class AnnotationGen extends AbstractCode {
   /** Holds the annotation name as a String. */
   protected String annotationName;
   /** Holds the element type; retained for potential future use even when not strictly required. */

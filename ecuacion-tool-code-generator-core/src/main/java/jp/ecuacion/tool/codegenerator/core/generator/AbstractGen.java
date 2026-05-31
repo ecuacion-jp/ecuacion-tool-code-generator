@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * Abstract base class for all code generators that produce Java source files.
  */
-public abstract class AbstractGen extends ToolForCodeGen {
+public abstract class AbstractGen extends AbstractCode {
 
   protected @Nullable DataKindEnum xmlFilePostFix;
   protected String rootBasePackage;
@@ -207,7 +207,7 @@ public abstract class AbstractGen extends ToolForCodeGen {
    * Manages a sorted set of import strings and produces the final import block, eliminating
    * redundant class imports already covered by a wildcard.
    */
-  public static class ImportBlock extends ToolForCodeGen {
+  public static class ImportBlock extends AbstractCode {
 
     private TreeSet<String> importSet = new TreeSet<>();
 
