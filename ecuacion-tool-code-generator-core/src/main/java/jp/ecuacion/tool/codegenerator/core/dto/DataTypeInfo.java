@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
@@ -26,11 +41,15 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Patter
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.SimpleValidatorGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.SizeGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.ValidatorGen;
-import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
+import jp.ecuacion.tool.codegenerator.core.util.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Holds data type definition information read from Excel, including validation rules for
+ * each type.
+ */
 @EmptyWhen(
     propertyPath = {"minLength", "maxLength", "stringDataPtn", "stringAllowsProhibitedCharacters",
         "stringRegEx", "stringRegExDescLangDefault", "stringRegExDescLangSupport01",
@@ -108,6 +127,7 @@ public class DataTypeInfo extends StringExcelTableBean {
         "numDigitFraction", "enumCodeLength", "notNeedsTimezone", "remarks"};
   }
 
+  /** Constructs an instance from a column list read from an Excel table row. */
   @SuppressWarnings("null")
   public DataTypeInfo(List<String> colList) {
     super(colList);
@@ -126,7 +146,7 @@ public class DataTypeInfo extends StringExcelTableBean {
   }
 
   /**
-   * Column sizeでも使用するためpublic.
+   * Made public because it is also used for column size.
    *
    * @return integer
    */
@@ -194,6 +214,7 @@ public class DataTypeInfo extends StringExcelTableBean {
     return StringUtil.getLowerCamelFromSnake(dataTypeName.substring(3));
   }
 
+  /** Validates the data type settings and builds the list of validator generators. */
   public void checksAndComplements(SystemCommonRootInfo sysCmnRootInfo) {
     createValidators(sysCmnRootInfo);
   }
@@ -258,26 +279,26 @@ public class DataTypeInfo extends StringExcelTableBean {
     return map.get(lang);
   }
 
-  /* ただの文字列を、それらの文字を含む文字列がNGとなる正規表現に変更。 */
+  /* Converts a plain string into a regex that rejects any string containing those characters. */
   private String changeNgCharsToRegEx(String str) {
 
-    // 指定されていない場合は、最も厳しい制限とする（記号がすべてNG）
+    // If not specified, apply the strictest restriction (all symbols are prohibited)
     if (str == null || str.equals("")) {
       str = "!\"#$%&'()=-^~\\|@`[{;+:*]},<.>/?_";
     }
 
-    // 正規表現として必要なエスケープ
+    // Escape characters required for regex
     String[] escapeStrs =
         new String[] {"*", "\\", "+", ".", "?", "{", "}", "(", ")", "[", "]", "^", "$", "-", "|"};
     for (String escapeStr : escapeStrs) {
       str = str.replace(escapeStr, "\\" + escapeStr);
     }
 
-    // javaとして必要なエスケープ
+    // Escape characters required for Java
     str = str.replaceAll("\\\\", "\\\\\\\\");
     str = str.replace("\"", "\\\"");
 
-    // 正規表現とするための記号を追加
+    // Surround with regex symbols to form a negated character class
     str = "^[^" + str + "]*$";
 
     return str;

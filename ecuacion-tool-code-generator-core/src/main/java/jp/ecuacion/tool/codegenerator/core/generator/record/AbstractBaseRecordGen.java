@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.record;
 
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BIG_DECIMAL;
@@ -14,6 +29,7 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.SHORT;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.STRING;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIME;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIMESTAMP;
+
 import java.lang.annotation.ElementType;
 import java.util.Arrays;
 import java.util.List;
@@ -27,25 +43,35 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
-import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractTableGen;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.AnnotationGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColFormat;
 import org.apache.commons.lang3.StringUtils;
 
-public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
+/**
+ * Abstract base class for record (DTO) source code generators, providing shared header, field,
+ * constructor, and accessor generation logic.
+ */
+public abstract class AbstractBaseRecordGen extends AbstractTableGen {
 
-  protected CodeGenUtil code = new CodeGenUtil();
+  protected ColumnGenUtil code = new ColumnGenUtil();
 
+  /** Generates the class header (package, imports, class declaration) for the given table. */
   protected abstract void generateHeader(DbOrClassTableInfo ti);
 
+  /** Generates additional methods specific to the concrete record generator type. */
   protected abstract void generateMethods(DbOrClassTableInfo ti);
 
+  /** Constructs an instance for the specified data kind. */
   public AbstractBaseRecordGen(DataKindEnum xmlFilePostFix) {
     super(xmlFilePostFix);
   }
 
+  /**
+   * Iterates over the table list, generates each record source file, and writes it to the output
+   * directory.
+   */
   protected void internalGenerate(List<DbOrClassTableInfo> tiList, boolean isSystemCommon) {
     for (DbOrClassTableInfo ti : tiList) {
       sb = new StringBuilder();
@@ -66,10 +92,14 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     }
   }
 
+  /**
+   * Generates the package declaration, imports, and common class-level annotations for the record
+   * class.
+   */
   protected void generateHeaderCommon(DbOrClassTableInfo ti, String... imps) {
     sb.append("package " + rootBasePackage + ".base.record;" + RT2);
 
-    ImportGenUtil imp = new ImportGenUtil();
+    ImportBlock imp = new ImportBlock();
     imp.add(imps);
 
     // Add kata-dependent imports.
@@ -97,7 +127,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
 
     // Add @Valid imports for relation columns
     if ((ti.hasRelationColumn() || ti.hasBidirectionalRelationRefColumn())
-        && info.getSysCmnRootInfo().isFrameworkKindSpring()) {
+        && getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
       imp.add("jakarta.validation.Valid");
     }
 
@@ -112,6 +142,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     sb.append(imp.outputStr() + RT);
   }
 
+  /** Appends field declarations for all columns of the table to the output buffer. */
   protected void generateFieldsCommon(DbOrClassTableInfo ti) {
     ti.columnList.stream().forEach(ci -> fieldDefinition(ti.getName(), ci));
     sb.append(RT);
@@ -145,6 +176,10 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     }
   }
 
+  /**
+   * Appends a static initializer that populates the string length map for all applicable column
+   * types.
+   */
   protected void generateStaticInitializerCommon(DbOrClassTableInfo ti) {
     sb.append(T1 + "static {" + RT);
 
@@ -158,6 +193,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "}" + RT2);
   }
 
+  /** Appends the no-args constructor and, if the table has relations, a count-arg constructor. */
   protected void generateConstNoArgsCommon(DbOrClassTableInfo ti) {
     sb.append(T1 + "public " + ti.getNameCpCamel() + "BaseRecord() {" + RT);
 
@@ -180,6 +216,10 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "}" + RT2);
   }
 
+  /**
+   * Appends the body of the no-args constructor, initializing relation fields with a depth-limited
+   * count.
+   */
   protected void insideCreateConstNoArgs(DbOrClassTableInfo ti) {
     sb.append(T2 + "if (count > 0) {" + RT);
 
@@ -187,7 +227,8 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
       if (ci.isRelation()) {
         sb.append(T3 + ci.getRelationFieldName() + " = new "
             + StringUtils.capitalize(ci.getRelationRefTableCamel()) + "BaseRecord("
-            + (info.getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs() ? "count" : "")
+            + (getInfo().getTableInfo(ci.getRelationRefTable())
+                .hasAnyRelationsOrRefs() ? "count" : "")
             + ") {public Item[] customizedItems() {return null;}};" + RT);
       }
 
@@ -206,6 +247,10 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     sb.append(T2 + "}" + RT);
   }
 
+  /**
+   * Generates the entity-argument constructor that copies entity field values into the record, with
+   * relation support.
+   */
   public void generateConstEntityArgCommon(DbOrClassTableInfo ti, boolean isSystemCommon) {
     boolean bl = ti.hasAnyRelationsOrRefs();
 
@@ -243,7 +288,8 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
             String refEnNameCp = bi.getOrgTableNameCpCamel();
             String refFiName = bi.getEmptyConsideredFieldNameToReferFromTable();
             String refFiNameCp = StringUtils.capitalize(refFiName);
-            boolean hasRelOrRef = info.getTableInfo(bi.getOrgTableName()).hasAnyRelationsOrRefs();
+            boolean hasRelOrRef =
+                getInfo().getTableInfo(bi.getOrgTableName()).hasAnyRelationsOrRefs();
             String newRecPostfix = ", params" + (hasRelOrRef ? ", count" : "")
                 + ") {public Item[] customizedItems() {return null;}}";
 
@@ -270,6 +316,10 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "}" + RT2);
   }
 
+  /**
+   * Appends field assignment statements that map entity values to record fields, handling relations
+   * and data-type conversions.
+   */
   protected void insideConstEntityArg(DbOrClassTableInfo tableInfo, boolean isCalledFromB2) {
     for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
         .toList()) {
@@ -280,7 +330,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
       if (ci.isRelation()) {
         sb.append(isCalledFromB2 ? T2 + "if (count > 0) {" + RT : "");
 
-        boolean hasRel = info.getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs();
+        boolean hasRel = getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs();
         sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getRelationFieldName() + " = new "
             + ci.getRelationRefTableCpCamel() + "BaseRecord(e.get" + ci.getRelationFieldNameCp()
             + "(), params" + (hasRel ? ", count" : "")
@@ -311,6 +361,10 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     }
   }
 
+  /**
+   * Generates a copy constructor that clones all fields from another record instance, with relation
+   * support.
+   */
   protected void createConstRecArgCommon(DbOrClassTableInfo ti, boolean isSystemCommon) {
 
     boolean bl = ti.hasAnyRelationsOrRefs();
@@ -352,7 +406,8 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
       if (ci.isRelation()) {
         sb.append(T2 + "this." + ci.getRelationFieldName() + " = new "
             + ci.getRelationRefTableCpCamel() + "BaseRecord("
-            + (info.getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs() ? "count" : "")
+            + (getInfo().getTableInfo(ci.getRelationRefTable())
+                .hasAnyRelationsOrRefs() ? "count" : "")
             + ") {public Item[] customizedItems() {return null;}};" + RT);
       }
 
@@ -362,6 +417,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
     }
   }
 
+  /** Generates getters and setters for all columns of the table, including relation fields. */
   protected void createAccessorCommon(DbOrClassTableInfo tableInfo) {
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       String fiName = ci.getNameCamel();
@@ -390,7 +446,7 @@ public abstract class AbstractBaseRecordGen extends AbstractDaoRelatedGen {
       sb.append(T1 + "}" + RT2);
 
       // getter with OfEntityDataType
-      if (CodeGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata())) {
+      if (ColumnGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata())) {
         sb.append(T1 + "public " + javaKata + " get" + fiNameCp + "OfEntityDataType() {" + RT);
         sb.append(T2 + "return (get" + fiNameCp + "() == null || get" + fiNameCp
             + "().equals(\"\")) ? null : ");

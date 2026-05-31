@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.reader;
 
 import java.io.IOException;
@@ -13,6 +28,10 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
 import org.apache.poi.EncryptedDocumentException;
 
+/**
+ * Reads the enum definition sheet from the Excel file and builds an {@link
+ * jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo}.
+ */
 public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader {
 
   private static int COL_DATA_TYPE_NAME = 0;
@@ -23,11 +42,13 @@ public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader {
       "code", "varName", "dispName（デフォルト言語）", "備考",
       "dispName（追加言語1）", "dispName（追加言語2）", "dispName（追加言語3）"};
 
+  /** Constructs an instance that targets the enum definition sheet. */
   public ExcelEnumReader(SystemCommonRootInfo sysCmnRootInfo) {
     super("enum定義", headerLabels);
     this.sysCmnRootInfo = sysCmnRootInfo;
   }
 
+  /** Reads the Excel file at the given path and returns a data-kind-to-root-info map. */
   public HashMap<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
       throws EncryptedDocumentException, IOException {
 
@@ -35,10 +56,10 @@ public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader {
     EnumRootInfo rootInfo = new EnumRootInfo();
     rtnMap.put(DataKindEnum.ENUM, rootInfo);
 
-    // 表の情報をlistの形で取得
+    // Retrieve table data in list form
     List<List<String>> rowList = read(excelPath);
 
-    // 扱いやすいようにenumClassのmapを作成しておく
+    // Create a map of enumClass entries for easier handling
     Map<String, EnumClassInfo> existingEnumClassMap = new HashMap<>();
 
     for (List<String> colList : rowList) {

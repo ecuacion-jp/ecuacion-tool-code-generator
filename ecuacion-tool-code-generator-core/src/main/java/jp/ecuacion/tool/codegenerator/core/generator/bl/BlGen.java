@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.bl;
 
 import jakarta.validation.Valid;
@@ -9,24 +24,25 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefIn
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColListFormat;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColFormat;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColListFormat;
 import org.apache.commons.lang3.StringUtils;
 
+/** Generates the base business logic classes for each DB table entity. */
 public class BlGen extends AbstractGen {
 
-  private CodeGenUtil code = new CodeGenUtil();
+  private ColumnGenUtil code = new ColumnGenUtil();
 
+  /** Constructs an instance with no specific table target (generates for all tables). */
   public BlGen() {
     super(null);
   }
 
   @Override
   public void generate() throws IOException, InterruptedException {
-    generateBl(true, info.getDbCommonRootInfo().tableList);
-    generateBl(false, info.getDbRootInfo().tableList);
+    generateBl(true, getInfo().getDbCommonRootInfo().tableList);
+    generateBl(false, getInfo().getDbRootInfo().tableList);
   }
 
   private void generateBl(boolean isSystemCommon, @Valid List<DbOrClassTableInfo> tableList) {
@@ -59,10 +75,14 @@ public class BlGen extends AbstractGen {
     }
   }
 
+  /**
+   * Generates the package declaration, import statements, and class declaration for the base
+   * BL class.
+   */
   public void generateHeader(boolean isSystemCommon, DbOrClassTableInfo ti, String entityNameCp) {
     sb.append("package " + rootBasePackage + ".base.bl;" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
 
     importMgr.add(rootBasePackage + ".base.entity.*");
 
@@ -263,7 +283,7 @@ public class BlGen extends AbstractGen {
     String repoArgRec = "rec.get" + ti.getPkColumn().getNameCpCamel() + "OfEntityDataType()";
 
     for (RelationRefInfo refInfo : ti.getPkColumn().getRelationRefInfoList()) {
-      DbOrClassTableInfo relOrgTi = info.getTableInfo(refInfo.getOrgTableName());
+      DbOrClassTableInfo relOrgTi = getInfo().getTableInfo(refInfo.getOrgTableName());
       DbOrClassColumnInfo relOrgCi = relOrgTi
           .getColumn(StringUtil.getLowerSnakeFromCamel(refInfo.getOrgFieldName()).toUpperCase());
 

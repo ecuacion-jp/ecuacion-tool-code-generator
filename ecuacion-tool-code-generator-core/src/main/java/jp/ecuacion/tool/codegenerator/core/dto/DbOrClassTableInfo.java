@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jakarta.validation.Valid;
@@ -22,6 +37,10 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWi
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 
+/**
+ * Holds DB or class table information including its columns, unique constraints, and relation
+ * definitions.
+ */
 @SuppressWarnings("NullAway.Init")
 public class DbOrClassTableInfo extends AbstractInfo {
   @Valid
@@ -35,11 +54,13 @@ public class DbOrClassTableInfo extends AbstractInfo {
   // private boolean isSurrogateKeyStorategy = false;
   private boolean hasUniqueConstraint = false;
 
+  /** Constructs an empty instance for later population. */
   @SuppressWarnings("null")
   public DbOrClassTableInfo() {
 
   }
 
+  /** Constructs an instance with the given table name. */
   public DbOrClassTableInfo(String tableName) {
     this.name = tableName;
   }
@@ -66,6 +87,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * column
    */
 
+  /** Returns {@code true} if this table has a column with the given name. */
   public boolean hasColumn(String colName) {
     for (DbOrClassColumnInfo ci : columnList) {
       if (ci.getName().equals(colName)) {
@@ -92,25 +114,37 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * all columns
    */
 
+  /** Returns all columns of this table combined with the SYSTEM_COMMON columns. */
   public List<DbOrClassColumnInfo> getColumnListIncludingSystemCommon() {
     List<DbOrClassColumnInfo> list = new ArrayList<>(columnList);
-    list.addAll(info.getDbCommonRootInfo().tableList.get(0).columnList);
+    list.addAll(getInfo().getDbCommonRootInfo().tableList.get(0).columnList);
 
     return list;
+  }
+
+  /** Returns all columns where {@code isJavaOnly} is false. */
+  public List<DbOrClassColumnInfo> getNonJavaOnlyColumns() {
+    return columnList.stream().filter(ci -> !ci.getIsJavaOnly()).toList();
   }
 
   /*
    * kata
    */
 
+  /** Returns {@code true} if this table has at least one column of the given data type kind. */
   public boolean hasColumnWithKata(DataTypeKataEnum kata) {
     return columnList.stream().map(ci -> ci.getDtInfo().getKata()).toList().contains(kata);
   }
 
+  /** Returns all columns of the given data type kind. */
   public List<DbOrClassColumnInfo> getColumnListWithKata(DataTypeKataEnum kata) {
     return columnList.stream().filter(ci -> ci.getDtInfo().getKata() == kata).toList();
   }
 
+  /**
+   * Returns {@code true} if this table has at least one column whose data type kind matches
+   * any of the given kinds.
+   */
   @SuppressWarnings("null")
   public boolean hasColumnWithAnyOfKatas(DataTypeKataEnum... katas) {
     List<DataTypeKataEnum> tableKataList =
@@ -125,6 +159,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return false;
   }
 
+  /** Returns all columns whose data type kind matches any of the given kinds. */
   public List<DbOrClassColumnInfo> getColumnListWithAnyOfKatas(DataTypeKataEnum... katas) {
     return columnList.stream().filter(ci -> Arrays.asList(katas).contains(ci.getDtInfo().getKata()))
         .toList();
@@ -141,6 +176,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return list.size() == 0 ? null : list.get(0);
   }
 
+  /** Returns {@code true} if this table has a primary-key column. */
   public boolean hasPkColumn() {
     return getPkColumn() != null;
   }
@@ -154,6 +190,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * group
    */
 
+  /** Returns {@code true} if this table has a group column (excluding SYSTEM_COMMON). */
   public boolean hasGroupColumn() {
     return getGroupColumn() != null;
   }
@@ -161,7 +198,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
   /** Returns the group column for this table, or {@code null} if absent. */
   @SuppressWarnings({"NullAway", "null"})
   public DbOrClassColumnInfo getGroupColumn() {
-    // commonを含めないので、ここでは整合性は細かく確認せず単純にあればtrueを返して終了。
+    // Common columns are not included, so no detailed consistency check here — just return true if
+    // found.
     for (DbOrClassColumnInfo ci : columnList) {
       if (ci.isGroupColumn()) {
         return ci;
@@ -171,6 +209,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return null;
   }
 
+  /** Returns {@code true} if this table has a group column, considering SYSTEM_COMMON columns. */
   public boolean hasGroupColumnIncludingSystemCommon() {
     return getGroupColumnIncludingSystemCommon() != null;
   }
@@ -179,12 +218,12 @@ public class DbOrClassTableInfo extends AbstractInfo {
   @SuppressWarnings({"NullAway", "null"})
   public DbOrClassColumnInfo getGroupColumnIncludingSystemCommon() {
 
-    // group定義がされていない場合はnullを返して終了。
-    if (!info.getGroupRootInfo().isDefined()) {
+    // Return null immediately if group is not defined
+    if (!getInfo().getGroupRootInfo().isDefined()) {
       return null;
     }
 
-    // 後続のチェックのためにListで保持
+    // Hold in a List for subsequent checks
     List<DbOrClassColumnInfo> groupCiList = new ArrayList<>();
 
     for (DbOrClassColumnInfo ci : getColumnListIncludingSystemCommon()) {
@@ -193,7 +232,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
       }
     }
 
-    if (info.getGroupRootInfo().getTableNamesWithoutGrouping().contains(name)) {
+    if (getInfo().getGroupRootInfo().getTableNamesWithoutGrouping().contains(name)) {
       if (groupCiList.size() > 0) {
         throw new RuntimeException("The table is listed in 'TABLE_NAMES_WITHOUT_GROUPING'"
             + " but has group column: table_name = " + name);
@@ -212,6 +251,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return groupCiList.size() == 0 ? null : groupCiList.get(0);
   }
 
+  /** Returns {@code true} if this table has a custom group column. */
   public boolean hasCustomGroupColumn() {
     return getCustomGroupColumn() != null;
   }
@@ -232,17 +272,21 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * soft delete
    */
 
+  /** Returns {@code true} if this table's own columns contain the soft-delete flag column. */
   public boolean hasSoftDeleteFieldExcludingSystemCommon() {
     return softDeleteExistenceCheck(columnList, getName());
   }
 
+  /** Returns {@code true} if the SYSTEM_COMMON columns contain the soft-delete flag column. */
   public boolean hasSoftDeleteFieldInSystemCommon() {
-    List<DbOrClassColumnInfo> dbCommonCi = info.getDbCommonRootInfo().tableList.get(0).columnList;
+    List<DbOrClassColumnInfo> dbCommonCi =
+        getInfo().getDbCommonRootInfo().tableList.get(0).columnList;
     return softDeleteExistenceCheck(dbCommonCi, getName());
   }
 
   /**
-   * これは前述の2つの値から決まるので、個別にfieldは持たずmethodのみ用意しておく.
+   * This value is derived from the two methods above, so no dedicated field is held — only a
+   * method is provided.
    */
   public boolean hasSoftDeleteFieldInludingSystemCommon() {
     return hasSoftDeleteFieldExcludingSystemCommon() || hasSoftDeleteFieldInSystemCommon();
@@ -250,7 +294,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
   private boolean softDeleteExistenceCheck(List<DbOrClassColumnInfo> columnList, String tableName) {
 
-    MiscSoftDeleteRootInfo removedDataInfo = info.getRemovedDataRootInfo();
+    MiscSoftDeleteRootInfo removedDataInfo = getInfo().getRemovedDataRootInfo();
 
     boolean hasRemovedDataColumn = false;
     for (DbOrClassColumnInfo ci : columnList) {
@@ -259,10 +303,10 @@ public class DbOrClassTableInfo extends AbstractInfo {
           hasRemovedDataColumn = true;
 
         } else {
-          // カラム名が一緒なのにDataTypeが異なる場合はエラー扱いとする
+          // Treat as an error if the column name matches but the DataType differs
           new Violations()
               .add(new BusinessViolation("MSG_ERR_DT_OF_COL_FOR_REMOVED_DATA_COL_DIFFER",
-                  info.getSystemName(), tableName, ci.getName(), ci.getDataType(),
+                  getInfo().getSystemName(), tableName, ci.getName(), ci.getDataType(),
                   removedDataInfo.getDataTypeName()))
               .throwIfAny();
         }
@@ -279,7 +323,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   @SuppressWarnings({"NullAway", "null"})
   private DbOrClassColumnInfo getVersionColumn(List<DbOrClassColumnInfo> columnList) {
     List<DbOrClassColumnInfo> versionColList = columnList.stream()
-        .filter(ci -> ci.getName().equals(info.getOptimisticLockRootInfo().getColumnName()))
+        .filter(ci -> ci.getName().equals(getInfo().getOptimisticLockRootInfo().getColumnName()))
         .toList();
 
     return versionColList.size() == 0 ? null : versionColList.get(0);
@@ -291,14 +335,20 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return getVersionColumn(columnList);
   }
 
+  /** Returns {@code true} if this table has an optimistic-lock version column. */
   public boolean hasVersionColumn() {
     return getVersionColumn() != null;
   }
 
+  /**
+   * Returns the optimistic-lock version column, searching both this table's columns and
+   * SYSTEM_COMMON columns.
+   */
   public DbOrClassColumnInfo getVersionColumnIncludingSystemCommon() {
     return getVersionColumn(getColumnListIncludingSystemCommon());
   }
 
+  /** Returns {@code true} if a group column exists considering SYSTEM_COMMON columns. */
   public boolean hasVersionColumnIncludingSystemCommon() {
     return getGroupColumnIncludingSystemCommon() != null;
   }
@@ -307,14 +357,20 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * unique constraint
    */
 
+  /** Sets whether this table has a unique constraint. */
   public void setHasUniqueConstraint(boolean hasUniqueConstraint) {
     this.hasUniqueConstraint = hasUniqueConstraint;
   }
 
+  /** Returns {@code true} if this table has at least one unique constraint. */
   public boolean hasUniqueConstraint() {
     return hasUniqueConstraint;
   }
 
+  /**
+   * Generates the {@code @Table} annotation string, including unique constraints and index
+   * definitions.
+   */
   public String getTableAnnotationString(DbOrClassTableInfo tableInfo) {
     ParamListGen paramGenList = new ParamListGen();
     // name
@@ -322,7 +378,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
     // uniqueConstraints
     if (tableInfo.hasUniqueConstraint) {
-      // uniqueKeyのcolumnNameのリストを作成
+      // Build the list of unique key column names
       List<String> uniqueKeyColumns = new ArrayList<>();
       for (DbOrClassColumnInfo col : tableInfo.columnList) {
         if (col.isUniqueConstraint()) {
@@ -342,14 +398,15 @@ public class DbOrClassTableInfo extends AbstractInfo {
     if (indexList.size() > 0) {
       List<NormalSingleAnnotationGen> indexAnnotationList = new ArrayList<>();
       for (String[] index : indexList) {
-        // indexNameを設定
+        // Set indexName
         StringBuilder indexNameColList = new StringBuilder();
         for (String col : index) {
           indexNameColList.append("_" + col);
         }
 
         String indexName = "IDX" + indexNameColList.toString();
-        // columnListを設定。columnListは、valueが複数項目存在する場合のannotation標準である{}で括る方式ではなく"col1, col2"という形式。
+        // Set columnList. Unlike the {} bracket style used for multi-value annotations,
+        // columnList uses the "col1, col2" format.
         boolean is1stTime = true;
         StringBuilder columnList = new StringBuilder();
         for (String colName : index) {
@@ -384,32 +441,45 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * relation
    */
 
+  /** Returns all columns that have a relation definition. */
   public List<DbOrClassColumnInfo> getRelationColumnList() {
     return columnList.stream().filter(ci -> ci.isRelation()).toList();
   }
 
+  /** Returns all relation columns excluding the group column. */
   public List<DbOrClassColumnInfo> getRelationColumnWithoutGroupList() {
     return columnList.stream().filter(ci -> ci.isRelation())
-        .filter(ci -> !ci.getName().equals(info.getGroupRootInfo().getColumnName())).toList();
+        .filter(ci -> !ci.getName().equals(getInfo().getGroupRootInfo().getColumnName())).toList();
   }
 
+  /** Returns {@code true} if this table has at least one relation column. */
   public boolean hasRelationColumn() {
     return getRelationColumnList().size() > 0;
   }
 
+  /** Returns {@code true} if this table has at least one bidirectional relation column. */
   public boolean hasBidirectionalRelation() {
     return columnList.stream().filter(col -> col.isRelation() && col.isRelationBidirectinal())
         .toList().size() > 0;
   }
-  
+
+  /**
+   * Returns all columns that have a bidirectional relation reference registered from another
+   * table.
+   */
   public List<DbOrClassColumnInfo> getBidirectionalRelationRefColumnList() {
     return columnList.stream().filter(col -> col.hasBidirectionalRelationRef()).toList();
   }
 
+  /** Returns {@code true} if this table has any bidirectional relation reference columns. */
   public boolean hasBidirectionalRelationRefColumn() {
     return getBidirectionalRelationRefColumnList().size() > 0;
   }
 
+  /**
+   * Returns {@code true} if this table has any relation columns or bidirectional relation
+   * references.
+   */
   public boolean hasAnyRelationsOrRefs() {
     return hasRelationColumn() || hasBidirectionalRelationRefColumn();
   }
@@ -463,9 +533,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
     List<String> index = new ArrayList<>();
     for (int i = 1; i <= indexMap.size(); i++) {
       if (!indexMap.containsKey(i)) {
-        new Violations().add(new BusinessViolation(
-            "MSG_ERR_INDEX_NUMBER_NOT_CONTINUOUS_FROM_1", "", name, Integer.toString(indexSerial)))
-            .throwIfAny();
+        new Violations().add(new BusinessViolation("MSG_ERR_INDEX_NUMBER_NOT_CONTINUOUS_FROM_1", "",
+            name, Integer.toString(indexSerial))).throwIfAny();
       }
 
       DbOrClassColumnInfo indexedCol = indexMap.get(i);
@@ -479,6 +548,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return index.toArray(new String[index.size()]);
   }
 
+  /** Runs the {@code afterReading} consistency check for all columns in this table. */
   public void dataConsistencyCheck() {
     for (DbOrClassColumnInfo info : columnList) {
       info.afterReading();

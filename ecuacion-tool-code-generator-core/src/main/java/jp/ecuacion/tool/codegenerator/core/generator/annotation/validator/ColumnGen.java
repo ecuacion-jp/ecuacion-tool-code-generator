@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.annotation.validator;
 
 import java.lang.annotation.ElementType;
@@ -8,10 +23,15 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.FieldSingleAnnot
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
 
+/**
+ * Generator for the JPA {@code @Column} annotation, setting name, nullable, length, and column
+ * definition.
+ */
 public class ColumnGen extends FieldSingleAnnotationGen {
 
   private DbOrClassColumnInfo ci;
 
+  /** Constructs a ColumnGen for the given element type and column information. */
   public ColumnGen(ElementType elementType, DbOrClassColumnInfo ci) {
     super("Column", elementType);
     this.ci = ci;
@@ -20,6 +40,7 @@ public class ColumnGen extends FieldSingleAnnotationGen {
   @Override
   protected void check() {}
 
+  /** Returns {@code true} since the {@code @Column} annotation is always required. */
   public static boolean needsValidator(String columnName) {
     return true;
   }
@@ -51,7 +72,7 @@ public class ColumnGen extends FieldSingleAnnotationGen {
       }
       plistGen.add(new ParamGenWithSingleValue("length", strLength, DataTypeKataEnum.INTEGER));
     }
-    // 数字のautoIncrementの際に、postgreSQLのcolumnの型をserial/bigSerialにするための設定
+    // Setting to map the PostgreSQL column type to serial/bigserial for numeric auto-increment
     if (ci.isAutoIncrement()) {
       if (dtInfo.getKata() == DataTypeKataEnum.INTEGER) {
         plistGen.add(
@@ -86,7 +107,7 @@ public class ColumnGen extends FieldSingleAnnotationGen {
   @SuppressWarnings("null")
   @Override
   protected DataTypeKataEnum[] getAvailableKatas() {
-    // 全てOK
+    // All types are OK
     return DataTypeKataEnum.values();
   }
 }

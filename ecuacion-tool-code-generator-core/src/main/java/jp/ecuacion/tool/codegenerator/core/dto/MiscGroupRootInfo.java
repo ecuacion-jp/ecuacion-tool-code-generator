@@ -1,12 +1,29 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
+import jp.ecuacion.tool.codegenerator.core.util.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
+import org.jspecify.annotations.Nullable;
 
+/** Holds group-related settings such as the group column and tables excluded from grouping. */
 @SuppressWarnings("NullAway.Init")
 public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
 
@@ -17,15 +34,16 @@ public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
   @StrBoolean
   private String devidesDaoIntoOtherProject;
   
-  private String customGroupTableName;
-  private String customGroupColumnName;
+  private @Nullable String customGroupTableName;
+  private @Nullable String customGroupColumnName;
 
+  /** Constructs an empty instance when no group XML file is provided. */
   @SuppressWarnings("null")
   public MiscGroupRootInfo() {
     super(DataKindEnum.MISC_GROUP);
   }
 
-  @SuppressWarnings("null")
+  /** Constructs an instance with the group column settings and tables without grouping. */
   public MiscGroupRootInfo(String columnName, String dataTypeName, String tableNamesWithoutGrouping,
       String needsUngroupedSource, String devidesDaoIntoOtherProject) {
 
@@ -68,19 +86,19 @@ public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
     
   }
 
-  public String getCustomGroupTableName() {
+  public @Nullable String getCustomGroupTableName() {
     return customGroupTableName;
   }
 
-  public void setCustomGroupTableName(String customGroupTableName) {
+  public void setCustomGroupTableName(@Nullable String customGroupTableName) {
     this.customGroupTableName = customGroupTableName;
   }
 
-  public String getCustomGroupColumnName() {
+  public @Nullable String getCustomGroupColumnName() {
     return customGroupColumnName;
   }
 
-  public void setCustomGroupColumnName(String customGroupColumnName) {
+  public void setCustomGroupColumnName(@Nullable String customGroupColumnName) {
     this.customGroupColumnName = customGroupColumnName;
   }
 }
