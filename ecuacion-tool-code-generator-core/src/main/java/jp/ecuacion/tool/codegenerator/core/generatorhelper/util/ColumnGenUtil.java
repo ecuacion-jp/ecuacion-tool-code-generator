@@ -175,7 +175,7 @@ public class ColumnGenUtil {
       try {
         @SuppressWarnings("unchecked")
         Class<GenHelperKata> cls = (Class<GenHelperKata>) Class
-            .forName(Constants.STR_PACKAGE_HOME + ".core.generator.entity.genhelper.GenHelper"
+            .forName(Constants.STR_PACKAGE_HOME + ".core.generatorhelper.kata.GenHelper"
                 + StringUtil.getUpperCamelFromSnake(kata.toString()));
         Constructor<GenHelperKata> con = cls.getConstructor();
         GenHelperKata helper = con.newInstance();
