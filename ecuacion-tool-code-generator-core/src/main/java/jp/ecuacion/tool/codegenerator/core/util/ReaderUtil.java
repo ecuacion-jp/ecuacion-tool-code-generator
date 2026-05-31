@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.core.util.reader;
+package jp.ecuacion.tool.codegenerator.core.util;
 
 /**
  * Utility methods for converting between boolean flags and the string marker used in Excel sheets.

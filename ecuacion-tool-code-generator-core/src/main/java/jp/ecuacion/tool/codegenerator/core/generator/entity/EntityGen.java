@@ -34,6 +34,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractTableGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.AnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.NormalSingleAnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.SimpleFieldAnnotationGen;
@@ -45,7 +46,6 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Genera
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.IdGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.SequenceGeneratorGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.VersionGen;
-import jp.ecuacion.tool.codegenerator.core.generator.AbstractTableGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.AnnotationGenUtil;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
