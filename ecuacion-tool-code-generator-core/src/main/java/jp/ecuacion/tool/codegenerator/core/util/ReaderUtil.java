@@ -23,20 +23,12 @@ public class ReaderUtil {
   public static final String YES = "○";
 
   /**
-   * Returns {@code true} if the given string equals the {@link #YES} marker; {@code false} for
-   * {@code null} or any other value.
+   * Returns {@code true} if the given string equals the {@link #YES} marker; {@code false}
+   * otherwise.
    */
   @SuppressWarnings("unused")
   public static boolean boolStrToBoolean(String boolStr) {
-    if (boolStr == null) {
-      return false;
-
-    } else if (boolStr.equals(YES)) {
-      return true;
-
-    } else {
-      return false;
-    }
+    return boolStr.equals(YES);
   }
 
   /**

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.core.util.generator;
+package jp.ecuacion.tool.codegenerator.core.generator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen.ImportBlock;
