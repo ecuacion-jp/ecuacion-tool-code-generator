@@ -16,6 +16,8 @@ env:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       # Checkout dependency repos in sibling directories to match local relativePath setup
       - name: Checkout ecuacion-lib
@@ -82,5 +84,5 @@ jobs:
           tag_name: ${{ steps.tag.outputs.value }}
           files: |
             ecuacion-tool-code-generator/ecuacion-tool-code-generator-batch/target/ecuacion-tool-code-generator-batch-*.jar
-            ecuacion-tool-code-generator/ecuacion-tool-code-generator-web/target/ecuacion-tool-code-generator-web-*.war
+            ecuacion-tool-code-generator/ecuacion-tool-code-generator-web/target/ecuacion-tool-code-generator-*.war
           generate_release_notes: true
