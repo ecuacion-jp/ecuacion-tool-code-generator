@@ -16,13 +16,12 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
-import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
 /** Base class for info DTO objects. */
 public abstract class AbstractInfo {
 
-  /** Returns the current thread's {@link Info} from the thread-local context. */
-  protected Info getInfo() {
+  /** Returns the current thread's {@link CodeGenContext} from the thread-local context. */
+  protected CodeGenContext getInfo() {
     return MainController.tlInfo.get();
   }
 }

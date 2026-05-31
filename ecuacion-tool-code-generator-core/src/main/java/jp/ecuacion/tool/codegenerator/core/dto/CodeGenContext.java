@@ -13,19 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.core.generator;
+package jp.ecuacion.tool.codegenerator.core.dto;
 
 import java.util.Map;
 import java.util.stream.Collectors;
-import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.DataTypeRootInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import org.jspecify.annotations.Nullable;
@@ -34,7 +25,7 @@ import org.jspecify.annotations.Nullable;
  * Offers a container for needed data to generate various codes.
  */
 @SuppressWarnings({"NullAway.Init", "null"})
-public class Info {
+public class CodeGenContext {
   // all systems common
   public String outputDir;
 
