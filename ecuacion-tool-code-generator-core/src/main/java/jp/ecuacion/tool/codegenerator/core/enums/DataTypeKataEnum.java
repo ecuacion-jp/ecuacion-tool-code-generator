@@ -129,12 +129,11 @@ public enum DataTypeKataEnum {
   }
 
   /**
-   * Returns {@code true} if the given name exists in this enum, {@code false} otherwise.<br>
-   * Returns {@code false} if name is null or empty.
+   * Returns {@code true} if the given name exists in this enum, {@code false} otherwise.
    */
   public static boolean hasEnumFromName(String name) {
     for (DataTypeKataEnum enu : DataTypeKataEnum.values()) {
-      if (name != null && name.equals(enu.toString())) {
+      if (name.equals(enu.toString())) {
         return true;
       }
     }
