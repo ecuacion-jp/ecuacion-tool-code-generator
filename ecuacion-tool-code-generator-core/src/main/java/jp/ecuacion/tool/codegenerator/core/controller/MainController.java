@@ -24,9 +24,9 @@ import jp.ecuacion.tool.codegenerator.core.blf.CheckAndComplementDataBlf;
 import jp.ecuacion.tool.codegenerator.core.blf.GenerationBlf;
 import jp.ecuacion.tool.codegenerator.core.blf.ReadExcelFilesBlf;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
 /**
@@ -38,7 +38,7 @@ public class MainController {
   /** 
    * Store Info as threadLocal to adapt to multithread accesses.
    */
-  public static ThreadLocal<Info> tlInfo = new ThreadLocal<>();
+  public static ThreadLocal<CodeGenContext> tlInfo = new ThreadLocal<>();
 
   /**
    * Is the entrypoint of the core module.
@@ -46,7 +46,7 @@ public class MainController {
   public void execute(String inputDir, String outputDir) throws Exception {
 
     // Prepare
-    Info info = prepare(inputDir, outputDir);
+    CodeGenContext info = prepare(inputDir, outputDir);
 
     // Start the excel file unit loop.
     File[] listFiles = new File(inputDir).listFiles();
@@ -80,7 +80,7 @@ public class MainController {
     }
   }
 
-  private Info prepare(String inputDir, String outputDir) {
+  private CodeGenContext prepare(String inputDir, String outputDir) {
     // Delete previously created files.
     Logger.log(this, "DELETE_LAST_TIME_FILE");
     delete(new File(outputDir));
@@ -93,7 +93,7 @@ public class MainController {
     }
 
     // Create and set Info.
-    Info info = new Info();
+    CodeGenContext info = new CodeGenContext();
     tlInfo.set(info);
     info.outputDir = outputDir;
     return info;

@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.core.generator.systemcommon;
+package jp.ecuacion.tool.codegenerator.core.generator.propertiesfile;
 
 import java.io.IOException;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
-import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 
 /** Generates miscellaneous system-common files such as the messages base properties file. */
-public class Miscellaneous extends AbstractGen {
+public class MessagesBasePropertiesGen extends AbstractGen {
 
   /** Constructs an instance for the system-common data kind. */
-  public Miscellaneous() {
+  public MessagesBasePropertiesGen() {
     super(DataKindEnum.SYSTEM_COMMON);
   }
 

@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
+import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
-import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
 /**
  * Orchestrates all preparation steps that run after Excel files are read, including relation
@@ -35,7 +35,7 @@ public class PrepareManager {
    */
   public void prepare() {
 
-    Info info = MainController.tlInfo.get();
+    CodeGenContext info = MainController.tlInfo.get();
 
     // For entries in DBInfo and DbCommonInfo that have a bidirectional relation,
     // register back-reference info on the referenced side to enable additional generation there.

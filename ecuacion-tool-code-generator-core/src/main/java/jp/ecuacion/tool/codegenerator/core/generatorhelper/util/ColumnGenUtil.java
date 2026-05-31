@@ -25,11 +25,11 @@ import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
+import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
-import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.kata.GenHelperKata;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,7 +51,7 @@ public class ColumnGenUtil {
       ListUtils.union(ListUtils.union(numberDataTypeList, dateTimeDataTypeList),
           Arrays.asList(new DataTypeKataEnum[] {DataTypeKataEnum.ENUM}));
 
-  private Info getInfo() {
+  private CodeGenContext getInfo() {
     return MainController.tlInfo.get();
   }
 

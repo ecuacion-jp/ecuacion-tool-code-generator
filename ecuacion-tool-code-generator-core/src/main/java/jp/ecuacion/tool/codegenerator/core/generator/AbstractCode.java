@@ -16,6 +16,7 @@
 package jp.ecuacion.tool.codegenerator.core.generator;
 
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
+import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 
 /**
  * Base class for all code generator tools, providing commonly used string constants.
@@ -34,8 +35,8 @@ public abstract class AbstractCode {
   protected static final String JD_ST = "/**";
   protected static final String JD_END = " */";
 
-  /** Returns the current thread's {@link Info} from the thread-local context. */
-  protected Info getInfo() {
+  /** Returns the current thread's {@link CodeGenContext} from the thread-local context. */
+  protected CodeGenContext getInfo() {
     return MainController.tlInfo.get();
   }
 
