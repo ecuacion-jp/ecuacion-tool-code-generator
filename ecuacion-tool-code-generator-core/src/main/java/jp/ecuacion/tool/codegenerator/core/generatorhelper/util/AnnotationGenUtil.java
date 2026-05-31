@@ -21,12 +21,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
-import jp.ecuacion.tool.codegenerator.core.generator.ToolForCodeGen;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractCode;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.AnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.ValidatorGen;
 
 /** Utility methods for generating annotation code strings and resolving import requirements. */
-public class AnnotationGenUtil extends ToolForCodeGen {
+public class AnnotationGenUtil extends AbstractCode {
 
   /**
    * Returns the combined annotation code string for all entries in the list, indented for the given

@@ -27,7 +27,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.advice.AdviceGen;
 import jp.ecuacion.tool.codegenerator.core.generator.bl.BlGen;
 import jp.ecuacion.tool.codegenerator.core.generator.config.ConfigGen;
 import jp.ecuacion.tool.codegenerator.core.generator.constant.ConstantGen;
-import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractTableGen;
 import jp.ecuacion.tool.codegenerator.core.generator.dao.DaoGen;
 import jp.ecuacion.tool.codegenerator.core.generator.dao.SqlPropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.datatype.DataTypeGen;
@@ -177,14 +177,14 @@ public class GenerationBlf {
 
       } else if (dataKind == DataKindEnum.DB) {
         Logger.log(this, "GEN_DB");
-        List<AbstractDaoRelatedGen> genArr = new ArrayList<AbstractDaoRelatedGen>();
+        List<AbstractTableGen> genArr = new ArrayList<AbstractTableGen>();
         genArr.add(new PerTableBaseRecordGen(DataKindEnum.DB));
         genArr.add(new EntityBodyGen(DataKindEnum.DB, false));
 
         genArr.add(new DaoGen(DataKindEnum.DB));
         genArr.add(new SqlPropertiesGen());
 
-        for (AbstractDaoRelatedGen gen : genArr) {
+        for (AbstractTableGen gen : genArr) {
           gen.generate();
         }
 

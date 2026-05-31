@@ -29,11 +29,12 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractTableGen;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColFormat;
 
 /** Generates base DAO and Spring Data JPA repository source files for each entity. */
-public class DaoGen extends AbstractDaoRelatedGen {
+public class DaoGen extends AbstractTableGen {
 
   private ColumnGenUtil code = new ColumnGenUtil();
 

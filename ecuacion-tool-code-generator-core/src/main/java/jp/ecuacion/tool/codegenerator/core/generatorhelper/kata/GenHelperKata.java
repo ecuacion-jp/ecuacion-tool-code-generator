@@ -16,10 +16,10 @@
 package jp.ecuacion.tool.codegenerator.core.generatorhelper.kata;
 
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
-import jp.ecuacion.tool.codegenerator.core.generator.ToolForCodeGen;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractCode;
 
 /** Abstract base class for type-specific entity generation helpers. */
-public abstract class GenHelperKata extends ToolForCodeGen {
+public abstract class GenHelperKata extends AbstractCode {
 
   /** Returns the import strings needed for the given column; returns an empty array by default. */
   public String[] getNeededImports(DbOrClassColumnInfo columnInfo) {
