@@ -137,12 +137,12 @@ public enum DataTypeStringDataPtnEnum {
   }
 
   /**
-    * Returns {@code true} if the given code matches one of the enum constants; returns {@code
-    * false} for null or empty input.
+   * Returns {@code true} if the given code matches one of the enum constants, {@code false}
+   * otherwise.
    */
   public static boolean hasEnum(String code) {
     for (DataTypeStringDataPtnEnum enu : DataTypeStringDataPtnEnum.values()) {
-      if (code != null && code.equals(enu.getCode())) {
+      if (code.equals(enu.getCode())) {
         return true;
       }
     }
@@ -151,12 +151,11 @@ public enum DataTypeStringDataPtnEnum {
   }
 
   /**
-   * Returns {@code true} if the given name exists in this enum, {@code false} otherwise.<br>
-   * Returns {@code false} if name is null or empty.
+   * Returns {@code true} if the given name exists in this enum, {@code false} otherwise.
    */
   public static boolean hasEnumFromName(String name) {
     for (DataTypeStringDataPtnEnum enu : DataTypeStringDataPtnEnum.values()) {
-      if (name != null && name.equals(enu.getName())) {
+      if (name.equals(enu.getName())) {
         return true;
       }
     }
