@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
 /** Generates the {@code BaseConstants} Java class and the {@code application.properties} file. */
 public class ConstantGen extends AbstractGen {
@@ -53,7 +52,7 @@ public class ConstantGen extends AbstractGen {
   public void createSource() {
     sb.append("package " + rootBasePackage + ".base.constant;" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     // importMgr.add(Constants.STR_LIB_CORE_PKG + ".constant.ConstantsInLibCore");
     sb.append(importMgr.outputStr() + RT);
 

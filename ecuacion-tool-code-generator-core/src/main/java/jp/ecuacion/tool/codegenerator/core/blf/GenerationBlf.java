@@ -18,37 +18,37 @@ package jp.ecuacion.tool.codegenerator.core.blf;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
-import jp.ecuacion.tool.codegenerator.core.generator.Info;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractTableGen;
 import jp.ecuacion.tool.codegenerator.core.generator.advice.AdviceGen;
 import jp.ecuacion.tool.codegenerator.core.generator.bl.BlGen;
 import jp.ecuacion.tool.codegenerator.core.generator.config.ConfigGen;
 import jp.ecuacion.tool.codegenerator.core.generator.constant.ConstantGen;
-import jp.ecuacion.tool.codegenerator.core.generator.dao.AbstractDaoRelatedGen;
 import jp.ecuacion.tool.codegenerator.core.generator.dao.DaoGen;
 import jp.ecuacion.tool.codegenerator.core.generator.dao.SqlPropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.datatype.DataTypeGen;
 import jp.ecuacion.tool.codegenerator.core.generator.entity.EntityBodyGen;
 import jp.ecuacion.tool.codegenerator.core.generator.entity.SystemCommonGen;
 import jp.ecuacion.tool.codegenerator.core.generator.enums.EnumGen;
+import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.MessagesBasePropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.ValidationMessagesPatternDescriptionsGen;
 import jp.ecuacion.tool.codegenerator.core.generator.record.PerTableBaseRecordGen;
 import jp.ecuacion.tool.codegenerator.core.generator.record.SystemCommonBaseRecordGen;
-import jp.ecuacion.tool.codegenerator.core.generator.systemcommon.Miscellaneous;
-import jp.ecuacion.tool.codegenerator.core.generator.util.UtilGen;
+import jp.ecuacion.tool.codegenerator.core.generator.util.JpaFilterUtilGen;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
 /** Orchestrates all code-generation steps for a single system. */
 public class GenerationBlf {
 
-  private Info info;
+  private CodeGenContext info;
 
-  /** Constructs this BLF with the given {@link Info}. */
-  public GenerationBlf(Info info) {
+  /** Constructs this BLF with the given {@link CodeGenContext}. */
+  public GenerationBlf(CodeGenContext info) {
     this.info = info;
   }
 
@@ -85,7 +85,7 @@ public class GenerationBlf {
   }
 
   @SuppressWarnings("unused")
-  private boolean shouldMakeNoGroupQuery(Info info) {
+  private boolean shouldMakeNoGroupQuery(CodeGenContext info) {
     if (info.getGroupRootInfo() == null) {
       return false;
     }
@@ -94,7 +94,7 @@ public class GenerationBlf {
   }
 
   @SuppressWarnings("unused")
-  private boolean shouldMakeNoGroupQueryForDaoOnly(Info info) {
+  private boolean shouldMakeNoGroupQueryForDaoOnly(CodeGenContext info) {
     if (info.getGroupRootInfo() == null) {
       return false;
     }
@@ -177,23 +177,23 @@ public class GenerationBlf {
 
       } else if (dataKind == DataKindEnum.DB) {
         Logger.log(this, "GEN_DB");
-        List<AbstractDaoRelatedGen> genArr = new ArrayList<AbstractDaoRelatedGen>();
+        List<AbstractTableGen> genArr = new ArrayList<AbstractTableGen>();
         genArr.add(new PerTableBaseRecordGen(DataKindEnum.DB));
         genArr.add(new EntityBodyGen(DataKindEnum.DB, false));
 
         genArr.add(new DaoGen(DataKindEnum.DB));
         genArr.add(new SqlPropertiesGen());
 
-        for (AbstractDaoRelatedGen gen : genArr) {
+        for (AbstractTableGen gen : genArr) {
           gen.generate();
         }
 
-        new UtilGen().generate();
+        new JpaFilterUtilGen().generate();
 
       } else if (dataKind == DataKindEnum.SYSTEM_COMMON) {
         Logger.log(this, "GEN_PROP_FILE");
         // Generate miscellaneous files
-        new Miscellaneous().generate();
+        new MessagesBasePropertiesGen().generate();
       }
     }
   }

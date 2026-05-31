@@ -26,7 +26,6 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
 /**
  * Generates enum Java source files and the corresponding enum_names properties files for all
@@ -75,7 +74,7 @@ public class EnumGen extends AbstractGen {
 
     sb.append("package " + rootBasePackage + ".base.enums;" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("java.util.Locale");
     importMgr.add(EclibCoreConstants.PKG + ".util.PropertiesFileUtil");
     sb.append(importMgr.outputStr() + RT);

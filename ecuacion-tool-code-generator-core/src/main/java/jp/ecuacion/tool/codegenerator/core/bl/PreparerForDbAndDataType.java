@@ -19,7 +19,6 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.DATE_TI
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.INTEGER;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.LONG;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIMESTAMP;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,6 +27,7 @@ import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
@@ -38,7 +38,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
-import jp.ecuacion.tool.codegenerator.core.generator.Info;
 
 /**
  * Performs cross-file consistency checks between DB/class definitions and data type
@@ -46,7 +45,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.Info;
  */
 public class PreparerForDbAndDataType {
 
-  private Info getInfo() {
+  private CodeGenContext getInfo() {
     return MainController.tlInfo.get();
   }
 

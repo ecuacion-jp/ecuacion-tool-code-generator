@@ -21,7 +21,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.FieldSingleAnnotationGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 
 /**
  * Generator for the JPA {@code @Convert} annotation, specifying the converter class for enum
@@ -29,7 +29,7 @@ import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
  */
 public class ConvertGen extends FieldSingleAnnotationGen {
   private DataTypeInfo dtInfo;
-  private CodeGenUtil code = new CodeGenUtil();
+  private ColumnGenUtil code = new ColumnGenUtil();
 
   /** Constructs a ConvertGen for the given element type and data type information. */
   public ConvertGen(ElementType elementType, DataTypeInfo dtInfo) {

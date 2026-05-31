@@ -25,6 +25,7 @@ import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.bl.CheckAndComplementFileLevelConsistencyCheckBl;
 import jp.ecuacion.tool.codegenerator.core.bl.PrepareManager;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
@@ -35,7 +36,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -52,7 +52,7 @@ public class CheckAndComplementDataBlf {
     * Validates and complements data in the given rootInfoMap, then returns a map from data-type
     * name to DataTypeInfo.
    */
-  public Map<String, DataTypeInfo> execute(Info info, String systemName,
+  public Map<String, DataTypeInfo> execute(CodeGenContext info, String systemName,
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
 
     final SystemCommonRootInfo systemCommon =
