@@ -76,7 +76,7 @@ jobs:
 
       - name: Build
         working-directory: ecuacion-tool-code-generator
-        run: mvn package -DskipTests -Dwagon.skip=true
+        run: mvn package -DskipTests -Dwagon.skip=true -Dmaven.javadoc.skip=true -Dmaven.source.skip=true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
