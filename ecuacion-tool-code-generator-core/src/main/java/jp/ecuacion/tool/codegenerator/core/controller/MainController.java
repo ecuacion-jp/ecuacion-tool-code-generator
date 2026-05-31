@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.controller;
 
 import java.io.File;
@@ -9,17 +24,21 @@ import jp.ecuacion.tool.codegenerator.core.blf.CheckAndComplementDataBlf;
 import jp.ecuacion.tool.codegenerator.core.blf.GenerationBlf;
 import jp.ecuacion.tool.codegenerator.core.blf.ReadExcelFilesBlf;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.generator.Info;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
+/**
+ * Entry controller that drives the code generation pipeline: reads Excel files, validates,
+ * complements, and generates source code.
+ */
 public class MainController {
 
   /** 
    * Store Info as threadLocal to adapt to multithread accesses.
    */
-  public static ThreadLocal<Info> tlInfo = new ThreadLocal<>();
+  public static ThreadLocal<CodeGenContext> tlInfo = new ThreadLocal<>();
 
   /**
    * Is the entrypoint of the core module.
@@ -27,7 +46,7 @@ public class MainController {
   public void execute(String inputDir, String outputDir) throws Exception {
 
     // Prepare
-    Info info = prepare(inputDir, outputDir);
+    CodeGenContext info = prepare(inputDir, outputDir);
 
     // Start the excel file unit loop.
     File[] listFiles = new File(inputDir).listFiles();
@@ -61,7 +80,7 @@ public class MainController {
     }
   }
 
-  private Info prepare(String inputDir, String outputDir) {
+  private CodeGenContext prepare(String inputDir, String outputDir) {
     // Delete previously created files.
     Logger.log(this, "DELETE_LAST_TIME_FILE");
     delete(new File(outputDir));
@@ -74,7 +93,7 @@ public class MainController {
     }
 
     // Create and set Info.
-    Info info = new Info();
+    CodeGenContext info = new CodeGenContext();
     tlInfo.set(info);
     info.outputDir = outputDir;
     return info;
@@ -102,6 +121,7 @@ public class MainController {
     }
   }
 
+  /** Signals that the current Excel file should be skipped during the processing loop. */
   public static class SkipException extends Exception {
     private static final long serialVersionUID = 1L;
   }

@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.datatype;
 
 import java.lang.annotation.ElementType;
@@ -7,10 +22,11 @@ import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
-import jp.ecuacion.tool.codegenerator.core.util.generator.AnnotationGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.AnnotationGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 
+
+/** Generates data type validator annotation and attribute converter source files. */
 public class DataTypeGen extends AbstractGen {
 
   private DataTypeInfo dtInfo;
@@ -18,8 +34,9 @@ public class DataTypeGen extends AbstractGen {
   protected String dataTypeName;
   protected String kata;
 
-  private CodeGenUtil code = new CodeGenUtil();
-  
+  private ColumnGenUtil code = new ColumnGenUtil();
+
+  /** Constructs an instance for the given data type info. */
   public DataTypeGen(DataTypeInfo dtInfo) {
     super(DataKindEnum.DATA_TYPE);
 
@@ -33,13 +50,14 @@ public class DataTypeGen extends AbstractGen {
 
   @Override
   public void generate() throws Exception {
-    // dataType作成
+    // Create dataType
     genDataType();
   }
 
+  /** Generates the data type validator annotation source file if validators are defined. */
   protected void genDataType() {
 
-    // 内部にvalidatorを保持しない場合は作成する意味がないのでスキップ
+    // Skip if no validators are held internally, as there is nothing to generate
     if (dtInfo.getValidatorList(true).size() == 0) {
       return;
     }
@@ -48,7 +66,7 @@ public class DataTypeGen extends AbstractGen {
 
     sb.append("package " + rootBasePackage + ".base.datatype;" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("java.lang.annotation.*", "jakarta.validation.*");
 
     importMgr.add(AnnotationGenUtil.getNeededImports(dtInfo.getValidatorList(true)));
@@ -74,9 +92,10 @@ public class DataTypeGen extends AbstractGen {
     outputFile(sb, getFilePath("datatype"), dataTypeName + "DataTypeValidator.java");
   }
 
-  /** Converter生成。 */
+  /** Generates the JPA attribute converter class for ENUM type data types. */
   public void generateConverter(boolean refersCommon) {
-    // dataType仕様有無で紆余曲折したが、結局dataTypeは使わないこととしたのでenumの場合のみconverterを作成することとした
+    // After much deliberation over the dataType spec, it was decided not to use dataType, so
+    // converters are only created for the enum case.
     if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
       sb = new StringBuilder();
       String rootPackage = ((refersCommon) ? EclibCoreConstants.PKG : rootBasePackage);
@@ -88,7 +107,7 @@ public class DataTypeGen extends AbstractGen {
       sb.append("import jp.ecuacion.lib.core.util.EnumUtil;" + RT2);
       sb.append("import " + rootPackage + ".base.enums." + dataTypeName + "Enum;" + RT2);
 
-      // Enum→Stringへの変換
+      // Enum to String conversion
       sb.append("@Converter(autoApply = true)" + RT);
       sb.append("public class " + dataTypeName + "Converter implements AttributeConverter<"
           + dataTypeName + "Enum, " + dbKata + "> {" + RT2);
@@ -98,15 +117,18 @@ public class DataTypeGen extends AbstractGen {
       sb.append(T2 + "return (obj == null) ? null : obj.getCode();" + RT);
       sb.append(T1 + "}" + RT2);
 
-      // String→Enumへの変換
+      // String to Enum conversion
       sb.append(T1 + "@Override" + RT);
       sb.append(T1 + "public " + dataTypeName + "Enum convertToEntityAttribute(" + dbKata
           + " obj) {" + RT);
-      sb.append(T2 + "// DBの値が正しい限り問題は発生しないので、もし問題が起こればプログラムの問題であることから非チェック例外とする" + RT);
+      sb.append(T2
+          + "// As long as the DB value is valid no issue will occur, "
+          + "so any problem here is a programming bug and an unchecked exception is appropriate."
+          + RT);
       // sb.append(
       // T2 + "return (obj == null) ? null : " + dataTypeName + "Enum.getEnumFromCode(obj);" + RT);
-      sb.append(T2 + "return obj == null ? null : EnumUtil.getEnumFromCode("
-          + dataTypeName + "Enum.class, obj);" + RT);
+      sb.append(T2 + "return obj == null ? null : EnumUtil.getEnumFromCode(" + dataTypeName
+          + "Enum.class, obj);" + RT);
       sb.append(T1 + "}" + RT);
       sb.append("}" + RT);
 

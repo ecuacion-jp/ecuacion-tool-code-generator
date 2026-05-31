@@ -1,13 +1,32 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.entity;
 
 import java.io.IOException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
 
+/**
+ * Generates the SystemCommon entity source file that serves as the mapped superclass for all
+ * entities.
+ */
 public class SystemCommonGen extends EntityGen {
 
+  /** Constructs an instance for the DB_COMMON data kind. */
   public SystemCommonGen() {
     super(DataKindEnum.DB_COMMON);
   }
@@ -19,7 +38,7 @@ public class SystemCommonGen extends EntityGen {
   @Override
   public void generate() throws IOException, InterruptedException {
 
-    DbOrClassTableInfo tableInfo = info.getCommonTableInfo();
+    DbOrClassTableInfo tableInfo = getInfo().getCommonTableInfo();
     if (tableInfo != null) {
       sb = new StringBuilder();
       createSource(tableInfo);
@@ -27,14 +46,14 @@ public class SystemCommonGen extends EntityGen {
     } else {
       sb = new StringBuilder();
 
-      // ヘッダ情報定義
+      // Header definitions
       appendPackage(sb);
-      ImportGenUtil importMgr = new ImportGenUtil();
+      ImportBlock importMgr = new ImportBlock();
       importMgr.add("jp.ecuacion.splib.jpa.entity.SplibEntity");
       importMgr.add("jakarta.persistence.*", "java.io.Serializable");
       importMgr.add(rootBasePackage + ".base.record.SystemCommonBaseRecord");
       sb.append(importMgr.outputStr() + RT);
-      // クラス定義
+      // Class definition
       sb.append("@MappedSuperclass" + RT);
       sb.append("public abstract class SystemCommon "
           + "extends SplibEntity implements Serializable {" + RT2);
@@ -51,27 +70,28 @@ public class SystemCommonGen extends EntityGen {
     outputFile(sb, getFilePath("entity"), "SystemCommon.java");
 
     appendItemNamesProperties(EntityGenKindEnum.ENTITY_SYSTEM_COMMON,
-        info.getDbCommonRootInfo().tableList);
+        getInfo().getDbCommonRootInfo().tableList);
   }
 
+  /** Generates and appends the full SystemCommon class source from the given table info. */
   public void createSource(DbOrClassTableInfo tableInfo) {
 
     final String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
-    // ヘッダ情報定義
+    // Header definitions
     appendPackage(sb);
     appendImport(sb, tableInfo);
 
-    // class定義
-    // grouping定義が存在する場合は、systemCommonには必ずfilter定義が記載される。
-    if (info.getGroupRootInfo().isDefined()) {
+    // Class definition
+    // When a grouping definition exists, a filter definition is always written in systemCommon.
+    if (getInfo().getGroupRootInfo().isDefined()) {
       getGroupFilterDefAnnotationString(sb);
     }
     if (tableInfo.hasGroupColumn()) {
       getGroupFilterAnnotationString(sb);
     }
 
-    // soft deleteを使用する場合
+    // When using soft delete
     getSoftDeleteAnnotationsString(sb, tableInfo);
 
     sb.append("@MappedSuperclass" + RT);
@@ -82,11 +102,11 @@ public class SystemCommonGen extends EntityGen {
 
     appendSerialVersionUid(sb);
 
-    // 各種field定義
+    // Various field definitions
     appendField(sb, tableInfo, tableInfo.columnList);
     appendFieldName(sb, entityNameCp, tableInfo);
 
-    // 各種コンストラクタ定義
+    // Various constructor definitions
     appendDefaultConstructor(sb, entityNameCp);
     appendRecConstructor(sb, tableInfo, entityNameCp);
 

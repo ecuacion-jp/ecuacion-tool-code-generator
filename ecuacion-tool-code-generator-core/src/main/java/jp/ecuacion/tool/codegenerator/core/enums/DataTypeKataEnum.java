@@ -1,78 +1,105 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.enums;
 
 import java.util.Locale;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 
 /**
- * DataTypeの型。
+ * The kind of a DataType.
  */
 public enum DataTypeKataEnum {
 
   /**
-   * 文字列。<br>
-   * postgreSQL的には「character varying（別名varchar）」が正式名称のようだが、ここは通じやすいこちらの名前としておく<br>
-   * postgreSQLではtextという型も存在するが、一般的なシステムではカラムサイズの上限を定義すること、上限を定義する以上textとvarcharに差はないことからtext型は用意しない
+   * String type.<br>
+   * In PostgreSQL the official name is "character varying" (alias varchar), but the more
+   * widely understood name is used here.<br>
+   * PostgreSQL also has a "text" type, but since standard systems define an upper bound on
+   * column size and there is no difference between text and varchar when an upper bound is
+   * defined, a text type is not provided here.
    */
   STRING,
 
   /**
-   * 1バイト符号付整数。<br>
-   * 自動増分1バイト整数はpostgreSQLには存在しない。 postgreSQLとしての挙動はINTに準ずる。<br>
+   * 1-byte signed integer.<br>
+   * A 1-byte auto-increment integer does not exist in PostgreSQL.
+   * PostgreSQL behaviour follows INT.<br>
    */
   BYTE,
 
   /**
-   * 2バイト符号付整数。<br>
-   * 自動増分2バイト整数はpostgreSQLには存在しない。 postgreSQLとしての挙動はINTに準ずる。<br>
+   * 2-byte signed integer.<br>
+   * A 2-byte auto-increment integer does not exist in PostgreSQL.
+   * PostgreSQL behaviour follows INT.<br>
    */
   SHORT,
 
   /**
-   * 整数 4バイト符号付整数。<br>
-   * postgreのINTEGERに対応。<br>
-   * 自動増分4バイト整数（serial）はここでは定義されていない。INTEGERかつ「自動採番」="○"の場合に、codeGeneratorの中でinteger→serialに置き換える
-   * <br>
-   * postgreSQLでは、integer(2)のような、桁数を指定する表現はない。Integer＝4バイト、と決まっている。
-   * 
-   * <br>
-   * 一方システムでは桁数がいつも問題になるので、dataTypeとしては桁数を必須指定とする
+   * Integer — 4-byte signed integer.<br>
+   * Corresponds to PostgreSQL INTEGER.<br>
+   * A 4-byte auto-increment integer (serial) is not defined here; when the type is INTEGER
+   * and "auto-number" is "○", the code generator replaces integer with serial.<br>
+   * In PostgreSQL there is no way to specify the number of digits as in integer(2);
+   * Integer is always 4 bytes.<br>
+   * However, since the number of digits is always an issue in systems, the digit count is
+   * a required specification for dataType.
    */
   INTEGER,
 
   /**
-   * 8バイト符号付整数。<br>
-   * 自動増分8バイト整数（bigserial）はここでは定義されていない。INTEGERかつ「自動採番」="○"の場合に、codeGeneratorの中でinteger→serialに置き換える
-   * 
-   * <br>
-   * postgreSQLとしての挙動はINTに準ずる。<br>
+   * 8-byte signed integer.<br>
+   * An 8-byte auto-increment integer (bigserial) is not defined here; when the type is
+   * INTEGER and "auto-number" is "○", the code generator replaces integer with bigserial.<br>
+   * PostgreSQL behaviour follows INT.<br>
    */
   LONG,
 
   /**
-   * 精度の選択可能な高精度整数。 BigDecimalの小数点以下桁数が0のもの、というのとイコールのはずではあるが、BigDecimalは小数用とし、こちらを整数用とする
+   * High-precision integer with selectable precision.
+   * Equivalent to a BigDecimal with zero fractional digits, but BigDecimal is reserved for
+   * decimal use while this type is used for integer use.
    */
   BIG_INTEGER,
 
   /**
-   * 単精度（4バイト）浮動小数点。<br>
-   * postgreSQL的には「real」が正式名称のようだが、ここは通じやすいこちらの名前としておく
+   * Single-precision (4-byte) floating-point number.<br>
+   * In PostgreSQL the official name is "real", but the more widely understood name is used here.
    */
   FLOAT,
 
   /**
-   * 倍精度（8バイト）浮動小数点。<br>
-   * postgreSQL的には「double precision」が正式名称のようだが、ここは通じやすいこちらの名前としておく
+   * Double-precision (8-byte) floating-point number.<br>
+   * In PostgreSQL the official name is "double precision", but the more widely understood
+   * name is used here.
    */
   DOUBLE,
 
   /**
-   * 精度の選択可能な高精度数値（numeric(p, s)）。<br>
-   * postgreSQLとしては、numeric, numeric(p)という指定も可能だが、FWの中ではすべて「numeric(p, s)」という形で使用する。 <br>
-   * pは全体桁数（精度=precision）、sは小数点以下桁数（位取り=scale） <br>
-   * この値を格納するjava側の型はBigDecimal。BigDecimalもnumericも、INT等に比べ計算処理は著しく遅くなるため、使いどころは気をつけること。
-   * 小数点を含む金銭計算は迷わずこれを使用。 逆に、小数点を使用しない計算は、全てBigIntegerを使用すること。
-   * javaの仕様上はBigDecimalで整数計算してもよいのだが、用途をパキっと分けたほうがロジック作りやすかったので。
-   * 現在は、上記の制限を実現するため、BigDecimalで小数点以下桁数0だとエラーになるようにしている。
+   * High-precision numeric with selectable precision (numeric(p, s)).<br>
+   * PostgreSQL also allows numeric and numeric(p), but within the framework all usage is in
+   * the form "numeric(p, s)".<br>
+   * p is the total number of digits (precision), s is the number of fractional digits (scale).<br>
+   * The Java type for storing this value is BigDecimal. Both BigDecimal and numeric are
+   * significantly slower in arithmetic than INT etc., so use them carefully.
+   * Use this type without hesitation for monetary calculations involving decimal points.
+   * Conversely, use BigInteger for all integer arithmetic without decimal points.
+   * Java allows integer arithmetic with BigDecimal, but keeping the purposes cleanly
+   * separated makes logic easier to build.
+   * Currently, to enforce the above restriction, using BigDecimal with zero fractional digits
+   * causes an error.
    */
   BIG_DECIMAL,
 
@@ -83,8 +110,10 @@ public enum DataTypeKataEnum {
   ENUM, BOOLEAN;
 
   /**
-   * 画面で表示するための名称を返す。 この名称は、getはできるがそれをもとにenumを取得することはできない。 localizeされた言語で返す。
-   * 明らかに日本語専用のサイトを作成する場合も多いし、その場合にこの仕組みのほうが楽なので。 またどこかで変わるかもしれないけど。
+   * Returns the display name for use on screen. This name can be retrieved but cannot be used
+   * to look up the enum value. Returned in the localized language.
+   * Many sites are clearly built as Japanese-only, and in that case this approach is simpler.
+   * May change at some point.
    */
   public String getDisplayName(Locale locale) {
     return PropertiesFileUtil.getEnumName(locale,
@@ -92,7 +121,7 @@ public enum DataTypeKataEnum {
   }
 
   /**
-   * defaultのLocaleを使用。
+   * Uses the default Locale.
    */
   public String getDisplayName() {
     return PropertiesFileUtil.getEnumName(Locale.getDefault(),
@@ -100,12 +129,11 @@ public enum DataTypeKataEnum {
   }
 
   /**
-   * 引数のnameがEnum内に存在すればtrue、しなければfalseを返す。<br>
-   * nameがnullまたは空文字の場合はfalseを返す。
+   * Returns {@code true} if the given name exists in this enum, {@code false} otherwise.
    */
   public static boolean hasEnumFromName(String name) {
     for (DataTypeKataEnum enu : DataTypeKataEnum.values()) {
-      if (name != null && name.equals(enu.toString())) {
+      if (name.equals(enu.toString())) {
         return true;
       }
     }

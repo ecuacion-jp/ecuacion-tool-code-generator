@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.dao;
 
 import java.util.ArrayList;
@@ -14,14 +29,16 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
-import jp.ecuacion.tool.codegenerator.core.util.generator.ImportGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generator.AbstractTableGen;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColFormat;
 
-public class DaoGen extends AbstractDaoRelatedGen {
+/** Generates base DAO and Spring Data JPA repository source files for each entity. */
+public class DaoGen extends AbstractTableGen {
 
-  private CodeGenUtil code = new CodeGenUtil();
+  private ColumnGenUtil code = new ColumnGenUtil();
 
+  /** Constructs an instance for the specified data kind. */
   public DaoGen(DataKindEnum xmlFilePostFix) {
     super(xmlFilePostFix);
   }
@@ -29,56 +46,57 @@ public class DaoGen extends AbstractDaoRelatedGen {
   @Override
   public void generate() {
 
-    // Entity別のbaseDao / baseRepositoryImplを作成
-    for (DbOrClassTableInfo tableInfo : info.getDbRootInfo().tableList) {
+    // Create baseDao / baseRepositoryImpl per entity
+    for (DbOrClassTableInfo tableInfo : getInfo().getDbRootInfo().tableList) {
       String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
       // super.makePkList(tableInfo);
-      if (info.getSysCmnRootInfo().getUsesUtilJpa()) {
+      if (getInfo().getSysCmnRootInfo().getUsesUtilJpa()) {
         createBaseDaos(tableInfo, entityNameCp);
       }
 
-      // springの場合はbaseRepositoryを生成
-      if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
-        createBaseRepository(tableInfo, entityNameCp, info.getGroupRootInfo());
+      // Generate baseRepository when using Spring
+      if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
+        createBaseRepository(tableInfo, entityNameCp, getInfo().getGroupRootInfo());
       }
     }
 
-    // SystemCommonDaoを作成
-    if (info.getSysCmnRootInfo().getUsesUtilJpa()) {
+    // Create SystemCommonDao
+    if (getInfo().getSysCmnRootInfo().getUsesUtilJpa()) {
       createSystemCommonBaseDao();
     }
 
-    // springの場合はbaseRepositoryを生成
-    if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
+    // Generate baseRepository when using Spring
+    if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
       createSystemCommonBaseRepository();
     }
   }
 
+  /** Creates base DAO source files for the given table. */
   public void createBaseDaos(DbOrClassTableInfo ti, String entityNameCp) {
     sb = new StringBuilder();
 
-    final boolean isNoGroupQuery = info.getGenPtn() == GeneratePtnEnum.NO_GROUP_QUERY
-        || info.getGenPtn() == GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY;
+    final boolean isNoGroupQuery = getInfo().getGenPtn() == GeneratePtnEnum.NO_GROUP_QUERY
+        || getInfo().getGenPtn() == GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY;
 
-    // 宣言とコンストラクタ
+    // Declaration and constructor
     sb.append("package " + rootBasePackage + ".base." + postfixSm + ";" + RT2);
 
     createBaseDaoImport(ti, entityNameCp);
 
-    MiscGroupRootInfo groupInfo = info.getGroupRootInfo();
+    MiscGroupRootInfo groupInfo = getInfo().getGroupRootInfo();
 
     sb.append("public abstract class " + entityNameCp + "Base" + postfixCp
         + " extends SystemCommonBase" + postfixCp + "<" + entityNameCp + "> {" + RT2);
 
-    // springか否かで生成するコンストラクタを分岐
-    if (info.getSysCmnRootInfo().isFrameworkKindSpring()) {
-      // 単純な引数なしコンストラクタを生成
+    // Branch constructor generation depending on whether Spring is used
+    if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
+      // Generate a simple no-argument constructor
       sb.append(T1 + "public " + entityNameCp + "Base" + postfixCp + "() {" + RT);
       sb.append(T2 + "super(new " + entityNameCp + "[0]);" + RT);
 
     } else {
-      // 裏技的にAbstractDaoに具体的なクラスを渡す
+      // Pass the concrete class to AbstractDao as a workaround
       sb.append(T1 + "public " + entityNameCp + "Base" + postfixCp + "("
           + ((groupInfo.isDefined() && !isNoGroupQuery && ti.hasGroupColumnIncludingSystemCommon())
               ? groupInfo.getKata() + " " + groupInfo.getLwFieldName()
@@ -94,7 +112,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     sb.append(T1 + "}" + RT2);
 
-    // 本entityがgrpMetaのfieldを持つかをboolで返す
+    // Returns whether this entity has a grpMeta field as bool
     sb.append(T1 + "protected boolean hasGroupFieldInTable() {" + RT);
     sb.append(T2 + "return " + ti.hasGroupColumnIncludingSystemCommon() + ";" + RT);
     sb.append(T1 + "}" + RT2);
@@ -105,11 +123,11 @@ public class DaoGen extends AbstractDaoRelatedGen {
     // sb.append(T2 + "return " + entityNameCp + ".getSetOfUniqueConstraintFieldList();" + RT);
     // sb.append(T1 + "}" + RT2);
 
-    // selectEntityByPk。削除フラグを指定している場合はwhereに入れる
+    // selectEntityByPk. When a delete flag is specified, include it in the where clause.
     sb.append(T1 + "/** " + RT);
-    sb.append(T1 + " * pkでselect。" + RT);
+    sb.append(T1 + " * Selects by pk." + RT);
     sb.append(T1 + " */" + RT);
-    // グループ指定ありなしで変化する部分の文字列を作成
+    // Build the string portion that varies depending on whether a group is specified
     sb.append(T1 + "public " + entityNameCp + " selectEntityByPk"
         + "(EntityManager em, Object pkValue" + ") {" + RT);
     sb.append(T2 + "return selectEntityByPkForBaseDao(em, \"selectEntityByPk" + "\", \""
@@ -118,7 +136,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
     sb.append(T1 + "}" + RT2);
 
     sb.append(T1 + "/** " + RT);
-    sb.append(T1 + " * pkでselect for update。" + RT);
+    sb.append(T1 + " * Selects by pk with FOR UPDATE." + RT);
     sb.append(T1 + " */" + RT);
     sb.append(T1 + "public " + entityNameCp + " selectEntityByPkForUpdate"
         + "(EntityManager em, Object pkValue" + ") {" + RT);
@@ -129,7 +147,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     if (ti.hasUniqueConstraint()) {
       sb.append(T1 + "/** " + RT);
-      sb.append(T1 + " * surrogateKeyを使用している場合に、naturalKeyでselect。" + RT);
+      sb.append(T1 + " * Selects by natural key when surrogate key is used." + RT);
       sb.append(T1 + " */" + RT);
       sb.append(T1 + "public " + entityNameCp + " selectEntityBy"
           + code.naturalKeyUncapitalCamelAnd(ti) + "(EntityManager em," + RT);
@@ -159,21 +177,21 @@ public class DaoGen extends AbstractDaoRelatedGen {
     }
 
     sb.append(T1 + "/** " + RT);
-    sb.append(T1 + " * （グループが定義されていればグループ内で）全件select。" + RT);
+    sb.append(T1 + " * Selects all records (within the group if a group is defined)." + RT);
     sb.append(T1 + " */" + RT);
     sb.append(T1 + "public List<" + entityNameCp + "> selectEntityList" + "(EntityManager em"
         + ") {" + RT);
     sb.append(T2 + "return selectEntityListForBaseDao(em, \"selectEntityList" + "\", false);" + RT);
     sb.append(T1 + "}" + RT2);
 
-    sb.append(T1 + "/** pkでcount取得。 */" + RT);
+    sb.append(T1 + "/** Gets count by pk. */" + RT);
     sb.append(
         T1 + "public Long selectCountByPk" + "(EntityManager em, Object pkValue" + ") {" + RT);
     sb.append(T2 + "return selectCountForBaseDao(em, \"selectCountByPk" + "\", getParamMapFromPk(\""
         + StringUtil.getLowerCamelFromSnake(ti.getPkColumn().getName()) + "\", pkValue));" + RT);
     sb.append(T1 + "}" + RT2);
 
-    sb.append(T1 + "/** （グループが定義されていればグループ内で）全件カウント。*/" + RT);
+    sb.append(T1 + "/** Counts all records (within the group if a group is defined). */" + RT);
     sb.append(T1 + "public Long selectCountAll" + "(EntityManager em" + ") {" + RT);
     sb.append(T2 + "return selectCountForBaseDao(em, \"selectCountAll" + "\", null);" + RT);
     sb.append(T1 + "}" + RT2);
@@ -184,7 +202,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
   }
 
   private void createBaseDaoImport(DbOrClassTableInfo ti, String entityNameCp) {
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("java.util.*", "jakarta.persistence.EntityManager",
         rootBasePackage + ".base.entity." + entityNameCp);
     if (ti.hasUniqueConstraint()) {
@@ -195,7 +213,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
       }
     }
 
-    // 使用するenumクラスをimport
+    // Import enum classes used
     for (DbOrClassColumnInfo colInfo : ti.columnList) {
       if (colInfo.isUniqueConstraint() || colInfo.isPk()) {
         String dataType = colInfo.getDataType();
@@ -221,7 +239,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
             .filter(e -> e.isRelation()).toList();
 
     List<DbOrClassColumnInfo> list = new ArrayList<>(tableInfo.columnList);
-    list.addAll(info.getDbCommonRootInfo().tableList.get(0).columnList);
+    list.addAll(getInfo().getDbCommonRootInfo().tableList.get(0).columnList);
     String idColumnName = null;
     for (DbOrClassColumnInfo ci : list) {
       if (ci.isPk()) {
@@ -235,7 +253,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     final String idFieldName = StringUtil.getLowerCamelFromSnake(idColumnName);
 
-    // 宣言とコンストラクタ
+    // Declaration and constructor
     sb.append("package " + rootBasePackage + ".base.repository;" + RT2);
 
     // import
@@ -266,7 +284,8 @@ public class DaoGen extends AbstractDaoRelatedGen {
           T1 + "/** Is generated for existence check when a parent record is deleted. */" + RT);
       sb.append(T1 + "public " + rtnType + "<" + tableInfo.getNameCpCamel() + "> findBy"
           + code.generateString(ci, ColFormat.QUERY_METHOD) + "(" + code.getJavaKata(ci) + " "
-          + info.getTableInfo(ci.getRelationRefTable()).getPkColumn().getNameCamel() + ");" + RT2);
+          + getInfo().getTableInfo(ci.getRelationRefTable())
+              .getPkColumn().getNameCamel() + ");" + RT2);
     }
 
     if (tableInfo.hasSoftDeleteFieldInludingSystemCommon()) {
@@ -315,7 +334,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
   private void createBaseRepositoryImport(DbOrClassTableInfo tableInfo, String tableNameCp,
       List<DbOrClassColumnInfo> relFieldList) {
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("java.util.*", rootBasePackage + ".base.entity." + tableNameCp,
         "org.springframework.data.jpa.repository.*",
         "org.springframework.data.repository.query.Param");
@@ -329,7 +348,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
       }
     }
 
-    // 使用するenumクラスをimport
+    // Import enum classes used
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList) {
       if (colInfo.isUniqueConstraint() || colInfo.isPk()) {
         String dataType = colInfo.getDataType();
@@ -346,19 +365,19 @@ public class DaoGen extends AbstractDaoRelatedGen {
   }
 
   private void createSystemCommonBaseDao() {
-    final MiscSoftDeleteRootInfo delFlgInfo = info.getRemovedDataRootInfo();
-    final MiscGroupRootInfo groupInfo = info.getGroupRootInfo();
+    final MiscSoftDeleteRootInfo delFlgInfo = getInfo().getRemovedDataRootInfo();
+    final MiscGroupRootInfo groupInfo = getInfo().getGroupRootInfo();
 
     sb = new StringBuilder();
-    // コンストラクタにgroupのカラムを引数としてつけるか否かのフラグ
-    final boolean shouldAddGroupArg = (info.getGenPtn() != GeneratePtnEnum.NO_GROUP_QUERY
-        && info.getGenPtn() != GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY)
-        && groupInfo.isDefined() && !info.getSysCmnRootInfo().isFrameworkKindSpring();
+    // Flag indicating whether to add the group column as a constructor argument
+    final boolean shouldAddGroupArg = (getInfo().getGenPtn() != GeneratePtnEnum.NO_GROUP_QUERY
+        && getInfo().getGenPtn() != GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY)
+        && groupInfo.isDefined() && !getInfo().getSysCmnRootInfo().isFrameworkKindSpring();
 
 
     sb.append("package " + rootBasePackage + ".base." + postfixSm + ";" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("jp.ecuacion.util.jpa.dao.AbstractDao",
         rootBasePackage + ".base.entity.SystemCommon");
     importMgr.add("jakarta.annotation.Nonnull");
@@ -367,12 +386,13 @@ public class DaoGen extends AbstractDaoRelatedGen {
       importMgr.add("jakarta.persistence.EntityManager");
     }
 
-    // enumの使用を確認し、必要なenumのimportを追加
-    if (info.getDbCommonRootInfo() != null) {
-      for (DbOrClassColumnInfo colInfo : info.getDbCommonRootInfo().tableList.get(0).columnList) {
+    // Check enum usage and add required enum imports
+    if (getInfo().getDbCommonRootInfo() != null) {
+      for (DbOrClassColumnInfo colInfo :
+          getInfo().getDbCommonRootInfo().tableList.get(0).columnList) {
         if (colInfo.getDtInfo().getKata() == DataTypeKataEnum.ENUM) {
-          // 本当はここでどのprojectに属するenumなのかを判断する必要があるが、
-          // SystemCommonについてはframeworkの場合のみしか実績がないのでいったんそうしておく。
+          // Ideally we would determine which project the enum belongs to here, but since
+          // SystemCommon has only been used with the framework, it is handled that way for now.
           importMgr.add(EclibCoreConstants.PKG + ".base.enums.*");
         }
       }
@@ -391,11 +411,11 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     sb.append(T1 + "@Override" + RT);
     sb.append(T1 + "protected boolean isSpringJpa() {" + RT);
-    sb.append(T2 + "return " + info.getSysCmnRootInfo().isFrameworkKindSpring() + ";" + RT);
+    sb.append(T2 + "return " + getInfo().getSysCmnRootInfo().isFrameworkKindSpring() + ";" + RT);
     sb.append(T1 + "}" + RT2);
 
 
-    // group関連の定義
+    // Group-related definitions
     Objects.requireNonNull(groupInfo);
     sb.append(T1 + "protected boolean isGroupDefined() {" + RT);
     sb.append(T2 + "return " + Boolean.valueOf(groupInfo.isDefined()).toString() + ";" + RT);
@@ -409,7 +429,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
     sb.append(T2 + "return " + ((shouldAddGroupArg) ? "COL_NAME_GRP" : "null") + ";" + RT);
     sb.append(T1 + "}" + RT2);
 
-    // hasGroupFieldInTable()をabstract定義
+    // Declare hasGroupFieldInTable() as abstract
     sb.append(T1 + "protected abstract boolean hasGroupFieldInTable();" + RT2);
 
     sb.append(T1 + "protected Object getGroupFieldValue() {" + RT);
@@ -422,7 +442,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
           T1 + "protected " + groupInfo.getKata() + " " + groupInfo.getLwFieldName() + ";" + RT2);
     }
 
-    // 削除フラグ関連の定義
+    // Delete-flag-related definitions
     sb.append(T1 + "protected boolean isLogicalDeleteFlagDefined() {" + RT);
     sb.append(T2 + "return " + delFlgInfo.isDefined() + ";" + RT);
     sb.append(T1 + "}" + RT2);
@@ -476,7 +496,7 @@ public class DaoGen extends AbstractDaoRelatedGen {
 
     sb.append("package " + rootBasePackage + ".base.repository;" + RT2);
 
-    ImportGenUtil importMgr = new ImportGenUtil();
+    ImportBlock importMgr = new ImportBlock();
     importMgr.add("jp.ecuacion.splib.jpa.repository.SplibRepository",
         "org.springframework.data.repository.NoRepositoryBean");
     sb.append(importMgr.outputStr() + RT);

@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jakarta.validation.constraints.NotEmpty;
@@ -9,10 +24,14 @@ import java.util.List;
 import java.util.Map;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.util.reader.ReaderUtil;
+import jp.ecuacion.tool.codegenerator.core.util.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Holds system-wide common settings such as the base package, framework kind, character
+ * encoding, and prohibited characters.
+ */
 public class SystemCommonRootInfo extends AbstractRootInfo {
 
   private String templateVersion;
@@ -55,7 +74,11 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
   private String prohibitedCharsDescSupportLang3;
 
   private Map<String, String> prohibitedCharsDescLangMap = new HashMap<>();
-  
+
+  /**
+   * Constructs an instance with all system-common settings and builds the prohibited-chars
+   * description map for each language.
+   */
   public SystemCommonRootInfo(String templateVersion, String systemName, String basePackage,
       // String projectType,
       String frameworkKind, String usesSpringNamingConvention, String usesUtilJpa,
@@ -88,9 +111,8 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
       }
     }
 
-    for (String[] langAndDesc : new String[][] {
-      new String[] {"", prohibitedCharsDescDefaultLang},
-      new String[] {defaultLang, prohibitedCharsDescDefaultLang},
+    for (String[] langAndDesc : new String[][] {new String[] {"", prohibitedCharsDescDefaultLang},
+        new String[] {defaultLang, prohibitedCharsDescDefaultLang},
         new String[] {supportLang1, prohibitedCharsDescSupportLang1},
         new String[] {supportLang2, prohibitedCharsDescSupportLang2},
         new String[] {supportLang3, prohibitedCharsDescSupportLang3}}) {
@@ -121,6 +143,7 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
   // return projectType;
   // }
 
+  /** Returns {@code true} if the framework kind is Spring Framework. */
   public boolean isFrameworkKindSpring() {
     if (frameworkKind.equals("Spring Framework")) {
       return true;
@@ -189,7 +212,8 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
     return prohibitedCharsDescLangMap.get(lang);
   }
 
-  /** これは定義されたないということはない（本当に全部空欄ならエラーになる）ので常にtrue。 */
+  /** Always returns {@code true} 
+   * because this info is always defined (all blank values would cause an error). */
   @Override
   public boolean isDefined() {
     return true;

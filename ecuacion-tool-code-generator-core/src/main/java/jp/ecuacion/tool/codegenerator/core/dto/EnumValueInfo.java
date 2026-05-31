@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jakarta.annotation.Nonnull;
@@ -12,6 +27,10 @@ import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Holds enum value information including code, variable name, and display names for each
+ * language.
+ */
 @SuppressWarnings("NullAway.Init")
 public class EnumValueInfo extends StringExcelTableBean {
 
@@ -26,7 +45,7 @@ public class EnumValueInfo extends StringExcelTableBean {
   @Pattern(regexp = Constants.REG_EX_UP_NUM_US)
   private String varName;
   private String dispNameDefaultLang;
-  // 多言語に対応するため、dispNameをMapで持つ。キーは言語（jaなど）。
+  // Holds dispName as a Map to support multiple languages. Key is the language (e.g. "ja").
   private Map<String, String> dispNameMap = new HashMap<String, String>();
   private String dispNameLang1;
   private String dispNameLang2;
@@ -42,11 +61,15 @@ public class EnumValueInfo extends StringExcelTableBean {
   }
   //@formatter:on
 
+  /**
+   * Constructs an instance from a column list and populates the display name map using
+   * language settings from {@code sysCmnRootInfo}.
+   */
   @SuppressWarnings("null")
   public EnumValueInfo(List<String> colList, SystemCommonRootInfo sysCmnRootInfo) {
     super(colList);
 
-    // dispNameMapの値に代入するものを作成
+    // Build the values to store in dispNameMap
     Map<String, String> map = new HashMap<>();
     map.put(sysCmnRootInfo.getDefaultLang(), dispNameDefaultLang);
     if (!StringUtils.isEmpty(sysCmnRootInfo.getSupportLang1())) {
@@ -83,6 +106,7 @@ public class EnumValueInfo extends StringExcelTableBean {
     return dispNameMap.get(localeString);
   }
 
+  /** Registers the display name for the given locale. */
   public void getDisplayName(String localeString, String displayName) {
     dispNameMap.put(localeString, displayName);
   }

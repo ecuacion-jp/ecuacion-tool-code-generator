@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.constant;
 
 import java.io.File;
@@ -11,9 +26,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 
 
 /**
- * 定数を定義。
- *
- * @author 庸介
+ * Defines constants used throughout the code generator.
  */
 public class Constants {
 
@@ -29,82 +42,82 @@ public class Constants {
   public static final int OBJECT_CONSTRUCTION_COUNT = 3;
 
   // **
-  // ** パッケージ関連
+  // ** Package-related
   // **
 
   public static final String PROJECT_TYPE = "base";
 
-  /** libのパッケージ共通部分. */
+  /** Common package prefix for the ecuacion tool library. */
   public static final String STR_TOOL_PKG = "jp.ecuacion.tool";
 
-  /** code-generator自身のbase package。 */
+  /** Base package of the code generator itself. */
   public static final String STR_PACKAGE_HOME = STR_TOOL_PKG + ".codegenerator";
 
   public static final String PKG_STANDARD_VALIDATOR = "jakarta.validation.constraints.*";
   public static final String PKG_CUSTOM_VALIDATOR = EclibValidationConstants.PKG + ".constraints.*";
 
   // **
-  // ** ディレクトリ関連
+  // ** Directory-related
   // **
 
-  // OS非依存のpath separator.
+  // OS-independent path separator.
   public static final String PATH_SEPARATOR = File.separator;
 
-  /// ** 生成するクラスファイルの置き場所のルートフォルダ名。 * /
+  /// ** Root folder name for placing generated class files. * /
   // public static final String DIR_PRODUCT = "products" + PATH_SEPARATOR;
 
-  /** javaソースパス。 */
+  /** Root path for generated Java source files. */
   public static final String DIR_SRC_JAVA_PATH =
-      "src" + PATH_SEPARATOR + "base" + PATH_SEPARATOR + "java" + PATH_SEPARATOR;
+      "src" + PATH_SEPARATOR + "main" + PATH_SEPARATOR + "java" + PATH_SEPARATOR;
 
-  /** デフォルトの~info.xmlファイルの配置場所。テストのために、変更可能としておく。 */
+  /** Default location of Excel input files; may be changed for testing purposes. */
   public static final String DIR_INFO_EXCELS_DEFAULT =
       "../ecuacion-tool-code-generator-batch/ecuacion-tool-code-generator-excel-format";
 
-  // 型関連のString取得
+  // String retrieval for type-related values
 
   public static final Map<DataTypeKataEnum, String> JAVA_KATA_MAP =
       Map.of(DataTypeKataEnum.INTEGER, "Integer");
 
-  // その他
+  // Other
 
   /**
-   * default言語を指定するときに使用。
+   * Key used to specify the default language.
    */
   public static final String LANG_DEF = "_default";
 
   public static final int LANG_ADDABLE_MAX = 3;
 
   //
-  // 汎用の正規表現
+  // General-purpose regular expressions
   //
-  /** 全半角（制限なし） ※制限なしのためコード生成なし。 */
+  /** All characters (no restriction); no code generation because there is no constraint. */
   private static final @org.jspecify.annotations.Nullable String REG_EX_ALL = null;
-  /** 半角。 */
+  /** Half-width ASCII characters. */
   private static final String REG_EX_HAN = "^[a-zA-Z0-9 -/:-@\\\\[-\\\\`\\\\{-\\\\~]*$";
-  /** 半角数字。 */
+  /** Half-width digits only. */
   private static final String REG_EX_HAN_NUM = "^[0-9]*$";
-  /** 英大文字。 */
+  /** Uppercase ASCII letters only. */
   private static final String REG_EX_HAN_UC = "^[A-Z]*$";
-  /** 英大文字＋_。 */
+  /** Uppercase ASCII letters and underscore. */
   private static final String REG_EX_HAN_UC_US = "^[A-Z_]*$";
-  /** 英小文字。 */
+  /** Lowercase ASCII letters only. */
   private static final String REG_EX_HAN_LC = "^[a-z]*$";
-  /** 英小文字＋_。 */
+  /** Lowercase ASCII letters and underscore. */
   private static final String REG_EX_HAN_LC_US = "^[a-z_]*$";
-  /** 半角数字＋英大文字。 */
+  /** Half-width digits and uppercase letters. */
   private static final String REG_EX_HAN_NUM_UC = "^[0-9A-Z]*$";
-  /** 半角数字＋英大文字＋_。 */
+  /** Half-width digits, uppercase letters, and underscore. */
   private static final String REG_EX_HAN_NUM_UC_US = "^[0-9A-Z_]*$";
-  /** 半角数字＋英小文字。 */
+  /** Half-width digits and lowercase letters. */
   private static final String REG_EX_HAN_NUM_LC = "^[0-9a-z]*$";
-  /** 半角数字＋英小文字＋_。 */
+  /** Half-width digits, lowercase letters, and underscore. */
   private static final String REG_EX_HAN_NUM_LC_US = "^[0-9a-z_]*$";
-  /** 半角英字。 */
+  /** ASCII letters (upper and lower). */
   private static final String REG_EX_HAN_NUM_UC_LC = "^[a-zA-Z]*$";
-  /** 半角英字＋_。 */
+  /** ASCII letters (upper and lower) and underscore. */
   private static final String REG_EX_HAN_NUM_UC_LC_US = "^[a-zA-Z_]*$";
-  /** 全角 ※正規表現上、半角以外、という表現。 */
+  /** Full-width characters; expressed as "not half-width" in regex terms. */
   private static final String REG_EX_ZEN = "^[^ -~｡-ﾟ]*$";
 
   private static final Map<String, String> stringDataPtnRegExMap = new HashMap<>();
@@ -126,6 +139,10 @@ public class Constants {
     stringDataPtnRegExMap.put("REG_EX_ZEN", REG_EX_ZEN);
   }
 
+  /**
+   * Returns the regular expression string for the given string-data-pattern key, throwing a
+   * violation if the key is not found.
+   */
   public static String getStringDataPtnRegExMap(String key) {
     if (stringDataPtnRegExMap.containsKey(key)) {
       return stringDataPtnRegExMap.get(key);

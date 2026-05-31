@@ -1,22 +1,46 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.record;
 
 import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.util.generator.CodeGenUtil.ColFormat;
+import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColFormat;
 
+/**
+ * Generates a per-table base record class that extends {@code SystemCommonBaseRecord} and
+ * implements {@code ItemContainer}.
+ */
 public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
+  /** Constructs an instance for the given data kind. */
   public PerTableBaseRecordGen(DataKindEnum dataKind) {
     super(dataKind);
   }
 
   @Override
   public void generate() {
-    internalGenerate(info.getDbRootInfo().tableList, false);
+    internalGenerate(getInfo().getDbRootInfo().tableList, false);
   }
 
+  /**
+   * Generates the class header with imports for {@code ItemContainer} and the {@code
+   * ItemNameKeyClass} annotation.
+   */
   public void generateHeader(DbOrClassTableInfo ti) {
 
     generateHeaderCommon(ti, rootBasePackage + ".base.entity." + ti.getNameCpCamel(),
@@ -46,7 +70,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     for (DbOrClassColumnInfo ci : relColList) {
       String relField = ci.getRelationFieldNameCp();
       DbOrClassColumnInfo pk =
-          info.getTableInfo(ci.getRelationRefTable()).getPkColumnIncludingSystemCommon();
+          getInfo().getTableInfo(ci.getRelationRefTable()).getPkColumnIncludingSystemCommon();
       String refPkGet = code.generateString(pk, ColFormat.GET);
       sb.append(", get" + relField + "() == null || get" + relField + "()." + refPkGet + " == null"
           + "? \"\" : get" + relField + "()." + refPkGet);
@@ -77,7 +101,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     for (DbOrClassColumnInfo ci : relColList) {
       String relFieldGet = "get" + ci.getRelationFieldNameCp() + "()";
       DbOrClassColumnInfo v =
-          info.getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingSystemCommon();
+          getInfo().getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingSystemCommon();
       String refVerGet = code.generateString(v, ColFormat.GET);
       sb.append(", " + relFieldGet + " == null || " + relFieldGet + "." + refVerGet
           + " == null ? \"\" : " + relFieldGet + "." + refVerGet);

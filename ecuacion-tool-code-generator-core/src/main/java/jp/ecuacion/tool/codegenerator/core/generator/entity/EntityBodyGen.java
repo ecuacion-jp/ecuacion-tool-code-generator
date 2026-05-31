@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.tool.codegenerator.core.generator.entity;
 
 import java.io.IOException;
@@ -8,8 +23,10 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
+/** Generates the concrete entity body class source code for each DB table. */
 public class EntityBodyGen extends EntityGen {
 
+  /** Constructs an instance for the given data kind. */
   public EntityBodyGen(DataKindEnum xmlFilePostFix, boolean isPkPart) {
     super(xmlFilePostFix);
   }
@@ -22,36 +39,40 @@ public class EntityBodyGen extends EntityGen {
   @Override
   public void generate() throws IOException, InterruptedException {
 
-    DbOrClassRootInfo dbCommon =
-        java.util.Objects.requireNonNull(
-            (DbOrClassRootInfo) info.getRootInfoMap().get(DataKindEnum.DB_COMMON),
-            "DB_COMMON must be populated");
-    for (DbOrClassTableInfo tableInfo : info.getDbRootInfo().tableList) {
+    DbOrClassRootInfo dbCommon = java.util.Objects.requireNonNull(
+        (DbOrClassRootInfo) getInfo().getRootInfoMap().get(DataKindEnum.DB_COMMON),
+        "DB_COMMON must be populated");
+    for (DbOrClassTableInfo tableInfo : getInfo().getDbRootInfo().tableList) {
       sb = new StringBuilder();
       createSource(tableInfo, dbCommon.tableList.get(0).columnList);
       outputFile(sb, getFilePath("entity"),
           StringUtil.getUpperCamelFromSnake(tableInfo.getName()) + ".java");
     }
 
-    appendItemNamesProperties(EntityGenKindEnum.ENTITY_BODY, info.getDbRootInfo().tableList);
+    appendItemNamesProperties(EntityGenKindEnum.ENTITY_BODY, getInfo().getDbRootInfo().tableList);
   }
 
+  /**
+   * Assembles the full source code of the entity class for the given table, including fields,
+   * constructors, accessors, and lifecycle hooks.
+   */
   public void createSource(DbOrClassTableInfo tableInfo,
       List<DbOrClassColumnInfo> commonColumnList) {
 
     final String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
-    // ヘッダ情報定義
+    // Header definitions
     appendPackage(sb);
     appendImport(sb, tableInfo);
 
-    // class定義
+    // Class definition
     sb.append("@Entity" + RT);
     sb.append(tableInfo.getTableAnnotationString(tableInfo) + RT);
 
-    // group定義
-    if (info.getGroupRootInfo().isDefined()
-        && !info.getGroupRootInfo().getTableNamesWithoutGrouping().contains(tableInfo.getName())) {
+    // Group definition
+    if (getInfo().getGroupRootInfo().isDefined()
+        && !getInfo().getGroupRootInfo().getTableNamesWithoutGrouping()
+            .contains(tableInfo.getName())) {
       if (tableInfo.hasCustomGroupColumn()) {
         DbOrClassColumnInfo customGroupCi = tableInfo.getCustomGroupColumn();
         String filterName = "groupFilter" + StringUtil.getUpperCamelFromSnake(tableInfo.getName());
@@ -64,7 +85,7 @@ public class EntityBodyGen extends EntityGen {
       }
     }
 
-    // soft deleteを使用する場合
+    // When using soft delete
     getSoftDeleteAnnotationsString(sb, tableInfo);
 
     sb.append("public final class " + entityNameCp
@@ -72,12 +93,12 @@ public class EntityBodyGen extends EntityGen {
 
     appendSerialVersionUid(sb);
 
-    // 各種field定義
+    // Various field definitions
     appendField(sb, tableInfo, tableInfo.columnList);
     appendFieldName(sb, entityNameCp, tableInfo);
     appendFieldNameArr(sb, tableInfo, entityNameCp, false);
 
-    // 各種コンストラクタ定義
+    // Various constructor definitions
     appendDefaultConstructor(sb, entityNameCp);
     appendRecConstructor(sb, tableInfo, entityNameCp);
     if (tableInfo.hasUniqueConstraint()) {
@@ -94,7 +115,7 @@ public class EntityBodyGen extends EntityGen {
     appendAutoInsertOrUpdateGen(sb, tableInfo, false, false);
     // preUpdate
     appendAutoInsertOrUpdateGen(sb, tableInfo, true, false);
-    // uniqueConstraint関連
+    // Unique-constraint-related
     appendUniqueConstraintGen(sb, tableInfo);
 
     // hasSoftDeleteField
@@ -124,9 +145,14 @@ public class EntityBodyGen extends EntityGen {
     sb.append(T1 + "}" + RT2);
 
     sb.append(T1 + "// getSetOfUniqueConstraintFieldList()" + RT);
-    sb.append(T1 + "// 今は実質naturalKeyしかないのでそれをSetに入れて返す。" + RT);
-    sb.append(
-        T1 + "// 将来的には他のunique keyも設定できるようにする。（でないとinsert時に論理削除済レコードが残っていた場合の自動削除ができない）" + RT);
+    sb.append(T1
+        + "// Currently only naturalKey is effectively supported, "
+        + "so it is added to the Set and returned."
+        + RT);
+    sb.append(T1
+        + "// In the future, other unique keys should also be configurable "
+        + "(otherwise auto-deletion of soft-deleted records on insert would not work)."
+        + RT);
 
     sb.append(T1 + "@Nonnull" + RT);
     sb.append(T1 + "public Set<List<String>> getSetOfUniqueConstraintFieldList() {" + RT);
