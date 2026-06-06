@@ -19,6 +19,7 @@ import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
@@ -145,7 +146,7 @@ public class ColumnGenUtil {
 
     } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
         || dtInfo.getKata() == DataTypeKataEnum.DATE_TIME) {
-      rtn = (dtInfo.getNotNeedsTimezone()) ? "LocalDateTime" : "OffsetDateTime";
+      rtn = dtInfo.getNotNeedsTimezone() ? "LocalDateTime" : "OffsetDateTime";
 
     } else if (dtInfo.getKata() == DataTypeKataEnum.DATE) {
       rtn = "LocalDate";
@@ -282,15 +283,15 @@ public class ColumnGenUtil {
       switch (formatType) {
         case ENTITY_GET -> sb.append("e.get" + capitalCamel(ci.getName()) + "()");
         case ENTITY_DEFINE -> sb
-            .append((getJavaKata(ci)) + " " + StringUtil.getLowerCamelFromSnake(ci.getName()));
+            .append(getJavaKata(ci) + " " + StringUtil.getLowerCamelFromSnake(ci.getName()));
         case REC_GET_OF_ENTITY_DATA_TYPE -> sb
             .append("rec." + generateString(ci, ColFormat.GET_OF_ENTITY_DATA_TYPE));
-        case JPQL -> sb.append(ci.getName().toLowerCase() + " = :" + colNameLc);
-        case SQL_PARAM -> sb.append(ci.getName().toLowerCase() + " = :#{#entity."
+        case JPQL -> sb.append(ci.getName().toLowerCase(Locale.ROOT) + " = :" + colNameLc);
+        case SQL_PARAM -> sb.append(ci.getName().toLowerCase(Locale.ROOT) + " = :#{#entity."
             + StringUtil.getLowerCamelFromSnake(ci.getName())
             + (ci.getDtInfo().getKata() == DataTypeKataEnum.ENUM ? ".code" : "") + "}");
         case UNCAPITAL_CAMEL_AND -> sb
-            .append((is1st ? StringUtils.uncapitalize(colNameUc) : colNameUc));
+            .append(is1st ? StringUtils.uncapitalize(colNameUc) : colNameUc);
         case UNCAPITAL_CAMEL_AND_REL_CONSIDERED -> sb.append(
             (is1st ? StringUtils.uncapitalize(colNameUcRelUnderscore) : colNameUcRelUnderscore));
         default -> throw new RuntimeException("ColListFormat not designated.");
@@ -338,7 +339,7 @@ public class ColumnGenUtil {
     /** Comma-separated {@code rec.getXxx(OfEntityDataType)} calls for building record arguments. */
     REC_GET_OF_ENTITY_DATA_TYPE(BetweenColumns.PADDED_COMMA);
 
-    private BetweenColumns betweenColumns;
+    private final BetweenColumns betweenColumns;
 
     private ColListFormat(BetweenColumns betweenColumns) {
       this.betweenColumns = betweenColumns;
@@ -493,11 +494,11 @@ public class ColumnGenUtil {
 
   /** Returns the soft-delete column name in upper-snake case. */
   public String softDeleteColUpperSnake() {
-    return getInfo().getRemovedDataRootInfo().getColumnName().toUpperCase();
+    return getInfo().getRemovedDataRootInfo().getColumnName().toUpperCase(Locale.ROOT);
   }
 
   /** Returns the soft-delete column name in lower-snake case. */
   public String softDeleteColLowerSnake() {
-    return getInfo().getRemovedDataRootInfo().getColumnName().toLowerCase();
+    return getInfo().getRemovedDataRootInfo().getColumnName().toLowerCase(Locale.ROOT);
   }
 }

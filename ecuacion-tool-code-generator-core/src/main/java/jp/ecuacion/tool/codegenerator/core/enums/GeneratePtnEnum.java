@@ -26,8 +26,8 @@ public enum GeneratePtnEnum {
           "DAO-only separate group: normal"), DAO_ONLY_GROUP_NO_GROUP_QUERY("no-group-query",
               "DAO-only separate group: no-group-query");
 
-  private String dirName;
-  private String dispName;
+  private final String dirName;
+  private final String dispName;
 
   public String getDirName() {
     return dirName;

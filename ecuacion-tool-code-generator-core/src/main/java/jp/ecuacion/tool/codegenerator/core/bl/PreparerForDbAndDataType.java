@@ -19,10 +19,12 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.DATE_TI
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.INTEGER;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.LONG;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIMESTAMP;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
@@ -130,8 +132,8 @@ public class PreparerForDbAndDataType {
     Iterator<DataKindEnum> it = getInfo().getRootInfoMap().keySet().iterator();
     while (it.hasNext()) {
       AbstractRootInfo rootInfo = getInfo().getRootInfoMap().get(it.next());
-      if (rootInfo instanceof EnumRootInfo) {
-        checkRepeatedEmergeEnum((EnumRootInfo) rootInfo);
+      if (rootInfo instanceof EnumRootInfo enumRootInfo) {
+        checkRepeatedEmergeEnum(enumRootInfo);
       }
 
       if (rootInfo instanceof DataTypeRootInfo) {
@@ -261,10 +263,10 @@ public class PreparerForDbAndDataType {
         dbCommonColSet, DataKindEnum.DB);
   }
 
-  private HashSet<String> checkDuplicatedDefinitionOfDbOrClassAndCreateTableSet(String systemName,
-      @org.jspecify.annotations.Nullable DbOrClassRootInfo rootInfo, HashSet<String> dbCommonColSet,
+  private Set<String> checkDuplicatedDefinitionOfDbOrClassAndCreateTableSet(String systemName,
+      @org.jspecify.annotations.Nullable DbOrClassRootInfo rootInfo, Set<String> dbCommonColSet,
       DataKindEnum dataKind) {
-    HashSet<String> tableSet = new HashSet<String>();
+    Set<String> tableSet = new HashSet<String>();
 
     if (rootInfo != null) {
       for (DbOrClassTableInfo ti : rootInfo.tableList) {
