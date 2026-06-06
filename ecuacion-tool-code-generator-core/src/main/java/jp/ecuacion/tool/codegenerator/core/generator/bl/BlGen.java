@@ -132,7 +132,6 @@ public class BlGen extends AbstractGen {
     }
   }
 
-  @SuppressWarnings("unused")
   private void getRepositoryForOptimisticLocking(DbOrClassTableInfo ti, String entityNameCp) {
     sb.append(T1 + "@Override" + RT);
     sb.append(T1 + "public SplibRepository<" + entityNameCp

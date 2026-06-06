@@ -697,7 +697,6 @@ public abstract class EntityGen extends AbstractTableGen {
     }
   }
 
-  @SuppressWarnings("unused")
   private void appendAccessorForRelation(StringBuilder sb,
       @org.jspecify.annotations.Nullable String relEntityName,
       @org.jspecify.annotations.Nullable String relFieldName,
@@ -740,7 +739,6 @@ public abstract class EntityGen extends AbstractTableGen {
     return map;
   }
 
-  @SuppressWarnings("unused")
   private void putToMap(String lang, DbOrClassTableInfo tableInfo,
       Map<String, String> map, EntityGenKindEnum entityKind) {
 
@@ -956,7 +954,6 @@ public abstract class EntityGen extends AbstractTableGen {
     * Generates the annotation strings to be attached to entity fields, including validators and JPA
     * annotations.
    */
-  @SuppressWarnings("unused")
   private String getEntityFieldAnnotations(EntityGenKindEnum entityGenKindEnum, String tableName,
       DbOrClassColumnInfo colInfo, String id) {
     List<AnnotationGen> annotationGenList = new ArrayList<>();

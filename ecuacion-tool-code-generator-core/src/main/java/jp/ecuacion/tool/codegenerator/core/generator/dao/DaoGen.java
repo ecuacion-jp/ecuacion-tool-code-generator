@@ -229,7 +229,6 @@ public class DaoGen extends AbstractTableGen {
     sb.append(importMgr.outputStr() + RT);
   }
 
-  @SuppressWarnings("unused")
   private void createBaseRepository(DbOrClassTableInfo tableInfo, String tableNameCp,
       MiscGroupRootInfo groupInfo) {
 
@@ -333,7 +332,6 @@ public class DaoGen extends AbstractTableGen {
     outputFile(sb, getFilePath("repository"), tableNameCp + "BaseRepository.java");
   }
 
-  @SuppressWarnings("unused")
   private void createBaseRepositoryImport(DbOrClassTableInfo tableInfo, String tableNameCp,
       List<DbOrClassColumnInfo> relFieldList) {
     ImportBlock importMgr = new ImportBlock();
