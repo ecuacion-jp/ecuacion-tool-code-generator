@@ -154,7 +154,7 @@ public class EntityBodyGen extends EntityGen {
         + "(otherwise auto-deletion of soft-deleted records on insert would not work)."
         + RT);
 
-    sb.append(T1 + "@Nonnull" + RT);
+    sb.append(T1 + "@NonNull" + RT);
     sb.append(T1 + "public Set<List<String>> getSetOfUniqueConstraintFieldList() {" + RT);
     sb.append(T2 + "Set<List<String>> rtnSet = new HashSet<>();" + RT);
     sb.append(T2 + "List<String> list = getNaturalKeyFieldList();" + RT);

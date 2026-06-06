@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import jakarta.annotation.Nonnull;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -25,6 +24,7 @@ import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
+import org.jspecify.annotations.Nullable;
 
 /** Holds enum class information read from Excel, including the list of enum values. */
 @SuppressWarnings("NullAway.Init")
@@ -44,7 +44,7 @@ public class EnumClassInfo extends StringExcelTableBean {
 
   //@formatter:off
   @Override
-  protected @Nonnull String[] getFieldNameArray() {
+  protected @Nullable String[] getFieldNameArray() {
     return new String[] {
         "dataTypeName", null, null, null, 
         null, null, null, null, null

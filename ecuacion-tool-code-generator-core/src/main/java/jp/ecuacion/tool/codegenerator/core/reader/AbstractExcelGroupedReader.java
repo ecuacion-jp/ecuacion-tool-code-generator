@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.tool.codegenerator.core.reader;
 
-import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +40,8 @@ public abstract class AbstractExcelGroupedReader<R extends AbstractRootInfo, G>
     extends StringOneLineHeaderExcelTableReader {
 
   /** Constructs an instance for the given sheet name and header labels. */
-  protected AbstractExcelGroupedReader(@Nonnull String sheetName,
-      @Nonnull String[] headerLabels) {
+  protected AbstractExcelGroupedReader(String sheetName,
+      @NonNull String[] headerLabels) {
     super(sheetName, headerLabels);
   }
 
