@@ -15,7 +15,7 @@
  */
 package jp.ecuacion.tool.codegenerator.web.config;
 
-import jp.ecuacion.splib.web.config.SplibWebNoLoginSecurityConfig;
+import jp.ecuacion.splib.web.config.SplibWebSecurityConfigForNoLogin;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
@@ -24,5 +24,5 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
  */
 @Configuration
 @EnableWebSecurity
-public class AppSecurityConfig extends SplibWebNoLoginSecurityConfig {
+public class AppSecurityConfig extends SplibWebSecurityConfigForNoLogin {
 }

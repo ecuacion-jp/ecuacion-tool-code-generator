@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -26,6 +25,7 @@ import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Holds enum value information including code, variable name, and display names for each
@@ -53,7 +53,7 @@ public class EnumValueInfo extends StringExcelTableBean {
 
   //@formatter:off
   @Override
-  protected @Nonnull String[] getFieldNameArray() {
+  protected @Nullable String[] getFieldNameArray() {
     return new String[] {
         null, "isJavaOnly", "code", "varName", 
         "dispNameDefaultLang", null, "dispNameLang1", "dispNameLang2", "dispNameLang3"
