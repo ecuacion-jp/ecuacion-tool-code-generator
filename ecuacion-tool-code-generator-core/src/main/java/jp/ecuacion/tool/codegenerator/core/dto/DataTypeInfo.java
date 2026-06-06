@@ -17,8 +17,6 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
-
-import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -119,7 +117,7 @@ public class DataTypeInfo extends StringExcelTableBean {
   private List<ValidatorGen> validatorForRecordList = new ArrayList<>();
 
   @Override
-  protected @Nonnull String[] getFieldNameArray() {
+  protected @Nullable String[] getFieldNameArray() {
     return new String[] {"dataTypeName", "kata", "minLength", "maxLength", null, "stringDataPtn",
         "stringAllowsProhibitedCharacters", "stringRegEx", "stringRegExDescLangDefault",
         "stringRegExDescLangSupport01", "stringRegExDescLangSupport02",
