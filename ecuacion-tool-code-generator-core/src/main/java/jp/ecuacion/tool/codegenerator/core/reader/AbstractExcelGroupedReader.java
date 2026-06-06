@@ -46,10 +46,10 @@ public abstract class AbstractExcelGroupedReader<R extends AbstractRootInfo, G>
   }
 
   /** Reads the Excel file at the given path and returns a data-kind-to-root-info map. */
-  public HashMap<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
+  public Map<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
       throws EncryptedDocumentException, IOException {
 
-    HashMap<DataKindEnum, AbstractRootInfo> rtnMap = new HashMap<>();
+    Map<DataKindEnum, AbstractRootInfo> rtnMap = new HashMap<>();
     R rootInfo = createRootInfo();
     rtnMap.put(getRootDataKind(), rootInfo);
 

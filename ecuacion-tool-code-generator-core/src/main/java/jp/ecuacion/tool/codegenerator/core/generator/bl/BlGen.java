@@ -18,6 +18,7 @@ package jp.ecuacion.tool.codegenerator.core.generator.bl;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefInfo;
@@ -131,6 +132,7 @@ public class BlGen extends AbstractGen {
     }
   }
 
+  @SuppressWarnings("unused")
   private void getRepositoryForOptimisticLocking(DbOrClassTableInfo ti, String entityNameCp) {
     sb.append(T1 + "@Override" + RT);
     sb.append(T1 + "public SplibRepository<" + entityNameCp
@@ -284,8 +286,9 @@ public class BlGen extends AbstractGen {
 
     for (RelationRefInfo refInfo : ti.getPkColumn().getRelationRefInfoList()) {
       DbOrClassTableInfo relOrgTi = getInfo().getTableInfo(refInfo.getOrgTableName());
-      DbOrClassColumnInfo relOrgCi = relOrgTi
-          .getColumn(StringUtil.getLowerSnakeFromCamel(refInfo.getOrgFieldName()).toUpperCase());
+      String orgFieldNameUpper =
+          StringUtil.getLowerSnakeFromCamel(refInfo.getOrgFieldName()).toUpperCase(Locale.ROOT);
+      DbOrClassColumnInfo relOrgCi = relOrgTi.getColumn(orgFieldNameUpper);
 
       String methodDefPrefix =
           "public void childExistenceCheck" + refInfo.getOrgTableNameCpCamel() + "(";

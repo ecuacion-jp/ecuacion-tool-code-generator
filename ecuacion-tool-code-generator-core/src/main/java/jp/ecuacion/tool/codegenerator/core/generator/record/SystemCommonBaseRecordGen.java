@@ -38,6 +38,7 @@ public class SystemCommonBaseRecordGen extends AbstractBaseRecordGen {
   /**
    * Generates the class header that extends {@code SplibRecord} for the system-common base record.
    */
+  @Override
   public void generateHeader(DbOrClassTableInfo tableInfo) {
 
     generateHeaderCommon(tableInfo, "jp.ecuacion.splib.core.record.SplibRecord",

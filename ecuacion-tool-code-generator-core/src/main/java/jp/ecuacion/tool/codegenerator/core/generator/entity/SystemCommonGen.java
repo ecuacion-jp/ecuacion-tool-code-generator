@@ -31,6 +31,7 @@ public class SystemCommonGen extends EntityGen {
     super(DataKindEnum.DB_COMMON);
   }
 
+  @Override
   protected EntityGenKindEnum getEntityGenKindEnum() {
     return EntityGenKindEnum.ENTITY_SYSTEM_COMMON;
   }
