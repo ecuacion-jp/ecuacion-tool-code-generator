@@ -148,7 +148,6 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     sb.append(RT);
   }
 
-  @SuppressWarnings("unused")
   private void fieldDefinition(String tableName, DbOrClassColumnInfo ci) {
     final String refEnName =
         ci.getRelationRefTable() == null ? null : ci.getRelationRefTableCamel();
