@@ -18,6 +18,7 @@ package jp.ecuacion.tool.codegenerator.core.reader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
@@ -61,10 +62,10 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
    * Reads the Excel file at the given path and returns a data-kind-to-root-info map for all setting
    * groups.
    */
-  public HashMap<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
+  public Map<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
       throws EncryptedDocumentException, IOException {
 
-    HashMap<DataKindEnum, AbstractRootInfo> rtnMap = new HashMap<>();
+    Map<DataKindEnum, AbstractRootInfo> rtnMap = new HashMap<>();
 
     // Retrieve table data in list form
     List<List<String>> rowList = read(excelPath);
@@ -94,7 +95,7 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
     return rtnMap;
   }
 
-  private AbstractRootInfo getSystemCommon(HashMap<String, String> props) {
+  private AbstractRootInfo getSystemCommon(Map<String, String> props) {
     return new SystemCommonRootInfo(props.get("TEMPLATE_VERSION"), props.get("SYSTEM_NAME"),
         props.get("BASE_PACKAGE"),
         // props.get("PROJECT_KIND"),
@@ -107,21 +108,21 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
         props.get("PROHIBITED_CHARS_DESC_LANG_SUPPORT_03"));
   }
 
-  private AbstractRootInfo getLogicalDelete(HashMap<String, String> props) {
+  private AbstractRootInfo getLogicalDelete(Map<String, String> props) {
     MiscSoftDeleteRootInfo rootInfo = new MiscSoftDeleteRootInfo(props.get("COLUMN_NAME"),
         props.get("DATA_TYPE_NAME"), props.get("DEFAULT_VALUE"), props.get("METHOD_NAME"),
         props.get("UPDATE_VALUE"), props.get("ADDITIONAL_PARAMS"));
     return rootInfo;
   }
 
-  private AbstractRootInfo getGroup(HashMap<String, String> props) {
+  private AbstractRootInfo getGroup(Map<String, String> props) {
     MiscGroupRootInfo rootInfo = new MiscGroupRootInfo(props.get("COLUMN_NAME"),
         props.get("DATA_TYPE_NAME"), props.get("TABLE_NAMES_WITHOUT_GROUPING"),
         props.get("NEEDS_NO_GROUPING_MODULE"), props.get("DIVIDES_DAO_MODULE"));
     return rootInfo;
   }
 
-  private AbstractRootInfo getOptimisticLocking(HashMap<String, String> props) {
+  private AbstractRootInfo getOptimisticLocking(Map<String, String> props) {
     MiscOptimisticLockRootInfo rootInfo =
         new MiscOptimisticLockRootInfo(props.get("COLUMN_NAME"), props.get("DATA_TYPE_NAME"));
     return rootInfo;

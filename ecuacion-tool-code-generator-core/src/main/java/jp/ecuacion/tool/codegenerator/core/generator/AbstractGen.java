@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -51,7 +52,7 @@ public abstract class AbstractGen extends AbstractCode {
     String osName = System.getProperty("os.name");
     rootBasePackage = getInfo().getSysCmnRootInfo().getBasePackage();
     rootBasePackageDirectry = rootBasePackage.replaceAll("\\.",
-        (osName.equals("Windows")) ? "\\\\" : "/");
+        osName.equals("Windows") ? "\\\\" : "/");
   }
 
   /** Executes the code generation process and produces the output source files. */
@@ -110,8 +111,8 @@ public abstract class AbstractGen extends AbstractCode {
       File file = new File(path, fileName);
       file.createNewFile();
 
-      BufferedWriter bw =
-          new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), charEncoding));
+      BufferedWriter bw = new BufferedWriter(
+          new OutputStreamWriter(new FileOutputStream(file), Charset.forName(charEncoding)));
       bw.write(sb.toString());
       bw.close();
 
@@ -126,7 +127,7 @@ public abstract class AbstractGen extends AbstractCode {
 
   /** Generates a complete Javadoc block from an XML-sourced description string. */
   protected String genJavadocFromXml(@Nullable String javadoc, boolean isIndented) {
-    String indent = (isIndented) ? T1 : "";
+    String indent = isIndented ? T1 : "";
     return indent + JD_ST + RT + genJavadocPartFromXml(javadoc, isIndented) + indent + JD_END + RT;
   }
 
@@ -136,7 +137,7 @@ public abstract class AbstractGen extends AbstractCode {
       javadoc = "";
     }
     
-    String indent = (isIndented) ? T1 : "";
+    String indent = isIndented ? T1 : "";
     return indent + JD_LN_ST + javadoc.replaceAll("\n", RT).replaceAll(RT, RT + indent + JD_LN_ST)
         + RT;
   }
@@ -178,7 +179,7 @@ public abstract class AbstractGen extends AbstractCode {
   protected String genJavadocCommon(List<String> arr, boolean isIndented) {
 
     String rtn = "";
-    String indent = (isIndented) ? T1 : "";
+    String indent = isIndented ? T1 : "";
 
     if (arr == null) {
       arr = new ArrayList<String>();

@@ -117,7 +117,7 @@ public enum DataTypeKataEnum {
    */
   public String getDisplayName(Locale locale) {
     return PropertiesFileUtil.getEnumName(locale,
-        this.getClass().getSimpleName() + "." + this.toString());
+        DataTypeKataEnum.class.getSimpleName() + "." + this.toString());
   }
 
   /**
@@ -125,7 +125,7 @@ public enum DataTypeKataEnum {
    */
   public String getDisplayName() {
     return PropertiesFileUtil.getEnumName(Locale.getDefault(),
-        this.getClass().getSimpleName() + "." + this.toString());
+        DataTypeKataEnum.class.getSimpleName() + "." + this.toString());
   }
 
   /**

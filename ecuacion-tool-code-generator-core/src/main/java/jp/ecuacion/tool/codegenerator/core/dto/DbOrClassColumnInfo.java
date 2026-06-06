@@ -18,6 +18,7 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
+
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

@@ -257,25 +257,24 @@ public class CheckAndComplementDataBlf {
 
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
 
-      if (rootInfo instanceof DbOrClassRootInfo) {
+      if (rootInfo instanceof DbOrClassRootInfo dbOrClassRootInfo) {
         // DbOrClassRootInfo
-        for (DbOrClassTableInfo ti : ((DbOrClassRootInfo) rootInfo).tableList) {
+        for (DbOrClassTableInfo ti : dbOrClassRootInfo.tableList) {
           for (DbOrClassColumnInfo ci : ti.columnList) {
             ci.setDtInfo(checkAndGetDataTypeInfo(dtMap, ci.getDataType(), systemName,
                 "tableName = " + ti.getName() + ", columnName = " + ci.getName()));
           }
         }
 
-      } else if (rootInfo instanceof EnumRootInfo) {
+      } else if (rootInfo instanceof EnumRootInfo enumRootInfo) {
         // EnumRootInfo
-        for (EnumClassInfo ei : ((EnumRootInfo) rootInfo).enumClassList) {
+        for (EnumClassInfo ei : enumRootInfo.enumClassList) {
           ei.setDtInfo(checkAndGetDataTypeInfo(dtMap, ei.getDataTypeName(), systemName,
               "enumName = " + ei.getEnumName()));
         }
 
-      } else if (rootInfo instanceof MiscGroupRootInfo) {
+      } else if (rootInfo instanceof MiscGroupRootInfo grpInfo) {
         // MiscGroupRootInfo
-        MiscGroupRootInfo grpInfo = (MiscGroupRootInfo) rootInfo;
 
         if (grpInfo.isDefined()) {
           grpInfo.setDtInfo(checkAndGetDataTypeInfo(dtMap, grpInfo.getDataTypeName(), systemName,

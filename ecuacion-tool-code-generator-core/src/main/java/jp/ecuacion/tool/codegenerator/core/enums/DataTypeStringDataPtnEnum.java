@@ -95,7 +95,7 @@ public enum DataTypeStringDataPtnEnum {
    */
   REG_EX_ZEN("112");
 
-  private String code;
+  private final String code;
 
   private DataTypeStringDataPtnEnum(String code) {
     this.code = code;
@@ -125,7 +125,7 @@ public enum DataTypeStringDataPtnEnum {
    */
   public String getDisplayName(Locale locale) {
     return PropertiesFileUtil.getEnumName(locale,
-        this.getClass().getSimpleName() + "." + this.toString());
+        DataTypeStringDataPtnEnum.class.getSimpleName() + "." + this.toString());
   }
 
   /**
@@ -133,7 +133,7 @@ public enum DataTypeStringDataPtnEnum {
    */
   public String getDisplayName() {
     return PropertiesFileUtil.getEnumName(Locale.getDefault(),
-        this.getClass().getSimpleName() + "." + this.toString());
+        DataTypeStringDataPtnEnum.class.getSimpleName() + "." + this.toString());
   }
 
   /**

@@ -19,7 +19,7 @@ import java.lang.annotation.ElementType;
 
 /**
  * Generator for annotations that hold a list of annotations as arguments, as in the following
- * pattern:
+ * pattern.
  *
  * <p>&#64;FieldPattern.List({ &#64;FieldPattern(...), &#64;FieldPattern(...) })
  * </p>
