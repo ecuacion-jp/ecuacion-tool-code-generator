@@ -21,8 +21,8 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.LONG;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.SHORT;
 
 import java.lang.annotation.ElementType;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
@@ -61,8 +61,8 @@ public class SequenceGeneratorGen extends FieldSingleAnnotationGen {
    * GeneratedValueGen#needsValidator}.
    */
   public static boolean needsValidator(DbOrClassColumnInfo colInfo,
-      HashMap<String, HashMap<String, DataTypeInfo>> allDtMap,
-      HashMap<String, HashMap<String, AbstractRootInfo>> systemMap, String systemName) {
+      Map<String, Map<String, DataTypeInfo>> allDtMap,
+      Map<String, Map<String, AbstractRootInfo>> systemMap, String systemName) {
 
     return GeneratedValueGen.needsValidator(colInfo);
   }

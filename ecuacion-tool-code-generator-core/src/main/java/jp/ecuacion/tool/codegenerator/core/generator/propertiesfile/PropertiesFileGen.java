@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
 import jp.ecuacion.lib.core.util.FileUtil;
@@ -55,7 +56,7 @@ public class PropertiesFileGen extends AbstractGen {
     StringBuilder origFileSb = new StringBuilder();
     if (propFile.exists()) {
       // Read data from the existing file
-      BufferedReader br = new BufferedReader(new FileReader(propFile));
+      BufferedReader br = new BufferedReader(new FileReader(propFile, StandardCharsets.UTF_8));
       String line = null;
       while ((line = br.readLine()) != null) {
         origFileSb.append(line + "\n");
@@ -85,7 +86,8 @@ public class PropertiesFileGen extends AbstractGen {
 
     File file = new File(path, fileName);
 
-    try (FileWriter fw = new FileWriter(file); BufferedWriter bw = new BufferedWriter(fw);) {
+    try (FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
+        BufferedWriter bw = new BufferedWriter(fw);) {
 
       bw.write(str);
 
@@ -124,7 +126,7 @@ public class PropertiesFileGen extends AbstractGen {
     try (
         InputStream input =
             PropertiesFileGen.class.getClassLoader().getResourceAsStream(fromfileName);
-        InputStreamReader isr = new InputStreamReader(input);
+        InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
         BufferedReader br = new BufferedReader(isr);) {
       String line = "";
       StringBuilder content = new StringBuilder();
@@ -134,7 +136,7 @@ public class PropertiesFileGen extends AbstractGen {
 
       String toFilePath =
           FileUtil.concatFilePaths(getResourcesPath(), getFileName(filenamePrefix, lang));
-      try (FileWriter file = new FileWriter(toFilePath);
+      try (FileWriter file = new FileWriter(toFilePath, StandardCharsets.UTF_8);
           PrintWriter pw = new PrintWriter(new BufferedWriter(file));) {
         // Write to file
         pw.print(content);
