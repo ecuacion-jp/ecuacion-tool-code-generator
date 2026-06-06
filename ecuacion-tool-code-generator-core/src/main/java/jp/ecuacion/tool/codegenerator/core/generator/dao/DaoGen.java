@@ -380,7 +380,7 @@ public class DaoGen extends AbstractTableGen {
     ImportBlock importMgr = new ImportBlock();
     importMgr.add("jp.ecuacion.util.jpa.dao.AbstractDao",
         rootBasePackage + ".base.entity.SystemCommon");
-    importMgr.add("jakarta.annotation.Nonnull");
+    importMgr.add("org.jspecify.annotations.NonNull");
 
     if (delFlgInfo.isDefined()) {
       importMgr.add("jakarta.persistence.EntityManager");
@@ -447,7 +447,7 @@ public class DaoGen extends AbstractTableGen {
     sb.append(T2 + "return " + delFlgInfo.isDefined() + ";" + RT);
     sb.append(T1 + "}" + RT2);
 
-    sb.append(T1 + "@Nonnull");
+    sb.append(T1 + "@NonNull");
     sb.append(T1 + "protected String getLogicalDeleteFlagFieldInfo() {" + RT);
     sb.append(T2 + "return \""
         + ((delFlgInfo.isDefined())
