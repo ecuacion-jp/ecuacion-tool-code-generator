@@ -32,8 +32,7 @@
 	<properties>
 		<app.name>ecuacion-tool-code-generator</app.name>
 		<app.version>0.0.1-SNAPSHOT</app.version>
-		<!-- Run NullAway only; disable all other Error Prone checks for private apps. -->
-		<errorprone.extra.args>-XepDisableAllChecks</errorprone.extra.args>
+
 	</properties>
 
 	<dependencyManagement>
@@ -55,6 +54,5 @@
 		<module>ecuacion-tool-code-generator-batch</module>
 		<module>ecuacion-tool-code-generator-web</module>
 	</modules>
-
 
 </project>
