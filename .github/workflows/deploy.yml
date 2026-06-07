@@ -83,6 +83,6 @@ jobs:
         with:
           tag_name: ${{ steps.tag.outputs.value }}
           files: |
-            ecuacion-tool-code-generator/ecuacion-tool-code-generator-batch/target/ecuacion-tool-code-generator-batch-*.jar
+            ecuacion-tool-code-generator/ecuacion-tool-code-generator-batch/target/ecuacion-tool-code-generator-batch-*[0-9].jar
             ecuacion-tool-code-generator/ecuacion-tool-code-generator-web/target/ecuacion-tool-code-generator-*.war
           generate_release_notes: true
