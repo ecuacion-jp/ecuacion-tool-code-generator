@@ -98,7 +98,7 @@ public class DataTypeGen extends AbstractGen {
     // converters are only created for the enum case.
     if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
       sb = new StringBuilder();
-      String rootPackage = ((refersCommon) ? EclibCoreConstants.PKG : rootBasePackage);
+      String rootPackage = (refersCommon ? EclibCoreConstants.PKG : rootBasePackage);
       String dbKata = getDbKata();
 
       sb.append("package " + rootBasePackage + ".base.converter;" + RT2);

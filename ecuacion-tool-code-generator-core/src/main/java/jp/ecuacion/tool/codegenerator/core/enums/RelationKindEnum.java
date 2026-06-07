@@ -22,7 +22,7 @@ public enum RelationKindEnum {
 
   ONE_TO_ONE("@OneToOne"), MANY_TO_ONE("@ManyToOne"), ONE_TO_MANY("@OneToMany");
 
-  private String name;
+  private final String name;
 
   private RelationKindEnum(String name) {
     this.name = name;

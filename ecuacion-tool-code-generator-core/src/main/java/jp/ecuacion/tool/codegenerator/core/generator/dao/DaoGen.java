@@ -103,8 +103,8 @@ public class DaoGen extends AbstractTableGen {
               : "")
           + ") {" + RT);
       sb.append(T2 + "super("
-          + ((!isNoGroupQuery && groupInfo.isDefined())
-              ? ((ti.hasGroupColumnIncludingSystemCommon()) ? groupInfo.getLwFieldName() : "null")
+          + (!isNoGroupQuery && groupInfo.isDefined()
+              ? (ti.hasGroupColumnIncludingSystemCommon() ? groupInfo.getLwFieldName() : "null")
                   + ", "
               : "")
           + "new " + entityNameCp + "[0]);" + RT);
@@ -380,7 +380,7 @@ public class DaoGen extends AbstractTableGen {
     ImportBlock importMgr = new ImportBlock();
     importMgr.add("jp.ecuacion.util.jpa.dao.AbstractDao",
         rootBasePackage + ".base.entity.SystemCommon");
-    importMgr.add("jakarta.annotation.Nonnull");
+    importMgr.add("org.jspecify.annotations.NonNull");
 
     if (delFlgInfo.isDefined()) {
       importMgr.add("jakarta.persistence.EntityManager");
@@ -426,7 +426,7 @@ public class DaoGen extends AbstractTableGen {
     sb.append(T1 + "}" + RT2);
 
     sb.append(T1 + "protected String getGroupFieldName() {" + RT);
-    sb.append(T2 + "return " + ((shouldAddGroupArg) ? "COL_NAME_GRP" : "null") + ";" + RT);
+    sb.append(T2 + "return " + (shouldAddGroupArg ? "COL_NAME_GRP" : "null") + ";" + RT);
     sb.append(T1 + "}" + RT2);
 
     // Declare hasGroupFieldInTable() as abstract
@@ -434,7 +434,7 @@ public class DaoGen extends AbstractTableGen {
 
     sb.append(T1 + "protected Object getGroupFieldValue() {" + RT);
     sb.append(
-        T2 + "return " + ((shouldAddGroupArg) ? groupInfo.getLwFieldName() : "null") + ";" + RT);
+        T2 + "return " + (shouldAddGroupArg ? groupInfo.getLwFieldName() : "null") + ";" + RT);
     sb.append(T1 + "}" + RT2);
 
     if (shouldAddGroupArg) {
@@ -447,10 +447,10 @@ public class DaoGen extends AbstractTableGen {
     sb.append(T2 + "return " + delFlgInfo.isDefined() + ";" + RT);
     sb.append(T1 + "}" + RT2);
 
-    sb.append(T1 + "@Nonnull");
+    sb.append(T1 + "@NonNull");
     sb.append(T1 + "protected String getLogicalDeleteFlagFieldInfo() {" + RT);
     sb.append(T2 + "return \""
-        + ((delFlgInfo.isDefined())
+        + (delFlgInfo.isDefined()
             ? StringUtil.getLowerCamelFromSnake(delFlgInfo.getColumnName()) + "\""
             : "null")
         + ";" + RT);
@@ -462,7 +462,7 @@ public class DaoGen extends AbstractTableGen {
 
     sb.append(T1 + "@SafeVarargs" + RT);
     sb.append(T1 + "public SystemCommonBase" + postfixCp + "("
-        + ((shouldAddGroupArg) ? groupInfo.getKata() + " " + groupInfo.getLwFieldName() + ", " : "")
+        + (shouldAddGroupArg ? groupInfo.getKata() + " " + groupInfo.getLwFieldName() + ", " : "")
         + "T... e) {" + RT);
     sb.append(T2 + "super(e);" + RT);
     if (shouldAddGroupArg) {

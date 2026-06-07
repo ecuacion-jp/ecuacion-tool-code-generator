@@ -20,6 +20,7 @@ import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -163,7 +164,7 @@ public abstract class EntityGen extends AbstractTableGen {
       // baseRecord
       importMgr.add(rootBasePackage + ".base.record." + tableNameCp + "BaseRecord");
 
-      importMgr.add("jakarta.annotation.Nonnull");
+      importMgr.add("org.jspecify.annotations.NonNull");
 
     } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
       // Parent entity
@@ -724,9 +725,9 @@ public abstract class EntityGen extends AbstractTableGen {
     return code.getJavaKata(ci);
   }
 
-  private LinkedHashMap<String, String> createSortedMapForPropFile(String lang,
+  private Map<String, String> createSortedMapForPropFile(String lang,
       List<DbOrClassTableInfo> tableList, EntityGenKindEnum entityKind) {
-    LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+    Map<String, String> map = new LinkedHashMap<String, String>();
 
     // Store the display name of each field in the map for each table
     if (tableList != null) {
@@ -739,7 +740,7 @@ public abstract class EntityGen extends AbstractTableGen {
   }
 
   private void putToMap(String lang, DbOrClassTableInfo tableInfo,
-      LinkedHashMap<String, String> map, EntityGenKindEnum entityKind) {
+      Map<String, String> map, EntityGenKindEnum entityKind) {
 
     // // For fields in SystemCommon (e.g. createTime), in addition to SystemCommon.createTime,
     // // Acc.createTime must also be created, so the list includes both
@@ -800,44 +801,44 @@ public abstract class EntityGen extends AbstractTableGen {
     }
 
     // From here: the method needs to be generated.
-    sb.append(T1 + ((isUpdate) ? "@PreUpdate" : "@PrePersist") + RT);
-    sb.append(T1 + "public void " + ((isUpdate) ? "preUpdate" : "preInsert") + "() {" + RT);
+    sb.append(T1 + (isUpdate ? "@PreUpdate" : "@PrePersist") + RT);
+    sb.append(T1 + "public void " + (isUpdate ? "preUpdate" : "preInsert") + "() {" + RT);
 
     // When not called from SystemCommon, include a call to the same method in SystemCommon.
     // Note: the case where SystemCommon has no prePersist / preUpdate is not yet handled.
     if (!isFromSystemCommon) {
       sb.append(T2 + "// Calling super here because overriding @PrePersist / @PreUpdate "
           + "in a subclass would prevent the parent class method from being invoked." + RT);
-      sb.append(T2 + "super." + ((isUpdate) ? "preUpdate" : "preInsert") + "();" + RT2);
+      sb.append(T2 + "super." + (isUpdate ? "preUpdate" : "preInsert") + "();" + RT2);
 
     }
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       DataTypeInfo dtInfo = ci.getDtInfo();
       String fieldName = StringUtil.getLowerCamelFromSnake(ci.getName());
-      boolean isForced = !isUpdate && ci.isForcedIncrement() || isUpdate && ci.isForcedUpdate();
+      boolean isForced = (!isUpdate && ci.isForcedIncrement()) || (isUpdate && ci.isForcedUpdate());
 
       if (!needsAutoInsertOrUpdate(ci, isUpdate)) {
         continue;
       }
 
       if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-        sb.append(T2 + ((isForced) ? "" : "if (" + fieldName + " == null) ") + fieldName
+        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName
             + " = Enum.FALSE;" + RT);
 
       } else if (dtInfo.getKata() == DataTypeKataEnum.BOOLEAN) {
-        sb.append(T2 + ((isForced) ? "" : "if (" + fieldName + " == null) ") + fieldName
+        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName
             + " = false;" + RT);
 
       } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
           || dtInfo.getKata() == DataTypeKataEnum.DATE_TIME) {
         String kataName = code.getJavaKata(ci);
-        sb.append(T2 + ((isForced) ? "" : "if (" + fieldName + " == null) ") + fieldName + " = "
+        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = "
             + kataName + ".now();" + RT);
 
       } else if (dtInfo.getKata() == DataTypeKataEnum.SHORT
           || dtInfo.getKata() == DataTypeKataEnum.INTEGER
           || dtInfo.getKata() == DataTypeKataEnum.LONG) {
-        sb.append(T2 + ((isForced) ? "" : "if (" + fieldName + " == null) ") + fieldName + " = 1"
+        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = 1"
             + ((dtInfo.getKata() == DataTypeKataEnum.LONG) ? "L" : "") + ";" + RT);
 
       } else {
@@ -855,7 +856,7 @@ public abstract class EntityGen extends AbstractTableGen {
   private boolean needsAutoInsertOrUpdate(DbOrClassColumnInfo colInfo, boolean isUpdate) {
     DataTypeInfo dtInfo = colInfo.getDtInfo();
 
-    if ((!isUpdate && colInfo.isAutoIncrement() || isUpdate && colInfo.isAutoUpdate())
+    if (((!isUpdate && colInfo.isAutoIncrement()) || (isUpdate && colInfo.isAutoUpdate()))
         && (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
             || dtInfo.getKata() == DataTypeKataEnum.DATE_TIME
             || dtInfo.getKata() == DataTypeKataEnum.BOOLEAN
@@ -881,9 +882,9 @@ public abstract class EntityGen extends AbstractTableGen {
       String columnNameSm = StringUtil.getLowerCamelFromSnake(ci.getName());
       if (ci.isPk()) {
         DataTypeInfo dtInfo = ci.getDtInfo();
-        String comma = (isFirst) ? "" : ", ";
+        String comma = isFirst ? "" : ", ";
         String tmpKata = StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString());
-        String kata = (areAllArgsString) ? "String "
+        String kata = areAllArgsString ? "String "
             : (Objects.requireNonNull(tmpKata).equals("Enum")
                 ? StringUtil.getUpperCamelFromSnake(ci.getName())
                 : "") + tmpKata;
@@ -933,8 +934,8 @@ public abstract class EntityGen extends AbstractTableGen {
     String colName = softDeleteRootInfo.getColumnName();
     boolean usesSoftDelete = colName != null && !colName.equals("");
 
-    boolean containsSoftDeleteField = (tableInfo.columnList.stream().map(e -> e.getName())
-        .collect(Collectors.toList()).contains(colName));
+    boolean containsSoftDeleteField = tableInfo.columnList.stream().map(e -> e.getName())
+        .collect(Collectors.toList()).contains(colName);
 
     if (usesSoftDelete && !containsSoftDeleteField) {
       if (isCallFromSystemCommon) {

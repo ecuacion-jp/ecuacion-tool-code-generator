@@ -27,6 +27,6 @@ public enum DataKindEnum {
 
   public String getLabel() {
     return PropertiesFileUtil.getEnumName(Locale.getDefault(),
-        this.getClass().getSimpleName() + "." + this.toString());
+        DataKindEnum.class.getSimpleName() + "." + this.toString());
   }
 }

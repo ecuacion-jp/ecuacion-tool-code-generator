@@ -40,6 +40,7 @@ public abstract class SingleAnnotationGen extends AnnotationGen {
   }
 
   /** Generates the annotation string after validating the element type and running checks. */
+  @Override
   public String generateString(ElementType elementType) {
     // Validate
     checkIfElementTypeAvailable(elementType);

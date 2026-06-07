@@ -26,6 +26,7 @@ public class GenHelperBoolean extends GenHelperNoNumberObj {
    * Generates a setter that accepts a String representation of a boolean and converts it to
    * {@code Boolean}.
    */
+  @Override
   protected String getStringParamSetter(String columnNameCp, String columnNameSm, String dataType) {
     StringBuilder sb = new StringBuilder();
 

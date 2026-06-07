@@ -53,6 +53,7 @@ public class SizeGen extends ValidatorGen {
 
   /** Adds min and/or max size parameters to the given parameter list generator. */
   @SuppressWarnings("null")
+  @Override
   protected void getParamGenWithoutFieldId(ParamListGen plistGen) {
 
     if (minSize != null) {
