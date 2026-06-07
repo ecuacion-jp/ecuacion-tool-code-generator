@@ -18,7 +18,6 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 
-import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -26,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.EmptyWhen;
@@ -119,7 +119,7 @@ public class DataTypeInfo extends StringExcelTableBean {
   private List<ValidatorGen> validatorForRecordList = new ArrayList<>();
 
   @Override
-  protected @Nonnull String[] getFieldNameArray() {
+  protected @Nullable String[] getFieldNameArray() {
     return new String[] {"dataTypeName", "kata", "minLength", "maxLength", null, "stringDataPtn",
         "stringAllowsProhibitedCharacters", "stringRegEx", "stringRegExDescLangDefault",
         "stringRegExDescLangSupport01", "stringRegExDescLangSupport02",
@@ -261,7 +261,7 @@ public class DataTypeInfo extends StringExcelTableBean {
     if (kata == DataTypeKataEnum.INTEGER || kata == DataTypeKataEnum.LONG) {
       String name = StringUtil.getUpperCamelFromSnake(kata.toString());
       validatorForRecordList.add(new SimpleValidatorGen(name + "String", this, false,
-          new DataTypeKataEnum[] {DataTypeKataEnum.valueOf(name.toUpperCase())}));
+          new DataTypeKataEnum[] {DataTypeKataEnum.valueOf(name.toUpperCase(Locale.ROOT))}));
     }
   }
 

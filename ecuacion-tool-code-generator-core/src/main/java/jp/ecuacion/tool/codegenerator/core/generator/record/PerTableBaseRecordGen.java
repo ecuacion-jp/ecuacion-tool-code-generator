@@ -41,6 +41,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
    * Generates the class header with imports for {@code ItemContainer} and the {@code
    * ItemNameKeyClass} annotation.
    */
+  @Override
   public void generateHeader(DbOrClassTableInfo ti) {
 
     generateHeaderCommon(ti, rootBasePackage + ".base.entity." + ti.getNameCpCamel(),

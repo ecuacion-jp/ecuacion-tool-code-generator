@@ -18,6 +18,7 @@ package jp.ecuacion.tool.codegenerator.core.blf;
 import jakarta.validation.Validation;
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController.SkipException;
@@ -47,7 +48,7 @@ public class ReadExcelFilesBlf {
     * Reads the given Excel file and returns a map from each {@link DataKindEnum} to its
     * corresponding root-info object.
    */
-  public HashMap<DataKindEnum, AbstractRootInfo> execute(File file) throws Exception {
+  public Map<DataKindEnum, AbstractRootInfo> execute(File file) throws Exception {
 
     detailLog.info("read excel : " + file.getName());
 
@@ -58,10 +59,7 @@ public class ReadExcelFilesBlf {
 
     // The unit here differs from Excel sheets, but we follow the file-split unit from the
     // original XML era for now
-    HashMap<DataKindEnum, AbstractRootInfo> rootInfoMap = null;
-
-    // Initialize
-    rootInfoMap = new HashMap<>();
+    Map<DataKindEnum, AbstractRootInfo> rootInfoMap = new HashMap<>();
 
     // Read Excel (pure reading and storing into objects only; no data complementation here)
     rootInfoMap.putAll(new ExcelGeneralSettingsReader().readAndGetMap(file.getAbsolutePath()));
@@ -98,7 +96,7 @@ public class ReadExcelFilesBlf {
     return rootInfoMap;
   }
 
-  private void putEmptyRootInfo(HashMap<DataKindEnum, AbstractRootInfo> fileMap,
+  private void putEmptyRootInfo(Map<DataKindEnum, AbstractRootInfo> fileMap,
       DataKindEnum filePostfix, AbstractRootInfo rootInfo) {
     if (!fileMap.containsKey(filePostfix)) {
       fileMap.put(filePostfix, rootInfo);

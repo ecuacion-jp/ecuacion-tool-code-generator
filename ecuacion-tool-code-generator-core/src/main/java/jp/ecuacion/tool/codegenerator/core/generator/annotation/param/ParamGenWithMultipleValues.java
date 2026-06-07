@@ -50,15 +50,15 @@ public class ParamGenWithMultipleValues extends ParamGen {
 
   @Override
   public String generateString() {
-    String literalChar = (isStringLiteral) ? "\"" : "";
-    boolean usesAnnotation = (annotations != null);
-    int length = (usesAnnotation) ? annotations.length : values.length;
+    String literalChar = isStringLiteral ? "\"" : "";
+    boolean usesAnnotation = annotations != null;
+    int length = usesAnnotation ? annotations.length : values.length;
     String outputValue = "";
     boolean is1stTime = true;
     for (int i = 0; i < length; i++) {
       String value =
-          (usesAnnotation) ? annotations[i].generateString(ElementType.FIELD) : values[i];
-      String comma = (is1stTime) ? "" : ", ";
+          usesAnnotation ? annotations[i].generateString(ElementType.FIELD) : values[i];
+      String comma = is1stTime ? "" : ", ";
       if (is1stTime) {
         is1stTime = false;
       }

@@ -19,7 +19,6 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 
-import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -42,6 +41,7 @@ import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.tool.codegenerator.core.validation.StrPk;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 /**
   * Holds the column-level attributes read from the DB or class specification sheet in the Excel
@@ -125,7 +125,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   //@formatter:off
   @Override
-  protected @Nonnull String[] getFieldNameArray() {
+  protected @Nullable String[] getFieldNameArray() {
     return new String[] {
         null, "userFriendlyName", "name", "dataType", null, 
         "isJavaOnly", "pkKind", "isNullable", "isAutoIncrement", "isForcedIncrement", 

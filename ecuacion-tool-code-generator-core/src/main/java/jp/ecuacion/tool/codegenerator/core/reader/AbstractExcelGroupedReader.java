@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.tool.codegenerator.core.reader;
 
-import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -41,16 +40,16 @@ public abstract class AbstractExcelGroupedReader<R extends AbstractRootInfo, G>
     extends StringOneLineHeaderExcelTableReader {
 
   /** Constructs an instance for the given sheet name and header labels. */
-  protected AbstractExcelGroupedReader(@Nonnull String sheetName,
-      @Nonnull String[] headerLabels) {
+  protected AbstractExcelGroupedReader(String sheetName,
+      @NonNull String[] headerLabels) {
     super(sheetName, headerLabels);
   }
 
   /** Reads the Excel file at the given path and returns a data-kind-to-root-info map. */
-  public HashMap<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
+  public Map<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
       throws EncryptedDocumentException, IOException {
 
-    HashMap<DataKindEnum, AbstractRootInfo> rtnMap = new HashMap<>();
+    Map<DataKindEnum, AbstractRootInfo> rtnMap = new HashMap<>();
     R rootInfo = createRootInfo();
     rtnMap.put(getRootDataKind(), rootInfo);
 

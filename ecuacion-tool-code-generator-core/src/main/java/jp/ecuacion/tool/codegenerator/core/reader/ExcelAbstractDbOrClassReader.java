@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.tool.codegenerator.core.reader;
 
-import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +47,7 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
           "index2", "index3", "備考", "表示名（追加言語1）", "表示名（追加言語2）", "表示名（追加言語3）"};
 
   /** Constructs an instance for the given sheet name, data kind, and system-common root info. */
-  public ExcelAbstractDbOrClassReader(@Nonnull String sheetName, DataKindEnum fileKind,
+  public ExcelAbstractDbOrClassReader(String sheetName, DataKindEnum fileKind,
       SystemCommonRootInfo systemCommonRootInfo) {
     super(sheetName, headerLabels);
     this.fileKind = fileKind;
@@ -56,10 +55,10 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
   }
 
   /** Reads the Excel file at the given path and returns a data-kind-to-root-info map. */
-  public HashMap<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
+  public Map<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
       throws EncryptedDocumentException, IOException {
 
-    HashMap<DataKindEnum, AbstractRootInfo> rtnMap = new HashMap<>();
+    Map<DataKindEnum, AbstractRootInfo> rtnMap = new HashMap<>();
     DbOrClassRootInfo rootInfo = new DbOrClassRootInfo(fileKind);
     rtnMap.put(fileKind, rootInfo);
 

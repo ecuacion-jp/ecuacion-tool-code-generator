@@ -26,7 +26,6 @@ public class ReaderUtil {
    * Returns {@code true} if the given string equals the {@link #YES} marker; {@code false}
    * otherwise.
    */
-  @SuppressWarnings("unused")
   public static boolean boolStrToBoolean(String boolStr) {
     return boolStr.equals(YES);
   }

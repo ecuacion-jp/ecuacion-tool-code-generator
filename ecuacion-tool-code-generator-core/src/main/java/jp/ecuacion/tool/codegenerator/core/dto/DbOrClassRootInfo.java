@@ -53,6 +53,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
    * Validates all tables and columns via bean validation, then runs SYSTEM_COMMON-specific
    * consistency checks.
    */
+  @Override
   public void consistencyCheckAndCoplementData() {
     new Violations()
         .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(this))
