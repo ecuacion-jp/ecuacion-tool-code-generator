@@ -27,7 +27,7 @@ public class ReaderUtil {
    * otherwise.
    */
   public static boolean boolStrToBoolean(String boolStr) {
-    return boolStr.equals(YES);
+    return YES.equals(boolStr);
   }
 
   /**
