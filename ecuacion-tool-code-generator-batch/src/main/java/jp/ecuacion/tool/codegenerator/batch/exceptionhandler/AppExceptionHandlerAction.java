@@ -15,7 +15,9 @@
  */
 package jp.ecuacion.tool.codegenerator.batch.exceptionhandler;
 
+import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.util.MailUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.splib.core.exceptionhandler.SplibExceptionHandlerAction;
 import org.springframework.stereotype.Component;
 
@@ -23,9 +25,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class AppExceptionHandlerAction implements SplibExceptionHandlerAction {
 
+  DetailLogger detailLog = new DetailLogger(this);
+
   @Override
   public void execute(Throwable th) {
-    MailUtil.sendErrorMail(th);
+    boolean sendsMail = PropertiesFileUtil.hasApplication("jp.ecuacion.lib.core.mail.smtp.sender");
+
+    if (sendsMail) {
+      detailLog.info("Send a mail to notice the occurence of a system error to administrators.");
+      MailUtil.sendErrorMail(th);
+
+    } else {
+      detailLog.info("A system error occured but no mails sent since mail settings not exist.");
+    }
   }
 
 }
