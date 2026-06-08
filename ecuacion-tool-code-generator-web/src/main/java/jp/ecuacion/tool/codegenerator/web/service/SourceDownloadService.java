@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.splib.web.service.SplibGeneral1FormService;
@@ -64,16 +65,16 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
 
   /** Generates source code from the uploaded Excel file and returns the result as a ZIP archive. */
   public ResponseEntity<Resource> execute(MultipartFile multipartFile) throws Exception {
-    final String originalFileName =
-        Objects.requireNonNull(multipartFile.getOriginalFilename());
+    final String originalFileName = Objects.requireNonNull(multipartFile.getOriginalFilename());
 
     check(originalFileName);
 
     String dateTimeString =
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss.SSS"));
     String threadIdString = Long.valueOf(Thread.currentThread().threadId()).toString();
-    String rootDir = env.getProperty("app.work-root-dir") + "/" + dateTimeString
-        + "-" + threadIdString;
+    Boolean hasDir = PropertiesFileUtil.hasApplication("app.work-root-dir");
+    String rootDir = (hasDir ? env.getProperty("app.work-root-dir") : "app-work") + "/"
+        + dateTimeString + "-" + threadIdString;
 
     String inputDir = rootDir + "/" + "inputExcel";
     new File(inputDir).mkdirs();
