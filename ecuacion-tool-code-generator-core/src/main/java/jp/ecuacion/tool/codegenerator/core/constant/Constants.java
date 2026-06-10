@@ -72,7 +72,7 @@ public class Constants {
 
   /** Default location of Excel input files; may be changed for testing purposes. */
   public static final String DIR_INFO_EXCELS_DEFAULT =
-      "../ecuacion-tool-code-generator-batch/ecuacion-tool-code-generator-excel-format";
+      "./ecuacion-tool-code-generator-excel-format";
 
   // String retrieval for type-related values
 

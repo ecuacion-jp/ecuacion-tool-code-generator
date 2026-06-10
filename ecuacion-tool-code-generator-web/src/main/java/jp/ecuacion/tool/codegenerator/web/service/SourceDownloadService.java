@@ -73,8 +73,8 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss.SSS"));
     String threadIdString = Long.valueOf(Thread.currentThread().threadId()).toString();
     Boolean hasDir = PropertiesFileUtil.hasApplication("app.work-root-dir");
-    String rootDir = (hasDir ? env.getProperty("app.work-root-dir") : "app-work") + "/"
-        + dateTimeString + "-" + threadIdString;
+    String rootDir = (hasDir ? env.getProperty("app.work-root-dir") : "./app-work")
+        + "/ecuacion-tool-code-generator/" + dateTimeString + "-" + threadIdString;
 
     String inputDir = rootDir + "/" + "inputExcel";
     new File(inputDir).mkdirs();
