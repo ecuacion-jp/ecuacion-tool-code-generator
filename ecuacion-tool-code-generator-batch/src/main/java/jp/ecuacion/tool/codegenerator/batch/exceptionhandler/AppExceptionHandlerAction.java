@@ -15,29 +15,22 @@
  */
 package jp.ecuacion.tool.codegenerator.batch.exceptionhandler;
 
-import jp.ecuacion.lib.core.logging.DetailLogger;
-import jp.ecuacion.lib.core.util.MailUtil;
-import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.splib.core.exceptionhandler.SplibExceptionHandlerAction;
+import jp.ecuacion.splib.core.util.SplibMailUtil;
 import org.springframework.stereotype.Component;
 
 /** Provides an exception handler action for the batch module, sending an error mail on failure. */
 @Component
 public class AppExceptionHandlerAction implements SplibExceptionHandlerAction {
 
-  DetailLogger detailLog = new DetailLogger(this);
+  private final SplibMailUtil splibMailUtil;
+
+  public AppExceptionHandlerAction(SplibMailUtil splibMailUtil) {
+    this.splibMailUtil = splibMailUtil;
+  }
 
   @Override
   public void execute(Throwable th) {
-    boolean sendsMail = PropertiesFileUtil.hasApplication("jp.ecuacion.lib.core.mail.smtp.sender");
-
-    if (sendsMail) {
-      detailLog.info("Send a mail to notice the occurence of a system error to administrators.");
-      MailUtil.sendErrorMail(th);
-
-    } else {
-      detailLog.info("A system error occured but no mails sent since mail settings not exist.");
-    }
+    splibMailUtil.sendErrorMail(th);
   }
-
 }
