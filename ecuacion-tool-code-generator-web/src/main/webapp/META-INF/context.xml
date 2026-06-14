@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PREREQUISITE: The following directory must exist on the server before deployment.
+  If it does not exist, Tomcat will fail to deploy with an IllegalArgumentException.
+
+    ${catalina.base}/app-conf/ecuacion-tool-code-generator/
+      (e.g. /usr/local/tomcat/app-conf/ecuacion-tool-code-generator/)
+
+  Place environment-specific config files (application.properties, logback-spring.xml, etc.) there.
+-->
 <Context>
 	<Resources>
 		<PreResources className="org.apache.catalina.webresources.DirResourceSet"
-				base="${catalina.base}/config/ecuacion-tool-code-generator"
+				base="${catalina.base}/app-conf/ecuacion-tool-code-generator"
 				webAppMount="/WEB-INF/classes"
 				readOnly="true"/>
 	</Resources>
