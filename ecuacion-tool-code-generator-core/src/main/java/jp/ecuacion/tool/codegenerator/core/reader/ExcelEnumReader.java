@@ -25,6 +25,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
 import org.apache.poi.EncryptedDocumentException;
 
@@ -34,17 +35,25 @@ import org.apache.poi.EncryptedDocumentException;
  */
 public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader {
 
+  private static final String SHEET_NAME_JA = "enum定義";
+  private static final String SHEET_NAME_EN = "Enum Definition";
+
   private static int COL_DATA_TYPE_NAME = 0;
 
   private SystemCommonRootInfo sysCmnRootInfo;
 
-  private static final String[] headerLabels = new String[] {"DataType名", "javaのみ",
-      "code", "varName", "dispName（デフォルト言語）", "備考",
-      "dispName（追加言語1）", "dispName（追加言語2）", "dispName（追加言語3）"};
+  private static final String[] HEADER_LABELS_JA =
+      new String[] {"DataType名", "javaのみ", "code", "varName", "dispName（デフォルト言語）", "備考",
+          "dispName（追加言語1）", "dispName（追加言語2）", "dispName（追加言語3）"};
 
-  /** Constructs an instance that targets the enum definition sheet. */
-  public ExcelEnumReader(SystemCommonRootInfo sysCmnRootInfo) {
-    super("enum定義", headerLabels);
+  private static final String[] HEADER_LABELS_EN = new String[] {"DataType Name", "Java Only",
+      "code", "varName", "dispName (Default Lang)", "Notes", "dispName (Additional Lang 1)",
+      "dispName (Additional Lang 2)", "dispName (Additional Lang 3)"};
+
+  /** Constructs an instance that targets the enum definition sheet for the given language. */
+  public ExcelEnumReader(SystemCommonRootInfo sysCmnRootInfo, ExcelTemplateLanguage lang) {
+    super(lang == ExcelTemplateLanguage.JA ? SHEET_NAME_JA : SHEET_NAME_EN,
+        lang == ExcelTemplateLanguage.JA ? HEADER_LABELS_JA : HEADER_LABELS_EN);
     this.sysCmnRootInfo = sysCmnRootInfo;
   }
 

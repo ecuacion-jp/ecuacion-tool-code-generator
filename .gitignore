@@ -136,6 +136,10 @@ buildNumber.properties
 products/
 ecuacion-tool-code-generator-excel-format
 
+# local env settings (web / batch)
+ecuacion-tool-code-generator-web/src/envs/
+ecuacion-tool-code-generator-batch/src/envs/
+
 # checkstyle
 .checkstyle
 
