@@ -25,6 +25,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
 import org.apache.poi.EncryptedDocumentException;
 
@@ -40,16 +41,25 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
   // private StringUtil strUtil = new StringUtil();
   private DataKindEnum fileKind;
 
-  private static final String[] headerLabels =
+  private static final String[] HEADER_LABELS_JA =
       new String[] {"テーブル名", "表示名（デフォルト言語）", "カラム名", "dataType", "dataType存在確認", "javaのみ", "PK・UK",
           "nullable", "自動採番", "強制採番", "自動更新", "強制更新", "グループ識別項目", "SPRING監査", "関連：種類",
           "関連：direction", "関連：参照元変数名", "関連：参照先テーブル", "関連：参照先カラム", "関連：参照先変数名", "関連：eager", "index1",
           "index2", "index3", "備考", "表示名（追加言語1）", "表示名（追加言語2）", "表示名（追加言語3）"};
 
+  private static final String[] HEADER_LABELS_EN =
+      new String[] {"Table Name", "Display Name (Default Lang)", "Column Name", "dataType",
+          "dataType Check", "Java Only", "PK/UK", "nullable", "Auto Numbering", "Force Numbering",
+          "Auto Update", "Force Update", "Group Identifier", "Spring Audit", "Relation: Type",
+          "Relation: Direction", "Relation: Source Var Name", "Relation: Target Table",
+          "Relation: Target Column", "Relation: Target Var Name", "Relation: Eager", "index1",
+          "index2", "index3", "Notes", "Display Name (Additional Lang 1)",
+          "Display Name (Additional Lang 2)", "Display Name (Additional Lang 3)"};
+
   /** Constructs an instance for the given sheet name, data kind, and system-common root info. */
   public ExcelAbstractDbOrClassReader(String sheetName, DataKindEnum fileKind,
-      SystemCommonRootInfo systemCommonRootInfo) {
-    super(sheetName, headerLabels);
+      SystemCommonRootInfo systemCommonRootInfo, ExcelTemplateLanguage lang) {
+    super(sheetName, lang == ExcelTemplateLanguage.JA ? HEADER_LABELS_JA : HEADER_LABELS_EN);
     this.fileKind = fileKind;
     sysCmnRootInfo = systemCommonRootInfo;
   }

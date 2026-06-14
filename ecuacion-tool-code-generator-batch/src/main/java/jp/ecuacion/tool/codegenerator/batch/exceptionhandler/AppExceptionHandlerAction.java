@@ -15,17 +15,22 @@
  */
 package jp.ecuacion.tool.codegenerator.batch.exceptionhandler;
 
-import jp.ecuacion.lib.core.util.MailUtil;
 import jp.ecuacion.splib.core.exceptionhandler.SplibExceptionHandlerAction;
+import jp.ecuacion.splib.core.util.SplibMailUtil;
 import org.springframework.stereotype.Component;
 
 /** Provides an exception handler action for the batch module, sending an error mail on failure. */
 @Component
 public class AppExceptionHandlerAction implements SplibExceptionHandlerAction {
 
-  @Override
-  public void execute(Throwable th) {
-    MailUtil.sendErrorMail(th);
+  private final SplibMailUtil splibMailUtil;
+
+  public AppExceptionHandlerAction(SplibMailUtil splibMailUtil) {
+    this.splibMailUtil = splibMailUtil;
   }
 
+  @Override
+  public void execute(Throwable th) {
+    splibMailUtil.sendErrorMail(th);
+  }
 }

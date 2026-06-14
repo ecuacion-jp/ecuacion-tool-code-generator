@@ -15,16 +15,22 @@
  */
 package jp.ecuacion.tool.codegenerator.web.exceptionhandler;
 
-import jp.ecuacion.lib.core.util.MailUtil;
 import jp.ecuacion.splib.core.exceptionhandler.SplibExceptionHandlerAction;
+import jp.ecuacion.splib.core.util.SplibMailUtil;
 import org.springframework.stereotype.Component;
 
 /** Provides an exception handler action for the web module, sending an error mail on failure. */
 @Component
 public class ActionOnThrowable implements SplibExceptionHandlerAction {
 
+  private final SplibMailUtil splibMailUtil;
+
+  public ActionOnThrowable(SplibMailUtil splibMailUtil) {
+    this.splibMailUtil = splibMailUtil;
+  }
+
   @Override
   public void execute(Throwable th) {
-    MailUtil.sendErrorMail(th);
+    splibMailUtil.sendErrorMail(th);
   }
 }
