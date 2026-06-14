@@ -30,11 +30,13 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelDbCommonReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelDbReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelEnumReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelGeneralSettingsReader;
+import jp.ecuacion.tool.codegenerator.core.reader.ExcelTemplateLanguageDetector;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableToBeanReader;
 
 /**
@@ -43,7 +45,7 @@ import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTabl
 public class ReadExcelFilesBlf {
 
   private DetailLogger detailLog = new DetailLogger(this);
-  
+
   /**
     * Reads the given Excel file and returns a map from each {@link DataKindEnum} to its
     * corresponding root-info object.
@@ -61,23 +63,31 @@ public class ReadExcelFilesBlf {
     // original XML era for now
     Map<DataKindEnum, AbstractRootInfo> rootInfoMap = new HashMap<>();
 
+    // Detect template language (JA or EN) by inspecting sheet names
+    ExcelTemplateLanguage lang = ExcelTemplateLanguageDetector.detect(file.getAbsolutePath());
+
     // Read Excel (pure reading and storing into objects only; no data complementation here)
-    rootInfoMap.putAll(new ExcelGeneralSettingsReader().readAndGetMap(file.getAbsolutePath()));
-    SystemCommonRootInfo sysCmnRootInfo =
-        java.util.Objects.requireNonNull(
-            (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
-            "SYSTEM_COMMON must be populated by ExcelGeneralSettingsReader");
+    rootInfoMap.putAll(new ExcelGeneralSettingsReader(lang).readAndGetMap(file.getAbsolutePath()));
+    SystemCommonRootInfo sysCmnRootInfo = java.util.Objects.requireNonNull(
+        (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
+        "SYSTEM_COMMON must be populated by ExcelGeneralSettingsReader");
 
     // dataType
+    String dataTypeSheetName =
+        lang == ExcelTemplateLanguage.JA ? DataTypeInfo.SHEET_NAME_JA : DataTypeInfo.SHEET_NAME_EN;
+    String[] dataTypeHeaders = lang == ExcelTemplateLanguage.JA ? DataTypeInfo.HEADER_LABELS_JA
+        : DataTypeInfo.HEADER_LABELS_EN;
     rootInfoMap.put(DataKindEnum.DATA_TYPE,
-        new DataTypeRootInfo(new StringOneLineHeaderExcelTableToBeanReader<DataTypeInfo>(
-            DataTypeInfo.class, "dataType定義", DataTypeInfo.HEADER_LABELS)
-                .readToBean(file.getAbsolutePath())));
+        new DataTypeRootInfo(
+            new StringOneLineHeaderExcelTableToBeanReader<DataTypeInfo>(DataTypeInfo.class,
+                dataTypeSheetName, dataTypeHeaders).readToBean(file.getAbsolutePath())));
 
-    rootInfoMap.putAll(new ExcelEnumReader(sysCmnRootInfo).readAndGetMap(file.getAbsolutePath()));
-    rootInfoMap.putAll(new ExcelDbReader(sysCmnRootInfo).readAndGetMap(file.getAbsolutePath()));
     rootInfoMap
-        .putAll(new ExcelDbCommonReader(sysCmnRootInfo).readAndGetMap(file.getAbsolutePath()));
+        .putAll(new ExcelEnumReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
+    rootInfoMap
+        .putAll(new ExcelDbReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
+    rootInfoMap.putAll(
+        new ExcelDbCommonReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
 
     // Batch validation and intra-RootInfo data complementation
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {

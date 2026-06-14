@@ -17,14 +17,20 @@ package jp.ecuacion.tool.codegenerator.core.reader;
 
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 
 /**
  * Reads the DB item-definition sheet and converts it into a {@link
  * jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo}.
  */
 public class ExcelDbReader extends ExcelAbstractDbOrClassReader {
-  /** Constructs an instance that targets the DB item-definition sheet. */
-  public ExcelDbReader(SystemCommonRootInfo info) {
-    super("DB項目定義", DataKindEnum.DB, info);
+
+  private static final String SHEET_NAME_JA = "DB項目定義";
+  private static final String SHEET_NAME_EN = "DB Item Definition";
+
+  /** Constructs an instance that targets the DB item-definition sheet for the given language. */
+  public ExcelDbReader(SystemCommonRootInfo info, ExcelTemplateLanguage lang) {
+    super(lang == ExcelTemplateLanguage.JA ? SHEET_NAME_JA : SHEET_NAME_EN, DataKindEnum.DB, info,
+        lang);
   }
 }

@@ -25,6 +25,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
 import org.apache.poi.EncryptedDocumentException;
 
@@ -38,11 +39,18 @@ import org.apache.poi.EncryptedDocumentException;
 @SuppressWarnings("NullAway")
 public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableReader {
 
-  private static final String[] headerLabels = new String[] {"分類", "分類説明", "項目", "説明", "値", "備考"};
+  static final String SHEET_NAME_JA = "各種設定";
+  static final String SHEET_NAME_EN = "General Settings";
 
-  /** Constructs an instance that targets the general-settings sheet. */
-  public ExcelGeneralSettingsReader() {
-    super("各種設定", headerLabels);
+  private static final String[] HEADER_LABELS_JA =
+      new String[] {"分類", "分類説明", "項目", "説明", "値", "備考"};
+  private static final String[] HEADER_LABELS_EN =
+      new String[] {"Category", "Category Description", "Key", "Description", "Value", "Notes"};
+
+  /** Constructs an instance that targets the general-settings sheet for the given language. */
+  public ExcelGeneralSettingsReader(ExcelTemplateLanguage lang) {
+    super(lang == ExcelTemplateLanguage.JA ? SHEET_NAME_JA : SHEET_NAME_EN,
+        lang == ExcelTemplateLanguage.JA ? HEADER_LABELS_JA : HEADER_LABELS_EN);
   }
 
   private static int COL_KIND = 0;
