@@ -15,7 +15,29 @@
  */
 package jp.ecuacion.tool.codegenerator.core.enums;
 
+import java.util.Locale;
+
 /** Identifies the language of an Excel input template (Japanese or English). */
 public enum ExcelTemplateLanguage {
-  JA, EN
+  JA, EN;
+
+  private static final ThreadLocal<ExcelTemplateLanguage> current = new ThreadLocal<>();
+
+  /** Sets the Excel template language for the current thread. */
+  public static void setCurrent(ExcelTemplateLanguage lang) {
+    current.set(lang);
+  }
+
+  /**
+   * Returns the Excel template language for the current thread, or {@code JA} if not set.
+   */
+  public static ExcelTemplateLanguage getCurrent() {
+    ExcelTemplateLanguage lang = current.get();
+    return lang != null ? lang : JA;
+  }
+
+  /** Returns the {@link Locale} that corresponds to this template language. */
+  public Locale toLocale() {
+    return this == JA ? Locale.JAPANESE : Locale.ENGLISH;
+  }
 }

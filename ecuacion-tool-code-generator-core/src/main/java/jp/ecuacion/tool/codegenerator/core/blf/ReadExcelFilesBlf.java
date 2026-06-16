@@ -23,6 +23,7 @@ import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController.SkipException;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
@@ -50,7 +51,8 @@ public class ReadExcelFilesBlf {
     * Reads the given Excel file and returns a map from each {@link DataKindEnum} to its
     * corresponding root-info object.
    */
-  public Map<DataKindEnum, AbstractRootInfo> execute(File file) throws Exception {
+  public Map<DataKindEnum, AbstractRootInfo> execute(File file, CodeGenContext ctx)
+      throws Exception {
 
     detailLog.info("read excel : " + file.getName());
 
@@ -65,6 +67,7 @@ public class ReadExcelFilesBlf {
 
     // Detect template language (JA or EN) by inspecting sheet names
     ExcelTemplateLanguage lang = ExcelTemplateLanguageDetector.detect(file.getAbsolutePath());
+    ctx.setExcelLang(lang);
 
     // Read Excel (pure reading and storing into objects only; no data complementation here)
     rootInfoMap.putAll(new ExcelGeneralSettingsReader(lang).readAndGetMap(file.getAbsolutePath()));
