@@ -16,17 +16,21 @@
 package jp.ecuacion.tool.codegenerator.core.enums;
 
 import java.util.Locale;
-import jp.ecuacion.lib.core.util.PropertiesFileUtil;
+import jp.ecuacion.tool.codegenerator.core.util.ExcelTemplateLabelUtil;
 
 /** Identifies the kind of definition file (e.g. DB, data type, enum, system common). */
 public enum DataKindEnum {
   //@formatter:off
-  SYSTEM_COMMON, DATA_TYPE, ENUM, DB, DB_COMMON, 
+  SYSTEM_COMMON, DATA_TYPE, ENUM, DB, DB_COMMON,
   MISC_REMOVED_DATA, MISC_GROUP, MISC_OPTIMISTIC_LOCK, OTHER;
   //@formatter:on
 
+  /**
+   * Obtains label strings on the excel template.
+   */
   public String getLabel() {
-    return PropertiesFileUtil.getEnumName(Locale.getDefault(),
+    Locale locale = ExcelTemplateLanguage.getCurrent().toLocale();
+    return ExcelTemplateLabelUtil.getEnumName(locale,
         DataKindEnum.class.getSimpleName() + "." + this.toString());
   }
 }

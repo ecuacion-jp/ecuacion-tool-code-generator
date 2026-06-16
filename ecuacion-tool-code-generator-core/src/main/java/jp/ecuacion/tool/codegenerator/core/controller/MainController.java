@@ -56,7 +56,7 @@ public class MainController {
       // 1. Read and validate excel formats, and complement data.
       try {
         Logger.log(this, "READ_EXCELS");
-        rootInfoMap = new ReadExcelFilesBlf().execute(file);
+        rootInfoMap = new ReadExcelFilesBlf().execute(file, info);
 
       } catch (SkipException ex) {
         continue;
