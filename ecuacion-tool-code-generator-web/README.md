@@ -5,24 +5,15 @@
 `ecuacion-tool-code-generator-web` is the browser-based execution module of the code generator.
 It accepts DB/class specification Excel files uploaded from a browser and returns the generated Java source code as a ZIP file for download.
 
-The artifact is a WAR file that can be deployed to an external servlet container (e.g., Tomcat).
+The artifact is an executable WAR file with an embedded Tomcat server. No external servlet container is needed.
 
 ## How to Run
 
-Rename the downloaded WAR file and drop it into Tomcat's `webapps/` directory, then start (or restart) Tomcat.
-
 ```bash
-# Rename the versioned WAR to remove the version suffix
-mv ecuacion-tool-code-generator-x.x.x.war ecuacion-tool-code-generator.war
-
-# Place it in Tomcat's webapps directory
-cp ecuacion-tool-code-generator.war $CATALINA_HOME/webapps/
+java -jar ecuacion-tool-code-generator-web-x.x.x.war
 ```
 
-The context path becomes `/ecuacion-tool-code-generator` by default.  
-Open `http://localhost:8080/ecuacion-tool-code-generator` in a browser.
-
-> To deploy at the root context (`/`), rename the WAR to `ROOT.war` instead.
+Open `http://localhost:8080` in a browser.
 
 ---
 
@@ -30,21 +21,44 @@ Open `http://localhost:8080/ecuacion-tool-code-generator` in a browser.
 
 ### `application.properties`
 
+Spring Boot's external configuration is loaded in the following priority order (higher entries override lower ones):
+
+| Priority | Location |
+| --- | --- |
+| 1 (highest) | Path specified by `-Dspring.config.location=...` |
+| 2 | `./config/application.properties` (in a `config/` subdirectory of the working directory) |
+| 3 (lowest) | `./application.properties` (in the working directory, next to the WAR) |
+
+> **Note:** These sources are **merged**, not replaced. An external file overrides only the keys it explicitly defines; all other keys from the embedded file remain effective.
+
 #### Without a custom `application.properties`
 
 The application runs with the embedded defaults. No action needed.
 
 #### With a custom `application.properties`
 
-Use `-Dspring.config.location` via `CATALINA_OPTS` in your Tomcat startup script or `setenv.sh`:
+Place your file in the same directory as the WAR or in a `config/` subdirectory:
 
-```bash
-export CATALINA_OPTS="-Dspring.config.location=file:$CATALINA_HOME/conf/application.properties"
+```text
+/your-work-dir/
+├── ecuacion-tool-code-generator-web-x.x.x.war
+├── application.properties          ← overrides embedded settings
+└── config/
+    └── application.properties      ← alternatively, place it here (higher priority)
 ```
 
-Place `application.properties` at the path specified above, then start Tomcat.
+Then run normally:
 
-> **Note:** The external file **merges with** (not replaces) the embedded one. It overrides only the keys it explicitly defines; all other keys from the embedded file remain effective.
+```bash
+java -jar ecuacion-tool-code-generator-web-x.x.x.war
+```
+
+You can also specify a config file location explicitly with a system property:
+
+```bash
+java -Dspring.config.location=file:/path/to/your/application.properties \
+     -jar ecuacion-tool-code-generator-web-x.x.x.war
+```
 
 #### What to write in the configuration files
 
@@ -135,34 +149,26 @@ Logback configuration is resolved as follows:
 
 The application uses the embedded Logback configuration. Log output goes to the console by default.
 
-#### With a custom `logback-spring.xml` — Embedded Tomcat
+#### With a custom `logback-spring.xml`
 
 **Option 1 — Place in `config/` subdirectory (recommended):**
 
 ```text
 /your-work-dir/
-├── ecuacion-tool-code-generator-x.x.x.war
+├── ecuacion-tool-code-generator-web-x.x.x.war
 └── config/
     └── logback-spring.xml
 ```
 
 ```bash
-java -jar ecuacion-tool-code-generator-x.x.x.war
+java -jar ecuacion-tool-code-generator-web-x.x.x.war
 ```
 
 **Option 2 — Specify path explicitly:**
 
 ```bash
 java -Dlogging.config=file:/path/to/logback-spring.xml \
-     -jar ecuacion-tool-code-generator-x.x.x.war
-```
-
-#### With a custom `logback-spring.xml` — External Tomcat
-
-Add the system property to `CATALINA_OPTS`:
-
-```bash
-export CATALINA_OPTS="-Dlogging.config=file:$CATALINA_HOME/conf/logback-spring.xml"
+     -jar ecuacion-tool-code-generator-web-x.x.x.war
 ```
 
 #### What to write in `logback-spring.xml`
