@@ -144,11 +144,11 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
 
   /** Appends field declarations for all columns of the table to the output buffer. */
   protected void generateFieldsCommon(DbOrClassTableInfo ti) {
-    ti.columnList.stream().forEach(ci -> fieldDefinition(ti.getName(), ci));
+    ti.columnList.stream().forEach(ci -> fieldDefinition(ci));
     sb.append(RT);
   }
 
-  private void fieldDefinition(String tableName, DbOrClassColumnInfo ci) {
+  private void fieldDefinition(DbOrClassColumnInfo ci) {
     final String refEnName =
         ci.getRelationRefTable() == null ? null : ci.getRelationRefTableCamel();
     String kata = ci.getDtInfo().getKata() == BOOLEAN ? "Boolean" : "String";
