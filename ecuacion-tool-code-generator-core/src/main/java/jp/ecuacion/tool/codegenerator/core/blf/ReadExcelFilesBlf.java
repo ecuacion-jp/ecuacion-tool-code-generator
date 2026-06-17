@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.violation.Violations;
-import jp.ecuacion.tool.codegenerator.core.controller.MainController.SkipException;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
@@ -32,7 +31,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
-import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelDbCommonReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelDbReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelEnumReader;
@@ -55,11 +53,6 @@ public class ReadExcelFilesBlf {
       throws Exception {
 
     detailLog.info("read excel : " + file.getName());
-
-    // Skip if the file content indicates it should be skipped
-    if (shouldSkip(file, "xlsx")) {
-      throw new SkipException();
-    }
 
     // The unit here differs from Excel sheets, but we follow the file-split unit from the
     // original XML era for now
@@ -116,23 +109,4 @@ public class ReadExcelFilesBlf {
     }
   }
 
-  private boolean shouldSkip(File file, String extension) {
-    // Skip directories
-    if (file.isDirectory()) {
-      Logger.log(ReadExcelFilesBlf.class, "MSG_INFO_DIRECTORY_INCLUDED", file.getName());
-      return true;
-
-    } else if (!file.getName().endsWith("." + extension)) {
-      // Skip files that are not xml / excel
-      Logger.log(ReadExcelFilesBlf.class, "MSG_INFO_NON_XML_FILE_INCLUDED", file.getName());
-      return true;
-
-    } else if (file.getName().startsWith("~$")) {
-      // Skip Excel temporary files that are automatically created with this naming pattern
-      return true;
-
-    } else {
-      return false;
-    }
-  }
 }
