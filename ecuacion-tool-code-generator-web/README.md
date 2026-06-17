@@ -10,7 +10,7 @@ The artifact is an executable WAR file with an embedded Tomcat server. No extern
 ## How to Run
 
 ```bash
-java -jar ecuacion-tool-code-generator-web-x.x.x.war
+java -jar ecuacion-tool-code-generator-x.x.x.war
 ```
 
 Open `http://localhost:8080` in a browser.
@@ -41,7 +41,7 @@ Place your file in the same directory as the WAR or in a `config/` subdirectory:
 
 ```text
 /your-work-dir/
-├── ecuacion-tool-code-generator-web-x.x.x.war
+├── ecuacion-tool-code-generator-x.x.x.war
 ├── application.properties          ← overrides embedded settings
 └── config/
     └── application.properties      ← alternatively, place it here (higher priority)
@@ -50,14 +50,14 @@ Place your file in the same directory as the WAR or in a `config/` subdirectory:
 Then run normally:
 
 ```bash
-java -jar ecuacion-tool-code-generator-web-x.x.x.war
+java -jar ecuacion-tool-code-generator-x.x.x.war
 ```
 
 You can also specify a config file location explicitly with a system property:
 
 ```bash
 java -Dspring.config.location=file:/path/to/your/application.properties \
-     -jar ecuacion-tool-code-generator-web-x.x.x.war
+     -jar ecuacion-tool-code-generator-x.x.x.war
 ```
 
 #### What to write in the configuration files
@@ -155,20 +155,20 @@ The application uses the embedded Logback configuration. Log output goes to the 
 
 ```text
 /your-work-dir/
-├── ecuacion-tool-code-generator-web-x.x.x.war
+├── ecuacion-tool-code-generator-x.x.x.war
 └── config/
     └── logback-spring.xml
 ```
 
 ```bash
-java -jar ecuacion-tool-code-generator-web-x.x.x.war
+java -jar ecuacion-tool-code-generator-x.x.x.war
 ```
 
 **Option 2 — Specify path explicitly:**
 
 ```bash
 java -Dlogging.config=file:/path/to/logback-spring.xml \
-     -jar ecuacion-tool-code-generator-web-x.x.x.war
+     -jar ecuacion-tool-code-generator-x.x.x.war
 ```
 
 #### What to write in `logback-spring.xml`
