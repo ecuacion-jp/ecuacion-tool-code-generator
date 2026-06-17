@@ -25,6 +25,7 @@ public class ActionOnThrowable implements SplibExceptionHandlerAction {
 
   private final SplibMailUtil splibMailUtil;
 
+  /** Constructs a new instance. */
   public ActionOnThrowable(SplibMailUtil splibMailUtil) {
     this.splibMailUtil = splibMailUtil;
   }
