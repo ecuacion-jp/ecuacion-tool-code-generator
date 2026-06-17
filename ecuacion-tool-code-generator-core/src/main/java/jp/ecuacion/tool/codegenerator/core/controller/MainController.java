@@ -16,7 +16,9 @@
 package jp.ecuacion.tool.codegenerator.core.controller;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -48,19 +50,26 @@ public class MainController {
     // Prepare
     CodeGenContext info = prepare(inputDir, outputDir);
 
+    // Build the list of target Excel files, logging skipped files along the way.
+    List<File> targetFiles = new ArrayList<>();
+    for (File file : new File(inputDir).listFiles()) {
+      if (!shouldSkip(file, "xlsx")) {
+        targetFiles.add(file);
+      }
+    }
+
+    if (targetFiles.isEmpty()) {
+      Logger.log(this, "MSG_WRN_NO_TARGET_EXCEL_FILE", inputDir);
+      return;
+    }
+
     // Start the excel file unit loop.
-    File[] listFiles = new File(inputDir).listFiles();
-    for (File file : listFiles) {
+    for (File file : targetFiles) {
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap = null;
 
       // 1. Read and validate excel formats, and complement data.
-      try {
-        Logger.log(this, "READ_EXCELS");
-        rootInfoMap = new ReadExcelFilesBlf().execute(file, info);
-
-      } catch (SkipException ex) {
-        continue;
-      }
+      Logger.log(this, "READ_EXCELS");
+      rootInfoMap = new ReadExcelFilesBlf().execute(file, info);
 
       // Put data to info.
       String systemName =
@@ -121,8 +130,17 @@ public class MainController {
     }
   }
 
-  /** Signals that the current Excel file should be skipped during the processing loop. */
-  public static class SkipException extends Exception {
-    private static final long serialVersionUID = 1L;
+  private static boolean shouldSkip(File file, String extension) {
+    if (file.isDirectory()) {
+      Logger.log(MainController.class, "MSG_INFO_DIRECTORY_INCLUDED", file.getName());
+      return true;
+    } else if (!file.getName().endsWith("." + extension)) {
+      Logger.log(MainController.class, "MSG_INFO_NON_XML_FILE_INCLUDED", file.getName());
+      return true;
+    } else if (file.getName().startsWith("~$")) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
