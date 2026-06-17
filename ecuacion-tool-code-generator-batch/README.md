@@ -11,12 +11,14 @@ It reads DB/class specification Excel files from a local directory and writes th
 java -jar ecuacion-tool-code-generator-batch-x.x.x.jar
 ```
 
-### Default Input / Output Directories
+### Input / Output Directories
 
-| Role | Default path (relative to working directory) |
-| --- | --- |
-| Excel input | `./ecuacion-tool-code-generator-excel-format/` |
-| Generated source output | `./products/` |
+| Role | Default path (relative to working directory) | Property key to override |
+| --- | --- | --- |
+| Excel input | `./ecuacion-tool-code-generator-excel-format/` | `jp.ecuacion.tool.codegenerator.input-dir` |
+| Generated source output | `./products/` | `jp.ecuacion.tool.codegenerator.output-dir` |
+
+To use a different directory, set the corresponding property in `application.properties` (see [Configuration Files](#configuration-files) below).
 
 ---
 
@@ -66,6 +68,13 @@ java -Dspring.config.location=file:/path/to/your/application.properties \
 #### What to write in the configuration files
 
 This application runs with Spring profile `profile` (fixed via `spring.profiles.active=profile` in the embedded `application.properties`). Profile-specific settings should go in a file named **`application-profile.properties`**, placed in the same location as `application.properties`.
+
+**Input / Output Directory settings (`jp.ecuacion.tool.codegenerator.*`):**
+
+| Property | Description | Default |
+| --- | --- | --- |
+| `jp.ecuacion.tool.codegenerator.input-dir` | Directory containing the Excel specification files | `./ecuacion-tool-code-generator-excel-format` |
+| `jp.ecuacion.tool.codegenerator.output-dir` | Root directory for generated Java source files | `./products/` |
 
 The main settings you will want to customize are the **mail settings**, used to send error notification emails when the batch fails.
 
