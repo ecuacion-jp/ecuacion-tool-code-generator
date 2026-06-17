@@ -17,14 +17,19 @@ package jp.ecuacion.tool.codegenerator.batch.exceptionhandler;
 
 import jp.ecuacion.splib.core.exceptionhandler.SplibExceptionHandlerAction;
 import jp.ecuacion.splib.core.util.SplibMailUtil;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /** Provides an exception handler action for the batch module, sending an error mail on failure. */
 @Component
+@ConditionalOnProperty("spring.mail.host")
 public class AppExceptionHandlerAction implements SplibExceptionHandlerAction {
 
   private final SplibMailUtil splibMailUtil;
 
+  /**
+   * Constructs a new instance.
+   */
   public AppExceptionHandlerAction(SplibMailUtil splibMailUtil) {
     this.splibMailUtil = splibMailUtil;
   }
