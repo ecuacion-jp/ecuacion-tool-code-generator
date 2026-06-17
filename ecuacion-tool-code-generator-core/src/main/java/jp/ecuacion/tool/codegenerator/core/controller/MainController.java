@@ -65,11 +65,9 @@ public class MainController {
 
     // Start the excel file unit loop.
     for (File file : targetFiles) {
-      Map<DataKindEnum, AbstractRootInfo> rootInfoMap = null;
-
       // 1. Read and validate excel formats, and complement data.
       Logger.log(this, "READ_EXCELS");
-      rootInfoMap = new ReadExcelFilesBlf().execute(file, info);
+      Map<DataKindEnum, AbstractRootInfo> rootInfoMap = new ReadExcelFilesBlf().execute(file, info);
 
       // Put data to info.
       String systemName =

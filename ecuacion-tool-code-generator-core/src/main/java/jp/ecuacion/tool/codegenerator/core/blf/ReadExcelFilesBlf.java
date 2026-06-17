@@ -71,8 +71,8 @@ public class ReadExcelFilesBlf {
     // dataType
     String dataTypeSheetName =
         lang == ExcelTemplateLanguage.JA ? DataTypeInfo.SHEET_NAME_JA : DataTypeInfo.SHEET_NAME_EN;
-    String[] dataTypeHeaders = lang == ExcelTemplateLanguage.JA ? DataTypeInfo.HEADER_LABELS_JA
-        : DataTypeInfo.HEADER_LABELS_EN;
+    String[] dataTypeHeaders = (lang == ExcelTemplateLanguage.JA ? DataTypeInfo.HEADER_LABELS_JA
+        : DataTypeInfo.HEADER_LABELS_EN).toArray(new String[0]);
     rootInfoMap.put(DataKindEnum.DATA_TYPE,
         new DataTypeRootInfo(
             new StringOneLineHeaderExcelTableToBeanReader<DataTypeInfo>(DataTypeInfo.class,

@@ -49,7 +49,7 @@ public class EntityBodyGen extends EntityGen {
           StringUtil.getUpperCamelFromSnake(tableInfo.getName()) + ".java");
     }
 
-    appendItemNamesProperties(EntityGenKindEnum.ENTITY_BODY, getInfo().getDbRootInfo().tableList);
+    appendItemNamesProperties(getInfo().getDbRootInfo().tableList);
   }
 
   /**

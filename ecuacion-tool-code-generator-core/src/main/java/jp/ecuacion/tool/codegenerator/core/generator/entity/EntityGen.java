@@ -328,8 +328,7 @@ public abstract class EntityGen extends AbstractTableGen {
     String kata = code.getJavaKata(ci);
 
     // The second argument may be null in the case of CommonInfo, so null must be considered
-    sb.append(getEntityFieldAnnotations(getEntityGenKindEnum(), tableName, ci,
-        code.classDotField(tableName, ci)));
+    sb.append(getEntityFieldAnnotations(getEntityGenKindEnum(), tableName, ci));
 
     if (ci.isRelation()) {
       jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum relationKind =
@@ -685,13 +684,13 @@ public abstract class EntityGen extends AbstractTableGen {
       if (ci.isRelation()) {
         // For relation columns, also provide an accessor for the field representing the entity
         // itself
-        appendAccessorForRelation(sb, relEntityName, ci.getRelationFieldName(), false, null);
+        appendAccessorForRelation(sb, relEntityName, ci.getRelationFieldName(), null);
       }
 
       if (ci.hasBidirectionalRelationRef()) {
         for (RelationRefInfo info : ci.getBidirectionalRelationRefInfoList()) {
           appendAccessorForRelation(sb, StringUtil.getLowerCamelFromSnake(info.getOrgTableName()),
-              info.getEmptyConsideredFieldNameToReferFromTable(), true, info);
+              info.getEmptyConsideredFieldNameToReferFromTable(), info);
         }
       }
     }
@@ -700,7 +699,6 @@ public abstract class EntityGen extends AbstractTableGen {
   private void appendAccessorForRelation(StringBuilder sb,
       @org.jspecify.annotations.Nullable String relEntityName,
       @org.jspecify.annotations.Nullable String relFieldName,
-      boolean isReferedByBidirectionalRelation,
       @org.jspecify.annotations.Nullable RelationRefInfo info) {
     // For a bidirectional reference target with OneToMany, update fieldName and relEntityName
     // accordingly
@@ -726,13 +724,13 @@ public abstract class EntityGen extends AbstractTableGen {
   }
 
   private Map<String, String> createSortedMapForPropFile(String lang,
-      List<DbOrClassTableInfo> tableList, EntityGenKindEnum entityKind) {
+      List<DbOrClassTableInfo> tableList) {
     Map<String, String> map = new LinkedHashMap<String, String>();
 
     // Store the display name of each field in the map for each table
     if (tableList != null) {
       for (DbOrClassTableInfo tableInfo : tableList) {
-        putToMap(lang, tableInfo, map, entityKind);
+        putToMap(lang, tableInfo, map);
       }
     }
 
@@ -740,7 +738,7 @@ public abstract class EntityGen extends AbstractTableGen {
   }
 
   private void putToMap(String lang, DbOrClassTableInfo tableInfo,
-      Map<String, String> map, EntityGenKindEnum entityKind) {
+      Map<String, String> map) {
 
     // // For fields in SystemCommon (e.g. createTime), in addition to SystemCommon.createTime,
     // // Acc.createTime must also be created, so the list includes both
@@ -760,21 +758,21 @@ public abstract class EntityGen extends AbstractTableGen {
   /**
    * Common processing to create item_names_xx.properties files for each configured language.
    */
-  protected void appendItemNamesProperties(EntityGenKindEnum entityKind,
+  protected void appendItemNamesProperties(
       List<DbOrClassTableInfo> tableList) throws IOException, InterruptedException {
     PropertiesFileGen gen = new PropertiesFileGen();
 
     // Create a fallback file.
     gen.writeMapToPropFile(createSortedMapForPropFile(
         getInfo().getSysCmnRootInfo().getDefaultLang(),
-        tableList, entityKind), "item_names", null);
+        tableList), "item_names", null);
     // Create a file for the default language
     gen.writeMapToPropFile(createSortedMapForPropFile(
         getInfo().getSysCmnRootInfo().getDefaultLang(),
-        tableList, entityKind), "item_names", getInfo().getSysCmnRootInfo().getDefaultLang());
+        tableList), "item_names", getInfo().getSysCmnRootInfo().getDefaultLang());
     // Create files for each language listed in supportedLangArr
     for (String lang : getInfo().getSysCmnRootInfo().getSupportedLangArr()) {
-      gen.writeMapToPropFile(createSortedMapForPropFile(lang, tableList, entityKind), "item_names",
+      gen.writeMapToPropFile(createSortedMapForPropFile(lang, tableList), "item_names",
           lang);
     }
   }
@@ -955,7 +953,7 @@ public abstract class EntityGen extends AbstractTableGen {
     * annotations.
    */
   private String getEntityFieldAnnotations(EntityGenKindEnum entityGenKindEnum, String tableName,
-      DbOrClassColumnInfo colInfo, String id) {
+      DbOrClassColumnInfo colInfo) {
     List<AnnotationGen> annotationGenList = new ArrayList<>();
 
     // validator
