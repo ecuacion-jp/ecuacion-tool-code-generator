@@ -98,7 +98,6 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   @Pattern(regexp = "^CB|CD|LB|LD$")
   private String springAuditing;
 
-  // private String valueChangeMethod;
   private String updatedValue;
 
   @Pattern(regexp = "^@ManyToOne|@OneToOne$")
