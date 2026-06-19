@@ -68,8 +68,7 @@ public class Constants {
       "src" + PATH_SEPARATOR + "main" + PATH_SEPARATOR + "java" + PATH_SEPARATOR;
 
   /** Default location of Excel input files; may be changed for testing purposes. */
-  public static final String DIR_INFO_EXCELS_DEFAULT =
-      "./ecuacion-tool-code-generator-excel-format";
+  public static final String DIR_INFO_EXCELS_DEFAULT = "./excel-format";
 
   // String retrieval for type-related values
 
