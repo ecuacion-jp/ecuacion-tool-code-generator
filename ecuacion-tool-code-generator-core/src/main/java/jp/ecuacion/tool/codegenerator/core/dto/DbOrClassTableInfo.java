@@ -51,7 +51,6 @@ public class DbOrClassTableInfo extends AbstractInfo {
   @Pattern(regexp = Constants.REG_EX_UP_NUM_US)
   private String name;
 
-  // private boolean isSurrogateKeyStorategy = false;
   private boolean hasUniqueConstraint = false;
 
   /** Constructs an empty instance for later population. */

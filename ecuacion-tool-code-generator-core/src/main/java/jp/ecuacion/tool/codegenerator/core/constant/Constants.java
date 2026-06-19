@@ -63,9 +63,6 @@ public class Constants {
   // OS-independent path separator.
   public static final String PATH_SEPARATOR = File.separator;
 
-  /// ** Root folder name for placing generated class files. * /
-  // public static final String DIR_PRODUCT = "products" + PATH_SEPARATOR;
-
   /** Root path for generated Java source files. */
   public static final String DIR_SRC_JAVA_PATH =
       "src" + PATH_SEPARATOR + "main" + PATH_SEPARATOR + "java" + PATH_SEPARATOR;
