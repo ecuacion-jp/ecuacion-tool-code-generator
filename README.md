@@ -47,7 +47,7 @@ Download the latest release from [GitHub Releases](https://github.com/ecuacion-j
 java -jar ecuacion-tool-code-generator-batch-x.x.x.jar
 ```
 
-Input Excel files are read from `../ecuacion-tool-code-generator-batch/ecuacion-tool-code-generator-excel-format/`.  
+Input Excel files are read from `./excel-format/` (relative to the working directory).  
 Generated sources are written to `./products/`.
 
 ### Web mode
