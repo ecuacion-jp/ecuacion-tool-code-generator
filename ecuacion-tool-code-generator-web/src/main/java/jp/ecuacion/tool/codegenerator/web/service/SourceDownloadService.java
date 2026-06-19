@@ -84,7 +84,13 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
     new File(outputDir).mkdirs();
 
     // Write the Excel file to the input directory
-    Path path = Paths.get(inputDir + "/" + originalFileName);
+    Path base = Paths.get(inputDir).toAbsolutePath().normalize();
+    Path path = base.resolve(originalFileName).normalize();
+    if (!path.startsWith(base)) {
+      new Violations()
+          .add(new BusinessViolation("SOURCE_DOWNLOAD_MESSAGE_FILE_EXTENSION_UNAVAILABLE"))
+          .throwIfAny();
+    }
     Files.write(path, multipartFile.getBytes());
 
     new MainController().execute(inputDir, outputDir);
