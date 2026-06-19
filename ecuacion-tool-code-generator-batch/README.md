@@ -11,7 +11,7 @@ It reads DB/class specification Excel files from a local directory and writes th
 java -jar ecuacion-tool-code-generator-batch-x.x.x.jar
 ```
 
-Input Excel files are read from `./ecuacion-tool-code-generator-excel-format/` (relative to the working directory).  
+Input Excel files are read from `./excel-format/` (relative to the working directory).  
 Generated sources are written to `./products/`.
 
 ## Documentation
