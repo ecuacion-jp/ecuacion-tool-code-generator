@@ -43,6 +43,7 @@ public class CodeGenContext {
   private MiscSoftDeleteRootInfo removedDataRootInfo;
   private MiscGroupRootInfo groupRootInfo;
   private MiscOptimisticLockRootInfo optimisticLockRootInfo;
+  private TableListRootInfo tableListRootInfo;
 
   private GeneratePtnEnum genPtn;
 
@@ -98,6 +99,11 @@ public class CodeGenContext {
     return optimisticLockRootInfo;
   }
 
+  /** Returns tableListRootInfo. */
+  public TableListRootInfo getTableListRootInfo() {
+    return tableListRootInfo;
+  }
+
   /** Returns genPtn. */
   public GeneratePtnEnum getGenPtn() {
     return genPtn;
@@ -147,6 +153,7 @@ public class CodeGenContext {
     groupRootInfo = (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP);
     optimisticLockRootInfo =
         (MiscOptimisticLockRootInfo) rootInfoMap.get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
+    tableListRootInfo = (TableListRootInfo) rootInfoMap.get(DataKindEnum.TABLE_LIST);
   }
 
   /*
