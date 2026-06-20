@@ -43,9 +43,10 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
   static final String SHEET_NAME_EN = "General Settings";
 
   private static final String[] HEADER_LABELS_JA =
-      new String[] {"分類", "分類説明", "項目", "説明", "値", "備考"};
+      new String[] {"#", "分類", "分類名", "項目", "説明", "必須", "値", "備考"};
   private static final String[] HEADER_LABELS_EN =
-      new String[] {"Category", "Category Description", "Key", "Description", "Value", "Notes"};
+      new String[] {"#", "Category", "Category Name", "Key", "Description", "Required", "Value",
+          "Notes"};
 
   /** Constructs an instance that targets the general-settings sheet for the given language. */
   public ExcelGeneralSettingsReader(ExcelTemplateLanguage lang) {
@@ -53,12 +54,12 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
         lang == ExcelTemplateLanguage.JA ? HEADER_LABELS_JA : HEADER_LABELS_EN);
   }
 
-  private static int COL_KIND = 0;
-  // private static int COL_KIND_DESC = 1;
-  private static int COL_KEY = 2;
-  // private static int COL_KEY_DESC = 3;
-  private static int COL_VALUE = 4;
-  // private static int COL_NOTE = 5;
+  private static int COL_KIND = 1;
+  // private static int COL_KIND_DESC = 2;
+  private static int COL_KEY = 3;
+  // private static int COL_KEY_DESC = 4;
+  private static int COL_VALUE = 6;
+  // private static int COL_NOTE = 7;
 
   private static String GROUP_SYSTEM_COMMON = "SYSTEM_COMMON";
   private static String GROUP_LOGICAL_DELETE = "LOGICAL_DELETE";

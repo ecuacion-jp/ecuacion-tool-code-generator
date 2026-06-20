@@ -29,12 +29,14 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.TableListRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelDbCommonReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelDbReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelEnumReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelGeneralSettingsReader;
+import jp.ecuacion.tool.codegenerator.core.reader.ExcelTableListReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelTemplateLanguageDetector;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableToBeanReader;
 
@@ -84,6 +86,14 @@ public class ReadExcelFilesBlf {
         .putAll(new ExcelDbReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
     rootInfoMap.putAll(
         new ExcelDbCommonReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
+
+    try {
+      rootInfoMap.putAll(
+          new ExcelTableListReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
+    } catch (Exception e) {
+      // テーブル一覧 sheet is absent in older Excel templates; skip silently
+    }
+    putEmptyRootInfo(rootInfoMap, DataKindEnum.TABLE_LIST, new TableListRootInfo());
 
     // Batch validation and intra-RootInfo data complementation
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {

@@ -22,7 +22,7 @@ import jp.ecuacion.tool.codegenerator.core.util.ExcelTemplateLabelUtil;
 public enum DataKindEnum {
   //@formatter:off
   SYSTEM_COMMON, DATA_TYPE, ENUM, DB, DB_COMMON,
-  MISC_REMOVED_DATA, MISC_GROUP, MISC_OPTIMISTIC_LOCK, OTHER;
+  MISC_REMOVED_DATA, MISC_GROUP, MISC_OPTIMISTIC_LOCK, OTHER, TABLE_LIST;
   //@formatter:on
 
   /**
