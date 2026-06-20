@@ -55,8 +55,8 @@ public class EnumValueInfo extends StringExcelTableBean {
   @Override
   protected @Nullable String[] getFieldNameArray() {
     return new String[] {
-        null, "isJavaOnly", "code", "varName", 
-        "dispNameDefaultLang", null, "dispNameLang1", "dispNameLang2", "dispNameLang3"
+        null, "code", "varName", "isJavaOnly",
+        null, "dispNameDefaultLang", "dispNameLang1", "dispNameLang2", "dispNameLang3"
     };
   }
   //@formatter:on

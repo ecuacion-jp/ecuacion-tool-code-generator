@@ -16,6 +16,8 @@
 package jp.ecuacion.tool.codegenerator.core.controller;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -88,12 +90,14 @@ public class MainController {
   }
 
   private CodeGenContext prepare(String inputDir, String outputDir) {
+    // Show current directory.
+    Logger.log(this, "SHOW_CURRENT_DIR", Paths.get("").toAbsolutePath().toString());
+    
     // Delete previously created files.
     Logger.log(this, "DELETE_LAST_TIME_FILE");
     delete(new File(outputDir));
 
     // Throw an exception if the directory does not exist.
-    new File(inputDir).mkdirs();
     if (!new File(inputDir).exists() || !new File(inputDir).isDirectory()) {
       new Violations().add(new BusinessViolation("MSG_ERR_INFO_XML_DIR_NOT_EXIST", inputDir))
           .throwIfAny();
