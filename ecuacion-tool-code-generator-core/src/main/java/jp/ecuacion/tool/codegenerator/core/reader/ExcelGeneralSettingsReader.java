@@ -119,8 +119,7 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
 
   private AbstractRootInfo getLogicalDelete(Map<String, String> props) {
     MiscSoftDeleteRootInfo rootInfo = new MiscSoftDeleteRootInfo(props.get("COLUMN_NAME"),
-        props.get("DATA_TYPE_NAME"), props.get("DEFAULT_VALUE"), props.get("METHOD_NAME"),
-        props.get("UPDATE_VALUE"), props.get("ADDITIONAL_PARAMS"));
+        props.get("DATA_TYPE_NAME"), props.get("DEFAULT_VALUE"), props.get("UPDATE_VALUE"));
     return rootInfo;
   }
 
