@@ -43,12 +43,12 @@ public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader {
   private SystemCommonRootInfo sysCmnRootInfo;
 
   private static final String[] HEADER_LABELS_JA =
-      new String[] {"DataType名", "javaのみ", "code", "varName", "dispName（デフォルト言語）", "備考",
-          "dispName（追加言語1）", "dispName（追加言語2）", "dispName（追加言語3）"};
+      new String[] {"DataType名", "code", "varName", "javaのみ", "備考", "表示名（デフォルト言語）",
+          "表示名（追加言語1）", "表示名（追加言語2）", "表示名（追加言語3）"};
 
-  private static final String[] HEADER_LABELS_EN = new String[] {"DataType Name", "Java Only",
-      "code", "varName", "dispName (Default Lang)", "Notes", "dispName (Additional Lang 1)",
-      "dispName (Additional Lang 2)", "dispName (Additional Lang 3)"};
+  private static final String[] HEADER_LABELS_EN = new String[] {"DataType Name", "code", "varName",
+      "Java Only", "Notes", "Display Name (Default Lang)", "Display Name (Additional Lang 1)",
+      "Display Name (Additional Lang 2)", "Display Name (Additional Lang 3)"};
 
   /** Constructs an instance that targets the enum definition sheet for the given language. */
   public ExcelEnumReader(SystemCommonRootInfo sysCmnRootInfo, ExcelTemplateLanguage lang) {

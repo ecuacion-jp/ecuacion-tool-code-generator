@@ -25,6 +25,9 @@ public class AppExceptionHandlerAction implements SplibExceptionHandlerAction {
 
   private final SplibMailUtil splibMailUtil;
 
+  /**
+   * Constructs a new instance.
+   */
   public AppExceptionHandlerAction(SplibMailUtil splibMailUtil) {
     this.splibMailUtil = splibMailUtil;
   }

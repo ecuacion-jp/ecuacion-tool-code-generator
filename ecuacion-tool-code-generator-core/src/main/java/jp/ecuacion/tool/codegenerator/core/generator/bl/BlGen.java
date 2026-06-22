@@ -56,7 +56,7 @@ public class BlGen extends AbstractGen {
 
       if (!isSystemCommon) {
         generateFields(ti, entityNameCp);
-        getRepositoryForOptimisticLocking(ti, entityNameCp);
+        getRepositoryForOptimisticLocking(entityNameCp);
         getFindAndOptimisticLockingCheckRec(ti, entityNameCp);
       }
 
@@ -132,7 +132,7 @@ public class BlGen extends AbstractGen {
     }
   }
 
-  private void getRepositoryForOptimisticLocking(DbOrClassTableInfo ti, String entityNameCp) {
+  private void getRepositoryForOptimisticLocking(String entityNameCp) {
     sb.append(T1 + "@Override" + RT);
     sb.append(T1 + "public SplibRepository<" + entityNameCp
         + ", Long> getRepositoryForOptimisticLocking() {" + RT);

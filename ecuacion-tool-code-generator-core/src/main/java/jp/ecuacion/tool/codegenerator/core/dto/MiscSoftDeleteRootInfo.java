@@ -16,26 +16,19 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 /**
- * Holds soft-delete settings, including the delete-flag column, initial and updated values,
- * and the removal method.
+ * Holds soft-delete settings, including the delete-flag column, initial and updated values.
  */
 @SuppressWarnings("NullAway.Init")
 public class MiscSoftDeleteRootInfo extends AbstractColAttrRootInfo {
 
   @Pattern(regexp = Constants.REG_EX_AL_NUM_DOT)
   private String initialValue;
-  @Size(min = 1, max = 30)
-  @Pattern(regexp = Constants.REG_EX_AL_NUM_US_CM_DOT)
-  private String removeMethodName;
   @Pattern(regexp = Constants.REG_EX_AL_NUM_DOT)
   private String updatedValue;
-  @Pattern(regexp = Constants.REG_EX_AL_NUM_US_CM_DOT)
-  private String additionalMethodArgs;
 
   /** Constructs an empty instance used when no XML file is provided for soft-delete settings. */
   @SuppressWarnings("null")
@@ -45,14 +38,12 @@ public class MiscSoftDeleteRootInfo extends AbstractColAttrRootInfo {
 
   /** Constructs an instance with all soft-delete settings populated. */
   public MiscSoftDeleteRootInfo(String columnName, String dataTypeName, String initialValue,
-      String removeMethodName, String updatedValue, String additionalMethodArgs) {
+      String updatedValue) {
 
     super(DataKindEnum.MISC_REMOVED_DATA, columnName, dataTypeName);
 
     this.initialValue = initialValue;
-    this.removeMethodName = removeMethodName;
     this.updatedValue = updatedValue;
-    this.additionalMethodArgs = additionalMethodArgs;
   }
 
   public String getInitialValue() {
@@ -63,28 +54,12 @@ public class MiscSoftDeleteRootInfo extends AbstractColAttrRootInfo {
     this.initialValue = initialValue;
   }
 
-  public String getRemoveMethodName() {
-    return removeMethodName;
-  }
-
-  public void setRemoveMethodName(String removeMethodName) {
-    this.removeMethodName = removeMethodName;
-  }
-
   public String getUpdatedValue() {
     return updatedValue;
   }
 
   public void setUpdatedValue(String updatedValue) {
     this.updatedValue = updatedValue;
-  }
-
-  public String getAdditionalMethodArgs() {
-    return additionalMethodArgs;
-  }
-
-  public void setAdditionalMethodArgs(String additionalMethodArgs) {
-    this.additionalMethodArgs = additionalMethodArgs;
   }
 
   @Override

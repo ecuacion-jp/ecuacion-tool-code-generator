@@ -36,6 +36,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.entity.SystemCommonGen;
 import jp.ecuacion.tool.codegenerator.core.generator.enums.EnumGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.MessagesBasePropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
+import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.TableListPropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.ValidationMessagesPatternDescriptionsGen;
 import jp.ecuacion.tool.codegenerator.core.generator.record.PerTableBaseRecordGen;
 import jp.ecuacion.tool.codegenerator.core.generator.record.SystemCommonBaseRecordGen;
@@ -194,6 +195,10 @@ public class GenerationBlf {
         Logger.log(this, "GEN_PROP_FILE");
         // Generate miscellaneous files
         new MessagesBasePropertiesGen().generate();
+
+      } else if (dataKind == DataKindEnum.TABLE_LIST) {
+        Logger.log(this, "GEN_TABLE_LIST");
+        new TableListPropertiesGen().generate();
       }
     }
   }

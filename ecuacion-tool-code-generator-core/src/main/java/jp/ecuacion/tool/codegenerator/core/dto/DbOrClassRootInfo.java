@@ -63,25 +63,9 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
       tbl.dataConsistencyCheck();
     }
     
-    // Check only for child entities
-    // childEntityCheck();
-
     // Check only for systemCommon
     systemCommonCheck();
   }
-
-  // Retained for future check additions; currently empty (see redmine#463)
-  // private void childEntityCheck() {
-  //   for (DbOrClassTableInfo ti : tableList) {
-  //     for (DbOrClassColumnInfo ci : ti.columnList) {
-  //       if (ci.getRelationKind() != null && ci.isNullable()) {
-  //         throw new BizLogicAppException(
-  //             "MSG_ERR_CONSISTENCY_CHECK_NULLABLE_ENTITY_COLUMN_CANNOT_HAVE_RELATIONS",
-  //             ti.getName(), ci.getName());
-  //       }
-  //     }
-  //   }
-  // }
 
   private void systemCommonCheck() {
 

@@ -42,19 +42,21 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
   private DataKindEnum fileKind;
 
   private static final String[] HEADER_LABELS_JA =
-      new String[] {"テーブル名", "表示名（デフォルト言語）", "カラム名", "dataType", "dataType存在確認", "javaのみ", "PK・UK",
-          "nullable", "自動採番", "強制採番", "自動更新", "強制更新", "グループ識別項目", "SPRING監査", "関連：種類",
-          "関連：direction", "関連：参照元変数名", "関連：参照先テーブル", "関連：参照先カラム", "関連：参照先変数名", "関連：eager", "index1",
-          "index2", "index3", "備考", "表示名（追加言語1）", "表示名（追加言語2）", "表示名（追加言語3）"};
+      new String[] {"テーブル名", "カラム名", "dataType", "dataType存在確認", "javaのみ", "PK・UK", "nullable",
+          "自動採番", "強制採番", "自動更新", "強制更新", "グループ識別項目", "SPRING監査", "関連：種類", "関連：direction",
+          "関連：参照元変数名", "関連：参照先テーブル", "関連：参照先カラム", "関連：参照先変数名", "関連：eager", "index1", "index2",
+          "index3", "index4", "index5", "index6", "index7", "index8", "index9", "index10", "備考",
+          "カラム表示名（デフォルト言語）", "カラム表示名（追加言語1）", "カラム表示名（追加言語2）", "カラム表示名（追加言語3）"};
 
   private static final String[] HEADER_LABELS_EN =
-      new String[] {"Table Name", "Display Name (Default Lang)", "Column Name", "dataType",
-          "dataType Check", "Java Only", "PK/UK", "nullable", "Auto Numbering", "Force Numbering",
-          "Auto Update", "Force Update", "Group Identifier", "Spring Audit", "Relation: Type",
-          "Relation: Direction", "Relation: Source Var Name", "Relation: Target Table",
-          "Relation: Target Column", "Relation: Target Var Name", "Relation: Eager", "index1",
-          "index2", "index3", "Notes", "Display Name (Additional Lang 1)",
-          "Display Name (Additional Lang 2)", "Display Name (Additional Lang 3)"};
+      new String[] {"Table Name", "Column Name", "dataType", "dataType Check", "Java Only", "PK/UK",
+          "nullable", "Auto Numbering", "Force Numbering", "Auto Update", "Force Update",
+          "Group Identifier", "Spring Audit", "Relation: Type", "Relation: Direction",
+          "Relation: Source Var Name", "Relation: Target Table", "Relation: Target Column",
+          "Relation: Target Var Name", "Relation: Eager", "index1", "index2", "index3", "index4",
+          "index5", "index6", "index7", "index8", "index9", "index10", "Notes",
+          "Column Display Name (Default Lang)", "Column Display Name (Additional Lang 1)",
+          "Column Display Name (Additional Lang 2)", "Column Display Name (Additional Lang 3)"};
 
   /** Constructs an instance for the given sheet name, data kind, and system-common root info. */
   public ExcelAbstractDbOrClassReader(String sheetName, DataKindEnum fileKind,
@@ -79,14 +81,13 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
     Map<String, DbOrClassTableInfo> existingTableMap = new HashMap<>();
 
     for (List<String> colList : rowList) {
-      if (!existingTableMap.containsKey(colList.get(COL_TABLE_NAME))) {
-        existingTableMap.put(colList.get(COL_TABLE_NAME),
-            new DbOrClassTableInfo(colList.get(COL_TABLE_NAME)));
-        rootInfo.tableList.add(existingTableMap.get(colList.get(COL_TABLE_NAME)));
+      String tableName = resolveTableName(colList.get(COL_TABLE_NAME));
+      if (!existingTableMap.containsKey(tableName)) {
+        existingTableMap.put(tableName, new DbOrClassTableInfo(tableName));
+        rootInfo.tableList.add(existingTableMap.get(tableName));
       }
 
-      DbOrClassTableInfo info = java.util.Objects.requireNonNull(
-          existingTableMap.get(colList.get(COL_TABLE_NAME)),
+      DbOrClassTableInfo info = java.util.Objects.requireNonNull(existingTableMap.get(tableName),
           "Table info just inserted into existingTableMap must be present");
       info.columnList.add(new DbOrClassColumnInfo(colList, sysCmnRootInfo.getDefaultLang(),
           sysCmnRootInfo.getSupportLang1(), sysCmnRootInfo.getSupportLang2(),
@@ -94,5 +95,13 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
     }
 
     return rtnMap;
+  }
+
+  /** 
+   * Returns the table name to use for grouping rows. 
+   *     Subclasses may override to supply defaults.
+   */
+  protected String resolveTableName(String rawTableName) {
+    return rawTableName;
   }
 }

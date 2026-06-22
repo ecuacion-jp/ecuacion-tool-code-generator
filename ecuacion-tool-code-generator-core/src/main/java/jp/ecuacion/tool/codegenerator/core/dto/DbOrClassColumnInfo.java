@@ -98,7 +98,6 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   @Pattern(regexp = "^CB|CD|LB|LD$")
   private String springAuditing;
 
-  // private String valueChangeMethod;
   private String updatedValue;
 
   @Pattern(regexp = "^@ManyToOne|@OneToOne$")
@@ -113,6 +112,13 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   private String index1;
   private String index2;
   private String index3;
+  private String index4;
+  private String index5;
+  private String index6;
+  private String index7;
+  private String index8;
+  private String index9;
+  private String index10;
 
   private String supportedLang1;
   private String supportedLang2;
@@ -127,13 +133,14 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   @Override
   protected @Nullable String[] getFieldNameArray() {
     return new String[] {
-        null, "userFriendlyName", "name", "dataType", null, 
-        "isJavaOnly", "pkKind", "isNullable", "isAutoIncrement", "isForcedIncrement", 
-        "isAutoUpdate", "isForcedUpdate", "isCustomGroupColumn", "springAuditing", "relationKind", 
-        "relationDirection", 
-        "relationFieldName", "relationRefTable", "relationRefCol", "relationRefFieldName", 
-        "relationIsEager", 
-        "index1", "index2", "index3", null, "supportedLang1", 
+        null, "name", "dataType", null,
+        "isJavaOnly", "pkKind", "isNullable", "isAutoIncrement", "isForcedIncrement",
+        "isAutoUpdate", "isForcedUpdate", "isCustomGroupColumn", "springAuditing", "relationKind",
+        "relationDirection",
+        "relationFieldName", "relationRefTable", "relationRefCol", "relationRefFieldName",
+        "relationIsEager",
+        "index1", "index2", "index3", "index4", "index5", "index6", "index7", "index8", "index9",
+        "index10", null, "userFriendlyName", "supportedLang1",
         "supportedLang2", "supportedLang3"
     };
   }
@@ -169,17 +176,26 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   /** Creates a shallow copy of the given column info with all relation-related fields cleared. */
   @SuppressWarnings("null")
   public static DbOrClassColumnInfo cloneWithoutRelationRelated(DbOrClassColumnInfo ci) {
-    String[] arr = new String[] {null, ci.getDisplayName(), ci.getName(), ci.getDataType(), null,
+    String[] arr = new String[] {null, ci.getName(), ci.getDataType(), null,
         ci.getIsJavaOnlyString(), ci.getPkKindString(), ci.isNullable,
         ReaderUtil.booleanToBoolStr(ci.isAutoIncrement()),
         ReaderUtil.booleanToBoolStr(ci.isForcedIncrement()),
         ReaderUtil.booleanToBoolStr(ci.isAutoUpdate()),
         ReaderUtil.booleanToBoolStr(ci.isForcedUpdate()),
         ReaderUtil.booleanToBoolStr(ci.isCustomGroupColumn()), ci.getSpringAuditing(), "", "", "",
-        "", "", "", "", ci.getIndex1() == null ? null : ci.getIndex1().toString(),
+        "", "", "", "",
+        ci.getIndex1() == null ? null : ci.getIndex1().toString(),
         ci.getIndex2() == null ? null : ci.getIndex2().toString(),
-        ci.getIndex3() == null ? null : ci.getIndex3().toString(), null, ci.getSupportedLang1(),
-        ci.getSupportedLang2(), ci.getSupportedLang3()};
+        ci.getIndex3() == null ? null : ci.getIndex3().toString(),
+        ci.getIndex4() == null ? null : ci.getIndex4().toString(),
+        ci.getIndex5() == null ? null : ci.getIndex5().toString(),
+        ci.getIndex6() == null ? null : ci.getIndex6().toString(),
+        ci.getIndex7() == null ? null : ci.getIndex7().toString(),
+        ci.getIndex8() == null ? null : ci.getIndex8().toString(),
+        ci.getIndex9() == null ? null : ci.getIndex9().toString(),
+        ci.getIndex10() == null ? null : ci.getIndex10().toString(),
+        null, ci.getDisplayName(), ci.getSupportedLang1(), ci.getSupportedLang2(),
+        ci.getSupportedLang3()};
 
     DbOrClassColumnInfo rtnCi = new DbOrClassColumnInfo(Arrays.asList(arr));
 
@@ -372,6 +388,34 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   public @org.jspecify.annotations.Nullable Integer getIndex3() {
     return toInteger(index3);
+  }
+
+  public @org.jspecify.annotations.Nullable Integer getIndex4() {
+    return toInteger(index4);
+  }
+
+  public @org.jspecify.annotations.Nullable Integer getIndex5() {
+    return toInteger(index5);
+  }
+
+  public @org.jspecify.annotations.Nullable Integer getIndex6() {
+    return toInteger(index6);
+  }
+
+  public @org.jspecify.annotations.Nullable Integer getIndex7() {
+    return toInteger(index7);
+  }
+
+  public @org.jspecify.annotations.Nullable Integer getIndex8() {
+    return toInteger(index8);
+  }
+
+  public @org.jspecify.annotations.Nullable Integer getIndex9() {
+    return toInteger(index9);
+  }
+
+  public @org.jspecify.annotations.Nullable Integer getIndex10() {
+    return toInteger(index10);
   }
 
   // supportedLang1
