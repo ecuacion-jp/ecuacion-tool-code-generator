@@ -376,10 +376,6 @@ public class DaoGen extends AbstractTableGen {
         rootBasePackage + ".base.entity.SystemCommon");
     importMgr.add("org.jspecify.annotations.NonNull");
 
-    if (delFlgInfo.isDefined()) {
-      importMgr.add("jakarta.persistence.EntityManager");
-    }
-
     // Check enum usage and add required enum imports
     if (getInfo().getDbCommonRootInfo() != null) {
       for (DbOrClassColumnInfo colInfo :
@@ -465,19 +461,6 @@ public class DaoGen extends AbstractTableGen {
     }
 
     sb.append(T1 + "}" + RT2);
-
-    if (delFlgInfo.isDefined()) {
-      sb.append(T1 + "public void " + delFlgInfo.getRemoveMethodName() + "(EntityManager em, T e) {"
-          + RT);
-      sb.append(T2 + "try {" + RT);
-      sb.append(T3 + "e.set" + StringUtil.getUpperCamelFromSnake(delFlgInfo.getColumnName())
-          + "(true);" + RT);
-      sb.append(T3 + "super.logicalDeleteByPk(em, e);" + RT);
-      sb.append(T2 + "} catch (Exception ex) {" + RT);
-      sb.append(T3 + "throw new RuntimeException(ex);" + RT);
-      sb.append(T2 + "}" + RT);
-      sb.append(T1 + "}" + RT2);
-    }
 
     sb.append("}" + RT);
 
