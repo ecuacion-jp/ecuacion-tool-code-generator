@@ -63,16 +63,12 @@ public class Constants {
   // OS-independent path separator.
   public static final String PATH_SEPARATOR = File.separator;
 
-  /// ** Root folder name for placing generated class files. * /
-  // public static final String DIR_PRODUCT = "products" + PATH_SEPARATOR;
-
   /** Root path for generated Java source files. */
   public static final String DIR_SRC_JAVA_PATH =
       "src" + PATH_SEPARATOR + "main" + PATH_SEPARATOR + "java" + PATH_SEPARATOR;
 
   /** Default location of Excel input files; may be changed for testing purposes. */
-  public static final String DIR_INFO_EXCELS_DEFAULT =
-      "./ecuacion-tool-code-generator-excel-format";
+  public static final String DIR_INFO_EXCELS_DEFAULT = "./excel-format";
 
   // String retrieval for type-related values
 

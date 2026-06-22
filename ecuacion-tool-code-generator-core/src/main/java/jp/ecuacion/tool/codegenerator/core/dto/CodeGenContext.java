@@ -18,6 +18,7 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import java.util.Map;
 import java.util.stream.Collectors;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import org.jspecify.annotations.Nullable;
 
@@ -42,8 +43,11 @@ public class CodeGenContext {
   private MiscSoftDeleteRootInfo removedDataRootInfo;
   private MiscGroupRootInfo groupRootInfo;
   private MiscOptimisticLockRootInfo optimisticLockRootInfo;
+  private TableListRootInfo tableListRootInfo;
 
   private GeneratePtnEnum genPtn;
+
+  private ExcelTemplateLanguage excelLang;
 
   /** Returns rootInfoMap. */
   public Map<DataKindEnum, AbstractRootInfo> getRootInfoMap() {
@@ -95,6 +99,11 @@ public class CodeGenContext {
     return optimisticLockRootInfo;
   }
 
+  /** Returns tableListRootInfo. */
+  public TableListRootInfo getTableListRootInfo() {
+    return tableListRootInfo;
+  }
+
   /** Returns genPtn. */
   public GeneratePtnEnum getGenPtn() {
     return genPtn;
@@ -103,6 +112,20 @@ public class CodeGenContext {
   /** Sets genPtn. */
   public void setGenPtn(GeneratePtnEnum genPtn) {
     this.genPtn = genPtn;
+  }
+
+  /** Returns the Excel template language detected for the current input file. */
+  public ExcelTemplateLanguage getExcelLang() {
+    return excelLang;
+  }
+
+  /**
+   * Sets the Excel template language and propagates it to {@link ExcelTemplateLanguage#current}
+   * so that enum/item name lookups use the correct locale for the active input file.
+   */
+  public void setExcelLang(ExcelTemplateLanguage excelLang) {
+    this.excelLang = excelLang;
+    ExcelTemplateLanguage.setCurrent(excelLang);
   }
 
   /**
@@ -130,6 +153,7 @@ public class CodeGenContext {
     groupRootInfo = (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP);
     optimisticLockRootInfo =
         (MiscOptimisticLockRootInfo) rootInfoMap.get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
+    tableListRootInfo = (TableListRootInfo) rootInfoMap.get(DataKindEnum.TABLE_LIST);
   }
 
   /*

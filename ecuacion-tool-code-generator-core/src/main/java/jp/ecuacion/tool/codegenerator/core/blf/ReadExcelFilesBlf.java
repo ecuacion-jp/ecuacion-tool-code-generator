@@ -21,21 +21,22 @@ import java.util.HashMap;
 import java.util.Map;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.violation.Violations;
-import jp.ecuacion.tool.codegenerator.core.controller.MainController.SkipException;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.TableListRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
-import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelDbCommonReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelDbReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelEnumReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelGeneralSettingsReader;
+import jp.ecuacion.tool.codegenerator.core.reader.ExcelTableListReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelTemplateLanguageDetector;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableToBeanReader;
 
@@ -50,14 +51,10 @@ public class ReadExcelFilesBlf {
     * Reads the given Excel file and returns a map from each {@link DataKindEnum} to its
     * corresponding root-info object.
    */
-  public Map<DataKindEnum, AbstractRootInfo> execute(File file) throws Exception {
+  public Map<DataKindEnum, AbstractRootInfo> execute(File file, CodeGenContext ctx)
+      throws Exception {
 
     detailLog.info("read excel : " + file.getName());
-
-    // Skip if the file content indicates it should be skipped
-    if (shouldSkip(file, "xlsx")) {
-      throw new SkipException();
-    }
 
     // The unit here differs from Excel sheets, but we follow the file-split unit from the
     // original XML era for now
@@ -65,6 +62,7 @@ public class ReadExcelFilesBlf {
 
     // Detect template language (JA or EN) by inspecting sheet names
     ExcelTemplateLanguage lang = ExcelTemplateLanguageDetector.detect(file.getAbsolutePath());
+    ctx.setExcelLang(lang);
 
     // Read Excel (pure reading and storing into objects only; no data complementation here)
     rootInfoMap.putAll(new ExcelGeneralSettingsReader(lang).readAndGetMap(file.getAbsolutePath()));
@@ -75,8 +73,8 @@ public class ReadExcelFilesBlf {
     // dataType
     String dataTypeSheetName =
         lang == ExcelTemplateLanguage.JA ? DataTypeInfo.SHEET_NAME_JA : DataTypeInfo.SHEET_NAME_EN;
-    String[] dataTypeHeaders = lang == ExcelTemplateLanguage.JA ? DataTypeInfo.HEADER_LABELS_JA
-        : DataTypeInfo.HEADER_LABELS_EN;
+    String[] dataTypeHeaders = (lang == ExcelTemplateLanguage.JA ? DataTypeInfo.HEADER_LABELS_JA
+        : DataTypeInfo.HEADER_LABELS_EN).toArray(new String[0]);
     rootInfoMap.put(DataKindEnum.DATA_TYPE,
         new DataTypeRootInfo(
             new StringOneLineHeaderExcelTableToBeanReader<DataTypeInfo>(DataTypeInfo.class,
@@ -88,6 +86,14 @@ public class ReadExcelFilesBlf {
         .putAll(new ExcelDbReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
     rootInfoMap.putAll(
         new ExcelDbCommonReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
+
+    try {
+      rootInfoMap.putAll(
+          new ExcelTableListReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
+    } catch (Exception e) {
+      // テーブル一覧 sheet is absent in older Excel templates; skip silently
+    }
+    putEmptyRootInfo(rootInfoMap, DataKindEnum.TABLE_LIST, new TableListRootInfo());
 
     // Batch validation and intra-RootInfo data complementation
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
@@ -113,23 +119,4 @@ public class ReadExcelFilesBlf {
     }
   }
 
-  private boolean shouldSkip(File file, String extension) {
-    // Skip directories
-    if (file.isDirectory()) {
-      Logger.log(ReadExcelFilesBlf.class, "MSG_INFO_DIRECTORY_INCLUDED", file.getName());
-      return true;
-
-    } else if (!file.getName().endsWith("." + extension)) {
-      // Skip files that are not xml / excel
-      Logger.log(ReadExcelFilesBlf.class, "MSG_INFO_NON_XML_FILE_INCLUDED", file.getName());
-      return true;
-
-    } else if (file.getName().startsWith("~$")) {
-      // Skip Excel temporary files that are automatically created with this naming pattern
-      return true;
-
-    } else {
-      return false;
-    }
-  }
 }

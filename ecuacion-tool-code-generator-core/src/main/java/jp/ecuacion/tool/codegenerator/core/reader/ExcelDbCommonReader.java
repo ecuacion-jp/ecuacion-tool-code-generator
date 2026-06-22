@@ -28,10 +28,15 @@ public class ExcelDbCommonReader extends ExcelAbstractDbOrClassReader {
   private static final String SHEET_NAME_JA = "DB共通項目定義";
   private static final String SHEET_NAME_EN = "DB Common Item Definition";
 
-  /** Constructs an instance 
+  /** Constructs an instance
    *     that targets the common DB item-definition sheet for the given language. */
   public ExcelDbCommonReader(SystemCommonRootInfo info, ExcelTemplateLanguage lang) {
     super(lang == ExcelTemplateLanguage.JA ? SHEET_NAME_JA : SHEET_NAME_EN, DataKindEnum.DB_COMMON,
         info, lang);
+  }
+
+  @Override
+  protected String resolveTableName(String rawTableName) {
+    return (rawTableName == null || rawTableName.isEmpty()) ? "SYSTEM_COMMON" : rawTableName;
   }
 }

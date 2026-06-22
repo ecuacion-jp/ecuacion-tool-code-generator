@@ -77,17 +77,15 @@ public class DataTypeInfo extends StringExcelTableBean {
   public static final String SHEET_NAME_JA = "dataType定義";
   public static final String SHEET_NAME_EN = "dataType Definition";
 
-  public static final String[] HEADER_LABELS_JA =
-      new String[] {"DataType名", "型", "長さ最小", "長さ最大", "データパターン（日本語）", "データパターン", "禁則文字チェック除外",
-          "正規表現", "パターン説明（デフォルト言語）", "パターン説明（追加言語1）", "パターン説明（追加言語2）", "パターン説明（追加言語3）", "最小値",
-          "最大値", "整数部桁数", "小数部桁数", "コードの長さ", "timezoneなし", "備考"};
+  public static final List<String> HEADER_LABELS_JA = List.of("DataType名", "型", "長さ最小", "長さ最大",
+      "データパターン（日本語）", "データパターン", "禁則文字チェック除外", "正規表現", "最小値", "最大値", "整数部桁数", "小数部桁数", "コードの長さ",
+      "timezoneなし", "備考", "パターン説明（デフォルト言語）", "パターン説明（追加言語1）", "パターン説明（追加言語2）", "パターン説明（追加言語）");
 
-  public static final String[] HEADER_LABELS_EN =
-      new String[] {"DataType Name", "Type", "Min Length", "Max Length", "Data Pattern (Japanese)",
-          "Data Pattern", "Exclude Prohibited Chars Check", "Regex", "Pattern Desc (Default Lang)",
-          "Pattern Desc (Additional Lang 1)", "Pattern Desc (Additional Lang 2)",
-          "Pattern Desc (Additional Lang 3)", "Min Value", "Max Value", "Integer Digits",
-          "Decimal Digits", "Code Length", "No Timezone", "Notes"};
+  public static final List<String> HEADER_LABELS_EN = List.of("DataType Name", "Type", "Min Length",
+      "Max Length", "Data Pattern (Japanese)", "Data Pattern", "Exclude Prohibited Chars Check",
+      "Regex", "Min Value", "Max Value", "Integer Digits", "Decimal Digits", "Code Length",
+      "No Timezone", "Notes", "Pattern Desc (Default Lang)", "Pattern Desc (Additional Lang 1)",
+      "Pattern Desc (Additional Lang 2)", "Pattern Desc (Additional Lang 3)");
 
   @NotEmpty
   @Size(min = 0, max = 50)
@@ -131,10 +129,10 @@ public class DataTypeInfo extends StringExcelTableBean {
   @Override
   protected @Nullable String[] getFieldNameArray() {
     return new String[] {"dataTypeName", "kata", "minLength", "maxLength", null, "stringDataPtn",
-        "stringAllowsProhibitedCharacters", "stringRegEx", "stringRegExDescLangDefault",
-        "stringRegExDescLangSupport01", "stringRegExDescLangSupport02",
-        "stringRegExDescLangSupport03", "numMinVal", "numMaxVal", "numDigitInteger",
-        "numDigitFraction", "enumCodeLength", "notNeedsTimezone", "remarks"};
+        "stringAllowsProhibitedCharacters", "stringRegEx", "numMinVal", "numMaxVal",
+        "numDigitInteger", "numDigitFraction", "enumCodeLength", "notNeedsTimezone", "remarks",
+        "stringRegExDescLangDefault", "stringRegExDescLangSupport01",
+        "stringRegExDescLangSupport02", "stringRegExDescLangSupport03"};
   }
 
   /** Constructs an instance from a column list read from an Excel table row. */

@@ -57,7 +57,7 @@ public class DaoGen extends AbstractTableGen {
 
       // Generate baseRepository when using Spring
       if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
-        createBaseRepository(tableInfo, entityNameCp, getInfo().getGroupRootInfo());
+        createBaseRepository(tableInfo, entityNameCp);
       }
     }
 
@@ -229,14 +229,9 @@ public class DaoGen extends AbstractTableGen {
     sb.append(importMgr.outputStr() + RT);
   }
 
-  private void createBaseRepository(DbOrClassTableInfo tableInfo, String tableNameCp,
-      MiscGroupRootInfo groupInfo) {
+  private void createBaseRepository(DbOrClassTableInfo tableInfo, String tableNameCp) {
 
     sb = new StringBuilder();
-
-    final List<DbOrClassColumnInfo> relFieldList =
-        tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly()).filter(e -> !e.isPk())
-            .filter(e -> e.isRelation()).toList();
 
     List<DbOrClassColumnInfo> list = new ArrayList<>(tableInfo.columnList);
     list.addAll(getInfo().getDbCommonRootInfo().tableList.get(0).columnList);
@@ -257,7 +252,7 @@ public class DaoGen extends AbstractTableGen {
     sb.append("package " + rootBasePackage + ".base.repository;" + RT2);
 
     // import
-    createBaseRepositoryImport(tableInfo, tableNameCp, relFieldList);
+    createBaseRepositoryImport(tableInfo, tableNameCp);
 
     sb.append("public interface " + tableNameCp + "BaseRepository"
         + " extends SystemCommonBaseRepository<" + tableNameCp
@@ -332,8 +327,7 @@ public class DaoGen extends AbstractTableGen {
     outputFile(sb, getFilePath("repository"), tableNameCp + "BaseRepository.java");
   }
 
-  private void createBaseRepositoryImport(DbOrClassTableInfo tableInfo, String tableNameCp,
-      List<DbOrClassColumnInfo> relFieldList) {
+  private void createBaseRepositoryImport(DbOrClassTableInfo tableInfo, String tableNameCp) {
     ImportBlock importMgr = new ImportBlock();
     importMgr.add("java.util.*", rootBasePackage + ".base.entity." + tableNameCp,
         "org.springframework.data.jpa.repository.*",
@@ -381,10 +375,6 @@ public class DaoGen extends AbstractTableGen {
     importMgr.add("jp.ecuacion.util.jpa.dao.AbstractDao",
         rootBasePackage + ".base.entity.SystemCommon");
     importMgr.add("org.jspecify.annotations.NonNull");
-
-    if (delFlgInfo.isDefined()) {
-      importMgr.add("jakarta.persistence.EntityManager");
-    }
 
     // Check enum usage and add required enum imports
     if (getInfo().getDbCommonRootInfo() != null) {
@@ -471,19 +461,6 @@ public class DaoGen extends AbstractTableGen {
     }
 
     sb.append(T1 + "}" + RT2);
-
-    if (delFlgInfo.isDefined()) {
-      sb.append(T1 + "public void " + delFlgInfo.getRemoveMethodName() + "(EntityManager em, T e) {"
-          + RT);
-      sb.append(T2 + "try {" + RT);
-      sb.append(T3 + "e.set" + StringUtil.getUpperCamelFromSnake(delFlgInfo.getColumnName())
-          + "(true);" + RT);
-      sb.append(T3 + "super.logicalDeleteByPk(em, e);" + RT);
-      sb.append(T2 + "} catch (Exception ex) {" + RT);
-      sb.append(T3 + "throw new RuntimeException(ex);" + RT);
-      sb.append(T2 + "}" + RT);
-      sb.append(T1 + "}" + RT2);
-    }
 
     sb.append("}" + RT);
 

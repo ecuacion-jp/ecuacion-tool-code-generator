@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
@@ -70,7 +71,7 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
     check(originalFileName);
 
     String dateTimeString =
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss.SSS"));
+        LocalDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss.SSS"));
     String threadIdString = Long.valueOf(Thread.currentThread().threadId()).toString();
     Boolean hasDir = PropertiesFileUtil.hasApplication("app.work-root-dir");
     String rootDir = (hasDir ? env.getProperty("app.work-root-dir") : "./app-work")
@@ -83,7 +84,13 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
     new File(outputDir).mkdirs();
 
     // Write the Excel file to the input directory
-    Path path = Paths.get(inputDir + "/" + originalFileName);
+    Path base = Paths.get(inputDir).toAbsolutePath().normalize();
+    Path path = base.resolve(originalFileName).normalize();
+    if (!path.startsWith(base)) {
+      new Violations()
+          .add(new BusinessViolation("SOURCE_DOWNLOAD_MESSAGE_FILE_EXTENSION_UNAVAILABLE"))
+          .throwIfAny();
+    }
     Files.write(path, multipartFile.getBytes());
 
     new MainController().execute(inputDir, outputDir);
