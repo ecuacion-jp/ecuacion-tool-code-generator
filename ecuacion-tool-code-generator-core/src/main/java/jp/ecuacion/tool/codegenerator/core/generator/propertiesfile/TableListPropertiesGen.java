@@ -20,12 +20,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.TableListInfo;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 
 /**
- * Generates {@code table_<TABLE_NAME>=<display name>} entries in {@code messages_base.properties}
- * and its language variants, based on the table-list sheet.
+ * Generates {@code <lowerCamelTableName>=<display name>} entries 
+ * in {@code messages_base.properties} and its language variants, based on the table-list sheet.
  */
 public class TableListPropertiesGen extends AbstractGen {
 
@@ -46,13 +47,12 @@ public class TableListPropertiesGen extends AbstractGen {
     langList.addAll(getInfo().getSysCmnRootInfo().getSupportedLangArr());
 
     for (String lang : langList) {
-      String lookupKey =
-          lang.isEmpty() ? getInfo().getSysCmnRootInfo().getDefaultLang() : lang;
+      String lookupKey = lang.isEmpty() ? getInfo().getSysCmnRootInfo().getDefaultLang() : lang;
       Map<String, String> propMap = new LinkedHashMap<>();
       for (TableListInfo tableInfo : getInfo().getTableListRootInfo().tableList) {
         String displayName = tableInfo.getDisplayNameMap().get(lookupKey);
         if (displayName != null && !displayName.isEmpty()) {
-          propMap.put("table_" + tableInfo.getTableName(), displayName);
+          propMap.put(StringUtil.getLowerCamelFromSnake(tableInfo.getTableName()), displayName);
         }
       }
       if (!propMap.isEmpty()) {
