@@ -45,6 +45,12 @@
 			<artifactId>ecuacion-splib-core</artifactId>
 		</dependency>
 
+		<!-- ecuacion-lib -->
+		<dependency>
+			<groupId>jp.ecuacion.lib</groupId>
+			<artifactId>ecuacion-lib-validation-business-messages</artifactId>
+		</dependency>
+
 		<!-- ecuacion-util -->
 		<dependency>
 			<groupId>jp.ecuacion.util</groupId>
