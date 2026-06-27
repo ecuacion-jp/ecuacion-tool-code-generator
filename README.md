@@ -34,7 +34,7 @@ This project follows the spirit of [Semantic Versioning](https://semver.org/). M
 
 ## Documentation
 
-- [ecuacion-references](https://references.ecuacion.jp) — Official reference documentation
+- [ecuacion-references](https://references.ecuacion.jp/ecuacion-references-tool-code-generator/public/en/article?id=home) — Official reference documentation
 
 ## Download & Usage
 
