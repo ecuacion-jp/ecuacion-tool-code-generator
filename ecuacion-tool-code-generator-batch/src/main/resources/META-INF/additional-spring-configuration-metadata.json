@@ -1,0 +1,16 @@
+{
+	"properties": [
+		{
+			"name": "jp.ecuacion.tool.codegenerator.input-dir",
+			"type": "java.lang.String",
+			"description": "",
+			"defaultValue": ""
+		},
+		{
+			"name": "jp.ecuacion.tool.codegenerator.output-dir",
+			"type": "java.lang.String",
+			"description": "",
+			"defaultValue": ""
+		}
+	]
+}
