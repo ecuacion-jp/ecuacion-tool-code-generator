@@ -82,7 +82,7 @@ public class DataTypeInfo extends StringExcelTableBean {
       "timezoneなし", "備考", "パターン説明（デフォルト言語）", "パターン説明（追加言語1）", "パターン説明（追加言語2）", "パターン説明（追加言語）");
 
   public static final List<String> HEADER_LABELS_EN = List.of("DataType Name", "Type", "Min Length",
-      "Max Length", "Data Pattern (Japanese)", "Data Pattern", "Exclude Prohibited Chars Check",
+      "Max Length", "Data Pattern (display name)", "Data Pattern", "Exclude Prohibited Chars Check",
       "Regex", "Min Value", "Max Value", "Integer Digits", "Decimal Digits", "Code Length",
       "No Timezone", "Notes", "Pattern Desc (Default Lang)", "Pattern Desc (Additional Lang 1)",
       "Pattern Desc (Additional Lang 2)", "Pattern Desc (Additional Lang 3)");
