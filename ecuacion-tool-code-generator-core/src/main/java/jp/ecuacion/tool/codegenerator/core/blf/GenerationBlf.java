@@ -196,10 +196,12 @@ public class GenerationBlf {
         // Generate miscellaneous files
         new MessagesBasePropertiesGen().generate();
 
-      } else if (dataKind == DataKindEnum.TABLE_LIST) {
-        Logger.log(this, "GEN_TABLE_LIST");
-        new TableListPropertiesGen().generate();
       }
     }
+
+    // Must run after MessagesBasePropertiesGen (SYSTEM_COMMON) since copyFileToResourceDir
+    // overwrites the file; appending table list data here ensures it is never lost.
+    Logger.log(this, "GEN_TABLE_LIST");
+    new TableListPropertiesGen().generate();
   }
 }
