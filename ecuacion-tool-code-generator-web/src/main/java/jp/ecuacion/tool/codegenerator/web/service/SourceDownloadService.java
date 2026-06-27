@@ -70,8 +70,8 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
 
     check(originalFileName);
 
-    String dateTimeString =
-        LocalDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss.SSS"));
+    String dateTimeString = LocalDateTime.now(ZoneId.systemDefault())
+        .format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss.SSS"));
     String threadIdString = Long.valueOf(Thread.currentThread().threadId()).toString();
     Boolean hasDir = PropertiesFileUtil.hasApplication("app.work-root-dir");
     String rootDir = (hasDir ? env.getProperty("app.work-root-dir") : "./app-work")
