@@ -38,7 +38,6 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Valida
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
-import jp.ecuacion.tool.codegenerator.core.validation.StrPk;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
@@ -81,8 +80,10 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   private String dataType;
   @StrBoolean
   private String isJavaOnly;
-  @StrPk
-  private String pkKind;
+  @StrBoolean
+  private String isSurrogateKey;
+  @StrBoolean
+  private String isNaturalKey;
   @StrBoolean
   private String isNullable;
   @StrBoolean
@@ -134,7 +135,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   protected @Nullable String[] getFieldNameArray() {
     return new String[] {
         null, "name", "dataType", null,
-        "isJavaOnly", "pkKind", "isNullable", "isAutoIncrement", "isForcedIncrement",
+        "isJavaOnly", "isSurrogateKey", "isNaturalKey", "isNullable", "isAutoIncrement",
+        "isForcedIncrement",
         "isAutoUpdate", "isForcedUpdate", "isCustomGroupColumn", "springAuditing", "relationKind",
         "relationDirection",
         "relationFieldName", "relationRefTable", "relationRefCol", "relationRefFieldName",
@@ -177,7 +179,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   @SuppressWarnings("null")
   public static DbOrClassColumnInfo cloneWithoutRelationRelated(DbOrClassColumnInfo ci) {
     String[] arr = new String[] {null, ci.getName(), ci.getDataType(), null,
-        ci.getIsJavaOnlyString(), ci.getPkKindString(), ci.isNullable,
+        ci.getIsJavaOnlyString(), ReaderUtil.booleanToBoolStr(ci.isPk()),
+        ReaderUtil.booleanToBoolStr(ci.isUniqueConstraint()), ci.isNullable,
         ReaderUtil.booleanToBoolStr(ci.isAutoIncrement()),
         ReaderUtil.booleanToBoolStr(ci.isForcedIncrement()),
         ReaderUtil.booleanToBoolStr(ci.isAutoUpdate()),
@@ -261,15 +264,11 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   public boolean isPk() {
-    return pkKind != null && pkKind.equals("S");
-  }
-
-  public String getPkKindString() {
-    return pkKind;
+    return ReaderUtil.boolStrToBoolean(isSurrogateKey);
   }
 
   public boolean isUniqueConstraint() {
-    return pkKind != null && pkKind.equals("U");
+    return ReaderUtil.boolStrToBoolean(isNaturalKey);
   }
 
   // nullable
