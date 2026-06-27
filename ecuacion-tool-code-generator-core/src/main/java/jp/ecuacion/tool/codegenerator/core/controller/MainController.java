@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.blf.CheckAndComplementDataBlf;
@@ -45,17 +46,24 @@ public class MainController {
 
   /**
    * Is the entrypoint of the core module.
+   *
+   * <p>{@code inputDir} accepts a comma-separated list of directories.
    */
   public void execute(String inputDir, String outputDir) throws Exception {
 
-    // Prepare
-    CodeGenContext info = prepare(inputDir, outputDir);
+    List<String> inputDirs = Arrays.stream(inputDir.split(","))
+        .map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
 
-    // Build the list of target Excel files, logging skipped files along the way.
+    // Prepare
+    CodeGenContext info = prepare(inputDirs, outputDir);
+
+    // Build the list of target Excel files from all input directories.
     List<File> targetFiles = new ArrayList<>();
-    for (File file : new File(inputDir).listFiles()) {
-      if (!shouldSkip(file, "xlsx")) {
-        targetFiles.add(file);
+    for (String dir : inputDirs) {
+      for (File file : new File(dir).listFiles()) {
+        if (!shouldSkip(file, "xlsx")) {
+          targetFiles.add(file);
+        }
       }
     }
 
@@ -88,18 +96,20 @@ public class MainController {
     }
   }
 
-  private CodeGenContext prepare(String inputDir, String outputDir) {
+  private CodeGenContext prepare(List<String> inputDirs, String outputDir) {
     // Show current directory.
     Logger.log(this, "SHOW_CURRENT_DIR", Paths.get("").toAbsolutePath().toString());
-    
+
     // Delete previously created files.
     Logger.log(this, "DELETE_LAST_TIME_FILE");
     delete(new File(outputDir));
 
-    // Throw an exception if the directory does not exist.
-    if (!new File(inputDir).exists() || !new File(inputDir).isDirectory()) {
-      new Violations().add(new BusinessViolation("MSG_ERR_INFO_XML_DIR_NOT_EXIST", inputDir))
-          .throwIfAny();
+    // Throw an exception if any directory does not exist.
+    for (String dir : inputDirs) {
+      if (!new File(dir).exists() || !new File(dir).isDirectory()) {
+        new Violations().add(new BusinessViolation("MSG_ERR_INFO_XML_DIR_NOT_EXIST", dir))
+            .throwIfAny();
+      }
     }
 
     // Create and set Info.
