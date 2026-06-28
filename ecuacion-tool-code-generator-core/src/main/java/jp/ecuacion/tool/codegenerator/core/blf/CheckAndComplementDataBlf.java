@@ -70,7 +70,7 @@ public class CheckAndComplementDataBlf {
         (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB));
 
     // Between parent and child tables
-    checkAndComplementForParentAndChildTable(
+    checkAndComplementForParentAndChildTable(systemName,
         (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON),
         (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB));
 
@@ -120,8 +120,8 @@ public class CheckAndComplementDataBlf {
     }
   }
 
-  private void checkAndComplementForParentAndChildTable(DbOrClassRootInfo dbCommonRootInfo,
-      DbOrClassRootInfo dbRootInfo) {
+  private void checkAndComplementForParentAndChildTable(String systemName,
+      DbOrClassRootInfo dbCommonRootInfo, DbOrClassRootInfo dbRootInfo) {
     // Loop again to add information
     for (DbOrClassTableInfo tableInfo : dbRootInfo.tableList) {
       boolean hasS = false;
@@ -133,9 +133,13 @@ public class CheckAndComplementDataBlf {
       commonAddedColumnList.addAll(dbCommonRootInfo.tableList.get(0).columnList);
 
       for (DbOrClassColumnInfo colInfo : commonAddedColumnList) {
-        // Also include common columns
-
         if (colInfo.isPk()) {
+          if (colInfo.isNullable()) {
+            new Violations().add(new BusinessViolation("MSG_ERR_PK_MUST_NOT_BE_NULLABLE",
+                systemName, colInfo.getDataType(), tableInfo.getName(), colInfo.getName()))
+                .throwIfAny();
+          }
+
           // Check because having two surrogate key columns is not allowed
           if (hasS) {
             new Violations().add(new BusinessViolation(

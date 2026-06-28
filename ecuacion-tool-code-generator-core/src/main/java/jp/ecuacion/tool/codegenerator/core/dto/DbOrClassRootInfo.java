@@ -62,7 +62,18 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
     for (DbOrClassTableInfo tbl : tableList) {
       tbl.dataConsistencyCheck();
     }
-    
+
+    // // Nullable columns cannot have relations (redmine#463)
+    // for (DbOrClassTableInfo tbl : tableList) {
+    // for (DbOrClassColumnInfo ci : tbl.columnList) {
+    // if (ci.isNullable() && ci.getRelationKind() != null) {
+    // new Violations().add(new BusinessViolation(
+    // "MSG_ERR_CONSISTENCY_CHECK_NULLABLE_ENTITY_COLUMN_CANNOT_HAVE_RELATIONS",
+    // tbl.getName(), ci.getName())).throwIfAny();
+    // }
+    // }
+    // }
+
     // Check only for systemCommon
     systemCommonCheck();
   }
