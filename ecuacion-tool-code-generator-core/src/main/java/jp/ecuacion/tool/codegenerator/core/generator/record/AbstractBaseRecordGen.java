@@ -227,8 +227,8 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       if (ci.isRelation()) {
         sb.append(T3 + ci.getRelationFieldName() + " = new "
             + StringUtils.capitalize(ci.getRelationRefTableCamel()) + "BaseRecord("
-            + (getInfo().getTableInfo(ci.getRelationRefTable())
-                .hasAnyRelationsOrRefs() ? "count" : "")
+            + (getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs() ? "count"
+                : "")
             + ") {public Item[] customizedItems() {return null;}};" + RT);
       }
 
@@ -328,7 +328,9 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       DataTypeInfo dtInfo = ci.getDtInfo();
 
       if (ci.isRelation()) {
-        sb.append(isCalledFromB2 ? T2 + "if (count > 0) {" + RT : "");
+        sb.append(isCalledFromB2
+            ? T2 + "if (count > 0 && e.get" + ci.getRelationFieldNameCp() + "() != null) {" + RT
+            : "");
 
         boolean hasRel = getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs();
         sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getRelationFieldName() + " = new "
@@ -406,8 +408,8 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       if (ci.isRelation()) {
         sb.append(T2 + "this." + ci.getRelationFieldName() + " = new "
             + ci.getRelationRefTableCpCamel() + "BaseRecord("
-            + (getInfo().getTableInfo(ci.getRelationRefTable())
-                .hasAnyRelationsOrRefs() ? "count" : "")
+            + (getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs() ? "count"
+                : "")
             + ") {public Item[] customizedItems() {return null;}};" + RT);
       }
 

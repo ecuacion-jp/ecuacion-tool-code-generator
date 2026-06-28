@@ -170,9 +170,14 @@ public class GenerationBlf {
         Logger.log(this, "GEN_DT");
         // Iterate over multiple dataTypes in a single file row by row.
         // The generator class differs per dataType kind, so create dynamically
+        List<DataTypeGen> dtGenList = new ArrayList<>();
         for (DataTypeInfo dtInfo : info.getDataTypeRootInfo().dataTypeList) {
-          DataTypeGen gen = new DataTypeGen(dtInfo);;
+          DataTypeGen gen = new DataTypeGen(dtInfo);
           gen.generate();
+          dtGenList.add(gen);
+        }
+        Logger.log(this, "GEN_DT_R");
+        for (DataTypeGen gen : dtGenList) {
           gen.generateConverter(false);
         }
 
