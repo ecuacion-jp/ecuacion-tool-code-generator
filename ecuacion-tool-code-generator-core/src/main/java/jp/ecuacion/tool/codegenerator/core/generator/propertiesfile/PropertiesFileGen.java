@@ -31,6 +31,7 @@ import jp.ecuacion.lib.core.util.FileUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
+import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 import org.jspecify.annotations.Nullable;
 
 /** Generates and manages properties files such as item_names and enum_names for each language. */
@@ -114,6 +115,8 @@ public class PropertiesFileGen extends AbstractGen {
         PropertiesFileGen.class.getClassLoader().getResourceAsStream(filename);) {
 
       if (input == null) {
+        Logger.log(PropertiesFileGen.class, "MSG_ERR_COPY_FROM_PROPERTIES_FILE_NOT_EXIST",
+            systemName, filename);
         return;
       }
 
