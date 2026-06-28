@@ -31,7 +31,7 @@ public class ExcelTemplateLanguageDetector {
 
   /** Opens the workbook briefly to inspect sheet names, then returns the detected language. */
   public static ExcelTemplateLanguage detect(String excelPath) throws IOException {
-    try (Workbook wb = WorkbookFactory.create(new File(excelPath))) {
+    try (Workbook wb = WorkbookFactory.create(new File(excelPath), null, true)) {
       return wb.getSheet(JA_GENERAL_SETTINGS_SHEET) != null
           ? ExcelTemplateLanguage.JA
           : ExcelTemplateLanguage.EN;
