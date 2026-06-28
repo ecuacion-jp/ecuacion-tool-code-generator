@@ -81,7 +81,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
     // setIds
     sb.append(T1 + "public void setIds(String idCsv) {" + RT);
-    sb.append(T2 + "String[] ids = idCsv.split(\"" + sep + "\");" + RT);
+    sb.append(T2 + "String[] ids = idCsv.split(\"" + sep + "\", -1);" + RT);
     sb.append(T2 + "if (ids.length < " + (1 + relColList.size()) + ") return;" + RT2);
 
     sb.append(T2 + code.generateString(ti.getPkColumn(), ColFormat.SET, "ids[0]") + ";" + RT);
@@ -112,7 +112,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
     // setOptimisticLockVersions
     sb.append(T1 + "public void setOptimisticLockVersions(String versionCsv) {" + RT);
-    sb.append(T2 + "String[] versions = versionCsv.split(\"" + sep + "\");" + RT);
+    sb.append(T2 + "String[] versions = versionCsv.split(\"" + sep + "\", -1);" + RT);
     sb.append(T2 + "if (versions.length < " + (1 + relColList.size()) + ") return;" + RT2);
 
     sb.append(T2 + "set" + ver + "(versions[0]);" + RT);
