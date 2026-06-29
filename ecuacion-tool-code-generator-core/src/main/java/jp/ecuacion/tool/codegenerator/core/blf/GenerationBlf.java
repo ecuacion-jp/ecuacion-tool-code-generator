@@ -18,6 +18,7 @@ package jp.ecuacion.tool.codegenerator.core.blf;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -40,11 +41,11 @@ import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.ValidationMe
 import jp.ecuacion.tool.codegenerator.core.generator.record.PerTableBaseRecordGen;
 import jp.ecuacion.tool.codegenerator.core.generator.record.SystemCommonBaseRecordGen;
 import jp.ecuacion.tool.codegenerator.core.generator.util.JpaFilterUtilGen;
-import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
 /** Orchestrates all code-generation steps for a single system. */
 public class GenerationBlf {
 
+  private static final DetailLogger log = new DetailLogger(GenerationBlf.class);
   private CodeGenContext info;
 
   /** Constructs this BLF with the given {@link CodeGenContext}. */
@@ -64,8 +65,9 @@ public class GenerationBlf {
    * pattern.
    */
   public void controlGenerators() throws Exception {
-    Logger.log(this, "SINGLE_BORDER");
-    Logger.log(this, "GEN_FOR_SYSTEM", info.getSystemName());
+    log.info("---------------");
+    log.info("Generating source for the following system. [System name: " + info.getSystemName()
+        + "]");
 
     // // Pass allDtMap to generator (intentionally static)
     // AbstractTableOrClassRelatedGen.setAllDtMap(allDtMap);
@@ -89,7 +91,7 @@ public class GenerationBlf {
     // enumInfo, dataTypeInfo, and systemCommonInfo.
     // First determine whether dict creation is needed.
     // If needed, pass the xmlMap to the generator, which processes it file by file.
-    Logger.log(this, "GEN_DICT_AND_MORE");
+    log.info("Generating Dict, SystemCommonBaseRecord, and SystemCommon.");
     boolean isNeeded = false;
     for (DataKindEnum dataKind : info.getRootInfoMap().keySet()) {
       if (dataKind != DataKindEnum.ENUM && dataKind != DataKindEnum.DATA_TYPE
@@ -119,11 +121,11 @@ public class GenerationBlf {
     for (DataKindEnum dataKind : info.getRootInfoMap().keySet()) {
 
       if (dataKind == DataKindEnum.ENUM) {
-        Logger.log(this, "GEN_ENUM");
+        log.info("Generating enum.");
         new EnumGen().generate();
 
       } else if (dataKind == DataKindEnum.DATA_TYPE) {
-        Logger.log(this, "GEN_DT");
+        log.info("Generating dataType.");
         // Iterate over multiple dataTypes in a single file row by row.
         // The generator class differs per dataType kind, so create dynamically
         List<DataTypeGen> dtGenList = new ArrayList<>();
@@ -132,13 +134,13 @@ public class GenerationBlf {
           gen.generate();
           dtGenList.add(gen);
         }
-        Logger.log(this, "GEN_DT_R");
+        log.info("Generating dataType references.");
         for (DataTypeGen gen : dtGenList) {
           gen.generateConverter(false);
         }
 
       } else if (dataKind == DataKindEnum.DB) {
-        Logger.log(this, "GEN_DB");
+        log.info("Generating database-related sources.");
         List<AbstractTableGen> genArr = new ArrayList<AbstractTableGen>();
         genArr.add(new PerTableBaseRecordGen(DataKindEnum.DB));
         genArr.add(new EntityBodyGen(DataKindEnum.DB, false));
@@ -153,7 +155,7 @@ public class GenerationBlf {
         new JpaFilterUtilGen().generate();
 
       } else if (dataKind == DataKindEnum.SYSTEM_COMMON) {
-        Logger.log(this, "GEN_PROP_FILE");
+        log.info("Generating property files.");
         // Generate miscellaneous files
         new MessagesBasePropertiesGen().generate();
 
@@ -162,7 +164,7 @@ public class GenerationBlf {
 
     // Must run after MessagesBasePropertiesGen (SYSTEM_COMMON) since copyFileToResourceDir
     // overwrites the file; appending table list data here ensures it is never lost.
-    Logger.log(this, "GEN_TABLE_LIST");
+    log.info("Generating table list info.");
     new TableListPropertiesGen().generate();
   }
 }

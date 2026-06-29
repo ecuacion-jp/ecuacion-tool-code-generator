@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.blf.CheckAndComplementDataBlf;
@@ -31,7 +32,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
 /**
  * Entry controller that drives the code generation pipeline: reads Excel files, validates,
@@ -39,7 +39,9 @@ import jp.ecuacion.tool.codegenerator.core.logger.Logger;
  */
 public class MainController {
 
-  /** 
+  private static final DetailLogger log = new DetailLogger(MainController.class);
+
+  /**
    * Store Info as threadLocal to adapt to multithread accesses.
    */
   public static ThreadLocal<CodeGenContext> tlInfo = new ThreadLocal<>();
@@ -68,14 +70,15 @@ public class MainController {
     }
 
     if (targetFiles.isEmpty()) {
-      Logger.log(this, "MSG_WRN_NO_TARGET_EXCEL_FILE", inputDir);
+      log.info("Warning: No target Excel files found in the input directory. [Directory: "
+          + inputDir + "]");
       return;
     }
 
     // Start the excel file unit loop.
     for (File file : targetFiles) {
       // 1. Read and validate excel formats, and complement data.
-      Logger.log(this, "READ_EXCELS");
+      log.info("Reading Excel files.");
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap = new ReadExcelFilesBlf().execute(file, info);
 
       // Put data to info.
@@ -86,22 +89,22 @@ public class MainController {
       info.setRootInfoUnitValues(systemName, rootInfoMap);
 
       // 2. Check and complement data
-      Logger.log(this, "CHECK_AND_COMPLEMENT_DATA");
+      log.info("Checking XML file contents and storing data.");
       // Map<String, DataTypeInfo> dtMap =
       new CheckAndComplementDataBlf().execute(info, systemName, rootInfoMap);
 
       // 3.generate source
-      Logger.log(this, "GEN_SOURCE_START");
+      log.info("Starting source generation.");
       new GenerationBlf(info).execute();
     }
   }
 
   private CodeGenContext prepare(List<String> inputDirs, String outputDir) {
     // Show current directory.
-    Logger.log(this, "SHOW_CURRENT_DIR", Paths.get("").toAbsolutePath().toString());
+    log.info("Current directory: " + Paths.get("").toAbsolutePath().toString());
 
     // Delete previously created files.
-    Logger.log(this, "DELETE_LAST_TIME_FILE");
+    log.info("Deleting the previously generated source files.");
     delete(new File(outputDir));
 
     // Throw an exception if any directory does not exist.
@@ -143,10 +146,12 @@ public class MainController {
 
   private static boolean shouldSkip(File file, String extension) {
     if (file.isDirectory()) {
-      Logger.log(MainController.class, "MSG_INFO_DIRECTORY_INCLUDED", file.getName());
+      log.info("A directory is included in the XML directory. Skipping. [Directory name: "
+          + file.getName() + "]");
       return true;
     } else if (!file.getName().endsWith("." + extension)) {
-      Logger.log(MainController.class, "MSG_INFO_NON_XML_FILE_INCLUDED", file.getName());
+      log.info("A non-XML file is included in the XML directory. Skipping. [File name: "
+          + file.getName() + "]");
       return true;
     } else if (file.getName().startsWith("~$")) {
       return true;
