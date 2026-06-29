@@ -329,12 +329,14 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
 
       if (ci.isRelation()) {
         sb.append(isCalledFromB2
-            ? T2 + "if (count > 0 && e.get" + ci.getRelationFieldNameCp() + "() != null) {" + RT
+            ? T2 + "if (count > 0 && e.get" + ci.getEffectiveRelationObjVarNameCp() + "() != null) {"
+                + RT
             : "");
 
         boolean hasRel = getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs();
         sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getRelationFieldName() + " = new "
-            + ci.getRelationRefTableCpCamel() + "BaseRecord(e.get" + ci.getRelationFieldNameCp()
+            + ci.getRelationRefTableCpCamel() + "BaseRecord(e.get"
+            + ci.getEffectiveRelationObjVarNameCp()
             + "(), params" + (hasRel ? ", count" : "")
             + ") {public Item[] customizedItems() {return null;}};" + RT);
 

@@ -45,19 +45,20 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
       new String[] {"テーブル名", "カラム名", "dataType", "dataType存在確認", "javaのみ", "Surrogate key ",
           "natural key (unique key)", "nullable",
           "自動採番", "強制採番", "自動更新", "強制更新", "グループ識別項目", "SPRING監査", "関連：種類", "関連：direction",
-          "関連：参照元変数名", "関連：参照先テーブル", "関連：参照先カラム", "関連：参照先変数名", "関連：eager", "index1", "index2",
-          "index3", "index4", "index5", "index6", "index7", "index8", "index9", "index10", "備考",
-          "カラム表示名（デフォルト言語）", "カラム表示名（追加言語1）", "カラム表示名（追加言語2）", "カラム表示名（追加言語3）"};
+          "関連：参照元変数名", "関連：参照元オブジェクト変数名", "関連：参照先テーブル", "関連：参照先カラム", "関連：参照先変数名", "関連：eager",
+          "index1", "index2", "index3", "index4", "index5", "index6", "index7", "index8", "index9",
+          "index10", "備考", "カラム表示名（デフォルト言語）", "カラム表示名（追加言語1）", "カラム表示名（追加言語2）",
+          "カラム表示名（追加言語3）"};
 
   private static final String[] HEADER_LABELS_EN =
       new String[] {"Table Name", "Column Name", "dataType", "dataType Check", "Java Only",
           "Surrogate key ", "natural key (unique key)",
           "nullable", "Auto Numbering", "Force Numbering", "Auto Update", "Force Update",
           "Group Identifier", "Spring Audit", "Relation: Type", "Relation: Direction",
-          "Relation: Source Var Name", "Relation: Target Table", "Relation: Target Column",
-          "Relation: Target Var Name", "Relation: Eager", "index1", "index2", "index3", "index4",
-          "index5", "index6", "index7", "index8", "index9", "index10", "Notes",
-          "Column Display Name (Default Lang)", "Column Display Name (Additional Lang 1)",
+          "Relation: Source Var Name", "Relation: Source Object Var Name", "Relation: Target Table",
+          "Relation: Target Column", "Relation: Target Var Name", "Relation: Eager", "index1",
+          "index2", "index3", "index4", "index5", "index6", "index7", "index8", "index9", "index10",
+          "Notes", "Column Display Name (Default Lang)", "Column Display Name (Additional Lang 1)",
           "Column Display Name (Additional Lang 2)", "Column Display Name (Additional Lang 3)"};
 
   /** Constructs an instance for the given sheet name, data kind, and system-common root info. */
