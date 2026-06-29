@@ -21,7 +21,6 @@ import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractTableGen;
 import jp.ecuacion.tool.codegenerator.core.generator.advice.AdviceGen;
@@ -54,53 +53,10 @@ public class GenerationBlf {
   }
 
   /**
-   * Determines which generation patterns are needed and delegates to {@link #controlGenerators()}
-   * for each.
+   * Delegates to {@link #controlGenerators()} for the normal generation pattern.
    */
   public void execute() throws Exception {
-    // A single system may require multiple generation patterns, so patterns are stored in an array
-    // and executed in a loop
-    List<GeneratePtnEnum> arr = new ArrayList<>();
-
-    if (shouldMakeNoGroupQuery(info)) {
-      if (shouldMakeNoGroupQueryForDaoOnly(info)) {
-        arr.add(GeneratePtnEnum.DAO_ONLY_GROUP_NORMAL);
-        arr.add(GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY);
-
-      } else {
-        // Generate with no-group-query pattern
-        arr.add(GeneratePtnEnum.NORMAL);
-        arr.add(GeneratePtnEnum.NO_GROUP_QUERY);
-      }
-
-    } else {
-      arr.add(GeneratePtnEnum.NORMAL);
-    }
-
-    // Normally one system produces one pattern;
-    // when multiple are needed, generate separately for each
-    for (GeneratePtnEnum anEnum : arr) {
-      info.setGenPtn(anEnum);
-      controlGenerators();
-    }
-  }
-
-  @SuppressWarnings("unused")
-  private boolean shouldMakeNoGroupQuery(CodeGenContext info) {
-    if (info.getGroupRootInfo() == null) {
-      return false;
-    }
-
-    return info.getGroupRootInfo().getNeedsUngroupedSource();
-  }
-
-  @SuppressWarnings("unused")
-  private boolean shouldMakeNoGroupQueryForDaoOnly(CodeGenContext info) {
-    if (info.getGroupRootInfo() == null) {
-      return false;
-    }
-
-    return info.getGroupRootInfo().getDevidesDaoIntoOtherProject();
+    controlGenerators();
   }
 
   /**
@@ -109,7 +65,7 @@ public class GenerationBlf {
    */
   public void controlGenerators() throws Exception {
     Logger.log(this, "SINGLE_BORDER");
-    Logger.log(this, "GEN_FOR_SYSTEM", info.getSystemName(), info.getGenPtn().getDisplayName());
+    Logger.log(this, "GEN_FOR_SYSTEM", info.getSystemName());
 
     // // Pass allDtMap to generator (intentionally static)
     // AbstractTableOrClassRelatedGen.setAllDtMap(allDtMap);

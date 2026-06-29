@@ -125,8 +125,7 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
 
   private AbstractRootInfo getGroup(Map<String, String> props) {
     MiscGroupRootInfo rootInfo = new MiscGroupRootInfo(props.get("COLUMN_NAME"),
-        props.get("DATA_TYPE_NAME"), props.get("TABLE_NAMES_WITHOUT_GROUPING"),
-        props.get("NEEDS_NO_GROUPING_MODULE"), props.get("DIVIDES_DAO_MODULE"));
+        props.get("DATA_TYPE_NAME"), props.get("TABLE_NAMES_WITHOUT_GROUPING"));
     return rootInfo;
   }
 
