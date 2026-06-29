@@ -17,7 +17,6 @@ package jp.ecuacion.tool.codegenerator.core.generator.dao;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
@@ -390,8 +389,7 @@ public class DaoGen extends AbstractTableGen {
         + "extends AbstractDao<T> {" + RT2);
 
     sb.append(T1 + "protected static final String COL_NAME_GRP = \""
-        + ((groupInfo == null || groupInfo.getColumnName() == null) ? null
-            : groupInfo.getLwFieldName())
+        + (groupInfo.getColumnName() == null ? null : groupInfo.getLwFieldName())
         + "\";" + RT);
     sb.append(T1 + "protected static final String COL_NAME_DEL_FLG = \"remFlg\";" + RT2);
 
@@ -402,7 +400,6 @@ public class DaoGen extends AbstractTableGen {
 
 
     // Group-related definitions
-    Objects.requireNonNull(groupInfo);
     sb.append(T1 + "protected boolean isGroupDefined() {" + RT);
     sb.append(T2 + "return " + Boolean.valueOf(groupInfo.isDefined()).toString() + ";" + RT);
     sb.append(T1 + "}" + RT2);
