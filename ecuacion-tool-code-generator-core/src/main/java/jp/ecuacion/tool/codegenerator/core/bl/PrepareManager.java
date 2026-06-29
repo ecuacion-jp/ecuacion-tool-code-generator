@@ -52,7 +52,8 @@ public class PrepareManager {
           relRefInfoList.add(new DbOrClassColumnInfo.RelationRefInfo(ci.isRelationBidirectinal(),
               relationKind.getInverse(), ci.getRelationRefTable(), ci.getRelationRefCol(),
               ci.getRelationRefFieldName(), ti.getName(),
-              StringUtil.getLowerCamelFromSnake(ci.getName()), ci.getEffectiveRelationObjVarName()));
+              StringUtil.getLowerCamelFromSnake(ci.getName()),
+              ci.getEffectiveRelationObjVarName()));
         }
       }
     }
