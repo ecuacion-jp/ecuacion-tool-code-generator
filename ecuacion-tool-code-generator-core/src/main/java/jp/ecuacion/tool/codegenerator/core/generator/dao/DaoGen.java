@@ -27,7 +27,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
-import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractTableGen;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
@@ -76,8 +75,6 @@ public class DaoGen extends AbstractTableGen {
   public void createBaseDaos(DbOrClassTableInfo ti, String entityNameCp) {
     sb = new StringBuilder();
 
-    final boolean isNoGroupQuery = getInfo().getGenPtn() == GeneratePtnEnum.NO_GROUP_QUERY
-        || getInfo().getGenPtn() == GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY;
 
     // Declaration and constructor
     sb.append("package " + rootBasePackage + ".base." + postfixSm + ";" + RT2);
@@ -98,12 +95,12 @@ public class DaoGen extends AbstractTableGen {
     } else {
       // Pass the concrete class to AbstractDao as a workaround
       sb.append(T1 + "public " + entityNameCp + "Base" + postfixCp + "("
-          + ((groupInfo.isDefined() && !isNoGroupQuery && ti.hasGroupColumnIncludingSystemCommon())
+          + ((groupInfo.isDefined() && ti.hasGroupColumnIncludingSystemCommon())
               ? groupInfo.getKata() + " " + groupInfo.getLwFieldName()
               : "")
           + ") {" + RT);
       sb.append(T2 + "super("
-          + (!isNoGroupQuery && groupInfo.isDefined()
+          + (groupInfo.isDefined()
               ? (ti.hasGroupColumnIncludingSystemCommon() ? groupInfo.getLwFieldName() : "null")
                   + ", "
               : "")
@@ -364,9 +361,8 @@ public class DaoGen extends AbstractTableGen {
 
     sb = new StringBuilder();
     // Flag indicating whether to add the group column as a constructor argument
-    final boolean shouldAddGroupArg = (getInfo().getGenPtn() != GeneratePtnEnum.NO_GROUP_QUERY
-        && getInfo().getGenPtn() != GeneratePtnEnum.DAO_ONLY_GROUP_NO_GROUP_QUERY)
-        && groupInfo.isDefined() && !getInfo().getSysCmnRootInfo().isFrameworkKindSpring();
+    final boolean shouldAddGroupArg =
+        groupInfo.isDefined() && !getInfo().getSysCmnRootInfo().isFrameworkKindSpring();
 
 
     sb.append("package " + rootBasePackage + ".base." + postfixSm + ";" + RT2);
