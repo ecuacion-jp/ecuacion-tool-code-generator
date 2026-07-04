@@ -16,7 +16,6 @@
 package jp.ecuacion.tool.codegenerator.core.generator.datatype;
 
 import java.lang.annotation.ElementType;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -52,6 +51,7 @@ public class DataTypeGen extends AbstractGen {
   public void generate() throws Exception {
     // Create dataType
     genDataType();
+    genConverter();
   }
 
   /** Generates the data type validator annotation source file if validators are defined. */
@@ -93,12 +93,12 @@ public class DataTypeGen extends AbstractGen {
   }
 
   /** Generates the JPA attribute converter class for ENUM type data types. */
-  public void generateConverter(boolean refersCommon) {
+  private void genConverter() {
     // After much deliberation over the dataType spec, it was decided not to use dataType, so
     // converters are only created for the enum case.
     if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
       sb = new StringBuilder();
-      String rootPackage = (refersCommon ? EclibCoreConstants.PKG : rootBasePackage);
+      String rootPackage = rootBasePackage;
       String dbKata = getDbKata();
 
       sb.append("package " + rootBasePackage + ".base.converter;" + RT2);
@@ -121,8 +121,7 @@ public class DataTypeGen extends AbstractGen {
       sb.append(T1 + "@Override" + RT);
       sb.append(T1 + "public " + dataTypeName + "Enum convertToEntityAttribute(" + dbKata
           + " obj) {" + RT);
-      sb.append(T2
-          + "// As long as the DB value is valid no issue will occur, "
+      sb.append(T2 + "// As long as the DB value is valid no issue will occur, "
           + "so any problem here is a programming bug and an unchecked exception is appropriate."
           + RT);
       // sb.append(
