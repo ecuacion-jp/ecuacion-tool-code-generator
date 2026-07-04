@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
@@ -53,8 +54,8 @@ public class MainController {
    */
   public void execute(String inputDir, String outputDir) throws Exception {
 
-    List<String> inputDirs = Arrays.stream(inputDir.split(","))
-        .map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+    List<String> inputDirs = Arrays.stream(inputDir.split(",")).map(String::trim)
+        .filter(s -> !s.isEmpty()).collect(Collectors.toList());
 
     // Prepare
     CodeGenContext info = prepare(inputDirs, outputDir);
@@ -78,18 +79,20 @@ public class MainController {
     // Start the excel file unit loop.
     for (File file : targetFiles) {
       // 1. Read and validate excel formats, and complement data.
-      log.info("Reading Excel files.");
+
+      log.info("==========");
+      log.info("[" + file.getName() + "]");
+      log.info("Reading excel file.");
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap = new ReadExcelFilesBlf().execute(file, info);
 
       // Put data to info.
       String systemName =
-          java.util.Objects.requireNonNull(
-              (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
+          Objects.requireNonNull((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
               "SYSTEM_COMMON must be populated").getSystemName();
       info.setRootInfoUnitValues(systemName, rootInfoMap);
 
       // 2. Check and complement data
-      log.info("Checking XML file contents and storing data.");
+      log.info("Checking data consistency.");
       // Map<String, DataTypeInfo> dtMap =
       new CheckAndComplementDataBlf().execute(info, systemName, rootInfoMap);
 

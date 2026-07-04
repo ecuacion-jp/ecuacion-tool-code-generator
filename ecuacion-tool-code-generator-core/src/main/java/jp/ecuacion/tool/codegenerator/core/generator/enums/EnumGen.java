@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
-import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumClassInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -33,8 +32,6 @@ import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFi
  */
 public class EnumGen extends AbstractGen {
 
-  private static final DetailLogger log = new DetailLogger(EnumGen.class);
-
   /** Constructs an instance for the ENUM data kind. */
   public EnumGen() {
     super(DataKindEnum.ENUM);
@@ -45,14 +42,12 @@ public class EnumGen extends AbstractGen {
     List<EnumClassInfo> enumClassList = getInfo().getEnumRootInfo().enumClassList;
 
     // Create enums
-    log.info("Generating enum: enum source.");
     for (EnumClassInfo enumClassInfo : enumClassList) {
       sb = new StringBuilder();
       createEnum(enumClassInfo);
       outputFile(sb, getFilePath("enums"), enumClassInfo.getEnumName() + ".java");
     }
 
-    log.info("Generating enum: properties files related to enum.");
     PropertiesFileGen gen = new PropertiesFileGen();
 
     // Create properties files.
