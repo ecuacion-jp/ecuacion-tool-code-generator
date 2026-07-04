@@ -48,6 +48,10 @@ public class CheckAndComplementFileLevelConsistencyCheckBl {
       new Violations().add(new BusinessViolation(
           "MSG_ERR_DB_NOT_EXIST_ALTHOUGH_DB_COMMON_EXISTS", systemName)).throwIfAny();
 
+    } else if (!rootInfoMap.containsKey(DataKindEnum.DB)) {
+      new Violations().add(new BusinessViolation("MSG_ERR_DB_FILE_NOT_EXIST", systemName))
+          .throwIfAny();
+
     } else if (!rootInfoMap.containsKey(DataKindEnum.SYSTEM_COMMON)) {
       new Violations().add(
           new BusinessViolation("MSG_ERR_SYSTEM_COMMON_INFO_NOT_EXIST", systemName)).throwIfAny();
