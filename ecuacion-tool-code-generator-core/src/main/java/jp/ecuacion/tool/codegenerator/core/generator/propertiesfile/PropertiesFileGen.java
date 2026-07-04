@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
+import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.util.FileUtil;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -35,6 +36,8 @@ import org.jspecify.annotations.Nullable;
 
 /** Generates and manages properties files such as item_names and enum_names for each language. */
 public class PropertiesFileGen extends AbstractGen {
+
+  private static final DetailLogger log = new DetailLogger(PropertiesFileGen.class);
 
   /** Constructs an instance for the OTHER data kind. */
   public PropertiesFileGen() {
@@ -114,6 +117,9 @@ public class PropertiesFileGen extends AbstractGen {
         PropertiesFileGen.class.getClassLoader().getResourceAsStream(filename);) {
 
       if (input == null) {
+        log.info("The source file for copying the .properties file does not exist."
+            + " Skipping and continuing processing. [System name: " + systemName
+            + ", File name: " + filename + "]");
         return;
       }
 

@@ -21,7 +21,6 @@ import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
-import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
 /**
  * Generates the {@code JpaFilterUtil} utility class that configures soft-delete and group
@@ -37,8 +36,6 @@ public class JpaFilterUtilGen extends AbstractGen {
   @Override
   public void generate() throws IOException, InterruptedException {
     // Create Util
-    Logger.log(this, "GEN_UTIL");
-
     sb = new StringBuilder();
     createJpaFilterUtil();
     outputFile(sb, getFilePath("util"), "JpaFilterUtil.java");

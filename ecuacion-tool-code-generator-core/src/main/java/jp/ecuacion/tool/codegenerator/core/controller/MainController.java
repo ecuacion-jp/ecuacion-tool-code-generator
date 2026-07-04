@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.blf.CheckAndComplementDataBlf;
@@ -30,7 +33,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
 /**
  * Entry controller that drives the code generation pipeline: reads Excel files, validates,
@@ -38,68 +40,82 @@ import jp.ecuacion.tool.codegenerator.core.logger.Logger;
  */
 public class MainController {
 
-  /** 
+  private static final DetailLogger log = new DetailLogger(MainController.class);
+
+  /**
    * Store Info as threadLocal to adapt to multithread accesses.
    */
   public static ThreadLocal<CodeGenContext> tlInfo = new ThreadLocal<>();
 
   /**
    * Is the entrypoint of the core module.
+   *
+   * <p>{@code inputDir} accepts a comma-separated list of directories.
    */
   public void execute(String inputDir, String outputDir) throws Exception {
 
-    // Prepare
-    CodeGenContext info = prepare(inputDir, outputDir);
+    List<String> inputDirs = Arrays.stream(inputDir.split(",")).map(String::trim)
+        .filter(s -> !s.isEmpty()).collect(Collectors.toList());
 
-    // Build the list of target Excel files, logging skipped files along the way.
+    // Prepare
+    CodeGenContext info = prepare(inputDirs, outputDir);
+
+    // Build the list of target Excel files from all input directories.
     List<File> targetFiles = new ArrayList<>();
-    for (File file : new File(inputDir).listFiles()) {
-      if (!shouldSkip(file, "xlsx")) {
-        targetFiles.add(file);
+    for (String dir : inputDirs) {
+      for (File file : new File(dir).listFiles()) {
+        if (!shouldSkip(file, "xlsx")) {
+          targetFiles.add(file);
+        }
       }
     }
 
     if (targetFiles.isEmpty()) {
-      Logger.log(this, "MSG_WRN_NO_TARGET_EXCEL_FILE", inputDir);
+      log.info("Warning: No target Excel files found in the input directory. [Directory: "
+          + inputDir + "]");
       return;
     }
 
     // Start the excel file unit loop.
     for (File file : targetFiles) {
       // 1. Read and validate excel formats, and complement data.
-      Logger.log(this, "READ_EXCELS");
+
+      log.info("==========");
+      log.info("[" + file.getName() + "]");
+      log.info("Reading excel file.");
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap = new ReadExcelFilesBlf().execute(file, info);
 
       // Put data to info.
       String systemName =
-          java.util.Objects.requireNonNull(
-              (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
+          Objects.requireNonNull((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
               "SYSTEM_COMMON must be populated").getSystemName();
       info.setRootInfoUnitValues(systemName, rootInfoMap);
 
       // 2. Check and complement data
-      Logger.log(this, "CHECK_AND_COMPLEMENT_DATA");
+      log.info("Checking data consistency.");
       // Map<String, DataTypeInfo> dtMap =
       new CheckAndComplementDataBlf().execute(info, systemName, rootInfoMap);
 
       // 3.generate source
-      Logger.log(this, "GEN_SOURCE_START");
+      log.info("Starting source generation.");
       new GenerationBlf(info).execute();
     }
   }
 
-  private CodeGenContext prepare(String inputDir, String outputDir) {
+  private CodeGenContext prepare(List<String> inputDirs, String outputDir) {
     // Show current directory.
-    Logger.log(this, "SHOW_CURRENT_DIR", Paths.get("").toAbsolutePath().toString());
-    
+    log.info("Current directory: " + Paths.get("").toAbsolutePath().toString());
+
     // Delete previously created files.
-    Logger.log(this, "DELETE_LAST_TIME_FILE");
+    log.info("Deleting the previously generated source files.");
     delete(new File(outputDir));
 
-    // Throw an exception if the directory does not exist.
-    if (!new File(inputDir).exists() || !new File(inputDir).isDirectory()) {
-      new Violations().add(new BusinessViolation("MSG_ERR_INFO_XML_DIR_NOT_EXIST", inputDir))
-          .throwIfAny();
+    // Throw an exception if any directory does not exist.
+    for (String dir : inputDirs) {
+      if (!new File(dir).exists() || !new File(dir).isDirectory()) {
+        new Violations().add(new BusinessViolation("MSG_ERR_INFO_XML_DIR_NOT_EXIST", dir))
+            .throwIfAny();
+      }
     }
 
     // Create and set Info.
@@ -133,10 +149,12 @@ public class MainController {
 
   private static boolean shouldSkip(File file, String extension) {
     if (file.isDirectory()) {
-      Logger.log(MainController.class, "MSG_INFO_DIRECTORY_INCLUDED", file.getName());
+      log.info("A directory is included in the XML directory. Skipping. [Directory name: "
+          + file.getName() + "]");
       return true;
     } else if (!file.getName().endsWith("." + extension)) {
-      Logger.log(MainController.class, "MSG_INFO_NON_XML_FILE_INCLUDED", file.getName());
+      log.info("A non-XML file is included in the XML directory. Skipping. [File name: "
+          + file.getName() + "]");
       return true;
     } else if (file.getName().startsWith("~$")) {
       return true;

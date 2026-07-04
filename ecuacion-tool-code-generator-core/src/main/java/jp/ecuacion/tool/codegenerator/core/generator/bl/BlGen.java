@@ -124,12 +124,14 @@ public class BlGen extends AbstractGen {
     sb.append(T1 + "@Autowired" + RT);
     sb.append(T1 + "protected " + entityNameCp + "BaseRepository repo;" + RT2);
 
-    for (RelationRefInfo relInfo : ti.columnList.stream().map(ci -> ci.getRelationRefInfoList())
-        .flatMap(l -> l.stream()).toList()) {
-      sb.append(T1 + "@Autowired" + RT);
-      sb.append(T1 + "protected " + relInfo.getOrgTableNameCpCamel() + "BaseRepository "
-          + relInfo.getOrgTableNameCamel() + "Repo;" + RT2);
-    }
+    // Deduplicate by orgTableName: when multiple FK columns from the same source table
+    // all reference this table, only one repository field per source table is needed.
+    ti.columnList.stream().map(ci -> ci.getRelationRefInfoList()).flatMap(l -> l.stream())
+        .map(RelationRefInfo::getOrgTableName).distinct().forEach(orgTableName -> {
+          sb.append(T1 + "@Autowired" + RT);
+          sb.append(T1 + "protected " + code.capitalCamel(orgTableName) + "BaseRepository "
+              + code.uncapitalCamel(orgTableName) + "Repo;" + RT2);
+        });
   }
 
   private void getRepositoryForOptimisticLocking(String entityNameCp) {
@@ -180,8 +182,8 @@ public class BlGen extends AbstractGen {
         .forEach(ci -> dateTimeString
             .append(", " + code.getJavaKata(ci) + " " + code.uncapitalCamel(ci.getName())));
     StringBuilder relString = new StringBuilder();
-    relFieldList.stream().forEach(ci -> relString.append(
-        ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
+    relFieldList.stream().forEach(ci -> relString.append(", "
+        + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getEffectiveRelationObjVarName()));
     sb.append(T1 + "public " + entityName + " insertOrUpdate(" + code.capitalCamel(ti.getName())
         + "BaseRecord rec" + dateTimeString + relString + ", String... skipUpdateFields) {" + RT);
     sb.append(T2 + entityName + " e = null;" + RT);
@@ -194,7 +196,8 @@ public class BlGen extends AbstractGen {
             || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP)
         .forEach(ci -> dateTimeString2.append(", " + code.uncapitalCamel(ci.getName())));
     StringBuilder relString2 = new StringBuilder();
-    relFieldList.stream().forEach(ci -> relString2.append(", " + ci.getRelationFieldName()));
+    relFieldList.stream()
+        .forEach(ci -> relString2.append(", " + ci.getEffectiveRelationObjVarName()));
 
     sb.append(T2 + "if (isInsert) {" + RT);
     sb.append(T3 + "e = new " + entityName + "(rec" + dateTimeString2 + relString2 + ");" + RT);
@@ -283,22 +286,26 @@ public class BlGen extends AbstractGen {
     String repoArgPkCol = ti.getPkColumn().getNameCamel();
     String repoArgRec = "rec.get" + ti.getPkColumn().getNameCpCamel() + "OfEntityDataType()";
 
-    for (RelationRefInfo refInfo : ti.getPkColumn().getRelationRefInfoList()) {
-      DbOrClassTableInfo relOrgTi = getInfo().getTableInfo(refInfo.getOrgTableName());
-      String orgFieldNameUpper =
-          StringUtil.getLowerSnakeFromCamel(refInfo.getOrgFieldName()).toUpperCase(Locale.ROOT);
-      DbOrClassColumnInfo relOrgCi = relOrgTi.getColumn(orgFieldNameUpper);
+    // When multiple FK columns from the same source table all reference this table's PK,
+    // generate one set of methods per source table (not one per FK) to avoid duplicate
+    // method signatures. Each method body calls internalChildExistenceCheck once per FK.
+    @SuppressWarnings("null")
+    List<String> uniqueOrgTableNames = ti.getPkColumn().getRelationRefInfoList().stream()
+        .map(RelationRefInfo::getOrgTableName).distinct().toList();
 
-      String methodDefPrefix =
-          "public void childExistenceCheck" + refInfo.getOrgTableNameCpCamel() + "(";
+    for (String orgTableName : uniqueOrgTableNames) {
+      List<RelationRefInfo> refInfosForOrgTable = ti.getPkColumn().getRelationRefInfoList()
+          .stream().filter(r -> r.getOrgTableName().equals(orgTableName)).toList();
+      RelationRefInfo first = refInfosForOrgTable.get(0);
+
+      String methodDefPrefix = "public void childExistenceCheck" + first.getOrgTableNameCpCamel()
+          + "(";
       String methodDefPostfix = ") {";
-      String msgId = "jp.ecuacion.splib.core.entity." + refInfo.getOrgTableNameCamel();
-      String checkMethodPrefix = "internalChildExistenceCheck(" + refInfo.getOrgTableNameCamel()
-          + "Repo.findBy" + code.generateString(relOrgCi, ColFormat.QUERY_METHOD) + "(";
+      String msgId = "jp.ecuacion.splib.core.entity." + first.getOrgTableNameCamel();
 
       // method (args : pk)
       sb.append(T1 + methodDefPrefix + methodDefArgPkCol + methodDefPostfix + RT);
-      sb.append(T2 + "childExistenceCheck" + refInfo.getOrgTableNameCpCamel() + "(" + repoArgPkCol
+      sb.append(T2 + "childExistenceCheck" + first.getOrgTableNameCpCamel() + "(" + repoArgPkCol
           + ", (String) null);" + RT);
       sb.append(T1 + "}" + RT2);
 
@@ -306,21 +313,44 @@ public class BlGen extends AbstractGen {
       sb.append(
           T1 + methodDefPrefix + methodDefArgPkCol + ", String messageId" + methodDefPostfix + RT);
       sb.append(T2 + "String entityMsgIdPart = \"" + msgId + "\";" + RT);
-      sb.append(T2 + checkMethodPrefix + repoArgPkCol + "), messageId, entityMsgIdPart);" + RT);
+      for (RelationRefInfo refInfo : refInfosForOrgTable) {
+        DbOrClassTableInfo relOrgTi = getInfo().getTableInfo(refInfo.getOrgTableName());
+        String orgFieldNameUpper =
+            StringUtil.getLowerSnakeFromCamel(refInfo.getOrgFieldName()).toUpperCase(Locale.ROOT);
+        DbOrClassColumnInfo relOrgCi = relOrgTi.getColumn(orgFieldNameUpper);
+        sb.append(T2 + "internalChildExistenceCheck(" + refInfo.getOrgTableNameCamel()
+            + "Repo.findBy" + code.generateString(relOrgCi, ColFormat.QUERY_METHOD) + "("
+            + repoArgPkCol + "), messageId, entityMsgIdPart);" + RT);
+      }
       sb.append(T1 + "}" + RT2);
 
       // method (args : pk, ChildExistenceCheckConditionBean...)
       sb.append(T1 + methodDefPrefix + methodDefArgPkCol
           + ", ChildExistenceCheckConditionBean... conditions" + methodDefPostfix + RT);
       sb.append(T2 + "String entityMsgIdPart = \"" + msgId + "\";" + RT);
-      sb.append(T2 + checkMethodPrefix + repoArgPkCol + "), entityMsgIdPart, conditions);" + RT);
+      for (RelationRefInfo refInfo : refInfosForOrgTable) {
+        DbOrClassTableInfo relOrgTi = getInfo().getTableInfo(refInfo.getOrgTableName());
+        String orgFieldNameUpper =
+            StringUtil.getLowerSnakeFromCamel(refInfo.getOrgFieldName()).toUpperCase(Locale.ROOT);
+        DbOrClassColumnInfo relOrgCi = relOrgTi.getColumn(orgFieldNameUpper);
+        sb.append(T2 + "internalChildExistenceCheck(" + refInfo.getOrgTableNameCamel()
+            + "Repo.findBy" + code.generateString(relOrgCi, ColFormat.QUERY_METHOD) + "("
+            + repoArgPkCol + "), entityMsgIdPart, conditions);" + RT);
+      }
       sb.append(T1 + "}" + RT2);
 
-      // method args : rec)
+      // method (args : rec)
       sb.append(T1 + methodDefPrefix + methodDefArgRec + methodDefPostfix + RT);
       sb.append(T2 + "String entityMsgIdPart = \"" + msgId + "\";" + RT);
-      sb.append(T2 + checkMethodPrefix + repoArgRec + "), null, entityMsgIdPart"
-          + checkMethodAdditionalArgs + ");" + RT);
+      for (RelationRefInfo refInfo : refInfosForOrgTable) {
+        DbOrClassTableInfo relOrgTi = getInfo().getTableInfo(refInfo.getOrgTableName());
+        String orgFieldNameUpper =
+            StringUtil.getLowerSnakeFromCamel(refInfo.getOrgFieldName()).toUpperCase(Locale.ROOT);
+        DbOrClassColumnInfo relOrgCi = relOrgTi.getColumn(orgFieldNameUpper);
+        sb.append(T2 + "internalChildExistenceCheck(" + refInfo.getOrgTableNameCamel()
+            + "Repo.findBy" + code.generateString(relOrgCi, ColFormat.QUERY_METHOD) + "("
+            + repoArgRec + "), null, entityMsgIdPart" + checkMethodAdditionalArgs + ");" + RT);
+      }
       sb.append(T1 + "}" + RT2);
     }
   }
@@ -338,11 +368,15 @@ public class BlGen extends AbstractGen {
       sb.append(T1 + "public void allChildrenExistenceChecks(" + mtdArg
           + ", String messageId, Class<?>... clses) {" + RT);
       sb.append(T2 + "List<Class<?>> skipList = Arrays.asList(clses);" + RT2);
-      for (RelationRefInfo refInfo : ti.getPkColumn().getRelationRefInfoList()) {
-        sb.append(T2 + "if (!skipList.contains(" + code.capitalCamel(refInfo.getOrgTableName())
-            + ".class)) childExistenceCheck" + code.capitalCamel(refInfo.getOrgTableName()) + "("
-            + fiName + ", messageId);" + RT);
-      }
+
+      // Deduplicate by orgTableName to avoid calling the same check method twice when
+      // multiple FK columns from the same source table reference this table.
+      ti.getPkColumn().getRelationRefInfoList().stream()
+          .map(RelationRefInfo::getOrgTableName).distinct().forEach(orgTableName -> {
+            String orgNameCpCamel = code.capitalCamel(orgTableName);
+            sb.append(T2 + "if (!skipList.contains(" + orgNameCpCamel + ".class)) "
+                + "childExistenceCheck" + orgNameCpCamel + "(" + fiName + ", messageId);" + RT);
+          });
 
       sb.append(T1 + "}" + RT);
     }

@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
-import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -44,8 +43,6 @@ public class CodeGenContext {
   private MiscGroupRootInfo groupRootInfo;
   private MiscOptimisticLockRootInfo optimisticLockRootInfo;
   private TableListRootInfo tableListRootInfo;
-
-  private GeneratePtnEnum genPtn;
 
   private ExcelTemplateLanguage excelLang;
 
@@ -102,16 +99,6 @@ public class CodeGenContext {
   /** Returns tableListRootInfo. */
   public TableListRootInfo getTableListRootInfo() {
     return tableListRootInfo;
-  }
-
-  /** Returns genPtn. */
-  public GeneratePtnEnum getGenPtn() {
-    return genPtn;
-  }
-
-  /** Sets genPtn. */
-  public void setGenPtn(GeneratePtnEnum genPtn) {
-    this.genPtn = genPtn;
   }
 
   /** Returns the Excel template language detected for the current input file. */

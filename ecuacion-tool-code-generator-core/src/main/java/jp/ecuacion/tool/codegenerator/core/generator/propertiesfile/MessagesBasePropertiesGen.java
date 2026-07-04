@@ -40,8 +40,8 @@ public class MessagesBasePropertiesGen extends AbstractGen {
   }
 
   /**
-   * Generates the messages_project_base properties files for each configured language
-   * by copying the template from the classpath resources directory.
+   * Generates messages_base properties files for each configured language by copying
+   * the single language-agnostic template (messages_project_base.properties) from the classpath.
    */
   private void generateMessagesBaseProperties(SystemCommonRootInfo sysCmnRootInfo)
       throws IOException, InterruptedException {
@@ -52,14 +52,15 @@ public class MessagesBasePropertiesGen extends AbstractGen {
 
     PropertiesFileGen pfGen = new PropertiesFileGen();
 
-    // Copy and create from messages_project_base_xx.properties in src/main/resources
+    // Copy the single common template to each language variant.
+    // The template contains only a header comment and is language-agnostic.
     for (String lang : langs) {
       if (lang == null) {
         continue;
       }
 
       pfGen.copyFileToResourceDir(getInfo().getSystemName(),
-          "src/main/resources", "messages_project", "base", lang, "messages", "base", lang);
+          "src/main/resources", "messages_project", "base", "", "messages", "base", lang);
     }
   }
 

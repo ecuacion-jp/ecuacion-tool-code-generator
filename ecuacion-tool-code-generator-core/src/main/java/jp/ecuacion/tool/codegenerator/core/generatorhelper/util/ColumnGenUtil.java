@@ -224,7 +224,7 @@ public class ColumnGenUtil {
       switch (formatType) {
         case SET, GET, GET_OF_ENTITY_DATA_TYPE -> {
           if (currentCi.isRelation()) {
-            sb.append("get" + currentCi.getRelationFieldNameCp() + "()");
+            sb.append("get" + currentCi.getEffectiveRelationObjVarNameCp() + "()");
 
           } else {
             String postfix = formatType == ColFormat.GET_OF_ENTITY_DATA_TYPE
@@ -237,7 +237,8 @@ public class ColumnGenUtil {
         }
         case ITEM_PROPERTY_PATH -> sb.append(
             currentCi.isRelation() ? currentCi.getRelationFieldName() : currentCi.getNameCamel());
-        case QUERY_METHOD -> sb.append(currentCi.isRelation() ? currentCi.getRelationFieldNameCp()
+        case QUERY_METHOD -> sb.append(currentCi.isRelation()
+            ? currentCi.getEffectiveRelationObjVarNameCp()
             : currentCi.getNameCpCamel());
         default -> throw new RuntimeException("Unexpected.");
       }
@@ -265,7 +266,7 @@ public class ColumnGenUtil {
       String colNameUc = StringUtil.getUpperCamelFromSnake(ci.getName());
       String colNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
       String colNameUcRelUnderscore = !ci.isRelation() ? colNameUc
-          : StringUtil.getUpperCamelFromSnake(ci.getRelationFieldName()) + "_"
+          : StringUtil.getUpperCamelFromSnake(ci.getEffectiveRelationObjVarName()) + "_"
               + StringUtil.getUpperCamelFromSnake(ci.getRelationRefCol());
 
       if (is1st) {
