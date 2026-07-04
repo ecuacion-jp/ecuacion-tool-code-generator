@@ -105,6 +105,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   private String relationKind;
   private String relationDirection;
   private String relationFieldName;
+  private String relationSrcObjVarName;
   private String relationRefTable;
   private String relationRefCol;
   private String relationRefFieldName;
@@ -139,8 +140,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
         "isForcedIncrement",
         "isAutoUpdate", "isForcedUpdate", "isCustomGroupColumn", "springAuditing", "relationKind",
         "relationDirection",
-        "relationFieldName", "relationRefTable", "relationRefCol", "relationRefFieldName",
-        "relationIsEager",
+        "relationFieldName", "relationSrcObjVarName", "relationRefTable", "relationRefCol",
+        "relationRefFieldName", "relationIsEager",
         "index1", "index2", "index3", "index4", "index5", "index6", "index7", "index8", "index9",
         "index10", null, "userFriendlyName", "supportedLang1",
         "supportedLang2", "supportedLang3"
@@ -186,7 +187,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
         ReaderUtil.booleanToBoolStr(ci.isAutoUpdate()),
         ReaderUtil.booleanToBoolStr(ci.isForcedUpdate()),
         ReaderUtil.booleanToBoolStr(ci.isCustomGroupColumn()), ci.getSpringAuditing(), "", "", "",
-        "", "", "", "",
+        "", "", "", "", "",
         ci.getIndex1() == null ? null : ci.getIndex1().toString(),
         ci.getIndex2() == null ? null : ci.getIndex2().toString(),
         ci.getIndex3() == null ? null : ci.getIndex3().toString(),
@@ -347,6 +348,22 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   public String getRelationFieldNameCp() {
     return StringUtils.capitalize(relationFieldName);
+  }
+
+  public String getRelationSrcObjVarName() {
+    return relationSrcObjVarName;
+  }
+
+  /** Returns the effective object variable name for the relation field in the entity.
+   *  When {@code relationSrcObjVarName} is specified, that value is used; otherwise falls back to
+   *  {@code relationFieldName}.
+   */
+  public String getEffectiveRelationObjVarName() {
+    return StringUtils.isEmpty(relationSrcObjVarName) ? relationFieldName : relationSrcObjVarName;
+  }
+
+  public String getEffectiveRelationObjVarNameCp() {
+    return StringUtils.capitalize(getEffectiveRelationObjVarName());
   }
 
   public String getRelationRefTable() {

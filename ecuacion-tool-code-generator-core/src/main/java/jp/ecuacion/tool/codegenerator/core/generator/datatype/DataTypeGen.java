@@ -16,7 +16,7 @@
 package jp.ecuacion.tool.codegenerator.core.generator.datatype;
 
 import java.lang.annotation.ElementType;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
+import java.util.List;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -29,33 +29,26 @@ import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 /** Generates data type validator annotation and attribute converter source files. */
 public class DataTypeGen extends AbstractGen {
 
-  private DataTypeInfo dtInfo;
-
-  protected String dataTypeName;
-  protected String kata;
-
   private ColumnGenUtil code = new ColumnGenUtil();
 
-  /** Constructs an instance for the given data type info. */
-  public DataTypeGen(DataTypeInfo dtInfo) {
+  /** Constructs an instance for the DATA_TYPE data kind. */
+  public DataTypeGen() {
     super(DataKindEnum.DATA_TYPE);
-
-    sb = new StringBuilder();
-
-    dataTypeName = code.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName());
-    kata = dtInfo.getKata().toString();
-
-    this.dtInfo = dtInfo;
   }
 
   @Override
-  public void generate() throws Exception {
-    // Create dataType
-    genDataType();
+  public void generate() {
+    List<DataTypeInfo> dataTypeList = getInfo().getDataTypeRootInfo().dataTypeList;
+
+    for (DataTypeInfo dtInfo : dataTypeList) {
+      genDataType(dtInfo);
+      genConverter(dtInfo);
+    }
   }
 
   /** Generates the data type validator annotation source file if validators are defined. */
-  protected void genDataType() {
+  protected void genDataType(DataTypeInfo dtInfo) {
+    final String dataTypeName = code.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName());
 
     // Skip if no validators are held internally, as there is nothing to generate
     if (dtInfo.getValidatorList(true).size() == 0) {
@@ -80,7 +73,6 @@ public class DataTypeGen extends AbstractGen {
 
     sb.append(AnnotationGenUtil.getCode(dtInfo.getValidatorList(true), ElementType.TYPE));
 
-    // public class NameDataType {
     sb.append("public @interface " + dataTypeName + "DataTypeValidator {" + RT2);
 
     sb.append(T1 + "String message() default \"\";" + RT);
@@ -93,13 +85,14 @@ public class DataTypeGen extends AbstractGen {
   }
 
   /** Generates the JPA attribute converter class for ENUM type data types. */
-  public void generateConverter(boolean refersCommon) {
+  private void genConverter(DataTypeInfo dtInfo) {
+    String dataTypeName = code.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName());
     // After much deliberation over the dataType spec, it was decided not to use dataType, so
     // converters are only created for the enum case.
     if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
       sb = new StringBuilder();
-      String rootPackage = (refersCommon ? EclibCoreConstants.PKG : rootBasePackage);
-      String dbKata = getDbKata();
+      String rootPackage = rootBasePackage;
+      String dbKata = getDbKata(dtInfo);
 
       sb.append("package " + rootBasePackage + ".base.converter;" + RT2);
       sb.append("import jakarta.persistence.AttributeConverter;" + RT);
@@ -121,12 +114,9 @@ public class DataTypeGen extends AbstractGen {
       sb.append(T1 + "@Override" + RT);
       sb.append(T1 + "public " + dataTypeName + "Enum convertToEntityAttribute(" + dbKata
           + " obj) {" + RT);
-      sb.append(T2
-          + "// As long as the DB value is valid no issue will occur, "
+      sb.append(T2 + "// As long as the DB value is valid no issue will occur, "
           + "so any problem here is a programming bug and an unchecked exception is appropriate."
           + RT);
-      // sb.append(
-      // T2 + "return (obj == null) ? null : " + dataTypeName + "Enum.getEnumFromCode(obj);" + RT);
       sb.append(T2 + "return obj == null ? null : EnumUtil.getEnumFromCode(" + dataTypeName
           + "Enum.class, obj);" + RT);
       sb.append(T1 + "}" + RT);
@@ -136,7 +126,7 @@ public class DataTypeGen extends AbstractGen {
     }
   }
 
-  private String getDbKata() {
+  private String getDbKata(DataTypeInfo dtInfo) {
     if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
       return "String";
 

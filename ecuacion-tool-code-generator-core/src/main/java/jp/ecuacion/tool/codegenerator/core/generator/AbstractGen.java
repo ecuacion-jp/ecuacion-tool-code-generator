@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.TreeSet;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.enums.GeneratePtnEnum;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -67,32 +66,18 @@ public abstract class AbstractGen extends AbstractCode {
    * Returns the full output file path for the given package, incorporating the source kind root.
    */
   protected String getFilePathWithSrcKind(String myPackage, boolean isDirForCopyEveryTime) {
-    return getBuildPathRootDirPath(myPackage) + Constants.PATH_SEPARATOR
+    return getBuildPathRootDirPath() + Constants.PATH_SEPARATOR
         + Constants.DIR_SRC_JAVA_PATH + rootBasePackageDirectry + Constants.PATH_SEPARATOR + "base"
         + Constants.PATH_SEPARATOR + myPackage;
   }
 
   /** Returns the path to the base resources output directory. */
   public String getResourcesPath() {
-    return getBuildPathRootDirPath(null) + "/src/main/resources";
+    return getBuildPathRootDirPath() + "/src/main/resources";
   }
 
-  private String getBuildPathRootDirPath(@Nullable String packageName) {
-
-    String basicPath = getInfo().outputDir + "/" + getInfo().getSystemName() + "/"
-        + getInfo().getGenPtn().getDirName();
-    if (getInfo().getGenPtn() == GeneratePtnEnum.NORMAL
-        || getInfo().getGenPtn() == GeneratePtnEnum.NO_GROUP_QUERY) {
-      return basicPath;
-
-    } else {
-      if (packageName != null && packageName.equals("dao")) {
-        return basicPath;
-
-      } else {
-        return getInfo().outputDir + "/" + getInfo().getSystemName() + "/common";
-      }
-    }
+  private String getBuildPathRootDirPath() {
+    return getInfo().outputDir + "/" + getInfo().getSystemName() + "/normal";
   }
 
   /**

@@ -25,7 +25,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
-import jp.ecuacion.tool.codegenerator.core.logger.Logger;
 
 /**
  * Generates enum Java source files and the corresponding enum_names properties files for all
@@ -43,14 +42,12 @@ public class EnumGen extends AbstractGen {
     List<EnumClassInfo> enumClassList = getInfo().getEnumRootInfo().enumClassList;
 
     // Create enums
-    Logger.log(this, "GEN_ENUM_ENUMS");
     for (EnumClassInfo enumClassInfo : enumClassList) {
       sb = new StringBuilder();
       createEnum(enumClassInfo);
       outputFile(sb, getFilePath("enums"), enumClassInfo.getEnumName() + ".java");
     }
 
-    Logger.log(this, "GEN_ENUM_ENUM_RELATED_PROP_FILES");
     PropertiesFileGen gen = new PropertiesFileGen();
 
     // Create properties files.

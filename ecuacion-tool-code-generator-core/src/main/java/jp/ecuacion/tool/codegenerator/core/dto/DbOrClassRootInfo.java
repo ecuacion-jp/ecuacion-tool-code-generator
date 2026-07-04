@@ -62,7 +62,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
     for (DbOrClassTableInfo tbl : tableList) {
       tbl.dataConsistencyCheck();
     }
-    
+
     // Check only for systemCommon
     systemCommonCheck();
   }

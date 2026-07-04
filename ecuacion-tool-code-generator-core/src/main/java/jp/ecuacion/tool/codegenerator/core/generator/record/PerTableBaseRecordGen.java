@@ -69,7 +69,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     sb.append(T2 + "return StringUtil.getSeparatedValuesString(new String[] {" + pkGet
         + " == null ? \"\" : " + pkGet);
     for (DbOrClassColumnInfo ci : relColList) {
-      String relField = ci.getRelationFieldNameCp();
+      String relField = ci.getEffectiveRelationObjVarNameCp();
       DbOrClassColumnInfo pk =
           getInfo().getTableInfo(ci.getRelationRefTable()).getPkColumnIncludingSystemCommon();
       String refPkGet = code.generateString(pk, ColFormat.GET);
@@ -81,7 +81,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
     // setIds
     sb.append(T1 + "public void setIds(String idCsv) {" + RT);
-    sb.append(T2 + "String[] ids = idCsv.split(\"" + sep + "\");" + RT);
+    sb.append(T2 + "String[] ids = idCsv.split(\"" + sep + "\", -1);" + RT);
     sb.append(T2 + "if (ids.length < " + (1 + relColList.size()) + ") return;" + RT2);
 
     sb.append(T2 + code.generateString(ti.getPkColumn(), ColFormat.SET, "ids[0]") + ";" + RT);
@@ -100,7 +100,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     sb.append(T2 + "return StringUtil.getSeparatedValuesString(new String[] {" + verGet
         + " == null ? \"\" : " + verGet);
     for (DbOrClassColumnInfo ci : relColList) {
-      String relFieldGet = "get" + ci.getRelationFieldNameCp() + "()";
+      String relFieldGet = "get" + ci.getEffectiveRelationObjVarNameCp() + "()";
       DbOrClassColumnInfo v =
           getInfo().getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingSystemCommon();
       String refVerGet = code.generateString(v, ColFormat.GET);
@@ -112,13 +112,13 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
     // setOptimisticLockVersions
     sb.append(T1 + "public void setOptimisticLockVersions(String versionCsv) {" + RT);
-    sb.append(T2 + "String[] versions = versionCsv.split(\"" + sep + "\");" + RT);
+    sb.append(T2 + "String[] versions = versionCsv.split(\"" + sep + "\", -1);" + RT);
     sb.append(T2 + "if (versions.length < " + (1 + relColList.size()) + ") return;" + RT2);
 
     sb.append(T2 + "set" + ver + "(versions[0]);" + RT);
     i = 0;
     while (relColList.size() > i) {
-      sb.append(T2 + "get" + relColList.get(i).getRelationFieldNameCp() + "().set" + ver
+      sb.append(T2 + "get" + relColList.get(i).getEffectiveRelationObjVarNameCp() + "().set" + ver
           + "(versions[" + (i + 1) + "]);" + RT);
       i++;
     }
