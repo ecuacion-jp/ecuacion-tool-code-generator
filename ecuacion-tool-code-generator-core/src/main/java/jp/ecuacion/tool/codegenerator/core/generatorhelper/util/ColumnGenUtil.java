@@ -224,7 +224,7 @@ public class ColumnGenUtil {
       switch (formatType) {
         case SET, GET, GET_OF_ENTITY_DATA_TYPE -> {
           if (currentCi.isRelation()) {
-            sb.append("get" + currentCi.getRelationFieldNameCp() + "()");
+            sb.append("get" + currentCi.getEffectiveRelationObjVarNameCp() + "()");
 
           } else {
             String postfix = formatType == ColFormat.GET_OF_ENTITY_DATA_TYPE

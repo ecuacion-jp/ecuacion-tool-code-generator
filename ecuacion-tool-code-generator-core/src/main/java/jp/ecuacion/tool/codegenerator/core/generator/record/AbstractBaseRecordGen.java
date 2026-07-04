@@ -159,7 +159,8 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       sb.append(T1 + "@Valid" + RT);
     }
 
-    String rel = StringUtils.capitalize(refEnName) + "BaseRecord " + ci.getRelationFieldName();
+    String rel =
+        StringUtils.capitalize(refEnName) + "BaseRecord " + ci.getEffectiveRelationObjVarName();
     sb.append(
         T1 + "protected " + (ci.isRelation() ? rel : kata + " " + ci.getNameCamel()) + ";" + RT);
 
@@ -225,7 +226,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
 
     for (DbOrClassColumnInfo ci : ti.columnList) {
       if (ci.isRelation()) {
-        sb.append(T3 + ci.getRelationFieldName() + " = new "
+        sb.append(T3 + ci.getEffectiveRelationObjVarName() + " = new "
             + StringUtils.capitalize(ci.getRelationRefTableCamel()) + "BaseRecord("
             + (getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs() ? "count"
                 : "")
@@ -335,8 +336,8 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
                 : "");
 
         boolean hasRel = getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs();
-        sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getRelationFieldName() + " = new "
-            + ci.getRelationRefTableCpCamel() + "BaseRecord(e.get"
+        sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getEffectiveRelationObjVarName()
+            + " = new " + ci.getRelationRefTableCpCamel() + "BaseRecord(e.get"
             + ci.getEffectiveRelationObjVarNameCp() + "(), params" + (hasRel ? ", count" : "")
             + ") {public Item[] customizedItems() {return null;}};" + RT);
 
@@ -408,7 +409,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       String lefthand = "rec.get" + ci.getNameCpCamel();
 
       if (ci.isRelation()) {
-        sb.append(T2 + "this." + ci.getRelationFieldName() + " = new "
+        sb.append(T2 + "this." + ci.getEffectiveRelationObjVarName() + " = new "
             + ci.getRelationRefTableCpCamel() + "BaseRecord("
             + (getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs() ? "count"
                 : "")
@@ -426,7 +427,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       String fiName = ci.getNameCamel();
       String fiNameCp = ci.getNameCpCamel();
-      String relFiName = ci.getRelationFieldName();
+      String relFiName = ci.getEffectiveRelationObjVarName();
       String relRefColNameCp =
           ci.getRelationRefCol() == null ? null : ci.getRelationRefColCpCamel();
 
@@ -436,18 +437,25 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       String recKata = dtInfo.getKata() == BOOLEAN ? "Boolean" : "String";
       final String javaKata = code.getJavaKata(ci);
 
-      // getter
-      sb.append(T1 + "public " + recKata + " get" + fiNameCp + "() {" + RT);
-      String getRel =
-          relFiName + " == null ? null : " + relFiName + ".get" + relRefColNameCp + "()";
-      sb.append(T2 + "return " + (ci.isRelation() ? getRel : fiName) + ";" + RT);
-      sb.append(T1 + "}" + RT2);
+      // When the object field name equals the column name, the String-based accessor would
+      // produce a duplicate method name with the Record-based accessor generated below.
+      // In that case, skip the String accessor: the Record accessor alone is sufficient.
+      boolean skipStringAccessor = ci.isRelation() && relFiName.equals(fiName);
 
-      // setter
-      String setRel = ci.getRelationFieldName() + ".set" + relRefColNameCp + "(" + fiName + ")";
-      sb.append(T1 + "public void set" + fiNameCp + "(" + recKata + " " + fiName + ") {" + RT);
-      sb.append(T2 + "this." + (ci.isRelation() ? setRel : fiName + " = " + fiName) + ";" + RT);
-      sb.append(T1 + "}" + RT2);
+      if (!skipStringAccessor) {
+        // getter
+        sb.append(T1 + "public " + recKata + " get" + fiNameCp + "() {" + RT);
+        String getRel =
+            relFiName + " == null ? null : " + relFiName + ".get" + relRefColNameCp + "()";
+        sb.append(T2 + "return " + (ci.isRelation() ? getRel : fiName) + ";" + RT);
+        sb.append(T1 + "}" + RT2);
+
+        // setter
+        String setRel = relFiName + ".set" + relRefColNameCp + "(" + fiName + ")";
+        sb.append(T1 + "public void set" + fiNameCp + "(" + recKata + " " + fiName + ") {" + RT);
+        sb.append(T2 + "this." + (ci.isRelation() ? setRel : fiName + " = " + fiName) + ";" + RT);
+        sb.append(T1 + "}" + RT2);
+      }
 
       // getter with OfEntityDataType
       if (ColumnGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata())) {
@@ -476,7 +484,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       // accessor for relation field
       if (ci.isRelation()) {
         String relEntity = ci.getRelationRefTable() == null ? null : ci.getRelationRefTableCamel();
-        createAccessorForRelation(relEntity, ci.getRelationFieldName(), null);
+        createAccessorForRelation(relEntity, relFiName, null);
       }
 
       // accessor for bidirectional relation
