@@ -19,7 +19,7 @@ import jakarta.validation.Validation;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import jp.ecuacion.lib.core.logging.DetailLogger;
+import java.util.Objects;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
@@ -45,16 +45,12 @@ import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTabl
  */
 public class ReadExcelFilesBlf {
 
-  private DetailLogger detailLog = new DetailLogger(this);
-
   /**
     * Reads the given Excel file and returns a map from each {@link DataKindEnum} to its
     * corresponding root-info object.
    */
   public Map<DataKindEnum, AbstractRootInfo> execute(File file, CodeGenContext ctx)
       throws Exception {
-
-    detailLog.info("read excel : " + file.getName());
 
     // The unit here differs from Excel sheets, but we follow the file-split unit from the
     // original XML era for now
@@ -66,9 +62,9 @@ public class ReadExcelFilesBlf {
 
     // Read Excel (pure reading and storing into objects only; no data complementation here)
     rootInfoMap.putAll(new ExcelGeneralSettingsReader(lang).readAndGetMap(file.getAbsolutePath()));
-    SystemCommonRootInfo sysCmnRootInfo = java.util.Objects.requireNonNull(
-        (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
-        "SYSTEM_COMMON must be populated by ExcelGeneralSettingsReader");
+    SystemCommonRootInfo sysCmnRootInfo =
+        Objects.requireNonNull((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
+            "SYSTEM_COMMON must be populated by ExcelGeneralSettingsReader");
 
     // dataType
     String dataTypeSheetName =

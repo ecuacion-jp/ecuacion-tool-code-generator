@@ -17,7 +17,6 @@ package jp.ecuacion.tool.codegenerator.core.generator.util;
 
 import java.io.IOException;
 import java.util.Objects;
-import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -29,8 +28,6 @@ import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
  */
 public class JpaFilterUtilGen extends AbstractGen {
 
-  private static final DetailLogger log = new DetailLogger(JpaFilterUtilGen.class);
-
   /** Constructs an instance for the DB data kind. */
   public JpaFilterUtilGen() {
     super(DataKindEnum.DB);
@@ -39,8 +36,6 @@ public class JpaFilterUtilGen extends AbstractGen {
   @Override
   public void generate() throws IOException, InterruptedException {
     // Create Util
-    log.info("Generating util source.");
-
     sb = new StringBuilder();
     createJpaFilterUtil();
     outputFile(sb, getFilePath("util"), "JpaFilterUtil.java");
