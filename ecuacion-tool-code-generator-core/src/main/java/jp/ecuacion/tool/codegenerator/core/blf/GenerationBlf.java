@@ -79,7 +79,7 @@ public class GenerationBlf {
       arrGen.add(new EnumGen());
     }
 
-    info.getDataTypeRootInfo().dataTypeList.stream().forEach(d -> arrGen.add(new DataTypeGen(d)));
+    arrGen.add(new DataTypeGen());
 
     arrGen.add(new PerTableBaseRecordGen(DataKindEnum.DB));
     arrGen.add(new EntityBodyGen(DataKindEnum.DB, false));
