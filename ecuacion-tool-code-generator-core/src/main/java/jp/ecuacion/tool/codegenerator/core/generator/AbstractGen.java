@@ -77,7 +77,7 @@ public abstract class AbstractGen extends AbstractCode {
   }
 
   private String getBuildPathRootDirPath() {
-    return getInfo().outputDir + "/" + getInfo().getSystemName() + "/normal";
+    return getInfo().outputDir + "/" + getInfo().getSystemName();
   }
 
   /**
