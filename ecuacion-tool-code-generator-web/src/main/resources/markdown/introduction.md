@@ -1,5 +1,3 @@
-# What is code-generator
-
 ## Overview
 
 code-generator uploads a configuration Excel file and automatically generates source code for download.
