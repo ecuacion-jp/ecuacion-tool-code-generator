@@ -53,6 +53,11 @@
 			<artifactId>ecuacion-splib-web</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>jp.ecuacion.splib</groupId>
+			<artifactId>ecuacion-splib-web-markdown</artifactId>
+		</dependency>
+
 		<!-- dependent modules in the same project -->
 		<dependency>
 			<groupId>jp.ecuacion.tool.${app.name}</groupId>
