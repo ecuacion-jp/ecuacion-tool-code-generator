@@ -1,5 +1,3 @@
-# code-generator とは
-
 ## 概要
 
 code-generatorは、設定用excelファイルをアップロードすると自動生成されたコードがダウンロードされる仕組みです。
