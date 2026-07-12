@@ -30,6 +30,7 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.SHORT;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.STRING;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIME;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIMESTAMP;
+import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.YEAR_MONTH;
 
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
@@ -88,7 +89,7 @@ public class NotEmptyGen extends ValidatorGen {
   protected DataTypeKataEnum[] getAvailableKatas() {
     // All types are OK
     return new DataTypeKataEnum[] {STRING, INTEGER, BYTE, SHORT, LONG, FLOAT, DOUBLE, BIG_INTEGER,
-        BIG_DECIMAL, TIMESTAMP, DATE, TIME, DATE_TIME, ENUM, BOOLEAN};
+        BIG_DECIMAL, TIMESTAMP, DATE, TIME, DATE_TIME, YEAR_MONTH, ENUM, BOOLEAN};
   }
 
   @Override
