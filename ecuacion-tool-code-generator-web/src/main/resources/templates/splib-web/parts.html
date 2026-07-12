@@ -24,7 +24,7 @@
 
 	<!--/* navBarOfLoginStateNone */-->
 	<div th:fragment="nav-bar-public" th:remove="tag">
-		<li th:replace="~{bootstrap/components :: navbarMenuItem(@{/public/show/page?id=introduction}, #{NAVBAR_L1_INTRODUCTION}, '')}"></li>
+		<li th:replace="~{bootstrap/components :: navbarMenuItem(@{/public/showMarkdown/page?id=introduction}, #{NAVBAR_L1_INTRODUCTION}, '')}"></li>
 		<li th:replace="~{bootstrap/components :: navbarMenuItem(@{/public/sourceDownload/page}, #{NAVBAR_L1_SOURCE_DOWNLOAD}, '')}"></li>
 	</div>
 	

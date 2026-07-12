@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.web.config;
+package jp.ecuacion.tool.codegenerator.core.generatorhelper.kata;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 
-/** Configures component scanning for this web application. */
-@Configuration
-@ComponentScan(basePackages = "jp.ecuacion.splib.web.markdown.config"
-    + ",jp.ecuacion.util.codegenerator.core.config"
-    )
-public class AppConfig {
-
+/** Generation helper for {@code YEAR_MONTH}-type columns. */
+public class GenHelperYearMonth extends GenHelperNoNumberObj {
+  @Override
+  public String[] getNeededImports(DbOrClassColumnInfo columnInfo) {
+    return mergeStrings(super.getNeededImports(columnInfo), "java.time.*");
+  }
 }
