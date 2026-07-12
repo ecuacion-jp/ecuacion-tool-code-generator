@@ -25,7 +25,7 @@ import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 
 /**
  * Generator for the JPA {@code @Convert} annotation, specifying the converter class for enum
- * columns.
+ * and year-month columns.
  */
 public class ConvertGen extends FieldSingleAnnotationGen {
   private DataTypeInfo dtInfo;
@@ -37,9 +37,13 @@ public class ConvertGen extends FieldSingleAnnotationGen {
     this.dtInfo = dtInfo;
   }
 
-  /** Returns {@code true} if the data type is an enum, requiring a {@code @Convert} annotation. */
+  /**
+   * Returns {@code true} if the data type is an enum or year-month, requiring a {@code @Convert}
+   * annotation.
+   */
   public static boolean needsValidator(DataTypeInfo dtInfo) {
-    return dtInfo.getKata() == DataTypeKataEnum.ENUM;
+    return dtInfo.getKata() == DataTypeKataEnum.ENUM
+        || dtInfo.getKata() == DataTypeKataEnum.YEAR_MONTH;
   }
 
   @Override
@@ -49,17 +53,19 @@ public class ConvertGen extends FieldSingleAnnotationGen {
 
   @Override
   protected DataTypeKataEnum[] getAvailableKatas() {
-    // Used for enum only
-    return new DataTypeKataEnum[] {DataTypeKataEnum.ENUM};
+    return new DataTypeKataEnum[] {DataTypeKataEnum.ENUM, DataTypeKataEnum.YEAR_MONTH};
   }
 
   @Override
   protected ParamListGen getParamGen() {
     ParamListGen plistGen = new ParamListGen();
-    plistGen.add(new ParamGenWithSingleValue("converter",
-        code.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName())
-            + "Converter.class",
-        DataTypeKataEnum.ENUM));
+    // YearMonthConverter is a fixed, shared converter (ecuacion-splib-jpa); enum converters are
+    // generated per-project, one per DataType.
+    String converterClassName = dtInfo.getKata() == DataTypeKataEnum.YEAR_MONTH
+        ? "YearMonthConverter.class"
+        : code.dataTypeNameToCapitalCamel(dtInfo.getDataTypeName()) + "Converter.class";
+    plistGen.add(
+        new ParamGenWithSingleValue("converter", converterClassName, DataTypeKataEnum.ENUM));
 
     return plistGen;
   }
