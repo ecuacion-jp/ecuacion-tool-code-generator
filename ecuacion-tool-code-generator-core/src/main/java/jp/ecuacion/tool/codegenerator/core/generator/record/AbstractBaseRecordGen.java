@@ -29,6 +29,7 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.SHORT;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.STRING;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIME;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIMESTAMP;
+import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.YEAR_MONTH;
 
 import java.lang.annotation.ElementType;
 import java.util.Arrays;
@@ -110,7 +111,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
         .forEach(ci -> imp.add(AnnotationGenUtil.getNeededImports(ci.getValidatorList(false))));
 
     // Add DateTimeFormatter when the kata is timestamp.
-    if (ti.hasColumnWithAnyOfKatas(TIMESTAMP, DATE_TIME, DATE, TIME)) {
+    if (ti.hasColumnWithAnyOfKatas(TIMESTAMP, DATE_TIME, DATE, TIME, YEAR_MONTH)) {
       imp.add("java.time.format.DateTimeFormatter");
     }
 
@@ -356,10 +357,11 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
               + get + " == null) ? \"\" : "
               + (dtInfo.getKata() == ENUM ? get + ".getCode();" : kata + ".toString(" + get + ");")
               + RT);
-          case DATE, TIME, DATE_TIME, TIMESTAMP -> sb.append(T2 + "this." + fiName + " = e.get"
-              + fiNameCp + "() == null ? \"\" : e.get" + fiNameCp + "()" + forTimeZone
-              + ".format(DateTimeFormatter.ofPattern(dateTimeFormatParams.get" + kata
-              + "Format()));" + RT);
+          case DATE, TIME, DATE_TIME, TIMESTAMP, YEAR_MONTH -> sb
+              .append(T2 + "this." + fiName + " = e.get" + fiNameCp + "() == null ? \"\" : e.get"
+                  + fiNameCp + "()" + forTimeZone
+                  + ".format(DateTimeFormatter.ofPattern(dateTimeFormatParams.get" + kata
+                  + "Format()));" + RT);
           default -> sb.append(T2 + "this." + fiName + " = " + get + ".toString();" + RT);
         }
       }
@@ -468,9 +470,10 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
 
         } else {
           switch (dtInfo.getKata()) {
-            case DATE, TIME, DATE_TIME, TIMESTAMP -> sb.append(javaKata + ".parse(" + fiName
-                + ", DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
-                + code.capitalCamel(dtInfo.getKata().toString()) + "Format()));" + RT);
+            case DATE, TIME, DATE_TIME, TIMESTAMP, YEAR_MONTH -> sb
+                .append(javaKata + ".parse(" + fiName
+                    + ", DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
+                    + code.capitalCamel(dtInfo.getKata().toString()) + "Format()));" + RT);
             case ENUM -> sb
                 .append("EnumUtil.getEnumFromCode(" + javaKata + ".class, " + fiName + ");" + RT);
             default -> sb

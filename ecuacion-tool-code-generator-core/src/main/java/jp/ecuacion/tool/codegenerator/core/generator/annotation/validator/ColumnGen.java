@@ -101,6 +101,13 @@ public class ColumnGen extends FieldSingleAnnotationGen {
           .add(new ParamGenWithSingleValue("columnDefinition", "time", DataTypeKataEnum.STRING));
     }
 
+    // PostgreSQL has no year-month column type, so it's persisted as a DATE
+    // (the 1st day of the month) via YearMonthConverter.
+    if (dtInfo.getKata() == DataTypeKataEnum.YEAR_MONTH) {
+      plistGen
+          .add(new ParamGenWithSingleValue("columnDefinition", "date", DataTypeKataEnum.STRING));
+    }
+
     return plistGen;
   }
 

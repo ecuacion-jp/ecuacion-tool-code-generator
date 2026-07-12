@@ -46,7 +46,7 @@ public class ColumnGenUtil {
 
   public static final List<DataTypeKataEnum> dateTimeDataTypeList =
       List.of(DataTypeKataEnum.TIMESTAMP, DataTypeKataEnum.DATE,
-          DataTypeKataEnum.TIME, DataTypeKataEnum.DATE_TIME);
+          DataTypeKataEnum.TIME, DataTypeKataEnum.DATE_TIME, DataTypeKataEnum.YEAR_MONTH);
 
   public static final List<DataTypeKataEnum> ofEntityTypeMethodAvailableDataTypeList =
       ListUtils.union(ListUtils.union(numberDataTypeList, dateTimeDataTypeList),
