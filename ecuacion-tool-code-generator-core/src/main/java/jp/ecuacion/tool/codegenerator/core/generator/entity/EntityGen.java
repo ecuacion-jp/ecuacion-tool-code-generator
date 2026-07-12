@@ -181,7 +181,7 @@ public abstract class EntityGen extends AbstractTableGen {
       importMgr.add(code.getHelper(dtInfo.getKata()).getNeededImports(colInfo));
     }
 
-    // Import enum classes used
+    // Import enum classes and type converters used
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList) {
       String dataType = colInfo.getDataType();
       DataTypeInfo dtInfo = colInfo.getDtInfo();
@@ -196,6 +196,11 @@ public abstract class EntityGen extends AbstractTableGen {
         importClassStr = rootBasePackage + ".base.converter."
             + code.dataTypeNameToCapitalCamel(dataType) + "Converter";
         importMgr.add(importClassStr);
+
+      } else if (dtInfo.getKata() == DataTypeKataEnum.YEAR_MONTH) {
+        // YearMonthConverter is a fixed converter shared via ecuacion-splib-jpa, not generated
+        // per-project like enum converters.
+        importMgr.add("jp.ecuacion.splib.jpa.converter.YearMonthConverter");
       }
     }
 

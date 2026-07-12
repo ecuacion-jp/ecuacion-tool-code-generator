@@ -105,7 +105,7 @@ public enum DataTypeKataEnum {
 
   TIMESTAMP,
 
-  DATE, TIME, DATE_TIME,
+  DATE, TIME, DATE_TIME, YEAR_MONTH,
 
   ENUM, BOOLEAN;
 
