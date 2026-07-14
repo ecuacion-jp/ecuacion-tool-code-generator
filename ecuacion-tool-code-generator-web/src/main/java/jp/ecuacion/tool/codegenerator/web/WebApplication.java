@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.tool.codegenerator.web;
 
-import org.jspecify.annotations.Nullable;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -30,9 +29,8 @@ public class WebApplication extends SpringBootServletInitializer {
   }
 
   /** Required to deploy as a WAR on an existing Tomcat. */
-  @SuppressWarnings({"null", "NullAway"})
   @Override
-  protected SpringApplicationBuilder configure(@Nullable SpringApplicationBuilder application) {
+  protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
     return application.sources(WebApplication.class);
   }
 }
