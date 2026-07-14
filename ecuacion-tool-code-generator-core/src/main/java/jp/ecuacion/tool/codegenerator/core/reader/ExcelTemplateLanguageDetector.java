@@ -27,12 +27,10 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
  */
 public class ExcelTemplateLanguageDetector {
 
-  private static final String JA_GENERAL_SETTINGS_SHEET = "各種設定";
-
   /** Opens the workbook briefly to inspect sheet names, then returns the detected language. */
   public static ExcelTemplateLanguage detect(String excelPath) throws IOException {
     try (Workbook wb = WorkbookFactory.create(new File(excelPath), null, true)) {
-      return wb.getSheet(JA_GENERAL_SETTINGS_SHEET) != null
+      return wb.getSheet(ExcelGeneralSettingsReader.SHEET_NAME_JA) != null
           ? ExcelTemplateLanguage.JA
           : ExcelTemplateLanguage.EN;
     }
