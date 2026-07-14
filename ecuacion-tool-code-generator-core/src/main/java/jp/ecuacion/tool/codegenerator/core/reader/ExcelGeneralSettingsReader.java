@@ -39,8 +39,8 @@ import org.apache.poi.EncryptedDocumentException;
 @SuppressWarnings("NullAway")
 public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableReader {
 
-  static final String SHEET_NAME_JA = "各種設定";
-  static final String SHEET_NAME_EN = "General Settings";
+  public static final String SHEET_NAME_JA = "各種設定";
+  public static final String SHEET_NAME_EN = "General Settings";
 
   private static final String[] HEADER_LABELS_JA =
       new String[] {"#", "分類", "分類名", "項目", "説明", "必須", "値", "備考"};
