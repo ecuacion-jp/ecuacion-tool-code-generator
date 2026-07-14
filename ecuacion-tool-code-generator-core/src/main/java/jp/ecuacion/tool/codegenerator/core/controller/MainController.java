@@ -33,6 +33,9 @@ import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.reader.ExcelGeneralSettingsReader;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 /**
  * Entry controller that drives the code generation pipeline: reads Excel files, validates,
@@ -152,13 +155,44 @@ public class MainController {
       log.info("A directory is included in the XML directory. Skipping. [Directory name: "
           + file.getName() + "]");
       return true;
+
     } else if (!file.getName().endsWith("." + extension)) {
       log.info("A non-XML file is included in the XML directory. Skipping. [File name: "
           + file.getName() + "]");
       return true;
+
     } else if (file.getName().startsWith("~$")) {
+      log.info("An excel temporary file is included in the XML directory. Skipping. "
+          + "[File name: " + file.getName() + "]");
       return true;
+
+    } else if (!hasGeneralSettingsSheet(file)) {
+      log.info("The excel file does not have a general-settings sheet ('"
+          + ExcelGeneralSettingsReader.SHEET_NAME_JA + "' / '"
+          + ExcelGeneralSettingsReader.SHEET_NAME_EN
+          + "'). It is likely not a target file for this tool. Skipping. [File name: "
+          + file.getName() + "]");
+      return true;
+
     } else {
+      return false;
+    }
+  }
+
+  /**
+   * Checks whether the given excel file contains a general-settings sheet (JA or EN).
+   *
+   * <p>Files unrelated to this tool (e.g. an unrelated xlsx placed in the same input directory)
+   * are expected to lack this sheet, or to fail to open as a valid workbook. Both cases are
+   * treated as "not a target file" here.</p>
+   */
+  private static boolean hasGeneralSettingsSheet(File file) {
+    try (Workbook wb = WorkbookFactory.create(file, null, true)) {
+      return wb.getSheet(ExcelGeneralSettingsReader.SHEET_NAME_JA) != null
+          || wb.getSheet(ExcelGeneralSettingsReader.SHEET_NAME_EN) != null;
+
+    } catch (Exception e) {
+      log.info("Failed to open the excel file. Skipping. [File name: " + file.getName() + "]");
       return false;
     }
   }
