@@ -19,9 +19,12 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
@@ -64,10 +67,13 @@ public class MainController {
     CodeGenContext info = prepare(inputDirs, outputDir);
 
     // Build the list of target Excel files from all input directories.
+    // Dedup by canonical path so an overlapping directory in a comma-separated
+    // inputDir does not cause the same file to be processed (and generated) twice.
     List<File> targetFiles = new ArrayList<>();
+    Set<String> targetFileCanonicalPaths = new HashSet<>();
     for (String dir : inputDirs) {
       for (File file : new File(dir).listFiles()) {
-        if (!shouldSkip(file, "xlsx")) {
+        if (!shouldSkip(file, "xlsx") && targetFileCanonicalPaths.add(file.getCanonicalPath())) {
           targetFiles.add(file);
         }
       }
@@ -80,6 +86,10 @@ public class MainController {
     }
 
     // Start the excel file unit loop.
+    // Tracks which file first declared each system name, so the same system name defined in
+    // multiple excel files (which would otherwise generate into the same output path twice) is
+    // rejected instead of silently duplicating generated content.
+    Map<String, File> systemNameToFileMap = new HashMap<>();
     for (File file : targetFiles) {
       // 1. Read and validate excel formats, and complement data.
 
@@ -92,6 +102,15 @@ public class MainController {
       String systemName =
           Objects.requireNonNull((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
               "SYSTEM_COMMON must be populated").getSystemName();
+
+      File existingFile = systemNameToFileMap.putIfAbsent(systemName, file);
+      if (existingFile != null) {
+        new Violations()
+            .add(new BusinessViolation("MSG_ERR_SAME_SYSTEM_NAME_DEFINED_TWICE", systemName,
+                existingFile.getName(), file.getName()))
+            .throwIfAny();
+      }
+
       info.setRootInfoUnitValues(systemName, rootInfoMap);
 
       // 2. Check and complement data
