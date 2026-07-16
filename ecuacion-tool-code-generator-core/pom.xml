@@ -31,6 +31,26 @@
 		<commons-io.commons-io.version>2.22.0</commons-io.commons-io.version>
 	</properties>
 
+	<build>
+		<resources>
+			<!-- Enable filtering only for version.properties, so that @project.version@
+			     is replaced with this project's actual version at build time. Other
+			     resource files are intentionally excluded from filtering to avoid
+			     unintended substitution of "@...@" or "${...}" patterns they may contain. -->
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>version.properties</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+	</build>
+
 	<dependencies>
 
 		<!-- spring boot -->
