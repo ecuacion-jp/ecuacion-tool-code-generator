@@ -19,9 +19,12 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
@@ -33,6 +36,9 @@ import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.reader.ExcelGeneralSettingsReader;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 /**
  * Entry controller that drives the code generation pipeline: reads Excel files, validates,
@@ -61,10 +67,13 @@ public class MainController {
     CodeGenContext info = prepare(inputDirs, outputDir);
 
     // Build the list of target Excel files from all input directories.
+    // Dedup by canonical path so an overlapping directory in a comma-separated
+    // inputDir does not cause the same file to be processed (and generated) twice.
     List<File> targetFiles = new ArrayList<>();
+    Set<String> targetFileCanonicalPaths = new HashSet<>();
     for (String dir : inputDirs) {
       for (File file : new File(dir).listFiles()) {
-        if (!shouldSkip(file, "xlsx")) {
+        if (!shouldSkip(file, "xlsx") && targetFileCanonicalPaths.add(file.getCanonicalPath())) {
           targetFiles.add(file);
         }
       }
@@ -77,6 +86,10 @@ public class MainController {
     }
 
     // Start the excel file unit loop.
+    // Tracks which file first declared each system name, so the same system name defined in
+    // multiple excel files (which would otherwise generate into the same output path twice) is
+    // rejected instead of silently duplicating generated content.
+    Map<String, File> systemNameToFileMap = new HashMap<>();
     for (File file : targetFiles) {
       // 1. Read and validate excel formats, and complement data.
 
@@ -89,6 +102,15 @@ public class MainController {
       String systemName =
           Objects.requireNonNull((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
               "SYSTEM_COMMON must be populated").getSystemName();
+
+      File existingFile = systemNameToFileMap.putIfAbsent(systemName, file);
+      if (existingFile != null) {
+        new Violations()
+            .add(new BusinessViolation("MSG_ERR_SAME_SYSTEM_NAME_DEFINED_TWICE", systemName,
+                existingFile.getName(), file.getName()))
+            .throwIfAny();
+      }
+
       info.setRootInfoUnitValues(systemName, rootInfoMap);
 
       // 2. Check and complement data
@@ -152,13 +174,44 @@ public class MainController {
       log.info("A directory is included in the XML directory. Skipping. [Directory name: "
           + file.getName() + "]");
       return true;
+
     } else if (!file.getName().endsWith("." + extension)) {
       log.info("A non-XML file is included in the XML directory. Skipping. [File name: "
           + file.getName() + "]");
       return true;
+
     } else if (file.getName().startsWith("~$")) {
+      log.info("An excel temporary file is included in the XML directory. Skipping. "
+          + "[File name: " + file.getName() + "]");
       return true;
+
+    } else if (!hasGeneralSettingsSheet(file)) {
+      log.info("The excel file does not have a general-settings sheet ('"
+          + ExcelGeneralSettingsReader.SHEET_NAME_JA + "' / '"
+          + ExcelGeneralSettingsReader.SHEET_NAME_EN
+          + "'). It is likely not a target file for this tool. Skipping. [File name: "
+          + file.getName() + "]");
+      return true;
+
     } else {
+      return false;
+    }
+  }
+
+  /**
+   * Checks whether the given excel file contains a general-settings sheet (JA or EN).
+   *
+   * <p>Files unrelated to this tool (e.g. an unrelated xlsx placed in the same input directory)
+   * are expected to lack this sheet, or to fail to open as a valid workbook. Both cases are
+   * treated as "not a target file" here.</p>
+   */
+  private static boolean hasGeneralSettingsSheet(File file) {
+    try (Workbook wb = WorkbookFactory.create(file, null, true)) {
+      return wb.getSheet(ExcelGeneralSettingsReader.SHEET_NAME_JA) != null
+          || wb.getSheet(ExcelGeneralSettingsReader.SHEET_NAME_EN) != null;
+
+    } catch (Exception e) {
+      log.info("Failed to open the excel file. Skipping. [File name: " + file.getName() + "]");
       return false;
     }
   }
