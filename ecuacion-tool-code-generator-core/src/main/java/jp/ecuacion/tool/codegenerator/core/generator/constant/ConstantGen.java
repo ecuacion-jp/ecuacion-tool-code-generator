@@ -16,13 +16,10 @@
 package jp.ecuacion.tool.codegenerator.core.generator.constant;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.ResourceBundle;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
-import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 
-/** Generates the {@code BaseConstants} Java class and the {@code application.properties} file. */
+/** Generates the {@code BaseConstants} Java class and the {@code version_*.properties} files. */
 public class ConstantGen extends AbstractGen {
 
   /** Constructs a ConstantGen with no table-level data kind. */
@@ -36,16 +33,14 @@ public class ConstantGen extends AbstractGen {
 
     outputFile(sb, getFilePath("constant"), "BaseConstants.java");
 
-    PropertiesFileGen gen = new PropertiesFileGen();
+    // Create version_*.properties files readable via VersionUtil in ecuacion-lib.
+    String codeGeneratorVersion = ResourceBundle.getBundle("version").getString("version");
+    outputFile(new StringBuilder("version=" + codeGeneratorVersion + "\n"), getResourcesPath(),
+        "version_ecuacion-tool-code-generator.properties");
 
-    // Create the properties file
-    Map<String, String> map = new HashMap<>();
-    map.put("EXCEL_TEMPLATE_VERSION", getInfo().getSysCmnRootInfo().getTemplateVersion());
-    map.put("CODE_GENERATOR_VERSION",
-        ResourceBundle.getBundle("version").getString("project.version"));
-
-    gen.writeMapToPropFile(map, "application", null);
-
+    String excelTemplateVersion = getInfo().getSysCmnRootInfo().getTemplateVersion();
+    outputFile(new StringBuilder("version=" + excelTemplateVersion + "\n"), getResourcesPath(),
+        "version_ecuacion-tool-code-generator-excel-format.properties");
   }
 
   /** Builds the source code for the {@code BaseConstants} class into the internal string buffer. */
