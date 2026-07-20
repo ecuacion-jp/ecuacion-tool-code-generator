@@ -43,7 +43,8 @@ public class ParamGenWithSingleValue extends ParamGen {
   public String generateString() {
     String outputValue;
     if (isStringLiteral) {
-      outputValue = "\"" + value + "\"";
+      String escaped = value.replace("\\", "\\\\").replace("\"", "\\\"");
+      outputValue = "\"" + escaped + "\"";
 
     } else {
       outputValue = value;
