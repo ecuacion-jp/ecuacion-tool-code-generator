@@ -18,4 +18,4 @@ Generated sources are written to `./products/`.
 
 For setup, quick start, and configuration details, see the official reference:
 
-- [ecuacion-references](https://references.ecuacion.jp/ecuacion-references-tool-code-generator/public/ja/article?id=code-generator-batch/overview) — Official reference documentation
+- [ecuacion-references](https://references.ecuacion.jp/ecuacion-references-tool-code-generator/public/showMarkdown/page?id=code-generator-batch/overview) — Official reference documentation
