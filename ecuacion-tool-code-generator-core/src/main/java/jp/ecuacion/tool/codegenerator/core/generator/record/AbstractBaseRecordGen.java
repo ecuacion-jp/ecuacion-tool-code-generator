@@ -64,6 +64,13 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
   /** Generates additional methods specific to the concrete record generator type. */
   protected abstract void generateMethods(DbOrClassTableInfo ti);
 
+  /**
+   * Hook called at the end of the entity-arg constructor's own/relation field assignments, letting
+   * subclasses append initialization code (e.g. building the ids/optimisticLockVersions snapshot).
+   * Default is no-op.
+   */
+  protected void generateIdsAndVersionsInit(DbOrClassTableInfo ti) {}
+
   /** Constructs an instance for the specified data kind. */
   public AbstractBaseRecordGen(DataKindEnum xmlFilePostFix) {
     super(xmlFilePostFix);
@@ -263,6 +270,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
 
     if (!bl) {
       insideConstEntityArg(ti, false);
+      generateIdsAndVersionsInit(ti);
     }
 
     sb.append(T1 + "}" + RT2);
@@ -278,6 +286,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     sb.append(T2 + "count--;" + RT2);
 
     insideConstEntityArg(ti, true);
+    generateIdsAndVersionsInit(ti);
 
     // Add field for bidirectional relation.
     if (ti.hasBidirectionalRelationRefColumn()) {

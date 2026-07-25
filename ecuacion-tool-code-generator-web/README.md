@@ -19,4 +19,4 @@ Open `http://localhost:8080` in a browser.
 
 For setup, quick start, and configuration details, see the official reference:
 
-- [ecuacion-references](https://references.ecuacion.jp/ecuacion-references-tool-code-generator/public/ja/article?id=code-generator-web/overview) — Official reference documentation
+- [ecuacion-references](https://references.ecuacion.jp/ecuacion-references-tool-code-generator/public/showMarkdown/page?id=code-generator-web/overview) — Official reference documentation

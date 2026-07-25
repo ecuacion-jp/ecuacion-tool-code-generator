@@ -20,4 +20,4 @@ This module is **not a standalone application**. It is a JAR dependency, not mea
 
 ## Documentation
 
-- [ecuacion-references](https://references.ecuacion.jp/ecuacion-references-tool-code-generator/public/en/article?id=home) — Official reference documentation
+- [ecuacion-references](https://references.ecuacion.jp/ecuacion-references-tool-code-generator/public/showMarkdown/page?id=home) — Official reference documentation

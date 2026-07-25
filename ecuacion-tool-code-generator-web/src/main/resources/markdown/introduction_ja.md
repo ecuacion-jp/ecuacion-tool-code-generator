@@ -5,4 +5,4 @@ ecuacion spring libraryと共に使用することで、一般的に必要な実
 
 ## 使い方
 
-「download」メニューで、設定用excelファイルをアップロードするのみで、必要なソースがdownloadされます。
+「コード自動生成」メニューで、設定用excelファイルをアップロードするのみで、必要なソースがdownloadされます。

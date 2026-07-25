@@ -37,6 +37,7 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
   private String templateVersion;
 
   @NotEmpty
+  @Pattern(regexp = Constants.REG_EX_AL_NUM_HY)
   private String systemName;
 
   @NotEmpty
