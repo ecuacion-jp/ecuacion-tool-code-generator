@@ -56,17 +56,26 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
   @Override
   protected void generateMethods(DbOrClassTableInfo ti) {
-    createIdsAndOptimisticLockVersions(ti);
+    createIdsAndOptimisticLockVersionsAccessors(ti);
   }
 
-  private void createIdsAndOptimisticLockVersions(DbOrClassTableInfo ti) {
+  /**
+   * Generates ids/optimisticLockVersions snapshot init code appended at the end of the
+   * entity-arg constructor. See {@code jp.ecuacion.splib.core.record.SplibRecord#getIds()} for
+   * why this is a pure snapshot, independent of this record's own id/version setters for
+   * relations.
+   */
+  @Override
+  protected void generateIdsAndVersionsInit(DbOrClassTableInfo ti) {
     List<DbOrClassColumnInfo> relColList = ti.getRelationColumnWithoutGroupList();
-    final String sep = "-";
+    // "," rather than "-": manually-created (e.g. seed) records are often given a negative
+    // id/version on purpose to avoid colliding with the DB sequence, and "-" would then collide
+    // with the leading minus sign.
+    final String sep = ",";
 
-    // getIds
-    sb.append(T1 + "public String getIds() {" + RT);
+    // ids snapshot: this record's own PK, then each relation's PK, in relColList order.
     String pkGet = code.generateString(ti.getPkColumn(), ColFormat.GET);
-    sb.append(T2 + "return StringUtil.getSeparatedValuesString(new String[] {" + pkGet
+    sb.append(T2 + "this.setIds(StringUtil.getSeparatedValuesString(new String[] {" + pkGet
         + " == null ? \"\" : " + pkGet);
     for (DbOrClassColumnInfo ci : relColList) {
       String relField = ci.getEffectiveRelationObjVarNameCp();
@@ -74,31 +83,16 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
           getInfo().getTableInfo(ci.getRelationRefTable()).getPkColumnIncludingSystemCommon();
       String refPkGet = code.generateString(pk, ColFormat.GET);
       sb.append(", get" + relField + "() == null || get" + relField + "()." + refPkGet + " == null"
-          + "? \"\" : get" + relField + "()." + refPkGet);
+          + " ? \"\" : get" + relField + "()." + refPkGet);
     }
-    sb.append("}, \"" + sep + "\");" + RT);
-    sb.append(T1 + "}" + RT2);
+    sb.append("}, \"" + sep + "\"));" + RT);
 
-    // setIds
-    sb.append(T1 + "public void setIds(String idCsv) {" + RT);
-    sb.append(T2 + "String[] ids = idCsv.split(\"" + sep + "\", -1);" + RT);
-    sb.append(T2 + "if (ids.length < " + (1 + relColList.size()) + ") return;" + RT2);
-
-    sb.append(T2 + code.generateString(ti.getPkColumn(), ColFormat.SET, "ids[0]") + ";" + RT);
-    int i = 0;
-    while (relColList.size() > i) {
-      sb.append(T2 + code.generateString(relColList.get(i), ColFormat.SET, "ids[" + (i + 1) + "]")
-          + ";" + RT);
-      i++;
-    }
-    sb.append(T1 + "}" + RT2);
-
-    // getOptimisticLockVersions
-    sb.append(T1 + "public String getOptimisticLockVersions() {" + RT);
+    // optimisticLockVersions snapshot: same order as ids.
     String ver = ti.getVersionColumnIncludingSystemCommon().getNameCpCamel();
     String verGet = "get" + ver + "()";
-    sb.append(T2 + "return StringUtil.getSeparatedValuesString(new String[] {" + verGet
-        + " == null ? \"\" : " + verGet);
+    sb.append(
+        T2 + "this.setOptimisticLockVersions(StringUtil.getSeparatedValuesString(new String[] {"
+            + verGet + " == null ? \"\" : " + verGet);
     for (DbOrClassColumnInfo ci : relColList) {
       String relFieldGet = "get" + ci.getEffectiveRelationObjVarNameCp() + "()";
       DbOrClassColumnInfo v =
@@ -107,21 +101,50 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
       sb.append(", " + relFieldGet + " == null || " + relFieldGet + "." + refVerGet
           + " == null ? \"\" : " + relFieldGet + "." + refVerGet);
     }
-    sb.append("}, \"" + sep + "\");" + RT);
+    sb.append("}, \"" + sep + "\"));" + RT);
+  }
+
+  /**
+   * Generates {@code setIds()} (delegating this record's own PK only, never a relation's) and the
+   * snapshot accessors used to read this record's own and each related record's optimistic-lock
+   * id/version for an explicit {@code findAndOptimisticLockingCheck()} call.
+   */
+  private void createIdsAndOptimisticLockVersionsAccessors(DbOrClassTableInfo ti) {
+    final List<DbOrClassColumnInfo> relColList = ti.getRelationColumnWithoutGroupList();
+
+    // setIds: only this record's own PK is delegated. Related records' PKs stay pure snapshot
+    // values (read via get<Relation>IdSnapshot()) so they never conflict with a directly-bound,
+    // user-editable field for the same relation.
+    sb.append(T1 + "@Override" + RT);
+    sb.append(T1 + "public void setIds(String idCsv) {" + RT);
+    sb.append(T2 + "super.setIds(idCsv);" + RT);
+    sb.append(T2 + "String[] ids = idCsv.split(\",\", -1);" + RT);
+    sb.append(T2 + "if (ids.length < 1) return;" + RT2);
+    sb.append(T2 + code.generateString(ti.getPkColumn(), ColFormat.SET, "ids[0]") + ";" + RT);
     sb.append(T1 + "}" + RT2);
 
-    // setOptimisticLockVersions
-    sb.append(T1 + "public void setOptimisticLockVersions(String versionCsv) {" + RT);
-    sb.append(T2 + "String[] versions = versionCsv.split(\"" + sep + "\", -1);" + RT);
-    sb.append(T2 + "if (versions.length < " + (1 + relColList.size()) + ") return;" + RT2);
+    // This record's own version snapshot, for findAndOptimisticLockingCheck() of itself.
+    sb.append(T1 + "public String getVersionSnapshot() {" + RT);
+    sb.append(T2 + "return getSnapshotSegment(getOptimisticLockVersions(), 0);" + RT);
+    sb.append(T1 + "}" + RT2);
 
-    sb.append(T2 + "set" + ver + "(versions[0]);" + RT);
-    i = 0;
+    // Per-relation id/version snapshots, for an explicit findAndOptimisticLockingCheck() of a
+    // related record when the caller opts into checking it.
+    int i = 0;
     while (relColList.size() > i) {
-      sb.append(T2 + "get" + relColList.get(i).getEffectiveRelationObjVarNameCp() + "().set" + ver
-          + "(versions[" + (i + 1) + "]);" + RT);
+      DbOrClassColumnInfo ci = relColList.get(i);
+      String relField = ci.getEffectiveRelationObjVarNameCp();
+      int index = i + 1;
+
+      sb.append(T1 + "public String get" + relField + "IdSnapshot() {" + RT);
+      sb.append(T2 + "return getSnapshotSegment(getIds(), " + index + ");" + RT);
+      sb.append(T1 + "}" + RT2);
+
+      sb.append(T1 + "public String get" + relField + "VersionSnapshot() {" + RT);
+      sb.append(T2 + "return getSnapshotSegment(getOptimisticLockVersions(), " + index + ");" + RT);
+      sb.append(T1 + "}" + RT2);
+
       i++;
     }
-    sb.append(T1 + "}" + RT);
   }
 }
