@@ -20,9 +20,7 @@ import org.springframework.context.annotation.Configuration;
 
 /** Configures component scanning for this web application. */
 @Configuration
-@ComponentScan(basePackages = "jp.ecuacion.splib.web.markdown.config"
-    + ",jp.ecuacion.util.codegenerator.core.config"
-    )
+@ComponentScan(basePackages = "jp.ecuacion.splib.web.markdown.config")
 public class AppConfig {
 
 }
