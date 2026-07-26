@@ -30,8 +30,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 /** Configures Spring Batch job and step beans for the code generator batch module. */
 @Configuration
-@ComponentScan(
-    basePackages = "jp.ecuacion.splib.batch.config" + ",jp.ecuacion.util.codegenerator.core.config")
+@ComponentScan(basePackages = "jp.ecuacion.splib.batch.config")
 public class AppBatchConfig extends SplibAppParentBatchConfig {
 
   /**
