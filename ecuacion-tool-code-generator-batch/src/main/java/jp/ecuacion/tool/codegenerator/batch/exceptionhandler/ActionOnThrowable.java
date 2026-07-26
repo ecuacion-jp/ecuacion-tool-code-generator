@@ -21,14 +21,14 @@ import org.springframework.stereotype.Component;
 
 /** Provides an exception handler action for the batch module, sending an error mail on failure. */
 @Component
-public class AppExceptionHandlerAction implements SplibExceptionHandlerAction {
+public class ActionOnThrowable implements SplibExceptionHandlerAction {
 
   private final SplibMailUtil splibMailUtil;
 
   /**
    * Constructs a new instance.
    */
-  public AppExceptionHandlerAction(SplibMailUtil splibMailUtil) {
+  public ActionOnThrowable(SplibMailUtil splibMailUtil) {
     this.splibMailUtil = splibMailUtil;
   }
 
