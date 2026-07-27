@@ -90,7 +90,7 @@ public class Constants {
   /** All characters (no restriction); no code generation because there is no constraint. */
   private static final @org.jspecify.annotations.Nullable String REG_EX_ALL = null;
   /** Half-width ASCII characters. */
-  private static final String REG_EX_HAN = "^[a-zA-Z0-9 -/:-@\\\\[-\\\\`\\\\{-\\\\~]*$";
+  private static final String REG_EX_HAN = "^[a-zA-Z0-9 -/:-@\\[-\\`\\{-\\~]*$";
   /** Half-width digits only. */
   private static final String REG_EX_HAN_NUM = "^[0-9]*$";
   /** Uppercase ASCII letters only. */
