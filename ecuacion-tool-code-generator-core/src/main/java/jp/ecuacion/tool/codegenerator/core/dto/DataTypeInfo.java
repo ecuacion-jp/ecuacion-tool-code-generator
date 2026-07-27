@@ -302,9 +302,9 @@ public class DataTypeInfo extends StringExcelTableBean {
       str = str.replace(escapeStr, "\\" + escapeStr);
     }
 
-    // Escape characters required for Java
-    str = str.replaceAll("\\\\", "\\\\\\\\");
-    str = str.replace("\"", "\\\"");
+    // Java-literal escaping (backslash/quote doubling) is applied once, downstream, by
+    // ParamGenWithSingleValue.generateString() when this regex is embedded into generated source.
+    // Doing it here too would double-escape it.
 
     // Surround with regex symbols to form a negated character class
     str = "^[^" + str + "]*$";
