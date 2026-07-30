@@ -1,8 +1,8 @@
 {"properties": [
   {
-    "name": "app.work-root-dir",
+    "name": "work-dir",
     "type": "java.lang.String",
-    "description": "A description for 'app.work-root-dir'"
+    "description": "A description for 'work-dir'"
   },
   {
     "name": "jp.ecuacion.splib.web.home-page",
