@@ -30,10 +30,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class BatchStarterTasklet implements Tasklet {
 
-  @Value("${jp.ecuacion.tool.codegenerator.input-dir:" + Constants.DIR_INFO_EXCELS_DEFAULT + "}")
+  @Value("${input-dir:" + Constants.DIR_INFO_EXCELS_DEFAULT + "}")
   private @Nullable String inputDir;
 
-  @Value("${jp.ecuacion.tool.codegenerator.output-dir:./products/}")
+  @Value("${output-dir:./products/}")
   private @Nullable String outputDir;
 
   @Override
