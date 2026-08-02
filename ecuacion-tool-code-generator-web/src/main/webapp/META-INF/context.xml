@@ -19,16 +19,28 @@
 <!--
   PREREQUISITE: The following directory must exist on the server before deployment.
   If it does not exist, Tomcat will fail to deploy with an IllegalArgumentException.
+  (Creating the app-specific directory below with "mkdir -p" also creates its
+  ${catalina.base}/app-conf parent as a side effect, so in practice only one command
+  is needed.)
 
     ${catalina.base}/app-conf/ecuacion-tool-code-generator/
       (e.g. /usr/local/tomcat/app-conf/ecuacion-tool-code-generator/)
 
   Place environment-specific config files (application.properties, logback-spring.xml, etc.) there.
+
+  ${catalina.base}/app-conf/ is also mounted below, so when only this one WAR is
+  deployed on the Tomcat instance, files may instead be placed directly under
+  app-conf/ without the app-specific subdirectory. A file present in both is
+  resolved from the app-specific directory first (see the PreResources order below).
 -->
 <Context>
 	<Resources>
 		<PreResources className="org.apache.catalina.webresources.DirResourceSet"
 				base="${catalina.base}/app-conf/ecuacion-tool-code-generator"
+				webAppMount="/WEB-INF/classes"
+				readOnly="true"/>
+		<PreResources className="org.apache.catalina.webresources.DirResourceSet"
+				base="${catalina.base}/app-conf"
 				webAppMount="/WEB-INF/classes"
 				readOnly="true"/>
 	</Resources>
