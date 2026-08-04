@@ -40,12 +40,6 @@
 	</build>
 	<dependencies>
 
-		<!-- spring boot -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jdbc</artifactId>
-		</dependency>
-		
 		<!-- ecuacion-splib -->
 		<dependency>
 			<groupId>jp.ecuacion.splib</groupId>
@@ -56,15 +50,6 @@
 		<dependency>
 			<groupId>jp.ecuacion.tool.${app.name}</groupId>
 			<artifactId>${app.name}-core</artifactId>
-		</dependency>
-
-		<!-- other -->
-
-		<!-- DB for Spring Batch -->
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 
 	</dependencies>
