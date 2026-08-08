@@ -65,6 +65,7 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
   }
 
   /** Generates source code from the uploaded Excel file and returns the result as a ZIP archive. */
+  @SuppressWarnings("null")
   public ResponseEntity<Resource> execute(MultipartFile multipartFile) throws Exception {
     final String originalFileName = Objects.requireNonNull(multipartFile.getOriginalFilename());
 
