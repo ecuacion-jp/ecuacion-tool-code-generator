@@ -46,6 +46,7 @@ public abstract class AbstractGen extends AbstractCode {
   // protected static HashMap<String, HashMap<String, DataTypeInfo>> allDtMap;
 
   /** Constructs an instance with the given XML file postfix identifying the data kind. */
+  @SuppressWarnings("null")
   public AbstractGen(@Nullable DataKindEnum xmlFilePostFix) {
     this.xmlFilePostFix = xmlFilePostFix;
     String osName = System.getProperty("os.name");

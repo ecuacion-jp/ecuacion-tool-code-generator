@@ -17,6 +17,7 @@ package jp.ecuacion.tool.codegenerator.core.blf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -56,7 +57,7 @@ class DataConsistencyValidator {
 
           // relation: refering to column name existence check
           List<@NonNull String> refTiColNameList =
-              refTi.columnList.stream().map(e -> e.getName()).toList();
+              Objects.requireNonNull(refTi).columnList.stream().map(e -> e.getName()).toList();
           if (!refTiColNameList.contains(ci.getRelationRefCol())) {
             new Violations().add(new BusinessViolation("MSG_ERR_DB_REFER_TO_COLUMN_NAME_NOT_FOUND",
                 sysName, ti.getName(), ci.getName(), ci.getRelationRefCol())).throwIfAny();

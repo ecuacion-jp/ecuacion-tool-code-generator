@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -52,6 +53,7 @@ public class CheckAndComplementDataBlf {
     * Validates and complements data in the given rootInfoMap, then returns a map from data-type
     * name to DataTypeInfo.
    */
+  @SuppressWarnings("null")
   public Map<String, DataTypeInfo> execute(CodeGenContext info, String systemName,
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
 
@@ -248,7 +250,7 @@ public class CheckAndComplementDataBlf {
 
       DataTypeRootInfo dtRootInfo = (DataTypeRootInfo) rootInfoMap.get(DataKindEnum.DATA_TYPE);
       // Store the dataType information from dataTypeList into the map.
-      for (DataTypeInfo dtInfo : dtRootInfo.dataTypeList) {
+      for (DataTypeInfo dtInfo : Objects.requireNonNull(dtRootInfo).dataTypeList) {
         dtMap.put(dtInfo.getDataTypeName(), dtInfo);
       }
     }

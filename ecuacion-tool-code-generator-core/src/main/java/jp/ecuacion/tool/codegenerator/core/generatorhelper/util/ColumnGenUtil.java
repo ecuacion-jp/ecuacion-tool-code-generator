@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
@@ -187,7 +188,7 @@ public class ColumnGenUtil {
       }
     }
 
-    return helperMap.get(kata);
+    return Objects.requireNonNull(helperMap.get(kata));
   }
 
   /**
