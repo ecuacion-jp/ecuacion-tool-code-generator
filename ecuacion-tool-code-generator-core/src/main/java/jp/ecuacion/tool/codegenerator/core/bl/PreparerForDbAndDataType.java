@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -80,14 +81,15 @@ public class PreparerForDbAndDataType {
       return;
     }
 
-    List<String> dataTypeNameList =
-        getInfo().getDataTypeRootInfo().dataTypeList.stream()
-            .map(dt -> dt.getDataTypeName()).toList();
+    List<String> dataTypeNameList = getInfo().getDataTypeRootInfo().dataTypeList.stream()
+        .map(dt -> dt.getDataTypeName()).toList();
     enumRootInfo.enumClassList.stream().forEach(en -> {
       if (!dataTypeNameList.contains(en.getDataTypeName())) {
-        new Violations().add(new BusinessViolation(
-            "MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION", getInfo().getSystemName(),
-            DataKindEnum.ENUM.getLabel(), en.getEnumName(), en.getDataTypeName())).throwIfAny();
+        new Violations()
+            .add(new BusinessViolation("MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION",
+                getInfo().getSystemName(), DataKindEnum.ENUM.getLabel(), en.getEnumName(),
+                en.getDataTypeName()))
+            .throwIfAny();
       }
     });
   }
@@ -111,16 +113,15 @@ public class PreparerForDbAndDataType {
       return;
     }
 
-    List<String> list =
-        getInfo().getDataTypeRootInfo().dataTypeList.stream()
-            .map(e -> e.getDataTypeName()).toList();
+    List<String> list = getInfo().getDataTypeRootInfo().dataTypeList.stream()
+        .map(e -> e.getDataTypeName()).toList();
     for (DbOrClassTableInfo ti : rootInfo.tableList) {
       for (DbOrClassColumnInfo ci : ti.columnList) {
         if (!list.contains(ci.getDataType())) {
-          new Violations().add(new BusinessViolation(
-              "MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION",
-              getInfo().getSystemName(),
-              dataKind.getLabel(), ti.getName() + "." + ci.getName(), ci.getDataType()))
+          new Violations()
+              .add(new BusinessViolation("MSG_ERR_DESIGNATED_DT_NOT_FOUND_IN_DT_DEFINITION",
+                  getInfo().getSystemName(), dataKind.getLabel(), ti.getName() + "." + ci.getName(),
+                  ci.getDataType()))
               .throwIfAny();
         }
       }
@@ -200,13 +201,15 @@ public class PreparerForDbAndDataType {
             valDispNameDuplicateCheckMap.put(lang, new HashSet<String>());
           }
 
-          if (valDispNameDuplicateCheckMap.get(lang).contains(dispName)) {
-            new Violations().add(new BusinessViolation(
-                "MSG_ERR_SAME_DISP_NAME_DEFINED_TWICE_IN_ENUM",
-                getInfo().getSystemName(), ci.getEnumName(), dispName)).throwIfAny();
+          HashSet<String> langSet = Objects.requireNonNull(valDispNameDuplicateCheckMap.get(lang));
+          if (langSet.contains(dispName)) {
+            new Violations()
+                .add(new BusinessViolation("MSG_ERR_SAME_DISP_NAME_DEFINED_TWICE_IN_ENUM",
+                    getInfo().getSystemName(), ci.getEnumName(), dispName))
+                .throwIfAny();
           }
 
-          valDispNameDuplicateCheckMap.get(lang).add(dispName);
+          langSet.add(dispName);
         }
       }
     }
@@ -249,9 +252,9 @@ public class PreparerForDbAndDataType {
     if (dbCommonRootInfo != null && dbCommonRootInfo.tableList.size() > 0) {
       for (DbOrClassColumnInfo col : dbCommonRootInfo.tableList.get(0).columnList) {
         if (dbCommonColSet.contains(col.getName())) {
-          new Violations().add(new BusinessViolation("MSG_ERR_SAME_COL_DEFINED_TWICE",
-              getInfo().getSystemName(), DataKindEnum.DB_COMMON.getLabel(), "(none)",
-              col.getName()))
+          new Violations().add(
+              new BusinessViolation("MSG_ERR_SAME_COL_DEFINED_TWICE", getInfo().getSystemName(),
+                  DataKindEnum.DB_COMMON.getLabel(), "(none)", col.getName()))
               .throwIfAny();
         }
         dbCommonColSet.add(col.getName());

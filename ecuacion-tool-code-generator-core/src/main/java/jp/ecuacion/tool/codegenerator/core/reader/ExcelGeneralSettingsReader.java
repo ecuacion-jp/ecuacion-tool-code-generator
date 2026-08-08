@@ -71,6 +71,7 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
    * Reads the Excel file at the given path and returns a data-kind-to-root-info map for all setting
    * groups.
    */
+  @SuppressWarnings("null")
   public Map<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
       throws EncryptedDocumentException, IOException {
 
@@ -104,6 +105,7 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
     return rtnMap;
   }
 
+  @SuppressWarnings("null")
   private AbstractRootInfo getSystemCommon(Map<String, String> props) {
     return new SystemCommonRootInfo(props.get("TEMPLATE_VERSION"), props.get("SYSTEM_NAME"),
         props.get("BASE_PACKAGE"),
@@ -117,19 +119,23 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
         props.get("PROHIBITED_CHARS_DESC_LANG_SUPPORT_03"));
   }
 
+  @SuppressWarnings("null")
   private AbstractRootInfo getLogicalDelete(Map<String, String> props) {
     MiscSoftDeleteRootInfo rootInfo = new MiscSoftDeleteRootInfo(props.get("COLUMN_NAME"),
         props.get("DATA_TYPE_NAME"), props.get("DEFAULT_VALUE"), props.get("UPDATE_VALUE"));
     return rootInfo;
   }
 
+  @SuppressWarnings("null")
   private AbstractRootInfo getGroup(Map<String, String> props) {
     MiscGroupRootInfo rootInfo = new MiscGroupRootInfo(props.get("COLUMN_NAME"),
         props.get("DATA_TYPE_NAME"), props.get("TABLE_NAMES_WITHOUT_GROUPING"));
     return rootInfo;
   }
 
+  @SuppressWarnings({"null"})
   private AbstractRootInfo getOptimisticLocking(Map<String, String> props) {
+    @SuppressWarnings("null")
     MiscOptimisticLockRootInfo rootInfo =
         new MiscOptimisticLockRootInfo(props.get("COLUMN_NAME"), props.get("DATA_TYPE_NAME"));
     return rootInfo;

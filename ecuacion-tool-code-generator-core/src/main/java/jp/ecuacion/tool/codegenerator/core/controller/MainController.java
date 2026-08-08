@@ -58,6 +58,7 @@ public class MainController {
    *
    * <p>{@code inputDir} accepts a comma-separated list of directories.
    */
+  @SuppressWarnings("null")
   public void execute(String inputDir, String outputDir) throws Exception {
 
     List<String> inputDirs = Arrays.stream(inputDir.split(",")).map(String::trim)

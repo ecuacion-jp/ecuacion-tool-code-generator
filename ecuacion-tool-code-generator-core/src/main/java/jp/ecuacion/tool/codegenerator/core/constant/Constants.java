@@ -18,6 +18,7 @@ package jp.ecuacion.tool.codegenerator.core.constant;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -141,7 +142,7 @@ public class Constants {
    */
   public static String getStringDataPtnRegExMap(String key) {
     if (stringDataPtnRegExMap.containsKey(key)) {
-      return stringDataPtnRegExMap.get(key);
+      return Objects.requireNonNull(stringDataPtnRegExMap.get(key));
 
     } else {
       Violations violations =
