@@ -37,6 +37,7 @@ public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
   }
 
   /** Constructs an instance with the group column settings and tables without grouping. */
+  @SuppressWarnings("null")
   public MiscGroupRootInfo(String columnName, String dataTypeName,
       String tableNamesWithoutGrouping) {
 
