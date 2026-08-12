@@ -15,6 +15,7 @@
  */
 package jp.ecuacion.tool.codegenerator.batch.config;
 
+import java.util.Objects;
 import jp.ecuacion.splib.batch.config.SplibAppParentBatchConfig;
 import jp.ecuacion.splib.batch.exceptionhandler.SplibExceptionHandler;
 import jp.ecuacion.splib.batch.listener.SplibJobExecutionListener;
@@ -43,12 +44,14 @@ public class AppBatchConfig extends SplibAppParentBatchConfig {
 
   @Bean
   Job job(JobRepository jr, PlatformTransactionManager tm, Step step) {
-    return preparedJobBuilder("myJob", jr).start(step).build();
+    return preparedJobBuilder("code-generator-job", jr).start(step).build();
   }
 
   @Bean
   Step step(JobRepository jr, PlatformTransactionManager tm, BatchStarterTasklet tasklet) {
-    return java.util.Objects.requireNonNull(preparedStepBuilder("sampleStep", jr, tm, tasklet),
-        "preparedStepBuilder must return a builder when at least one tasklet is provided").build();
+    return Objects
+        .requireNonNull(preparedStepBuilder("code-generator-step", jr, tm, tasklet),
+            "preparedStepBuilder must return a builder when at least one tasklet is provided")
+        .build();
   }
 }
