@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import jp.ecuacion.tool.codegenerator.core.util.ReaderUtil;
-import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -47,12 +45,6 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
 
   @Pattern(regexp = "jakarta EE|Spring Framework")
   private String frameworkKind;
-
-  @StrBoolean
-  private String usesSpringNamingConvention;
-
-  @StrBoolean
-  private String usesUtilJpa;
 
   @NotEmpty
   @Size(min = 1, max = 50)
@@ -82,7 +74,7 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
    */
   public SystemCommonRootInfo(String templateVersion, String systemName, String basePackage,
       // String projectType,
-      String frameworkKind, String usesSpringNamingConvention, String usesUtilJpa,
+      String frameworkKind,
       String characterEncoding, String defaultLang, String supportLang1, String supportLang2,
       String supportLang3, String prohibitedChars, String prohibitedCharsDescDefaultLang,
       String prohibitedCharsDescSupportLang1, String prohibitedCharsDescSupportLang2,
@@ -93,8 +85,6 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
     this.systemName = systemName;
     this.basePackage = basePackage;
     this.frameworkKind = frameworkKind;
-    this.usesSpringNamingConvention = usesSpringNamingConvention;
-    this.usesUtilJpa = usesUtilJpa;
     this.characterEncoding = characterEncoding;
     this.defaultLang = defaultLang;
     this.supportLang1 = supportLang1;
@@ -152,14 +142,6 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
     } else {
       return false;
     }
-  }
-
-  public boolean getUsesSpringNamingConvention() {
-    return ReaderUtil.boolStrToBoolean(usesSpringNamingConvention);
-  }
-
-  public boolean getUsesUtilJpa() {
-    return ReaderUtil.boolStrToBoolean(usesUtilJpa);
   }
 
   // characterEncoding
