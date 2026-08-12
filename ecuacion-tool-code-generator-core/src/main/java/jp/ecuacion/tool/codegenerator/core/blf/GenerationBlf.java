@@ -26,7 +26,6 @@ import jp.ecuacion.tool.codegenerator.core.generator.bl.BlGen;
 import jp.ecuacion.tool.codegenerator.core.generator.config.ConfigGen;
 import jp.ecuacion.tool.codegenerator.core.generator.constant.ConstantGen;
 import jp.ecuacion.tool.codegenerator.core.generator.dao.DaoGen;
-import jp.ecuacion.tool.codegenerator.core.generator.dao.SqlPropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.datatype.DataTypeGen;
 import jp.ecuacion.tool.codegenerator.core.generator.entity.EntityBodyGen;
 import jp.ecuacion.tool.codegenerator.core.generator.entity.SystemCommonGen;
@@ -84,7 +83,6 @@ public class GenerationBlf {
     arrGen.add(new PerTableBaseRecordGen(DataKindEnum.DB));
     arrGen.add(new EntityBodyGen(DataKindEnum.DB, false));
     arrGen.add(new DaoGen(DataKindEnum.DB));
-    arrGen.add(new SqlPropertiesGen());
     arrGen.add(new JpaFilterUtilGen());
     arrGen.add(new MessagesBasePropertiesGen());
     // Must run after MessagesBasePropertiesGen (SYSTEM_COMMON) since copyFileToResourceDir
