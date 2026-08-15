@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.batch;
+/**
+ * Provides the {@code SplibCliCommand} that drives code generation.
+ */
+@NullMarked
+package jp.ecuacion.tool.codegenerator.cli.command;
 
-import jp.ecuacion.splib.batch.SplibBatchApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-/** Starts the code generator batch application. */
-@SpringBootApplication
-public class BatchApplication extends SplibBatchApplication {
-
-  /** Starts the Spring Boot batch application. */
-  public static void main(String[] args) {
-    SplibBatchApplication.main(BatchApplication.class, args);
-  }
-}
+import org.jspecify.annotations.NullMarked;

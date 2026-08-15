@@ -16,9 +16,15 @@
     limitations under the License.
 
 -->
+<!--
+	No local/server split: this is a CLI app, always run interactively, so there is no
+	"unattended production" execution mode that would call for different logging per
+	environment. root level OFF means nothing is logged anywhere by default - a CLI app's
+	console is its UI, watched directly by the user, so only what the app deliberately prints
+	(via SplibCliRunner / SplibExceptionHandler) should appear there. See SplibExceptionHandler's
+	verbose-flag handling for how to still show a stack trace on request.
+-->
 <!DOCTYPE xml>
-<included>
-
-	<property name="project-name" value="ecuacion-tool-code-generator-batch" />
-
-</included>
+<configuration>
+	<root level="OFF" />
+</configuration>

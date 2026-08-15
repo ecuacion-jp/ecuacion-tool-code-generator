@@ -40,10 +40,10 @@ This project follows the spirit of [Semantic Versioning](https://semver.org/). M
 
 Download the latest release from [GitHub Releases](https://github.com/ecuacion-jp/ecuacion-tool-code-generator/releases).
 
-### Batch mode
+### CLI mode
 
 ```bash
-java -jar ecuacion-tool-code-generator-batch-x.x.x.jar
+java -jar ecuacion-tool-code-generator-cli-x.x.x.jar
 ```
 
 Input Excel files are read from `./excel-format/` (relative to the working directory).  
