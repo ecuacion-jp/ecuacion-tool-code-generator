@@ -52,7 +52,7 @@
 	<!-- mvn versions plugin can't understand parameterized module name like ${app.name}-core... -->
 	<modules>
 		<module>ecuacion-tool-code-generator-core</module>
-		<module>ecuacion-tool-code-generator-batch</module>
+		<module>ecuacion-tool-code-generator-cli</module>
 		<module>ecuacion-tool-code-generator-web</module>
 	</modules>
 

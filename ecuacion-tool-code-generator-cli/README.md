@@ -1,8 +1,8 @@
-# ecuacion-tool-code-generator-batch
+# ecuacion-tool-code-generator-cli
 
 ## What is it?
 
-`ecuacion-tool-code-generator-batch` is the command-line execution module of the code generator.
+`ecuacion-tool-code-generator-cli` is the command-line execution module of the code generator.
 It reads DB/class specification Excel files from a local directory and writes the generated Java source code to an output directory.
 
 ## Documentation
