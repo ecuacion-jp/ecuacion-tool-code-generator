@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 /**
- * Provides Spring Batch tasklets that drive code generation.
+ * Provides the CLI application entry point.
  */
 @NullMarked
-package jp.ecuacion.tool.codegenerator.batch.tasklet;
+package jp.ecuacion.tool.codegenerator.cli;
 
 import org.jspecify.annotations.NullMarked;

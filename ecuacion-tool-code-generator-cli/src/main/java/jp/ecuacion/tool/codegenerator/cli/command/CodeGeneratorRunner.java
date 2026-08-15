@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.batch.tasklet;
+package jp.ecuacion.tool.codegenerator.cli.command;
 
 import java.util.Objects;
+import jp.ecuacion.splib.cli.runner.SplibCliRunner;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import org.jspecify.annotations.Nullable;
-import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.StepContribution;
-import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/** Executes the code generation process as a Spring Batch tasklet. */
+/** Executes the code generation process. */
 @Component
-public class BatchStarterTasklet implements Tasklet {
+public class CodeGeneratorRunner implements SplibCliRunner {
 
   @Value("${input-dir:" + Constants.DIR_INFO_EXCELS_DEFAULT + "}")
   private @Nullable String inputDir;
@@ -37,13 +34,8 @@ public class BatchStarterTasklet implements Tasklet {
   private @Nullable String outputDir;
 
   @Override
-  public RepeatStatus execute(@Nullable StepContribution contribution,
-      @Nullable ChunkContext chunkContext) throws Exception {
-
+  public void execute(String[] args) throws Exception {
     new MainController().execute(Objects.requireNonNull(inputDir),
         Objects.requireNonNull(outputDir));
-
-    return RepeatStatus.FINISHED;
   }
-
 }
