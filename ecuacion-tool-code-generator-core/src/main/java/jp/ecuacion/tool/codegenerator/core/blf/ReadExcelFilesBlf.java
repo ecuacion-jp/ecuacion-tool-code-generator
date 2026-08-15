@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
@@ -61,7 +62,9 @@ public class ReadExcelFilesBlf {
     ctx.setExcelLang(lang);
 
     // Read Excel (pure reading and storing into objects only; no data complementation here)
-    rootInfoMap.putAll(new ExcelGeneralSettingsReader(lang).readAndGetMap(file.getAbsolutePath()));
+    ExcelGeneralSettingsReader generalSettingsReader = new ExcelGeneralSettingsReader(lang);
+    putAllWithSheetName(rootInfoMap, generalSettingsReader.readAndGetMap(file.getAbsolutePath()),
+        generalSettingsReader.getSheetName());
     SystemCommonRootInfo sysCmnRootInfo =
         Objects.requireNonNull((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
             "SYSTEM_COMMON must be populated by ExcelGeneralSettingsReader");
@@ -71,30 +74,41 @@ public class ReadExcelFilesBlf {
         lang == ExcelTemplateLanguage.JA ? DataTypeInfo.SHEET_NAME_JA : DataTypeInfo.SHEET_NAME_EN;
     String[] dataTypeHeaders = (lang == ExcelTemplateLanguage.JA ? DataTypeInfo.HEADER_LABELS_JA
         : DataTypeInfo.HEADER_LABELS_EN).toArray(new String[0]);
-    rootInfoMap.put(DataKindEnum.DATA_TYPE,
-        new DataTypeRootInfo(
-            new StringOneLineHeaderExcelTableToBeanReader<DataTypeInfo>(DataTypeInfo.class,
-                dataTypeSheetName, dataTypeHeaders).readToBean(file.getAbsolutePath())));
+    DataTypeRootInfo dataTypeRootInfo = new DataTypeRootInfo(
+        new StringOneLineHeaderExcelTableToBeanReader<DataTypeInfo>(DataTypeInfo.class,
+            dataTypeSheetName, dataTypeHeaders).readToBean(file.getAbsolutePath()));
+    dataTypeRootInfo.setSheetName(dataTypeSheetName);
+    rootInfoMap.put(DataKindEnum.DATA_TYPE, dataTypeRootInfo);
 
-    rootInfoMap
-        .putAll(new ExcelEnumReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
-    rootInfoMap
-        .putAll(new ExcelDbReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
-    rootInfoMap.putAll(
-        new ExcelDbCommonReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
+    ExcelEnumReader enumReader = new ExcelEnumReader(sysCmnRootInfo, lang);
+    putAllWithSheetName(rootInfoMap, enumReader.readAndGetMap(file.getAbsolutePath()),
+        enumReader.getSheetName());
 
+    ExcelDbReader dbReader = new ExcelDbReader(sysCmnRootInfo, lang);
+    putAllWithSheetName(rootInfoMap, dbReader.readAndGetMap(file.getAbsolutePath()),
+        dbReader.getSheetName());
+
+    ExcelDbCommonReader dbCommonReader = new ExcelDbCommonReader(sysCmnRootInfo, lang);
+    putAllWithSheetName(rootInfoMap, dbCommonReader.readAndGetMap(file.getAbsolutePath()),
+        dbCommonReader.getSheetName());
+
+    ExcelTableListReader tableListReader = new ExcelTableListReader(sysCmnRootInfo, lang);
     try {
-      rootInfoMap.putAll(
-          new ExcelTableListReader(sysCmnRootInfo, lang).readAndGetMap(file.getAbsolutePath()));
+      putAllWithSheetName(rootInfoMap, tableListReader.readAndGetMap(file.getAbsolutePath()),
+          tableListReader.getSheetName());
     } catch (Exception e) {
       // テーブル一覧 sheet is absent in older Excel templates; skip silently
     }
-    putEmptyRootInfo(rootInfoMap, DataKindEnum.TABLE_LIST, new TableListRootInfo());
+    TableListRootInfo emptyTableListRootInfo = new TableListRootInfo();
+    emptyTableListRootInfo.setSheetName(tableListReader.getSheetName());
+    putEmptyRootInfo(rootInfoMap, DataKindEnum.TABLE_LIST, emptyTableListRootInfo);
 
     // Batch validation and intra-RootInfo data complementation
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
       new Violations()
           .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(rootInfo))
+          .messageParameters(Violations.newMessageParameters().messagePrefix(
+              Arg.message("MSG_ERR_ABOUT_EXCEL_FILE", rootInfo.getSheetName())))
           .throwIfAny();
       rootInfo.consistencyCheckAndCoplementData();
     }
@@ -113,6 +127,18 @@ public class ReadExcelFilesBlf {
     if (!fileMap.containsKey(filePostfix)) {
       fileMap.put(filePostfix, rootInfo);
     }
+  }
+
+  /**
+   * Tags every root info in {@code source} with the Excel sheet name it was read from, then
+   * merges it into {@code target}.
+   */
+  private void putAllWithSheetName(Map<DataKindEnum, AbstractRootInfo> target,
+      Map<DataKindEnum, AbstractRootInfo> source, String sheetName) {
+    for (AbstractRootInfo rootInfo : source.values()) {
+      rootInfo.setSheetName(sheetName);
+    }
+    target.putAll(source);
   }
 
 }
