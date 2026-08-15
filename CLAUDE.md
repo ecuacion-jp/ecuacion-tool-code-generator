@@ -11,4 +11,4 @@ A code generator tool that reads DB/class specifications from Excel files and au
 
 - **Java**: 21
 - **Build tool**: Maven (multi-module)
-- **Main modules**: `ecuacion-tool-code-generator-core`, `ecuacion-tool-code-generator-batch`, `ecuacion-tool-code-generator-web`
+- **Main modules**: `ecuacion-tool-code-generator-core`, `ecuacion-tool-code-generator-cli`, `ecuacion-tool-code-generator-web`
