@@ -15,9 +15,16 @@
  */
 package jp.ecuacion.tool.codegenerator.core.reader;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
+import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
+import org.apache.poi.EncryptedDocumentException;
 
 /**
  * Reads the common DB column definition sheet and converts it into a {@link
@@ -38,5 +45,23 @@ public class ExcelDbCommonReader extends ExcelAbstractDbOrClassReader {
   @Override
   protected String resolveTableName(String rawTableName) {
     return (rawTableName == null || rawTableName.isEmpty()) ? "SYSTEM_COMMON" : rawTableName;
+  }
+
+  /**
+   * Reads the Excel file, guaranteeing the returned {@code DbOrClassRootInfo.tableList} always
+   * holds exactly one entry (a column-less "SYSTEM_COMMON" placeholder when the sheet has no
+   * rows), so downstream code can always rely on {@code tableList.get(0)} being safe.
+   */
+  @Override
+  public Map<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
+      throws EncryptedDocumentException, IOException {
+    Map<DataKindEnum, AbstractRootInfo> rtnMap = super.readAndGetMap(excelPath);
+    DbOrClassRootInfo rootInfo =
+        Objects.requireNonNull((DbOrClassRootInfo) rtnMap.get(DataKindEnum.DB_COMMON));
+    if (rootInfo.tableList.isEmpty()) {
+      rootInfo.tableList.add(new DbOrClassTableInfo("SYSTEM_COMMON"));
+    }
+
+    return rtnMap;
   }
 }

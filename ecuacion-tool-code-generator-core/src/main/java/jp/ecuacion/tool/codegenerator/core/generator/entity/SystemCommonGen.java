@@ -39,34 +39,8 @@ public class SystemCommonGen extends EntityGen {
   @Override
   public void generate() throws IOException, InterruptedException {
 
-    DbOrClassTableInfo tableInfo = getInfo().getCommonTableInfo();
-    if (tableInfo != null) {
-      sb = new StringBuilder();
-      createSource(tableInfo);
-
-    } else {
-      sb = new StringBuilder();
-
-      // Header definitions
-      appendPackage(sb);
-      ImportBlock importMgr = new ImportBlock();
-      importMgr.add("jp.ecuacion.splib.jpa.entity.SplibEntity");
-      importMgr.add("jakarta.persistence.*", "java.io.Serializable");
-      importMgr.add(rootBasePackage + ".base.record.SystemCommonBaseRecord");
-      sb.append(importMgr.outputStr() + RT);
-      // Class definition
-      sb.append("@MappedSuperclass" + RT);
-      sb.append("public abstract class SystemCommon "
-          + "extends SplibEntity implements Serializable {" + RT2);
-      sb.append(T1 + "private static final long serialVersionUID = 1L;" + RT2);
-      sb.append(T1 + "public SystemCommon() {}" + RT);
-      sb.append(T1 + "public SystemCommon(SystemCommonBaseRecord rec) {super();}" + RT2);
-      sb.append(T1 + "@PrePersist" + RT);
-      sb.append(T1 + "public void preInsert() {}" + RT2);
-      sb.append(T1 + "@PreUpdate" + RT);
-      sb.append(T1 + "public void preUpdate() {}" + RT);
-      sb.append("}" + RT);
-    }
+    sb = new StringBuilder();
+    createSource(getInfo().getCommonTableInfo());
 
     outputFile(sb, getFilePath("entity"), "SystemCommon.java");
 
