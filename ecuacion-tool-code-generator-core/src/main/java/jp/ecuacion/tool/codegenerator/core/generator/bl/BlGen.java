@@ -112,10 +112,16 @@ public class BlGen extends AbstractGen {
     sb.append(importMgr.outputStr() + RT);
 
     String extendsStr = isSystemCommon
-        ? "<E extends SystemCommon" + (ti.hasPkColumn() ? "" : ", I") + "> extends SplibJpaBl<E, "
+        ? "<E extends SystemCommon" + (ti.hasPkColumn() ? "" : ", I")
+            + (ti.hasVersionColumnIncludingSystemCommon() ? "" : ", V") + "> extends SplibJpaBl<E, "
             + (ti.hasPkColumn() ? code.getJavaKata(ti.getPkColumn()) : "I") + ", "
-            + code.getJavaKata(ti.getVersionColumnIncludingSystemCommon()) + ">"
+            + (ti.hasVersionColumnIncludingSystemCommon()
+                ? code.getJavaKata(ti.getVersionColumnIncludingSystemCommon())
+                : "V")
+            + ">"
         : " extends SystemCommonBaseBl<" + entityNameCp + ", " + code.getJavaKata(ti.getPkColumn())
+            + (getInfo().getCommonTableInfo().hasVersionColumnIncludingSystemCommon() ? ""
+                : ", " + code.getJavaKata(ti.getVersionColumnIncludingSystemCommon()))
             + ">";
     sb.append("public abstract class " + entityNameCp + "BaseBl" + extendsStr + " {" + RT2);
   }
