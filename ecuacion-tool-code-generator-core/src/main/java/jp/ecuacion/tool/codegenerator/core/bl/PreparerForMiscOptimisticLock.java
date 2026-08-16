@@ -24,6 +24,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.VersionGen;
 
 /**
  * Propagates optimistic-lock column settings from {@code MiscOptimisticLockRootInfo} into
@@ -63,14 +64,17 @@ public class PreparerForMiscOptimisticLock {
       for (DbOrClassTableInfo ti : dbRootInfo.tableList) {
         for (DbOrClassColumnInfo ci : ti.columnList) {
           if (ci.getName().equals(lockInfo.getColumnName())) {
-            if (ci.getDataType().equals(lockInfo.getDataTypeName())) {
-              ci.setOptLock(true);
-            } else {
-              // Treat as an error if the column name matches but the DataType differs
-              new Violations().add(new BusinessViolation("MSG_ERR_DT_OF_COL_FOR_OPT_LOCK_DIFFER",
-                  getInfo().getSystemName(), ti.getName(), ci.getName(), ci.getDataType(),
-                  lockInfo.getDataTypeName())).throwIfAny();
+            // JPA's @Version only supports short/integer/long/Timestamp, independent of whichever
+            // concrete dataType each table happens to use for its own version column.
+            if (!VersionGen.isKataAllowed(ci.getDtInfo().getKata())) {
+              new Violations()
+                  .add(new BusinessViolation("MSG_ERR_OPTIMISTIC_LOCK_COLUMN_KATA_NOT_ALLOWED",
+                      getInfo().getSystemName(), ti.getName(), ci.getName(),
+                      ci.getDtInfo().getKata().toString()))
+                  .throwIfAny();
             }
+
+            ci.setOptLock(true);
           }
         }
       }

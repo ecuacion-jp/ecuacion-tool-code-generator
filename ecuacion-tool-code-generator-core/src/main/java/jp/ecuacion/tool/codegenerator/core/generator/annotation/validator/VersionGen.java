@@ -22,10 +22,15 @@ import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.SHORT;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.TIMESTAMP;
 
 import java.lang.annotation.ElementType;
+import java.util.Arrays;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 
 /** Generator for the JPA {@code @Version} annotation, used for optimistic locking. */
 public class VersionGen extends AbstractParameterlessAnnotationGen {
+
+  // The spec states that @Version applies to short, integer, long + Timestamp
+  private static final DataTypeKataEnum[] AVAILABLE_KATAS =
+      new DataTypeKataEnum[] {INTEGER, SHORT, LONG, TIMESTAMP, DATE_TIME};
 
   /** Constructs a VersionGen for the given element type. */
   public VersionGen(ElementType elementType) {
@@ -37,9 +42,13 @@ public class VersionGen extends AbstractParameterlessAnnotationGen {
     return isOptLock;
   }
 
+  /** Returns {@code true} if the JPA spec allows {@code @Version} on this kata. */
+  public static boolean isKataAllowed(DataTypeKataEnum kata) {
+    return Arrays.asList(AVAILABLE_KATAS).contains(kata);
+  }
+
   @Override
   protected DataTypeKataEnum[] getAvailableKatas() {
-    // The spec states that @Version applies to short, integer, long + Timestamp
-    return new DataTypeKataEnum[] {INTEGER, SHORT, LONG, TIMESTAMP, DATE_TIME};
+    return AVAILABLE_KATAS;
   }
 }
