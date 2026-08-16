@@ -43,8 +43,6 @@ public class SystemCommonGen extends EntityGen {
     createSource(getInfo().getCommonTableInfo());
 
     outputFile(sb, getFilePath("entity"), "SystemCommon.java");
-
-    appendItemNamesProperties(getInfo().getDbCommonRootInfo().tableList);
   }
 
   /** Generates and appends the full SystemCommon class source from the given table info. */

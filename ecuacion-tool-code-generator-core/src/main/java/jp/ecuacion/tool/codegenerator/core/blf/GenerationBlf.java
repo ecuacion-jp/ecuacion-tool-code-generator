@@ -30,6 +30,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.datatype.DataTypeGen;
 import jp.ecuacion.tool.codegenerator.core.generator.entity.EntityBodyGen;
 import jp.ecuacion.tool.codegenerator.core.generator.entity.SystemCommonGen;
 import jp.ecuacion.tool.codegenerator.core.generator.enums.EnumGen;
+import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.ItemNamesPropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.MessagesBasePropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.TableListPropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.ValidationMessagesPatternDescriptionsGen;
@@ -84,6 +85,7 @@ public class GenerationBlf {
     arrGen.add(new EntityBodyGen(DataKindEnum.DB, false));
     arrGen.add(new DaoGen(DataKindEnum.DB));
     arrGen.add(new JpaFilterUtilGen());
+    arrGen.add(new ItemNamesPropertiesGen());
     arrGen.add(new MessagesBasePropertiesGen());
     // Must run after MessagesBasePropertiesGen (SYSTEM_COMMON) since copyFileToResourceDir
     // overwrites the file; appending table list data here ensures it is never lost.

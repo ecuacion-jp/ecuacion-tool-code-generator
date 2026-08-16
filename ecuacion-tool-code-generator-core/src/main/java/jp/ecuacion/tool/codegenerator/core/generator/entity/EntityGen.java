@@ -15,12 +15,9 @@
  */
 package jp.ecuacion.tool.codegenerator.core.generator.entity;
 
-import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -47,7 +44,6 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Genera
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.IdGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.SequenceGeneratorGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.VersionGen;
-import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.PropertiesFileGen;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.AnnotationGenUtil;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -502,97 +498,6 @@ public abstract class EntityGen extends AbstractTableGen {
     sb.append(T1 + "}" + RT2);
   }
 
-  // private void substituteFieldsFromRecordToEntity(StringBuilder sb, DbOrClassColumnInfo ci,
-  // boolean usesRec) {
-  // // if (createsField(ci)) {
-  // String leftHandSide = "set" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "(";
-  // DataTypeInfo dtInfo = ci.getDtInfo();
-  // String fieldNameUc = StringUtil.getUpperCamelFromSnake(ci.getName());
-  // String fieldNameLc = StringUtil.getLowerCamelFromSnake(ci.getName());
-  // String kataUc = code.getJavaKata(ci);
-  //
-  // // When a relation exists, create an instance
-  // String relFieldNameUc = StringUtil.capitalize(ci.getRelationFieldName());
-  // if (ci.isRelation()) {
-  // String entityName = StringUtil.getLowerCamelFromSnake(ci.getRelationRefTable());
-  // sb.append(T2 + ci.getRelationFieldName() + " = rec.get" + relFieldNameUc
-  // + "() == null ? null : new " + StringUtil.capitalize(entityName) + "(rec.get"
-  // + relFieldNameUc + "());" + RT);
-  //
-  // } else {
-  //
-  // if (dtInfo.getKata() == DataTypeKataEnum.FLOAT
-  // || dtInfo.getKata() == DataTypeKataEnum.DOUBLE) {
-  // sb.append(
-  // T2 + leftHandSide + "(" + ((usesRec) ? "rec.get" + fieldNameUc + "()" : fieldNameLc)
-  // + " == null || " + ((usesRec) ? "rec.get" + fieldNameUc + "()" : fieldNameLc)
-  // + ".equals(\"\"))? null: " + kataUc + ".valueOf"
-  // + ((usesRec) ? "(rec.get" + fieldNameUc + "().replaceAll(\",\", \"\"))"
-  // : "(" + fieldNameLc + ")")
-  // + ");" + RT);
-  //
-  // // } else if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-  // // String obtainedValue =
-  // // ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
-  // // : StringUtil.getLowerCamelFromSnake(ci.getName()));
-  // // sb.append(T2 + leftHandSide + obtainedValue + " == null ? null :
-  // // EnumUtil.getEnumFromCode("
-  // // + ColumnGenUtil.dataTypeNameToUppperCamel(dtInfo.getDataTypeName()) + "Enum.class, "
-  // // + obtainedValue + "));" + RT);
-  //
-  // } else if (ColumnGenUtil.ofEntityTypeMethodAvailableDataTypeList.contains(dtInfo.getKata())) {
-  // sb.append(T2 + fieldNameLc + " = rec.get" + fieldNameUc + "OfEntityDataType();" + RT);
-  //
-  // } else if (dtInfo.getKata() == DataTypeKataEnum.BOOLEAN) {
-  // // boolean is stored as Boolean in the record, so Boolean.valueOf is added only when reading
-  // // from a String (i.e., when usesRec == false)
-  // sb.append(T2 + leftHandSide
-  // + ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
-  // : ("Boolean.valueOf(" + StringUtil.getLowerCamelFromSnake(ci.getName())) + ")")
-  // + ");" + RT);
-  //
-  // } else {
-  // sb.append(T2 + leftHandSide
-  // + ((usesRec) ? "rec.get" + StringUtil.getUpperCamelFromSnake(ci.getName()) + "()"
-  // : StringUtil.getLowerCamelFromSnake(ci.getName()))
-  // + ");" + RT);
-  // }
-  // }
-  //
-  // // Also add field assignment for columns that are targets of a bidirectional relation
-  // if (ci.isReferedByBidirectionalRelation()) {
-  // for (BidirectionalRelationInfo info : ci.getBidirectionalInfoList()) {
-  // String entityNameUc = StringUtil.getUpperCamelFromSnake(info.getOrgTableName());
-  // String entityNameLc = StringUtil.uncapitalize(entityNameUc);
-  //
-  // String bidirFieldName = info.getEmptyConsideredFieldNameToReferFromTable();
-  // String bidirFieldNameUc = StringUtil.capitalize(bidirFieldName);
-  //
-  // // ID column of ref-from table
-  // String pkColumnInOrgTable = getInfo().getDbRootInfo().tableList.stream()
-  // .filter(tbl -> tbl.getName().equals(info.getOrgTableName())).toList().get(0)
-  // .getPkColumn().getName();
-  // if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
-  // sb.append(T2 + bidirFieldName + " = rec.get" + bidirFieldNameUc + "() == null || rec.get"
-  // + bidirFieldNameUc + "().get" + StringUtil.getUpperCamelFromSnake(pkColumnInOrgTable)
-  // + "() == null ? null : new " + StringUtil.capitalize(entityNameLc) + "(rec.get"
-  // + bidirFieldNameUc + "());" + RT);
-  //
-  // } else {
-  // sb.append(
-  // T2 + "if (rec.get" + StringUtil.capitalize(bidirFieldName) + "() != null) {" + RT);
-  // sb.append(T3 + bidirFieldName + " = new ArrayList<>();" + RT);
-  // sb.append(T3 + "for (" + entityNameUc + "BaseRecord " + entityNameLc + "Rec : rec.get"
-  // + StringUtil.capitalize(bidirFieldName) + "()) {" + RT);
-  // sb.append(T4 + bidirFieldName + ".add(new " + entityNameUc + "(" + entityNameLc + "Rec));"
-  // + RT);
-  // sb.append(T3 + "}" + RT);
-  // sb.append(T2 + "}" + RT);
-  // }
-  // }
-  // }
-  // }
-
   private String args(DbOrClassTableInfo ti) {
     List<DbOrClassColumnInfo> baseList = ti.columnList.stream().filter(ci -> !ci.getIsJavaOnly())
         .filter(ci -> StringUtils.isEmpty(ci.getSpringAuditing())).toList();
@@ -728,54 +633,6 @@ public abstract class EntityGen extends AbstractTableGen {
   /** Returns the Java type name for the given column, considering enum types. */
   protected String getEnumConsideredKata(DbOrClassColumnInfo ci) {
     return code.getJavaKata(ci);
-  }
-
-  private Map<String, String> createSortedMapForPropFile(String lang,
-      List<DbOrClassTableInfo> tableList) {
-    Map<String, String> map = new LinkedHashMap<String, String>();
-
-    // Store the display name of each field in the map for each table
-    if (tableList != null) {
-      for (DbOrClassTableInfo tableInfo : tableList) {
-        putToMap(lang, tableInfo, map);
-      }
-    }
-
-    return map;
-  }
-
-  private void putToMap(String lang, DbOrClassTableInfo tableInfo,
-      Map<String, String> map) {
-
-    for (DbOrClassColumnInfo columnInfo : tableInfo.columnList) {
-      String entityName = StringUtil.getLowerCamelFromSnake(tableInfo.getName());
-      String varName = StringUtil.getLowerCamelFromSnake(columnInfo.getName());
-      String dispName = columnInfo.getDisplayNameMap().get(lang);
-      map.put(entityName + "." + varName, dispName);
-    }
-  }
-
-  /**
-   * Common processing to create item_names_xx.properties files for each configured language.
-   *
-   * <p>The default language is served by the no-suffix (ROOT) file alone; no separate
-   * {@code _<defaultLang>} copy is generated, since {@code PropertiesFileUtilBundleReader}'s
-   * {@code ResourceBundle} lookup already resolves the no-suffix file for any locale that has no
-   * more specific bundle of its own, default language included.</p>
-   */
-  protected void appendItemNamesProperties(
-      List<DbOrClassTableInfo> tableList) throws IOException, InterruptedException {
-    PropertiesFileGen gen = new PropertiesFileGen();
-
-    // Create the no-suffix (ROOT) file, serving the default language.
-    gen.writeMapToPropFile(createSortedMapForPropFile(
-        getInfo().getSysCmnRootInfo().getDefaultLang(),
-        tableList), "item_names", null);
-    // Create files for each language listed in supportedLangArr
-    for (String lang : getInfo().getSysCmnRootInfo().getSupportedLangArr()) {
-      gen.writeMapToPropFile(createSortedMapForPropFile(lang, tableList), "item_names",
-          lang);
-    }
   }
 
   /**
