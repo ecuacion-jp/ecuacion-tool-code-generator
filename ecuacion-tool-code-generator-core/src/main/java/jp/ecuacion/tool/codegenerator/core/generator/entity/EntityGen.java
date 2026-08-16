@@ -764,19 +764,20 @@ public abstract class EntityGen extends AbstractTableGen {
 
   /**
    * Common processing to create item_names_xx.properties files for each configured language.
+   *
+   * <p>The default language is served by the no-suffix (ROOT) file alone; no separate
+   * {@code _<defaultLang>} copy is generated, since {@code PropertiesFileUtilBundleReader}'s
+   * {@code ResourceBundle} lookup already resolves the no-suffix file for any locale that has no
+   * more specific bundle of its own, default language included.</p>
    */
   protected void appendItemNamesProperties(
       List<DbOrClassTableInfo> tableList) throws IOException, InterruptedException {
     PropertiesFileGen gen = new PropertiesFileGen();
 
-    // Create a fallback file.
+    // Create the no-suffix (ROOT) file, serving the default language.
     gen.writeMapToPropFile(createSortedMapForPropFile(
         getInfo().getSysCmnRootInfo().getDefaultLang(),
         tableList), "item_names", null);
-    // Create a file for the default language
-    gen.writeMapToPropFile(createSortedMapForPropFile(
-        getInfo().getSysCmnRootInfo().getDefaultLang(),
-        tableList), "item_names", getInfo().getSysCmnRootInfo().getDefaultLang());
     // Create files for each language listed in supportedLangArr
     for (String lang : getInfo().getSysCmnRootInfo().getSupportedLangArr()) {
       gen.writeMapToPropFile(createSortedMapForPropFile(lang, tableList), "item_names",
