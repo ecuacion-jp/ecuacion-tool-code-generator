@@ -17,10 +17,10 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
@@ -37,7 +37,7 @@ public class EnumClassInfo extends StringExcelTableBean {
 
   @NotEmpty
   @Size(min = 1, max = 50)
-  @Pattern(regexp = Constants.REG_EX_DT_NAME)
+  @PatternWithDescription(regexp = Constants.REG_EX_DT_NAME, description = "dataTypeName")
   private String dataTypeName;
 
   private DataTypeInfo dtInfo;

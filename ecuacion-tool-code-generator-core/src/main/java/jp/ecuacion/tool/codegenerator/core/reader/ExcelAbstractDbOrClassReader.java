@@ -33,12 +33,12 @@ import org.apache.poi.EncryptedDocumentException;
  * Abstract reader that parses a DB or class specification sheet and builds a {@link
  * jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo}.
  */
-public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderExcelTableReader {
+public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderExcelTableReader
+    implements ExcelDataKindReader {
 
   private static int COL_TABLE_NAME = 0;
 
   private SystemCommonRootInfo sysCmnRootInfo;
-  // private StringUtil strUtil = new StringUtil();
   private DataKindEnum fileKind;
 
   private static final String[] HEADER_LABELS_JA =
@@ -85,13 +85,13 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
 
     for (List<String> colList : rowList) {
       String tableName = resolveTableName(colList.get(COL_TABLE_NAME));
-      if (!existingTableMap.containsKey(tableName)) {
-        existingTableMap.put(tableName, new DbOrClassTableInfo(tableName));
-        rootInfo.tableList.add(existingTableMap.get(tableName));
+      DbOrClassTableInfo info = existingTableMap.get(tableName);
+      if (info == null) {
+        info = new DbOrClassTableInfo(tableName);
+        existingTableMap.put(tableName, info);
+        rootInfo.tableList.add(info);
       }
 
-      DbOrClassTableInfo info = java.util.Objects.requireNonNull(existingTableMap.get(tableName),
-          "Table info just inserted into existingTableMap must be present");
       info.columnList.add(new DbOrClassColumnInfo(colList, sysCmnRootInfo.getDefaultLang(),
           sysCmnRootInfo.getSupportLang1(), sysCmnRootInfo.getSupportLang2(),
           sysCmnRootInfo.getSupportLang3()));
@@ -100,11 +100,16 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
     return rtnMap;
   }
 
-  /** 
-   * Returns the table name to use for grouping rows. 
+  /**
+   * Returns the table name to use for grouping rows.
    *     Subclasses may override to supply defaults.
    */
   protected String resolveTableName(String rawTableName) {
     return rawTableName;
+  }
+
+  @Override
+  public String getSheetName() {
+    return super.getSheetName();
   }
 }

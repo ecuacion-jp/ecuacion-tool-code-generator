@@ -19,7 +19,6 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +30,10 @@ import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.EmptyWhen;
 import jp.ecuacion.lib.validation.constraints.EnumElement;
 import jp.ecuacion.lib.validation.constraints.IntegerString;
+import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
+import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeStringDataPtnEnum;
@@ -71,6 +74,9 @@ import org.jspecify.annotations.Nullable;
 @EmptyWhen(propertyPath = {"notNeedsTimezone"}, conditionPropertyPath = "kata",
     conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
     conditionValueString = {"DATE_TIME", "TIMESTAMP"})
+@NotEmptyWhen(propertyPath = "stringRegExDescLangDefault", conditionPropertyPath = "stringRegEx",
+    conditionOperator = ConditionOperator.EQUAL_TO, conditionValue = ConditionValue.NOT_EMPTY,
+    emptyWhenConditionNotSatisfied = true)
 @SuppressWarnings("NullAway.Init")
 public class DataTypeInfo extends StringExcelTableBean {
 
@@ -89,9 +95,10 @@ public class DataTypeInfo extends StringExcelTableBean {
 
   @NotEmpty
   @Size(min = 0, max = 50)
-  @Pattern(regexp = Constants.REG_EX_DT_NAME)
+  @PatternWithDescription(regexp = Constants.REG_EX_DT_NAME, description = "dataTypeName")
   private String dataTypeName;
   @NotEmpty
+  @EnumElement(enumClass = DataTypeKataEnum.class)
   private String kata;
   @IntegerString
   private String minLength;
@@ -99,13 +106,17 @@ public class DataTypeInfo extends StringExcelTableBean {
   private String maxLength;
   @EnumElement(enumClass = DataTypeStringDataPtnEnum.class)
   private String stringDataPtn;
-  @Size(max = 50)
+  @StrBoolean
   private String stringAllowsProhibitedCharacters;
   @Size(max = 100)
   private String stringRegEx;
+  @Size(min = 1, max = 50)
   private String stringRegExDescLangDefault;
+  @Size(min = 1, max = 50)
   private String stringRegExDescLangSupport01;
+  @Size(min = 1, max = 50)
   private String stringRegExDescLangSupport02;
+  @Size(min = 1, max = 50)
   private String stringRegExDescLangSupport03;
   @IntegerString
   @Size(max = 50)
@@ -117,6 +128,7 @@ public class DataTypeInfo extends StringExcelTableBean {
   private String numDigitInteger;
   @IntegerString
   private String numDigitFraction;
+  @IntegerString
   private String enumCodeLength;
   @StrBoolean
   private String notNeedsTimezone;

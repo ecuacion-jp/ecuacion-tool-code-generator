@@ -20,7 +20,6 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +29,7 @@ import java.util.Map;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.EmptyWhen;
 import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
+import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
@@ -65,7 +65,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   @NotEmpty
   @Size(max = 50)
-  @Pattern(regexp = Constants.REG_EX_UP_NUM_US)
+  @PatternWithDescription(regexp = Constants.REG_EX_UP_NUM_US, description = "upperSnakeCase")
   private String name;
 
   private String userFriendlyName;
@@ -76,7 +76,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   @NotEmpty
   @Size(max = 50)
-  @Pattern(regexp = Constants.REG_EX_DT_NAME)
+  @PatternWithDescription(regexp = Constants.REG_EX_DT_NAME, description = "dataTypeName")
   private String dataType;
   @StrBoolean
   private String isJavaOnly;
@@ -96,12 +96,12 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   private String isForcedUpdate;
   @StrBoolean
   private String isCustomGroupColumn;
-  @Pattern(regexp = "^CB|CD|LB|LD$")
+  @PatternWithDescription(regexp = "^CB|CD|LB|LD$", description = "springAuditing")
   private String springAuditing;
 
   private String updatedValue;
 
-  @Pattern(regexp = "^@ManyToOne|@OneToOne$")
+  @PatternWithDescription(regexp = "^@ManyToOne|@OneToOne$", description = "relationKind")
   private String relationKind;
   private String relationDirection;
   private String relationFieldName;

@@ -37,7 +37,8 @@ import org.apache.poi.EncryptedDocumentException;
  *     error rather than as a typed null check here.</p>
  */
 @SuppressWarnings("NullAway")
-public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableReader {
+public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableReader
+    implements ExcelDataKindReader {
 
   public static final String SHEET_NAME_JA = "各種設定";
   public static final String SHEET_NAME_EN = "General Settings";
