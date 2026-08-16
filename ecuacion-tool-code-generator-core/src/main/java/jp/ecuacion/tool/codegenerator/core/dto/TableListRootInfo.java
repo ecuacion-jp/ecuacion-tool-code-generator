@@ -40,5 +40,5 @@ public class TableListRootInfo extends AbstractRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() {}
+  public void consistencyCheckAndComplementData() {}
 }
