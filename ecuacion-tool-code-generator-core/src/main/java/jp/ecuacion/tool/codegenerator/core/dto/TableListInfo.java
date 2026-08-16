@@ -15,9 +15,13 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
+import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
@@ -26,10 +30,18 @@ import org.jspecify.annotations.Nullable;
 @SuppressWarnings("NullAway.Init")
 public class TableListInfo extends StringExcelTableBean {
 
+  @NotEmpty
+  @Size(min = 1, max = 50)
+  @PatternWithDescription(regexp = Constants.REG_EX_UP_NUM_US, description = "upperSnakeCase")
   private String tableName;
+  @NotEmpty
+  @Size(min = 1, max = 50)
   private String dispNameDefaultLang;
+  @Size(min = 1, max = 50)
   private String dispNameLang1;
+  @Size(min = 1, max = 50)
   private String dispNameLang2;
+  @Size(min = 1, max = 50)
   private String dispNameLang3;
   private Map<String, String> dispNameMap = new HashMap<>();
 

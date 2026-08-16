@@ -15,7 +15,7 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import jakarta.validation.constraints.Pattern;
+import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
@@ -25,9 +25,9 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 @SuppressWarnings("NullAway.Init")
 public class MiscSoftDeleteRootInfo extends AbstractColAttrRootInfo {
 
-  @Pattern(regexp = Constants.REG_EX_AL_NUM_DOT)
+  @PatternWithDescription(regexp = Constants.REG_EX_AL_NUM_DOT, description = "alNumDot")
   private String initialValue;
-  @Pattern(regexp = Constants.REG_EX_AL_NUM_DOT)
+  @PatternWithDescription(regexp = Constants.REG_EX_AL_NUM_DOT, description = "alNumDot")
   private String updatedValue;
 
   /** Constructs an empty instance used when no XML file is provided for soft-delete settings. */

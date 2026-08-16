@@ -16,11 +16,11 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
@@ -38,17 +38,22 @@ public class EnumValueInfo extends StringExcelTableBean {
   private String isJavaOnly;
   @NotEmpty
   @Size(min = 1, max = 10)
-  @Pattern(regexp = Constants.REG_EX_UP_NUM_US)
+  @PatternWithDescription(regexp = Constants.REG_EX_UP_NUM_US, description = "upperSnakeCase")
   private String code;
   @NotEmpty
   @Size(min = 1, max = 50)
-  @Pattern(regexp = Constants.REG_EX_UP_NUM_US)
+  @PatternWithDescription(regexp = Constants.REG_EX_UP_NUM_US, description = "upperSnakeCase")
   private String varName;
+  @NotEmpty
+  @Size(min = 1, max = 50)
   private String dispNameDefaultLang;
   // Holds dispName as a Map to support multiple languages. Key is the language (e.g. "ja").
   private Map<String, String> dispNameMap = new HashMap<String, String>();
+  @Size(min = 1, max = 50)
   private String dispNameLang1;
+  @Size(min = 1, max = 50)
   private String dispNameLang2;
+  @Size(min = 1, max = 50)
   private String dispNameLang3;
 
   //@formatter:off

@@ -31,7 +31,8 @@ import org.apache.poi.EncryptedDocumentException;
 /**
  * Reads the table-list sheet and builds a {@link TableListRootInfo}.
  */
-public class ExcelTableListReader extends StringOneLineHeaderExcelTableReader {
+public class ExcelTableListReader extends StringOneLineHeaderExcelTableReader
+    implements ExcelDataKindReader {
 
   private static final String SHEET_NAME_JA = "テーブル一覧";
   private static final String SHEET_NAME_EN = "Table List";
