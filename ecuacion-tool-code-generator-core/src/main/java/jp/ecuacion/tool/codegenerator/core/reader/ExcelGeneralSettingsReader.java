@@ -137,8 +137,7 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
   @SuppressWarnings({"null"})
   private AbstractRootInfo getOptimisticLocking(Map<String, String> props) {
     @SuppressWarnings("null")
-    MiscOptimisticLockRootInfo rootInfo =
-        new MiscOptimisticLockRootInfo(props.get("COLUMN_NAME"), props.get("DATA_TYPE_NAME"));
+    MiscOptimisticLockRootInfo rootInfo = new MiscOptimisticLockRootInfo(props.get("COLUMN_NAME"));
     return rootInfo;
   }
 }
