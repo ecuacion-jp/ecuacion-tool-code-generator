@@ -92,9 +92,7 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
         rootInfo.tableList.add(info);
       }
 
-      info.columnList.add(new DbOrClassColumnInfo(colList, sysCmnRootInfo.getDefaultLang(),
-          sysCmnRootInfo.getSupportLang1(), sysCmnRootInfo.getSupportLang2(),
-          sysCmnRootInfo.getSupportLang3()));
+      info.columnList.add(new DbOrClassColumnInfo(colList, sysCmnRootInfo));
     }
 
     return rtnMap;
