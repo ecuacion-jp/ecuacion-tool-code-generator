@@ -45,7 +45,10 @@ public class ValidationMessagesPatternDescriptionsGen extends AbstractGen {
     for (String lang : langList) {
       Map<String, String> propMap = new LinkedHashMap<>();
       // Message for prohibited character check
-      propMap.put("prohibitedChars", getInfo().getSysCmnRootInfo().getProhibitedCharsDesc(lang));
+      String prohibitedCharsDesc = getInfo().getSysCmnRootInfo().getProhibitedCharsDesc(lang);
+      if (prohibitedCharsDesc != null) {
+        propMap.put("prohibitedChars", prohibitedCharsDesc);
+      }
 
       // Messages for dataType
       for (DataTypeInfo dtInfo : getInfo().getDataTypeRootInfo().dataTypeList) {
