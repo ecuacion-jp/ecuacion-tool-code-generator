@@ -111,40 +111,42 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     imp.add(imps);
 
     // Add kata-dependent imports.
-    ti.columnList.stream()
-        .peek(ci -> imp.add(code.getHelper(ci.getDtInfo().getKata()).getNeededImports(ci)))
-        // Add validators.
-        .filter(ci -> !ci.getIsJavaOnly())
-        .forEach(ci -> imp.add(AnnotationGenUtil.getNeededImports(ci.getValidatorList(false))));
+    if (ti != null && ti.columnList != null) {
+      ti.columnList.stream()
+          .peek(ci -> imp.add(code.getHelper(ci.getDtInfo().getKata()).getNeededImports(ci)))
+          // Add validators.
+          .filter(ci -> !ci.getIsJavaOnly())
+          .forEach(ci -> imp.add(AnnotationGenUtil.getNeededImports(ci.getValidatorList(false))));
 
-    // Add DateTimeFormatter when the kata is timestamp.
-    if (ti.hasColumnWithAnyOfKatas(TIMESTAMP, DATE_TIME, DATE, TIME, YEAR_MONTH)) {
-      imp.add("java.time.format.DateTimeFormatter");
+      // Add DateTimeFormatter when the kata is timestamp.
+      if (ti.hasColumnWithAnyOfKatas(TIMESTAMP, DATE_TIME, DATE, TIME, YEAR_MONTH)) {
+        imp.add("java.time.format.DateTimeFormatter");
+      }
+
+      if (ti.hasColumnWithKata(ENUM)) {
+        imp.add("java.util.List", "java.util.Locale", EclibCoreConstants.PKG + ".util.EnumUtil");
+        ti.getColumnListWithKata(ENUM).stream()
+            .forEach(ci -> imp.add(rootBasePackage + ".base.enums." + code.getJavaKata(ci)));
+      }
+
+      if (ti.hasColumnWithKata(BOOLEAN)) {
+        imp.add("java.util.List", "java.util.Locale",
+            EclibCoreConstants.PKG + ".util.PropertiesFileUtil");
+      }
+
+      // Add @Valid imports for relation columns
+      if ((ti.hasRelationColumn() || ti.hasBidirectionalRelationRefColumn())
+          && getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
+        imp.add("jakarta.validation.Valid");
+      }
+
+      // Add imports for columns referred by bidirectional relation.
+      ti.columnList.stream().filter(ci -> ci.hasBidirectionalRelationRef())
+          .map(ci -> ci.getBidirectionalRelationRefInfoList()).flatMap(l -> l.stream())
+          .filter(info -> info.getRelationKind() == RelationKindEnum.ONE_TO_MANY)
+          .forEach(info -> imp.add("java.util.ArrayList", "java.util.List", rootBasePackage
+              + ".base.entity." + StringUtil.getUpperCamelFromSnake(info.getOrgTableName())));
     }
-
-    if (ti.hasColumnWithKata(ENUM)) {
-      imp.add("java.util.List", "java.util.Locale", EclibCoreConstants.PKG + ".util.EnumUtil");
-      ti.getColumnListWithKata(ENUM).stream()
-          .forEach(ci -> imp.add(rootBasePackage + ".base.enums." + code.getJavaKata(ci)));
-    }
-
-    if (ti.hasColumnWithKata(BOOLEAN)) {
-      imp.add("java.util.List", "java.util.Locale",
-          EclibCoreConstants.PKG + ".util.PropertiesFileUtil");
-    }
-
-    // Add @Valid imports for relation columns
-    if ((ti.hasRelationColumn() || ti.hasBidirectionalRelationRefColumn())
-        && getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
-      imp.add("jakarta.validation.Valid");
-    }
-
-    // Add imports for columns referred by bidirectional relation.
-    ti.columnList.stream().filter(ci -> ci.hasBidirectionalRelationRef())
-        .map(ci -> ci.getBidirectionalRelationRefInfoList()).flatMap(l -> l.stream())
-        .filter(info -> info.getRelationKind() == RelationKindEnum.ONE_TO_MANY)
-        .forEach(info -> imp.add("java.util.ArrayList", "java.util.List", rootBasePackage
-            + ".base.entity." + StringUtil.getUpperCamelFromSnake(info.getOrgTableName())));
 
     // output
     sb.append(imp.outputStr() + RT);
@@ -366,11 +368,10 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
               + get + " == null) ? \"\" : "
               + (dtInfo.getKata() == ENUM ? get + ".getCode();" : kata + ".toString(" + get + ");")
               + RT);
-          case DATE, TIME, DATE_TIME, TIMESTAMP, YEAR_MONTH -> sb
-              .append(T2 + "this." + fiName + " = e.get" + fiNameCp + "() == null ? \"\" : e.get"
-                  + fiNameCp + "()" + forTimeZone
-                  + ".format(DateTimeFormatter.ofPattern(dateTimeFormatParams.get" + kata
-                  + "Format()));" + RT);
+          case DATE, TIME, DATE_TIME, TIMESTAMP, YEAR_MONTH -> sb.append(T2 + "this." + fiName
+              + " = e.get" + fiNameCp + "() == null ? \"\" : e.get" + fiNameCp + "()" + forTimeZone
+              + ".format(DateTimeFormatter.ofPattern(dateTimeFormatParams.get" + kata
+              + "Format()));" + RT);
           default -> sb.append(T2 + "this." + fiName + " = " + get + ".toString();" + RT);
         }
       }
@@ -479,10 +480,9 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
 
         } else {
           switch (dtInfo.getKata()) {
-            case DATE, TIME, DATE_TIME, TIMESTAMP, YEAR_MONTH -> sb
-                .append(javaKata + ".parse(" + fiName
-                    + ", DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
-                    + code.capitalCamel(dtInfo.getKata().toString()) + "Format()));" + RT);
+            case DATE, TIME, DATE_TIME, TIMESTAMP, YEAR_MONTH -> sb.append(javaKata + ".parse("
+                + fiName + ", DateTimeFormatter.ofPattern(dateTimeFormatParams.get"
+                + code.capitalCamel(dtInfo.getKata().toString()) + "Format()));" + RT);
             case ENUM -> sb
                 .append("EnumUtil.getEnumFromCode(" + javaKata + ".class, " + fiName + ");" + RT);
             default -> sb

@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Offers a container for needed data to generate various codes.
@@ -147,11 +146,13 @@ public class CodeGenContext {
    * table
    */
 
-  /** Returns the common table info or {@code null} when DB_COMMON is not present. */
-  public @Nullable DbOrClassTableInfo getCommonTableInfo() {
-    return rootInfoMap.containsKey(DataKindEnum.DB_COMMON) && dbCommonRootInfo.tableList.size() > 0
-        ? dbCommonRootInfo.tableList.get(0)
-        : null;
+  /**
+   * Returns the common table info. DB_COMMON always has exactly one entry (a column-less
+   * "SYSTEM_COMMON" placeholder when the sheet has no rows); see {@link
+   * jp.ecuacion.tool.codegenerator.core.reader.ExcelDbCommonReader#readAndGetMap}.
+   */
+  public DbOrClassTableInfo getCommonTableInfo() {
+    return dbCommonRootInfo.tableList.get(0);
   }
 
   /**
