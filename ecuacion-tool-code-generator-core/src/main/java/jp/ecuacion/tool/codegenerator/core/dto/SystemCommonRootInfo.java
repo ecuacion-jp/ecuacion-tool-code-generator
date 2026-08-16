@@ -16,12 +16,15 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
+import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import org.apache.commons.lang3.StringUtils;
@@ -30,40 +33,62 @@ import org.apache.commons.lang3.StringUtils;
  * Holds system-wide common settings such as the base package, framework kind, character
  * encoding, and prohibited characters.
  */
+@NotEmptyWhen(propertyPath = "prohibitedCharsDescDefaultLang",
+    conditionPropertyPath = "prohibitedChars", conditionOperator = ConditionOperator.EQUAL_TO,
+    conditionValue = ConditionValue.NOT_EMPTY, emptyWhenConditionNotSatisfied = true)
 public class SystemCommonRootInfo extends AbstractRootInfo {
 
+  @NotEmpty
+  @PatternWithDescription(regexp = Constants.REG_EX_VERSION, description = "templateVersion")
   private String templateVersion;
 
   @NotEmpty
-  @Pattern(regexp = Constants.REG_EX_AL_NUM_HY)
+  @Size(min = 1, max = 50)
+  @PatternWithDescription(regexp = Constants.REG_EX_AL_NUM_HY, description = "systemName")
   private String systemName;
 
   @NotEmpty
   @Size(min = 1, max = 200)
-  @Pattern(regexp = Constants.REG_EX_DOWN_NUM_DOT)
+  @PatternWithDescription(regexp = Constants.REG_EX_DOWN_NUM_DOT, description = "basePackage")
   private String basePackage;
 
-  @Pattern(regexp = "jakarta EE|Spring Framework")
+  @NotEmpty
+  @PatternWithDescription(regexp = "jakarta EE|Spring Framework", description = "frameworkKind")
   private String frameworkKind;
 
   @NotEmpty
   @Size(min = 1, max = 50)
+  @PatternWithDescription(regexp = Constants.REG_EX_CHARSET, description = "characterEncoding")
   private String characterEncoding;
 
   @NotEmpty
+  @Size(max = 10)
+  @PatternWithDescription(regexp = Constants.REG_EX_LANG, description = "lang")
   private String defaultLang;
+
+  @Size(max = 10)
+  @PatternWithDescription(regexp = Constants.REG_EX_LANG, description = "lang")
   private String supportLang1;
+
+  @Size(max = 10)
+  @PatternWithDescription(regexp = Constants.REG_EX_LANG, description = "lang")
   private String supportLang2;
+
+  @Size(max = 10)
+  @PatternWithDescription(regexp = Constants.REG_EX_LANG, description = "lang")
   private String supportLang3;
 
   private List<String> supportedLangArr = new ArrayList<>();
 
-  @NotEmpty
+  @Size(min = 1, max = 50)
   private String prohibitedChars;
-  @NotEmpty
+  @Size(min = 1, max = 50)
   private String prohibitedCharsDescDefaultLang;
+  @Size(min = 1, max = 50)
   private String prohibitedCharsDescSupportLang1;
+  @Size(min = 1, max = 50)
   private String prohibitedCharsDescSupportLang2;
+  @Size(min = 1, max = 50)
   private String prohibitedCharsDescSupportLang3;
 
   private Map<String, String> prohibitedCharsDescLangMap = new HashMap<>();
@@ -74,11 +99,10 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
    */
   public SystemCommonRootInfo(String templateVersion, String systemName, String basePackage,
       // String projectType,
-      String frameworkKind,
-      String characterEncoding, String defaultLang, String supportLang1, String supportLang2,
-      String supportLang3, String prohibitedChars, String prohibitedCharsDescDefaultLang,
-      String prohibitedCharsDescSupportLang1, String prohibitedCharsDescSupportLang2,
-      String prohibitedCharsDescSupportLang3) {
+      String frameworkKind, String characterEncoding, String defaultLang, String supportLang1,
+      String supportLang2, String supportLang3, String prohibitedChars,
+      String prohibitedCharsDescDefaultLang, String prohibitedCharsDescSupportLang1,
+      String prohibitedCharsDescSupportLang2, String prohibitedCharsDescSupportLang3) {
 
     super(DataKindEnum.SYSTEM_COMMON);
     this.templateVersion = templateVersion;
