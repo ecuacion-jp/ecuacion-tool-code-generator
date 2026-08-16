@@ -21,10 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
-import jp.ecuacion.tool.codegenerator.core.bl.CheckAndComplementFileLevelConsistencyCheckBl;
-import jp.ecuacion.tool.codegenerator.core.bl.PrepareManager;
+import jp.ecuacion.tool.codegenerator.core.bl.PreparerForDbAndDataType;
+import jp.ecuacion.tool.codegenerator.core.bl.PreparerForMiscGroup;
+import jp.ecuacion.tool.codegenerator.core.bl.PreparerForMiscOptimisticLock;
+import jp.ecuacion.tool.codegenerator.core.bl.PreparerForMiscRemovedData;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
@@ -37,6 +40,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -61,7 +65,7 @@ public class CheckAndComplementDataBlf {
         (SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON);
 
     // Consistency check and complementation for the existence of multiple RootInfos
-    new CheckAndComplementFileLevelConsistencyCheckBl().check(systemName, rootInfoMap);
+    checkAndComplementFileLevelConsistencyCheckBl(systemName, rootInfoMap);
 
     // dataType
     ((DataTypeRootInfo) rootInfoMap.get(DataKindEnum.DATA_TYPE)).dataTypeList
@@ -89,9 +93,104 @@ public class CheckAndComplementDataBlf {
     putDataTypeInfoIntoColInfo(systemName, rootInfoMap, dtMap);
 
     // Data check and organization across multiple files
-    new PrepareManager().prepare();
+    prepareForCodeGeneration(info);
 
     return dtMap;
+  }
+
+  /**
+   * Validates that required definition files (data type, system common, etc.) exist in the
+   * given map.
+   */
+  private void checkAndComplementFileLevelConsistencyCheckBl(String systemName,
+      Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
+    if (!rootInfoMap.containsKey(DataKindEnum.DATA_TYPE)) {
+      new Violations().add(new BusinessViolation("MSG_ERR_DT_FILE_EXIST", systemName)).throwIfAny();
+
+    } else if (!rootInfoMap.containsKey(DataKindEnum.DATA_TYPE)
+        && rootInfoMap.containsKey(DataKindEnum.ENUM)) {
+      new Violations()
+          .add(new BusinessViolation("MSG_ERR_NO_DT_FILE_THOUGH_ENUM_EXISTS", systemName))
+          .throwIfAny();
+
+    } else if (!rootInfoMap.containsKey(DataKindEnum.DB)
+        && rootInfoMap.containsKey(DataKindEnum.DB_COMMON)) {
+      new Violations()
+          .add(new BusinessViolation("MSG_ERR_DB_NOT_EXIST_ALTHOUGH_DB_COMMON_EXISTS", systemName))
+          .throwIfAny();
+
+    } else if (!rootInfoMap.containsKey(DataKindEnum.DB)) {
+      new Violations().add(new BusinessViolation("MSG_ERR_DB_FILE_NOT_EXIST", systemName))
+          .throwIfAny();
+
+    } else if (!rootInfoMap.containsKey(DataKindEnum.SYSTEM_COMMON)) {
+      new Violations()
+          .add(new BusinessViolation("MSG_ERR_SYSTEM_COMMON_INFO_NOT_EXIST", systemName))
+          .throwIfAny();
+    }
+  }
+
+  /**
+   * Orchestrates all preparation steps that run after Excel files are read, including relation
+   * back-references and misc-info merging.
+   */
+  private void prepareForCodeGeneration(CodeGenContext info) {
+
+    // For entries in DBInfo and DbCommonInfo that have a bidirectional relation,
+    // register back-reference info on the referenced side to enable additional generation there.
+    List<DbOrClassColumnInfo.RelationRefInfo> relRefInfoList = new ArrayList<>();
+    // Create a combined list of DB and DBCommon for iteration
+    List<DbOrClassTableInfo> list = new ArrayList<>(info.getDbRootInfo().tableList);
+    list.addAll(info.getDbCommonRootInfo().tableList);
+    for (DbOrClassTableInfo ti : list) {
+      for (DbOrClassColumnInfo ci : ti.columnList) {
+        if (ci.isRelation()) {
+          RelationKindEnum relationKind = ci.getRelationKind();
+          if (relationKind == null) {
+            throw new IllegalStateException(
+                "isRelation() guarantees getRelationKind() is non-null");
+          }
+          relRefInfoList.add(new DbOrClassColumnInfo.RelationRefInfo(ci.isRelationBidirectinal(),
+              relationKind.getInverse(), ci.getRelationRefTable(), ci.getRelationRefCol(),
+              ci.getRelationRefFieldName(), ti.getName(),
+              StringUtil.getLowerCamelFromSnake(ci.getName()),
+              ci.getEffectiveRelationObjVarName()));
+        }
+      }
+    }
+
+    // For bidirectional relations, populate the collected info into the referenced side
+    for (DbOrClassColumnInfo.RelationRefInfo bdInfo : relRefInfoList) {
+      boolean found = false;
+
+      // It is unlikely that a common table is used as a reference target, so loop only over dbInfo
+      for (DbOrClassTableInfo ti : info.getDbRootInfo().tableList) {
+        for (DbOrClassColumnInfo ci : ti.columnList) {
+          if (ti.getName().equals(bdInfo.getDstTableName())
+              && ci.getName().equals(bdInfo.getDstColumnName())) {
+            ci.getRelationRefInfoList().add(bdInfo);
+            found = true;
+          }
+        }
+      }
+
+      if (!found) {
+        throw new RuntimeException("not found : tableName = " + bdInfo.getDstTableName()
+            + ", columnName = " + bdInfo.getDstColumnName());
+      }
+    }
+
+    // DB and DataType:
+    new PreparerForDbAndDataType().prepare();
+
+    // miscRemovedData: add info to DbOrClassInfo
+    new PreparerForMiscRemovedData().prepare();
+
+    // miscGroupInfo: add info to DbOrClassInfo
+    new PreparerForMiscGroup().prepare();
+
+    // miscOptimisticLockInfo: consolidate into DbOrClassInfo
+    new PreparerForMiscOptimisticLock().prepare();
   }
 
   @SuppressWarnings("null")
@@ -144,8 +243,9 @@ public class CheckAndComplementDataBlf {
 
           // Check because having two surrogate key columns is not allowed
           if (hasS) {
-            new Violations().add(new BusinessViolation(
-                "MSG_ERR_SURROGATE_KEY_DUPLICATED", tableInfo.getName())).throwIfAny();
+            new Violations()
+                .add(new BusinessViolation("MSG_ERR_SURROGATE_KEY_DUPLICATED", tableInfo.getName()))
+                .throwIfAny();
           }
 
           hasS = true;
@@ -158,8 +258,8 @@ public class CheckAndComplementDataBlf {
 
       // PK is required. SystemCommon is treated specially.
       if (!tableInfo.getName().equals("SYSTEM_COMMON") && !hasS) {
-        new Violations().add(
-            new BusinessViolation("MSG_ERR_PK_REQUIRED", tableInfo.getName())).throwIfAny();
+        new Violations().add(new BusinessViolation("MSG_ERR_PK_REQUIRED", tableInfo.getName()))
+            .throwIfAny();
       }
 
       tableInfo.setHasUniqueConstraint(hasU);
@@ -196,8 +296,8 @@ public class CheckAndComplementDataBlf {
     // "same column exists in both parent and child" check, so it is not checked here.
     // Do check for the case where it exists in neither parent nor child.
     if (!parentTableHasGroupCol && !childTableHasGroupCol) {
-      new Violations().add(
-          new BusinessViolation("MSG_ERR_COMMON_GROUP_COL_NOT_FOUND", systemName)).throwIfAny();
+      new Violations().add(new BusinessViolation("MSG_ERR_COMMON_GROUP_COL_NOT_FOUND", systemName))
+          .throwIfAny();
     }
 
     // When "group_id" is used as the common group column name, the master group table may want to
@@ -208,8 +308,10 @@ public class CheckAndComplementDataBlf {
     // It makes no sense to have a "custom group column" in systemCommon, so treat it as an error.
     // (The common group setting should be used instead.)
     if (dbCommonRootInfo.tableList.get(0).hasCustomGroupColumn()) {
-      new Violations().add(new BusinessViolation(
-          "MSG_ERR_SYSTEM_COMMON_ENTITY_CANNOT_HAVE_CUSTOM_GROUP_COLUMN", systemName)).throwIfAny();
+      new Violations()
+          .add(new BusinessViolation("MSG_ERR_SYSTEM_COMMON_ENTITY_CANNOT_HAVE_CUSTOM_GROUP_COLUMN",
+              systemName))
+          .throwIfAny();
     }
 
     // Having more than one "custom group column" in child tables is an error
@@ -222,8 +324,10 @@ public class CheckAndComplementDataBlf {
         customGroupTableName = ti.getName();
         customGroupColumnName = ti.getCustomGroupColumn().getName();
         if (numOfCustomGroupColumns > 1) {
-          new Violations().add(new BusinessViolation(
-              "MSG_ERR_MULTIPLE_CUSTOM_GROUP_COLUMN_CANNOT_EXIST", systemName)).throwIfAny();
+          new Violations()
+              .add(new BusinessViolation("MSG_ERR_MULTIPLE_CUSTOM_GROUP_COLUMN_CANNOT_EXIST",
+                  systemName))
+              .throwIfAny();
         }
       }
     }
