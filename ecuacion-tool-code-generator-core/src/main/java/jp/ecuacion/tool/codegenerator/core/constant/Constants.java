@@ -39,6 +39,9 @@ public class Constants {
   public static final String REG_EX_AL_NUM_DOT = "^[A-Za-z0-9\\.]*$";
   public static final String REG_EX_AL_NUM_HY = "^[A-Za-z0-9\\-]*$";
   public static final String REG_EX_AL_NUM_US_CM_DOT = "^[A-Za-z0-9_,\\.]*$";
+  public static final String REG_EX_VERSION = "^[A-Za-z0-9_\\-\\.]*$";
+  public static final String REG_EX_CHARSET = "^[A-Za-z0-9_\\-:\\.]*$";
+  public static final String REG_EX_LANG = "^([a-z]{2}(_[A-Z]{2})?)?$";
 
   public static final int OBJECT_CONSTRUCTION_COUNT = 3;
 
