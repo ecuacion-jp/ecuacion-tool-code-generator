@@ -747,18 +747,11 @@ public abstract class EntityGen extends AbstractTableGen {
   private void putToMap(String lang, DbOrClassTableInfo tableInfo,
       Map<String, String> map) {
 
-    // // For fields in SystemCommon (e.g. createTime), in addition to SystemCommon.createTime,
-    // // Acc.createTime must also be created, so the list includes both
-
     for (DbOrClassColumnInfo columnInfo : tableInfo.columnList) {
-      String entityName = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
+      String entityName = StringUtil.getLowerCamelFromSnake(tableInfo.getName());
       String varName = StringUtil.getLowerCamelFromSnake(columnInfo.getName());
       String dispName = columnInfo.getDisplayNameMap().get(lang);
       map.put(entityName + "." + varName, dispName);
-
-      // // Also register with the first letter of entityName lowercased, to match Spring MVC
-      // message output
-      map.put(StringUtils.uncapitalize(entityName) + "." + varName, dispName);
     }
   }
 
