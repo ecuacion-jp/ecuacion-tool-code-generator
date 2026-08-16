@@ -15,11 +15,15 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQUAL_TO;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_EMPTY;
+
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
 import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
@@ -27,6 +31,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
 /** Holds table display name information for each language, as read from the table-list sheet. */
+@NotEmptyWhen(propertyPath = "dispNameLang1", conditionPropertyPath = "sysCmnRootInfo.supportLang1",
+    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true)
+@NotEmptyWhen(propertyPath = "dispNameLang2", conditionPropertyPath = "sysCmnRootInfo.supportLang2",
+    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true)
+@NotEmptyWhen(propertyPath = "dispNameLang3", conditionPropertyPath = "sysCmnRootInfo.supportLang3",
+    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true)
 @SuppressWarnings("NullAway.Init")
 public class TableListInfo extends StringExcelTableBean {
 
@@ -45,6 +55,11 @@ public class TableListInfo extends StringExcelTableBean {
   private String dispNameLang3;
   private Map<String, String> dispNameMap = new HashMap<>();
 
+  /** Held for {@code @NotEmptyWhen}'s conditionPropertyPath; 
+   * not re-validated (not {@code @Valid}). */
+  @SuppressWarnings("unused")
+  private SystemCommonRootInfo sysCmnRootInfo;
+
   @Override
   protected @Nullable String[] getFieldNameArray() {
     return new String[] {"tableName", "dispNameDefaultLang", "dispNameLang1", "dispNameLang2",
@@ -55,6 +70,8 @@ public class TableListInfo extends StringExcelTableBean {
   @SuppressWarnings("null")
   public TableListInfo(List<String> colList, SystemCommonRootInfo sysCmnRootInfo) {
     super(colList);
+
+    this.sysCmnRootInfo = sysCmnRootInfo;
 
     Map<String, String> map = new HashMap<>();
     map.put(sysCmnRootInfo.getDefaultLang(), dispNameDefaultLang);
