@@ -40,7 +40,7 @@ public class MiscOptimisticLockRootInfo extends AbstractColAttrRootInfo {
    * requiring one single data type name to be shared system-wide would only be a redundant,
    * stricter constraint on top of that.</p>
    */
-  @SuppressWarnings("null")
+  @SuppressWarnings({"NullAway", "null"})
   public MiscOptimisticLockRootInfo(String columnName) {
     super(DataKindEnum.MISC_OPTIMISTIC_LOCK, columnName, null);
   }
