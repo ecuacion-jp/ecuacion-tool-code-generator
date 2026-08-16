@@ -108,7 +108,7 @@ public class ReadExcelFilesBlf {
       new Violations()
           .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(rootInfo))
           .messageParameters(Violations.newMessageParameters().messagePrefix(
-              Arg.message("MSG_ERR_ABOUT_EXCEL_FILE", rootInfo.getSheetName())))
+              Arg.message("MSG_ERR_ABOUT_EXCEL_FILE", rootInfo.getSheetName(), file.getName())))
           .throwIfAny();
       rootInfo.consistencyCheckAndCoplementData();
     }
