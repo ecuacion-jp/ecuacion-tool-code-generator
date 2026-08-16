@@ -149,7 +149,8 @@ public class CodeGenContext {
 
   /** Returns the common table info or {@code null} when DB_COMMON is not present. */
   public @Nullable DbOrClassTableInfo getCommonTableInfo() {
-    return rootInfoMap.containsKey(DataKindEnum.DB_COMMON) ? dbCommonRootInfo.tableList.get(0)
+    return rootInfoMap.containsKey(DataKindEnum.DB_COMMON) && dbCommonRootInfo.tableList.size() > 0
+        ? dbCommonRootInfo.tableList.get(0)
         : null;
   }
 
@@ -160,9 +161,8 @@ public class CodeGenContext {
    *     expected to look up tables they know to be present in the parsed data.</p>
    */
   public DbOrClassTableInfo getTableInfo(String nameSnakeCase) {
-    DbOrClassTableInfo ti =
-        dbRootInfo.tableList.stream().collect(Collectors.toMap(t -> t.getName(), t -> t))
-            .get(nameSnakeCase);
+    DbOrClassTableInfo ti = dbRootInfo.tableList.stream()
+        .collect(Collectors.toMap(t -> t.getName(), t -> t)).get(nameSnakeCase);
     if (ti == null) {
       throw new IllegalStateException("Table not found: " + nameSnakeCase);
     }
