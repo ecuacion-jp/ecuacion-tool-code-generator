@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.lib.validation.constraints.EmptyWhen;
 import jp.ecuacion.lib.validation.constraints.EnumElement;
 import jp.ecuacion.lib.validation.constraints.IntegerString;
@@ -47,6 +49,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Valida
 import jp.ecuacion.tool.codegenerator.core.util.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
+import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -236,7 +239,40 @@ public class DataTypeInfo extends StringExcelTableBean {
 
   /** Validates the data type settings and builds the list of validator generators. */
   public void checksAndComplements(SystemCommonRootInfo sysCmnRootInfo) {
+    checkLangDescriptions(sysCmnRootInfo);
     createValidators(sysCmnRootInfo);
+  }
+
+  /**
+   * Checks that each additional-language pattern description is present exactly when both
+   * {@code stringRegEx} and the corresponding support language are configured.
+   *
+   * <p>This can't be expressed with a single {@code @NotEmptyWhen} (unlike {@code
+   * stringRegExDescLangDefault}, gated on {@code stringRegEx} alone) because it depends on two
+   * independent conditions at once, so it's checked here instead, where both are available.</p>
+   */
+  private void checkLangDescriptions(SystemCommonRootInfo sysCmnRootInfo) {
+    checkLangDescription(1, stringRegExDescLangSupport01, sysCmnRootInfo.getSupportLang1());
+    checkLangDescription(2, stringRegExDescLangSupport02, sysCmnRootInfo.getSupportLang2());
+    checkLangDescription(3, stringRegExDescLangSupport03, sysCmnRootInfo.getSupportLang3());
+  }
+
+  private void checkLangDescription(int langNum, @Nullable String desc,
+      @Nullable String supportLang) {
+    boolean needsDesc = !StringUtils.isEmpty(stringRegEx) && !StringUtils.isEmpty(supportLang);
+
+    if (needsDesc && StringUtils.isEmpty(desc)) {
+      new Violations()
+          .add(new BusinessViolation("MSG_ERR_DT_LANG_DESC_REQUIRED", dataTypeName,
+              String.valueOf(langNum)))
+          .throwIfAny();
+
+    } else if (!needsDesc && !StringUtils.isEmpty(desc)) {
+      new Violations()
+          .add(new BusinessViolation("MSG_ERR_DT_LANG_DESC_MUST_BE_EMPTY", dataTypeName,
+              String.valueOf(langNum)))
+          .throwIfAny();
+    }
   }
 
   private void createValidators(SystemCommonRootInfo sysCmnRootInfo) {
