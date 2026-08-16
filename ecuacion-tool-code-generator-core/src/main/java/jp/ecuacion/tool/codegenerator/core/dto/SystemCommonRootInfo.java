@@ -227,5 +227,5 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() {}
+  public void consistencyCheckAndComplementData() {}
 }

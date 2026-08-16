@@ -58,7 +58,7 @@ public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() {
+  public void consistencyCheckAndComplementData() {
 
   }
 
