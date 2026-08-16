@@ -107,8 +107,10 @@ public class ReadExcelFilesBlf {
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
       new Violations()
           .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(rootInfo))
-          .messageParameters(Violations.newMessageParameters().messagePrefix(
-              Arg.message("MSG_ERR_ABOUT_EXCEL_FILE", rootInfo.getSheetName(), file.getName())))
+          .messageParameters(Violations.newMessageParameters()
+              .messagePrefix(
+                  Arg.message("MSG_ERR_ABOUT_EXCEL_FILE", rootInfo.getSheetName(), file.getName()))
+              .representativePropertyPath("fileToUpload"))
           .throwIfAny();
       rootInfo.consistencyCheckAndCoplementData();
     }
