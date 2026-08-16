@@ -15,11 +15,15 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQUAL_TO;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_EMPTY;
+
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
 import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
@@ -31,6 +35,12 @@ import org.jspecify.annotations.Nullable;
  * Holds enum value information including code, variable name, and display names for each
  * language.
  */
+@NotEmptyWhen(propertyPath = "dispNameLang1", conditionPropertyPath = "sysCmnRootInfo.supportLang1",
+    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true)
+@NotEmptyWhen(propertyPath = "dispNameLang2", conditionPropertyPath = "sysCmnRootInfo.supportLang2",
+    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true)
+@NotEmptyWhen(propertyPath = "dispNameLang3", conditionPropertyPath = "sysCmnRootInfo.supportLang3",
+    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true)
 @SuppressWarnings("NullAway.Init")
 public class EnumValueInfo extends StringExcelTableBean {
 
@@ -56,6 +66,11 @@ public class EnumValueInfo extends StringExcelTableBean {
   @Size(min = 1, max = 50)
   private String dispNameLang3;
 
+  /** Held for {@code @NotEmptyWhen}'s conditionPropertyPath; 
+   * not re-validated (not {@code @Valid}). */
+  @SuppressWarnings("unused")
+  private SystemCommonRootInfo sysCmnRootInfo;
+
   //@formatter:off
   @Override
   protected @Nullable String[] getFieldNameArray() {
@@ -73,6 +88,8 @@ public class EnumValueInfo extends StringExcelTableBean {
   @SuppressWarnings("null")
   public EnumValueInfo(List<String> colList, SystemCommonRootInfo sysCmnRootInfo) {
     super(colList);
+
+    this.sysCmnRootInfo = sysCmnRootInfo;
 
     // Build the values to store in dispNameMap
     Map<String, String> map = new HashMap<>();
