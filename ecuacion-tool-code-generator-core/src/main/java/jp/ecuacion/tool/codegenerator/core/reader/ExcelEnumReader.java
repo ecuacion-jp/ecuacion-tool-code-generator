@@ -33,7 +33,8 @@ import org.apache.poi.EncryptedDocumentException;
  * Reads the enum definition sheet from the Excel file and builds an {@link
  * jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo}.
  */
-public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader {
+public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader
+    implements ExcelDataKindReader {
 
   private static final String SHEET_NAME_JA = "enum定義";
   private static final String SHEET_NAME_EN = "Enum Definition";

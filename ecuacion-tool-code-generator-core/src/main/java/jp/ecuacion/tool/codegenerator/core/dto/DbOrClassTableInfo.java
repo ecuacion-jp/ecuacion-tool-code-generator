@@ -17,7 +17,6 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.lang.annotation.ElementType;
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ import java.util.Map;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
+import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.AnnotationGen;
@@ -48,7 +48,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
   @NotEmpty
   @Size(min = 1, max = 50)
-  @Pattern(regexp = Constants.REG_EX_UP_NUM_US)
+  @PatternWithDescription(regexp = Constants.REG_EX_UP_NUM_US, description = "upperSnakeCase")
   private String name;
 
   private boolean hasUniqueConstraint = false;

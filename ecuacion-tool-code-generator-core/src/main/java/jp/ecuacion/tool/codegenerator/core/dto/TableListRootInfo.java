@@ -15,14 +15,18 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.lib.validation.constraints.ElementsNotEmpty;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 /** Holds all table-list entries read from the テーブル一覧 sheet. */
 @SuppressWarnings("NullAway.Init")
 public class TableListRootInfo extends AbstractRootInfo {
 
+  @ElementsNotEmpty
+  @Valid
   public List<TableListInfo> tableList = new ArrayList<>();
 
   /** Constructs an empty instance for the TABLE_LIST data kind. */

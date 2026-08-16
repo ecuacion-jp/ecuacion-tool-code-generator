@@ -195,6 +195,10 @@ public class CheckAndComplementDataBlf {
 
   @SuppressWarnings("null")
   private void checkForChildTable(String sysName, DbOrClassRootInfo dbOrClassRootInfo) {
+    if (dbOrClassRootInfo.tableList.size() == 0) {
+      new Violations().add(new BusinessViolation("MSG_ERR_DB_NO_DATA_FOUND", sysName)).throwIfAny();
+    }
+
     List<String> tableNameSet = dbOrClassRootInfo.tableList.stream().map(e -> e.getName()).toList();
 
     for (DbOrClassTableInfo ti : dbOrClassRootInfo.tableList) {
