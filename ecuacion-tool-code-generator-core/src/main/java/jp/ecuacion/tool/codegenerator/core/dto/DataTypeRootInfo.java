@@ -40,7 +40,7 @@ public class DataTypeRootInfo extends AbstractRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() {
+  public void consistencyCheckAndComplementData() {
     // ExcelDataTypeReader uses StringOneLineHeaderExcelTableToBeanReader, which performs
     // validation during Excel reading, so no additional execution is needed here.
   }
