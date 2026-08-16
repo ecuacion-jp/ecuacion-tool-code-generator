@@ -791,8 +791,12 @@ public abstract class EntityGen extends AbstractTableGen {
   protected void appendAutoInsertOrUpdateGen(StringBuilder sb, DbOrClassTableInfo tableInfo,
       boolean isUpdate, boolean isFromSystemCommon) {
 
-    // If there are no target fields at all, skip generating this method, so check that first
-    boolean needsMethod = false;
+    // If there are no target fields at all, skip generating this method, so check that first.
+    // SystemCommon is the exception: it must always define preInsert()/preUpdate(), because
+    // every per-table entity that needs one unconditionally calls super.preInsert() /
+    // super.preUpdate() (see the isFromSystemCommon branch below), which would fail to compile
+    // if the method didn't exist on SystemCommon.
+    boolean needsMethod = isFromSystemCommon;
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList) {
       boolean bl = needsAutoInsertOrUpdate(colInfo, isUpdate);
       if (bl) {

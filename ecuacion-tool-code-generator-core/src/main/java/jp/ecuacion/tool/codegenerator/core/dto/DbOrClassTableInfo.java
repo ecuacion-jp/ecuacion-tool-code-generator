@@ -347,9 +347,10 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return getVersionColumn(getColumnListIncludingSystemCommon());
   }
 
-  /** Returns {@code true} if a group column exists considering SYSTEM_COMMON columns. */
+  /** Returns {@code true} if an optimistic-lock version column exists considering SYSTEM_COMMON
+   *     columns. */
   public boolean hasVersionColumnIncludingSystemCommon() {
-    return getGroupColumnIncludingSystemCommon() != null;
+    return getVersionColumnIncludingSystemCommon() != null;
   }
 
   /*
