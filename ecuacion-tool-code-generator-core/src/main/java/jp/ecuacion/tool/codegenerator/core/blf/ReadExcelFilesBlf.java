@@ -98,7 +98,7 @@ public class ReadExcelFilesBlf {
                   Arg.message("MSG_ERR_ABOUT_EXCEL_FILE", rootInfo.getSheetName(), file.getName()))
               .representativePropertyPath("fileToUpload"))
           .throwIfAny();
-      rootInfo.consistencyCheckAndCoplementData();
+      rootInfo.consistencyCheckAndComplementData();
     }
 
     return rootInfoMap;

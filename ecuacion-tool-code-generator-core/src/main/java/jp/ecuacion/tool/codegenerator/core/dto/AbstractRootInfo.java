@@ -60,5 +60,5 @@ public abstract class AbstractRootInfo extends AbstractInfo {
    * Performs checks on data read from Excel that cannot be handled by Jakarta Validation,
    * such as conditionally required fields.
    */
-  public abstract void consistencyCheckAndCoplementData();
+  public abstract void consistencyCheckAndComplementData();
 }

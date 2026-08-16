@@ -23,7 +23,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
  * An instance of this class is always created and registered in the system map even when no
  * corresponding XML file is placed. Generated record classes unconditionally rely on an
  * optimistic-lock version column existing (see {@code PerTableBaseRecordGen}), so {@link
- * #consistencyCheckAndCoplementData()} rejects the case where it was left unconfigured.
+ * #consistencyCheckAndComplementData()} rejects the case where it was left unconfigured.
  */
 public class MiscOptimisticLockRootInfo extends AbstractColAttrRootInfo {
 
@@ -46,7 +46,7 @@ public class MiscOptimisticLockRootInfo extends AbstractColAttrRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() {
+  public void consistencyCheckAndComplementData() {
     if (!isDefined()) {
       new Violations().add(new BusinessViolation("MSG_ERR_OPTIMISTIC_LOCK_COLUMN_REQUIRED"))
           .throwIfAny();

@@ -63,5 +63,5 @@ public class MiscSoftDeleteRootInfo extends AbstractColAttrRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() {}
+  public void consistencyCheckAndComplementData() {}
 }
