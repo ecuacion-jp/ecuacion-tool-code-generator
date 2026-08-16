@@ -42,13 +42,17 @@ public class MessagesBasePropertiesGen extends AbstractGen {
   /**
    * Generates messages_base properties files for each configured language by copying
    * the single language-agnostic template (messages_project_base.properties) from the classpath.
+   *
+   * <p>The default language is served by the no-suffix (ROOT) file alone; no separate
+   * {@code _<defaultLang>} copy is generated, since {@code PropertiesFileUtilBundleReader}'s
+   * {@code ResourceBundle} lookup already resolves the no-suffix file for any locale that has no
+   * more specific bundle of its own, default language included.</p>
    */
   private void generateMessagesBaseProperties(SystemCommonRootInfo sysCmnRootInfo)
       throws IOException, InterruptedException {
     // Get the list of languages
-    String[] langs =
-        new String[] {"", sysCmnRootInfo.getDefaultLang(), sysCmnRootInfo.getSupportLang1(),
-            sysCmnRootInfo.getSupportLang2(), sysCmnRootInfo.getSupportLang3()};
+    String[] langs = new String[] {"", sysCmnRootInfo.getSupportLang1(),
+        sysCmnRootInfo.getSupportLang2(), sysCmnRootInfo.getSupportLang3()};
 
     PropertiesFileGen pfGen = new PropertiesFileGen();
 
