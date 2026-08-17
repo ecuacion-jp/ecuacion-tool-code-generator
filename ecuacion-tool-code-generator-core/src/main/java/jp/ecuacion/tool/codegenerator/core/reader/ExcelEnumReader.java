@@ -59,6 +59,7 @@ public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader
   }
 
   /** Reads the Excel file at the given path and returns a data-kind-to-root-info map. */
+  @Override
   public Map<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
       throws EncryptedDocumentException, IOException {
 
