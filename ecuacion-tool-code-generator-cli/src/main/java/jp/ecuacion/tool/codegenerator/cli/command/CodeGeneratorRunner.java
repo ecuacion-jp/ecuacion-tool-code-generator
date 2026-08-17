@@ -19,6 +19,7 @@ import java.util.Objects;
 import jp.ecuacion.splib.cli.runner.SplibCliRunner;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public class CodeGeneratorRunner implements SplibCliRunner {
   private @Nullable String outputDir;
 
   @Override
-  public void execute(String[] args) throws Exception {
+  public void execute(String @NonNull [] args) throws Exception {
     new MainController().execute(Objects.requireNonNull(inputDir),
         Objects.requireNonNull(outputDir));
   }
