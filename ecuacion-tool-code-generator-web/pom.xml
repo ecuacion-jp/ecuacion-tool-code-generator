@@ -53,6 +53,14 @@
 			<artifactId>ecuacion-splib-web</artifactId>
 		</dependency>
 
+		<!-- spring-cloud-context: enables SplibPropertiesCacheClearer to refresh spring's own
+			properties cache (via ContextRefresher), so that the admin "clear properties cache"
+			action picks up application.properties changes without an app restart. -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-context</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>jp.ecuacion.splib</groupId>
 			<artifactId>ecuacion-splib-web-markdown</artifactId>
