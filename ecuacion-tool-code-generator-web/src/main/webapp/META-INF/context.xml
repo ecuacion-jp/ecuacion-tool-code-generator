@@ -17,31 +17,19 @@
 
 -->
 <!--
-  PREREQUISITE: The following directory must exist on the server before deployment.
-  If it does not exist, Tomcat will fail to deploy with an IllegalArgumentException.
-  (Creating the app-specific directory below with "mkdir -p" also creates its
-  ${catalina.base}/app-conf parent as a side effect, so in practice only one command
-  is needed.)
+  To place environment-specific config files (application.properties,
+  logback-spring.xml, etc.) outside this WAR, point the
+  jp.ecuacion.tool.code-generator.app-conf-dir system property (e.g. in Tomcat's
+  setenv.sh) at a directory of your choosing:
 
-    ${catalina.base}/app-conf/ecuacion-tool-code-generator/
-      (e.g. /usr/local/tomcat/app-conf/ecuacion-tool-code-generator/)
+    -Djp.ecuacion.tool.code-generator.app-conf-dir=/usr/local/tomcat/app-conf/ecuacion-tool-code-generator
 
-  Place environment-specific config files (application.properties, logback-spring.xml, etc.) there.
-
-  ${catalina.base}/app-conf/ is also mounted below, so when only this one WAR is
-  deployed on the Tomcat instance, files may instead be placed directly under
-  app-conf/ without the app-specific subdirectory. A file present in both is
-  resolved from the app-specific directory first (see the PreResources order below).
+  Doing so mounts that directory onto the classpath and creates it automatically if
+  it doesn't already exist. If the property is left unset, nothing is created and
+  nothing extra is mounted — this WAR's own embedded configuration is used as-is.
+  See SplibAppConfDirLifecycleListener in ecuacion-splib-core for details.
 -->
 <Context>
-	<Resources>
-		<PreResources className="org.apache.catalina.webresources.DirResourceSet"
-				base="${catalina.base}/app-conf/ecuacion-tool-code-generator"
-				webAppMount="/WEB-INF/classes"
-				readOnly="true"/>
-		<PreResources className="org.apache.catalina.webresources.DirResourceSet"
-				base="${catalina.base}/app-conf"
-				webAppMount="/WEB-INF/classes"
-				readOnly="true"/>
-	</Resources>
+	<Listener className="jp.ecuacion.splib.core.tomcat.SplibAppConfDirLifecycleListener"
+			customPathPropertyName="jp.ecuacion.tool.code-generator.app-conf-dir"/>
 </Context>
