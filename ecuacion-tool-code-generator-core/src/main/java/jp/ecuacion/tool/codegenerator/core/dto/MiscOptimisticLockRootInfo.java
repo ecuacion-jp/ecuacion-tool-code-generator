@@ -33,16 +33,11 @@ public class MiscOptimisticLockRootInfo extends AbstractColAttrRootInfo {
   }
 
   /**
-   * Constructs an instance with the given column name for optimistic locking.
-   *
-   * <p>No data type is taken here: {@code VersionGen} already validates, per column, that
-   * whatever data type is used is one of the ones the JPA spec allows for {@code @Version}, so
-   * requiring one single data type name to be shared system-wide would only be a redundant,
-   * stricter constraint on top of that.</p>
+   * Constructs an instance with the given column name and data type name for optimistic
+   * locking.
    */
-  @SuppressWarnings({"NullAway", "null"})
-  public MiscOptimisticLockRootInfo(String columnName) {
-    super(DataKindEnum.MISC_OPTIMISTIC_LOCK, columnName, null);
+  public MiscOptimisticLockRootInfo(String columnName, String dataTypeName) {
+    super(DataKindEnum.MISC_OPTIMISTIC_LOCK, columnName, dataTypeName);
   }
 
   @Override
