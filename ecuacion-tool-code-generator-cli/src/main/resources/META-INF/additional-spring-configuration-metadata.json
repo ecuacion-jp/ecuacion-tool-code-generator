@@ -1,13 +1,13 @@
 {
 	"properties": [
 		{
-			"name": "input-dir",
+			"name": "jp.ecuacion.tool.code-generator.input-dir",
 			"type": "java.lang.String",
 			"description": "",
 			"defaultValue": ""
 		},
 		{
-			"name": "output-dir",
+			"name": "jp.ecuacion.tool.code-generator.output-dir",
 			"type": "java.lang.String",
 			"description": "",
 			"defaultValue": ""
