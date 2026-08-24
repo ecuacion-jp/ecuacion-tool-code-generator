@@ -1,8 +1,8 @@
 {"properties": [
   {
-    "name": "work-dir",
+    "name": "jp.ecuacion.tool.code-generator.work-dir",
     "type": "java.lang.String",
-    "description": "A description for 'work-dir'"
+    "description": "A description for 'jp.ecuacion.tool.code-generator.work-dir'"
   },
   {
     "name": "jp.ecuacion.splib.web.home-page",

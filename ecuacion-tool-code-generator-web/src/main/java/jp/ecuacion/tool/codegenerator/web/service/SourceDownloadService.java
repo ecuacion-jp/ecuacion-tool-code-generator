@@ -52,6 +52,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Scope("prototype")
 public class SourceDownloadService extends SplibGeneral1FormService<SourceDownloadForm> {
 
+  public static final String PROP_WORK_DIR = "jp.ecuacion.tool.code-generator.work-dir";
+
   @Autowired
   private Environment env;
 
@@ -74,8 +76,8 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
     String dateTimeString = LocalDateTime.now(ZoneId.systemDefault())
         .format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss.SSS"));
     String threadIdString = Long.valueOf(Thread.currentThread().threadId()).toString();
-    Boolean hasDir = PropertiesFileUtil.hasApplication("work-dir");
-    String rootDir = (hasDir ? env.getProperty("work-dir") : "./app-work")
+    Boolean hasDir = PropertiesFileUtil.hasApplication(PROP_WORK_DIR);
+    String rootDir = (hasDir ? env.getProperty(PROP_WORK_DIR) : "./app-work")
         + "/ecuacion-tool-code-generator/" + dateTimeString + "-" + threadIdString;
 
     String inputDir = rootDir + "/" + "inputExcel";
