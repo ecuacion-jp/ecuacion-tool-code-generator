@@ -28,10 +28,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class CodeGeneratorRunner implements SplibCliRunner {
 
-  @Value("${input-dir:" + Constants.DIR_INFO_EXCELS_DEFAULT + "}")
+  public static final String PROP_INPUT_DIR = "jp.ecuacion.tool.code-generator.input-dir";
+  public static final String PROP_OUTPUT_DIR = "jp.ecuacion.tool.code-generator.output-dir";
+
+  @Value("${" + PROP_INPUT_DIR + ":" + Constants.DIR_INFO_EXCELS_DEFAULT + "}")
   private @Nullable String inputDir;
 
-  @Value("${output-dir:./products/}")
+  @Value("${" + PROP_OUTPUT_DIR + ":./products/}")
   private @Nullable String outputDir;
 
   @Override
