@@ -39,13 +39,12 @@ public class ExcelDataTypeReader implements ExcelDataKindReader {
 
   /** Constructs an instance that targets the dataType definition sheet for the given language. */
   public ExcelDataTypeReader(ExcelTemplateLanguage lang) {
-    String sheetName = lang == ExcelTemplateLanguage.JA ? DataTypeInfo.SHEET_NAME_JA
-        : DataTypeInfo.SHEET_NAME_EN;
+    String sheetName =
+        lang == ExcelTemplateLanguage.JA ? DataTypeInfo.SHEET_NAME_JA : DataTypeInfo.SHEET_NAME_EN;
     String[] headerLabels = (lang == ExcelTemplateLanguage.JA ? DataTypeInfo.HEADER_LABELS_JA
         : DataTypeInfo.HEADER_LABELS_EN).toArray(new String[0]);
-    reader =
-        new StringOneLineHeaderExcelTableToBeanReader<>(DataTypeInfo.class, sheetName,
-            headerLabels);
+    reader = new StringOneLineHeaderExcelTableToBeanReader<>(DataTypeInfo.class, sheetName,
+        headerLabels);
   }
 
   /** Reads the Excel file at the given path and returns a data-kind-to-root-info map. */
@@ -54,7 +53,7 @@ public class ExcelDataTypeReader implements ExcelDataKindReader {
       throws EncryptedDocumentException, IOException {
 
     Map<DataKindEnum, AbstractRootInfo> rtnMap = new HashMap<>();
-    rtnMap.put(DataKindEnum.DATA_TYPE, new DataTypeRootInfo(reader.readToBean(excelPath)));
+    rtnMap.put(DataKindEnum.DATA_TYPE, new DataTypeRootInfo(reader.readToBean(excelPath, false)));
     return rtnMap;
   }
 
