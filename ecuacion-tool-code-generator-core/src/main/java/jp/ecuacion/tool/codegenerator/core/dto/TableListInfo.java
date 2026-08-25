@@ -42,7 +42,7 @@ import org.jspecify.annotations.Nullable;
     conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
     groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
-public class TableListInfo extends StringExcelTableBean {
+public class TableListInfo extends StringExcelTableBean implements LangsHolder {
 
   @NotEmpty
   @Size(min = 1, max = 50)
