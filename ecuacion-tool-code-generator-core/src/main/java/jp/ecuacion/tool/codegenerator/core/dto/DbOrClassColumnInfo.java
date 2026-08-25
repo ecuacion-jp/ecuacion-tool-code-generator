@@ -39,6 +39,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.NotEmp
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.ValidatorGen;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.ReaderUtil;
+import jp.ecuacion.tool.codegenerator.core.validation.CrossSheetConsistencyCheckGroup;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
@@ -59,13 +60,16 @@ import org.jspecify.annotations.Nullable;
     conditionValue = EMPTY)
 @NotEmptyWhen(propertyPath = "supportedLang1",
     conditionPropertyPath = "sysCmnRootInfo.supportLang1", conditionValue = NOT_EMPTY,
-    conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true)
+    conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
+    groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "supportedLang2",
     conditionPropertyPath = "sysCmnRootInfo.supportLang2", conditionValue = NOT_EMPTY,
-    conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true)
+    conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
+    groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "supportedLang3",
     conditionPropertyPath = "sysCmnRootInfo.supportLang3", conditionValue = NOT_EMPTY,
-    conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true)
+    conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
+    groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
 public class DbOrClassColumnInfo extends StringExcelTableBean {
 
@@ -177,15 +181,24 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   /**
-   * Constructs a column info instance and builds the display-name map using the language
-   * settings from {@code sysCmnRootInfo}.
+   * Sets the system-common root info, needed both as the condition source for the
+   * {@code @NotEmptyWhen} constraints above (validated under {@link
+   * CrossSheetConsistencyCheckGroup}) and to build the display-name map.
+   *
+   * <p>Called from {@code CheckAndComplementDataBlf} once all sheets have been read; this info
+   * is intentionally unavailable while this sheet's own data is being parsed.</p>
    */
-  public DbOrClassColumnInfo(List<String> colList, SystemCommonRootInfo sysCmnRootInfo) {
-
-    this(colList);
-
+  public void setSysCmnRootInfo(SystemCommonRootInfo sysCmnRootInfo) {
     this.sysCmnRootInfo = sysCmnRootInfo;
+  }
 
+  /**
+   * Builds the display-name map using the language settings from {@code sysCmnRootInfo}.
+   *
+   * <p>Must be called after {@link #setSysCmnRootInfo} and after the
+   * {@link CrossSheetConsistencyCheckGroup} validation has passed.</p>
+   */
+  public void buildDisplayNameMap() {
     String[] locales =
         new String[] {sysCmnRootInfo.getDefaultLang(), sysCmnRootInfo.getSupportLang1(),
             sysCmnRootInfo.getSupportLang2(), sysCmnRootInfo.getSupportLang3()};

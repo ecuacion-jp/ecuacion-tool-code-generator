@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
@@ -28,7 +27,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelDataKindReader;
@@ -65,22 +63,22 @@ public class ReadExcelFilesBlf {
     ExcelGeneralSettingsReader generalSettingsReader = new ExcelGeneralSettingsReader(lang);
     putAllWithSheetName(rootInfoMap, generalSettingsReader, file.getAbsolutePath());
 
-    SystemCommonRootInfo sysCmnRootInfo =
-        Objects.requireNonNull((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON));
+    // SystemCommonRootInfo sysCmnRootInfo =
+    // Objects.requireNonNull((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON));
 
     ExcelDataTypeReader dataTypeReader = new ExcelDataTypeReader(lang);
     putAllWithSheetName(rootInfoMap, dataTypeReader, file.getAbsolutePath());
 
-    ExcelEnumReader enumReader = new ExcelEnumReader(sysCmnRootInfo, lang);
+    ExcelEnumReader enumReader = new ExcelEnumReader(lang);
     putAllWithSheetName(rootInfoMap, enumReader, file.getAbsolutePath());
 
-    ExcelDbReader dbReader = new ExcelDbReader(sysCmnRootInfo, lang);
+    ExcelDbReader dbReader = new ExcelDbReader(lang);
     putAllWithSheetName(rootInfoMap, dbReader, file.getAbsolutePath());
 
-    ExcelDbCommonReader dbCommonReader = new ExcelDbCommonReader(sysCmnRootInfo, lang);
+    ExcelDbCommonReader dbCommonReader = new ExcelDbCommonReader(lang);
     putAllWithSheetName(rootInfoMap, dbCommonReader, file.getAbsolutePath());
 
-    ExcelTableListReader tableListReader = new ExcelTableListReader(sysCmnRootInfo, lang);
+    ExcelTableListReader tableListReader = new ExcelTableListReader(lang);
     putAllWithSheetName(rootInfoMap, tableListReader, file.getAbsolutePath());
 
     // Create rootInfo even when the corresponding file is absent (only for required kinds)
