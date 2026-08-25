@@ -15,8 +15,6 @@
  */
 package jp.ecuacion.tool.codegenerator.core.blf;
 
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +38,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumClassInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.LangsHolder;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.TableListInfo;
@@ -167,23 +166,16 @@ public class CheckAndComplementDataBlf {
       }
     }
 
-    colInfoList.forEach(ci -> ci.setSysCmnRootInfo(systemCommon));
-    tableListInfoList.forEach(ti -> ti.setSysCmnRootInfo(systemCommon));
-    enumValueInfoList.forEach(ei -> ei.setSysCmnRootInfo(systemCommon));
+    List<List<? extends LangsHolder>> list =
+        List.of(colInfoList, tableListInfoList, enumValueInfoList);
 
-    Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    // cross-sheet validation
     Violations violations = new Violations();
-    colInfoList.forEach(
-        ci -> violations.addAll(validator.validate(ci, CrossSheetConsistencyCheckGroup.class)));
-    tableListInfoList.forEach(
-        ti -> violations.addAll(validator.validate(ti, CrossSheetConsistencyCheckGroup.class)));
-    enumValueInfoList.forEach(
-        ei -> violations.addAll(validator.validate(ei, CrossSheetConsistencyCheckGroup.class)));
+    list.forEach(li -> li.stream().peek(info -> info.setSysCmnRootInfo(systemCommon))
+        .forEach(info -> violations.validate(info, CrossSheetConsistencyCheckGroup.class)));
     violations.throwIfAny();
 
-    colInfoList.forEach(DbOrClassColumnInfo::buildDisplayNameMap);
-    tableListInfoList.forEach(TableListInfo::buildDisplayNameMap);
-    enumValueInfoList.forEach(EnumValueInfo::buildDisplayNameMap);
+    list.forEach(li -> li.forEach(LangsHolder::buildDisplayNameMap));
   }
 
   /**
