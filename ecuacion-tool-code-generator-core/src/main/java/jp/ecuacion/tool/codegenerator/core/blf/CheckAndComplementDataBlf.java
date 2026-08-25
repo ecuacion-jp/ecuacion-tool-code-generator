@@ -15,6 +15,8 @@
  */
 package jp.ecuacion.tool.codegenerator.core.blf;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,10 +39,14 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumClassInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.TableListInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.TableListRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
+import jp.ecuacion.tool.codegenerator.core.validation.CrossSheetConsistencyCheckGroup;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -66,6 +72,12 @@ public class CheckAndComplementDataBlf {
 
     // Consistency check and complementation for the existence of multiple RootInfos
     checkAndComplementFileLevelConsistencyCheckBl(systemName, rootInfoMap);
+
+    // Cross-sheet check of the additional-language columns (DB, DB common, table list, enum)
+    // against the languages configured in SystemCommonRootInfo, then completion of each row's
+    // language-keyed display-name map. Kept out of the per-sheet reading step because it depends
+    // on SystemCommonRootInfo, which belongs to a different sheet.
+    checkCrossSheetLangConsistencyAndBuildDisplayNameMaps(systemCommon, rootInfoMap);
 
     // dataType
     ((DataTypeRootInfo) rootInfoMap.get(DataKindEnum.DATA_TYPE)).dataTypeList
@@ -122,6 +134,56 @@ public class CheckAndComplementDataBlf {
     } else if (!rootInfoMap.containsKey(DataKindEnum.SYSTEM_COMMON)) {
       new Violations().add("MSG_ERR_SYSTEM_COMMON_INFO_NOT_EXIST", systemName).throwIfAny();
     }
+  }
+
+  /**
+   * Links every DB/DB-common/table-list/enum row to {@code systemCommon}, validates the rows'
+   * additional-language columns against it under {@link CrossSheetConsistencyCheckGroup}, and
+   * once that passes, builds each row's language-keyed display-name map.
+   *
+   * <p>This is deliberately not done while each sheet is being read: at that point only that
+   * sheet's own data should be in play, and {@code systemCommon} belongs to another sheet.</p>
+   */
+  private void checkCrossSheetLangConsistencyAndBuildDisplayNameMaps(
+      SystemCommonRootInfo systemCommon, Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
+
+    List<DbOrClassColumnInfo> colInfoList = new ArrayList<>();
+    List<TableListInfo> tableListInfoList = new ArrayList<>();
+    List<EnumValueInfo> enumValueInfoList = new ArrayList<>();
+
+    for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
+      if (rootInfo instanceof DbOrClassRootInfo dbOrClassRootInfo) {
+        for (DbOrClassTableInfo ti : dbOrClassRootInfo.tableList) {
+          colInfoList.addAll(ti.columnList);
+        }
+
+      } else if (rootInfo instanceof TableListRootInfo tableListRootInfo) {
+        tableListInfoList.addAll(tableListRootInfo.tableList);
+
+      } else if (rootInfo instanceof EnumRootInfo enumRootInfo) {
+        for (EnumClassInfo eci : enumRootInfo.enumClassList) {
+          enumValueInfoList.addAll(eci.enumList);
+        }
+      }
+    }
+
+    colInfoList.forEach(ci -> ci.setSysCmnRootInfo(systemCommon));
+    tableListInfoList.forEach(ti -> ti.setSysCmnRootInfo(systemCommon));
+    enumValueInfoList.forEach(ei -> ei.setSysCmnRootInfo(systemCommon));
+
+    Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    Violations violations = new Violations();
+    colInfoList.forEach(
+        ci -> violations.addAll(validator.validate(ci, CrossSheetConsistencyCheckGroup.class)));
+    tableListInfoList.forEach(
+        ti -> violations.addAll(validator.validate(ti, CrossSheetConsistencyCheckGroup.class)));
+    enumValueInfoList.forEach(
+        ei -> violations.addAll(validator.validate(ei, CrossSheetConsistencyCheckGroup.class)));
+    violations.throwIfAny();
+
+    colInfoList.forEach(DbOrClassColumnInfo::buildDisplayNameMap);
+    tableListInfoList.forEach(TableListInfo::buildDisplayNameMap);
+    enumValueInfoList.forEach(EnumValueInfo::buildDisplayNameMap);
   }
 
   /**
