@@ -21,7 +21,6 @@ import java.util.Objects;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 import org.apache.poi.EncryptedDocumentException;
@@ -37,9 +36,9 @@ public class ExcelDbCommonReader extends ExcelAbstractDbOrClassReader {
 
   /** Constructs an instance
    *     that targets the common DB item-definition sheet for the given language. */
-  public ExcelDbCommonReader(SystemCommonRootInfo info, ExcelTemplateLanguage lang) {
+  public ExcelDbCommonReader(ExcelTemplateLanguage lang) {
     super(lang == ExcelTemplateLanguage.JA ? SHEET_NAME_JA : SHEET_NAME_EN, DataKindEnum.DB_COMMON,
-        info, lang);
+        lang);
   }
 
   @Override

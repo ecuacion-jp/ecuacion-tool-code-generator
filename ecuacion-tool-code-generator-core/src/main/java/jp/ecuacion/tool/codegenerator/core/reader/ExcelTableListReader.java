@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.TableListInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.TableListRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
@@ -46,13 +45,10 @@ public class ExcelTableListReader extends StringOneLineHeaderExcelTableReader
           "Table Display Name (Additional Lang 1)", "Table Display Name (Additional Lang 2)",
           "Table Display Name (Additional Lang 3)"};
 
-  private final SystemCommonRootInfo sysCmnRootInfo;
-
   /** Constructs an instance that targets the table-list sheet for the given language. */
-  public ExcelTableListReader(SystemCommonRootInfo sysCmnRootInfo, ExcelTemplateLanguage lang) {
+  public ExcelTableListReader(ExcelTemplateLanguage lang) {
     super(lang == ExcelTemplateLanguage.JA ? SHEET_NAME_JA : SHEET_NAME_EN,
         lang == ExcelTemplateLanguage.JA ? HEADER_LABELS_JA : HEADER_LABELS_EN);
-    this.sysCmnRootInfo = sysCmnRootInfo;
   }
 
   /** Reads the Excel file at the given path and returns a data-kind-to-root-info map. */
@@ -66,7 +62,7 @@ public class ExcelTableListReader extends StringOneLineHeaderExcelTableReader
 
     List<List<String>> rowList = read(excelPath);
     for (List<String> colList : rowList) {
-      rootInfo.tableList.add(new TableListInfo(colList, sysCmnRootInfo));
+      rootInfo.tableList.add(new TableListInfo(colList));
     }
 
     return rtnMap;

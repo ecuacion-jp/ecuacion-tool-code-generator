@@ -23,7 +23,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
@@ -38,7 +37,6 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
 
   private static int COL_TABLE_NAME = 0;
 
-  private SystemCommonRootInfo sysCmnRootInfo;
   private DataKindEnum fileKind;
 
   private static final String[] HEADER_LABELS_JA =
@@ -61,12 +59,11 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
           "Notes", "Column Display Name (Default Lang)", "Column Display Name (Additional Lang 1)",
           "Column Display Name (Additional Lang 2)", "Column Display Name (Additional Lang 3)"};
 
-  /** Constructs an instance for the given sheet name, data kind, and system-common root info. */
+  /** Constructs an instance for the given sheet name and data kind. */
   public ExcelAbstractDbOrClassReader(String sheetName, DataKindEnum fileKind,
-      SystemCommonRootInfo systemCommonRootInfo, ExcelTemplateLanguage lang) {
+      ExcelTemplateLanguage lang) {
     super(sheetName, lang == ExcelTemplateLanguage.JA ? HEADER_LABELS_JA : HEADER_LABELS_EN);
     this.fileKind = fileKind;
-    sysCmnRootInfo = systemCommonRootInfo;
   }
 
   /** Reads the Excel file at the given path and returns a data-kind-to-root-info map. */
@@ -93,7 +90,7 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
         rootInfo.tableList.add(info);
       }
 
-      info.columnList.add(new DbOrClassColumnInfo(colList, sysCmnRootInfo));
+      info.columnList.add(new DbOrClassColumnInfo(colList));
     }
 
     return rtnMap;

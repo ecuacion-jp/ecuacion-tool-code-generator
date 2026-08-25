@@ -23,7 +23,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumClassInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
@@ -41,8 +40,6 @@ public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader
 
   private static int COL_DATA_TYPE_NAME = 0;
 
-  private SystemCommonRootInfo sysCmnRootInfo;
-
   private static final String[] HEADER_LABELS_JA =
       new String[] {"DataType名", "code", "varName", "javaのみ", "備考", "表示名（デフォルト言語）",
           "表示名（追加言語1）", "表示名（追加言語2）", "表示名（追加言語3）"};
@@ -52,10 +49,9 @@ public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader
       "Display Name (Additional Lang 2)", "Display Name (Additional Lang 3)"};
 
   /** Constructs an instance that targets the enum definition sheet for the given language. */
-  public ExcelEnumReader(SystemCommonRootInfo sysCmnRootInfo, ExcelTemplateLanguage lang) {
+  public ExcelEnumReader(ExcelTemplateLanguage lang) {
     super(lang == ExcelTemplateLanguage.JA ? SHEET_NAME_JA : SHEET_NAME_EN,
         lang == ExcelTemplateLanguage.JA ? HEADER_LABELS_JA : HEADER_LABELS_EN);
-    this.sysCmnRootInfo = sysCmnRootInfo;
   }
 
   /** Reads the Excel file at the given path and returns a data-kind-to-root-info map. */
@@ -82,7 +78,7 @@ public class ExcelEnumReader extends StringOneLineHeaderExcelTableReader
       EnumClassInfo info = java.util.Objects.requireNonNull(
           existingEnumClassMap.get(colList.get(COL_DATA_TYPE_NAME)),
           "EnumClassInfo just inserted into existingEnumClassMap must be present");
-      info.enumList.add(new EnumValueInfo(colList, sysCmnRootInfo));
+      info.enumList.add(new EnumValueInfo(colList));
     }
 
     return rtnMap;

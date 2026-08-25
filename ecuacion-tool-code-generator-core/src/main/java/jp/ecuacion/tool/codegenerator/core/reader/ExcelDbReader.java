@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.tool.codegenerator.core.reader;
 
-import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 
@@ -29,8 +28,7 @@ public class ExcelDbReader extends ExcelAbstractDbOrClassReader {
   private static final String SHEET_NAME_EN = "DB Item Definition";
 
   /** Constructs an instance that targets the DB item-definition sheet for the given language. */
-  public ExcelDbReader(SystemCommonRootInfo info, ExcelTemplateLanguage lang) {
-    super(lang == ExcelTemplateLanguage.JA ? SHEET_NAME_JA : SHEET_NAME_EN, DataKindEnum.DB, info,
-        lang);
+  public ExcelDbReader(ExcelTemplateLanguage lang) {
+    super(lang == ExcelTemplateLanguage.JA ? SHEET_NAME_JA : SHEET_NAME_EN, DataKindEnum.DB, lang);
   }
 }
