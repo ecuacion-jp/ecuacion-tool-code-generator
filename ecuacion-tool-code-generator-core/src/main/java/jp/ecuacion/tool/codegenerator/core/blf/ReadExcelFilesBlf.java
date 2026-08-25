@@ -15,10 +15,10 @@
  */
 package jp.ecuacion.tool.codegenerator.core.blf;
 
-import jakarta.validation.Validation;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -59,27 +59,13 @@ public class ReadExcelFilesBlf {
     ExcelTemplateLanguage lang = ExcelTemplateLanguageDetector.detect(file.getAbsolutePath());
     ctx.setExcelLang(lang);
 
-    // Read Excel (pure reading and storing into objects only; no data complementation here)
-    ExcelGeneralSettingsReader generalSettingsReader = new ExcelGeneralSettingsReader(lang);
-    putAllWithSheetName(rootInfoMap, generalSettingsReader, file.getAbsolutePath());
-
-    // SystemCommonRootInfo sysCmnRootInfo =
-    // Objects.requireNonNull((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON));
-
-    ExcelDataTypeReader dataTypeReader = new ExcelDataTypeReader(lang);
-    putAllWithSheetName(rootInfoMap, dataTypeReader, file.getAbsolutePath());
-
-    ExcelEnumReader enumReader = new ExcelEnumReader(lang);
-    putAllWithSheetName(rootInfoMap, enumReader, file.getAbsolutePath());
-
-    ExcelDbReader dbReader = new ExcelDbReader(lang);
-    putAllWithSheetName(rootInfoMap, dbReader, file.getAbsolutePath());
-
-    ExcelDbCommonReader dbCommonReader = new ExcelDbCommonReader(lang);
-    putAllWithSheetName(rootInfoMap, dbCommonReader, file.getAbsolutePath());
-
-    ExcelTableListReader tableListReader = new ExcelTableListReader(lang);
-    putAllWithSheetName(rootInfoMap, tableListReader, file.getAbsolutePath());
+    // Read excel sheets
+    List<ExcelDataKindReader> list = List.of(new ExcelGeneralSettingsReader(lang),
+        new ExcelDataTypeReader(lang), new ExcelEnumReader(lang), new ExcelDbReader(lang),
+        new ExcelDbCommonReader(lang), new ExcelTableListReader(lang));
+    for (ExcelDataKindReader reader : list) {
+      putAllWithSheetName(rootInfoMap, reader, file.getAbsolutePath());
+    }
 
     // Create rootInfo even when the corresponding file is absent (only for required kinds)
     putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_REMOVED_DATA, new MiscSoftDeleteRootInfo());
@@ -89,13 +75,10 @@ public class ReadExcelFilesBlf {
 
     // Batch validation and intra-RootInfo data complementation
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
-      new Violations()
-          .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(rootInfo))
-          .messageParameters(Violations.newMessageParameters()
-              .messagePrefix(
-                  Arg.message("MSG_ERR_ABOUT_EXCEL_FILE", rootInfo.getSheetName(), file.getName()))
-              .representativePropertyPath("fileToUpload"))
-          .throwIfAny();
+      Arg prefix = Arg.message("MSG_ERR_ABOUT_EXCEL_FILE", rootInfo.getSheetName(), file.getName());
+      new Violations().validate(rootInfo).withMessageParameters(
+          p -> p.messagePrefix(prefix).representativePropertyPath("fileToUpload")).throwIfAny();
+
       rootInfo.consistencyCheckAndComplementData();
     }
 

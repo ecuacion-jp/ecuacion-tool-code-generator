@@ -71,7 +71,7 @@ import org.jspecify.annotations.Nullable;
     conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
     groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
-public class DbOrClassColumnInfo extends StringExcelTableBean {
+public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHolder {
 
   private List<RelationRefInfo> relationRefInfoList = new ArrayList<>();
 

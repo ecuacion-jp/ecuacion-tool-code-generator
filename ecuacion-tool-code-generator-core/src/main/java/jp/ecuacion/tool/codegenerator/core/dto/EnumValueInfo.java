@@ -46,7 +46,7 @@ import org.jspecify.annotations.Nullable;
     conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
     groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
-public class EnumValueInfo extends StringExcelTableBean {
+public class EnumValueInfo extends StringExcelTableBean implements LangsHolder {
 
   @StrBoolean
   private String isJavaOnly;
