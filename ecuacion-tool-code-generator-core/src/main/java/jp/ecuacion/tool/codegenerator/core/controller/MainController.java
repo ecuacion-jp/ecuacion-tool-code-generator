@@ -117,7 +117,7 @@ public class MainController {
       // 2. Check and complement data
       log.info("Checking data consistency.");
       // Map<String, DataTypeInfo> dtMap =
-      new CheckAndComplementDataBlf().execute(info, systemName, rootInfoMap);
+      new CheckAndComplementDataBlf().execute(file, info, systemName, rootInfoMap);
 
       // 3.generate source
       log.info("Starting source generation.");
