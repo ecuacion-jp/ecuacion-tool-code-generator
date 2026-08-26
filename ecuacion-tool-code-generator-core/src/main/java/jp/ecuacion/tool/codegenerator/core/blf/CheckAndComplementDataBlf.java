@@ -15,12 +15,14 @@
  */
 package jp.ecuacion.tool.codegenerator.core.blf;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -37,16 +39,15 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumClassInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.LangsHolder;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.TableListInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.TableListRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
 import jp.ecuacion.tool.codegenerator.core.validation.CrossSheetConsistencyCheckGroup;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Validates and complements data parsed from Excel before code generation runs.
@@ -63,7 +64,7 @@ public class CheckAndComplementDataBlf {
     * name to DataTypeInfo.
    */
   @SuppressWarnings("null")
-  public Map<String, DataTypeInfo> execute(CodeGenContext info, String systemName,
+  public Map<String, DataTypeInfo> execute(File file, CodeGenContext info, String systemName,
       Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
 
     final SystemCommonRootInfo systemCommon =
@@ -76,7 +77,7 @@ public class CheckAndComplementDataBlf {
     // against the languages configured in SystemCommonRootInfo, then completion of each row's
     // language-keyed display-name map. Kept out of the per-sheet reading step because it depends
     // on SystemCommonRootInfo, which belongs to a different sheet.
-    checkCrossSheetLangConsistencyAndBuildDisplayNameMaps(systemCommon, rootInfoMap);
+    checkCrossSheetLangConsistencyAndBuildDisplayNameMaps(file, systemCommon, rootInfoMap);
 
     // dataType
     ((DataTypeRootInfo) rootInfoMap.get(DataKindEnum.DATA_TYPE)).dataTypeList
@@ -143,39 +144,41 @@ public class CheckAndComplementDataBlf {
    * <p>This is deliberately not done while each sheet is being read: at that point only that
    * sheet's own data should be in play, and {@code systemCommon} belongs to another sheet.</p>
    */
-  private void checkCrossSheetLangConsistencyAndBuildDisplayNameMaps(
+  private void checkCrossSheetLangConsistencyAndBuildDisplayNameMaps(File file,
       SystemCommonRootInfo systemCommon, Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
-
-    List<DbOrClassColumnInfo> colInfoList = new ArrayList<>();
-    List<TableListInfo> tableListInfoList = new ArrayList<>();
-    List<EnumValueInfo> enumValueInfoList = new ArrayList<>();
+    // String is a sheetName
+    List<Pair<String, List<LangsHolder>>> pairList = new ArrayList<>();
 
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
+      List<LangsHolder> infoList = new ArrayList<>();
+
       if (rootInfo instanceof DbOrClassRootInfo dbOrClassRootInfo) {
         for (DbOrClassTableInfo ti : dbOrClassRootInfo.tableList) {
-          colInfoList.addAll(ti.columnList);
+          infoList.addAll(ti.columnList);
         }
 
       } else if (rootInfo instanceof TableListRootInfo tableListRootInfo) {
-        tableListInfoList.addAll(tableListRootInfo.tableList);
+        infoList.addAll(tableListRootInfo.tableList);
 
       } else if (rootInfo instanceof EnumRootInfo enumRootInfo) {
         for (EnumClassInfo eci : enumRootInfo.enumClassList) {
-          enumValueInfoList.addAll(eci.enumList);
+          infoList.addAll(eci.enumList);
         }
       }
-    }
 
-    List<List<? extends LangsHolder>> list =
-        List.of(colInfoList, tableListInfoList, enumValueInfoList);
+      pairList.add(Pair.of(rootInfo.getSheetName(), infoList));
+    }
 
     // cross-sheet validation
     Violations violations = new Violations();
-    list.forEach(li -> li.stream().peek(info -> info.setSysCmnRootInfo(systemCommon))
-        .forEach(info -> violations.validate(info, CrossSheetConsistencyCheckGroup.class)));
-    violations.throwIfAny();
-
-    list.forEach(li -> li.forEach(LangsHolder::buildDisplayNameMap));
+    pairList.forEach(pair -> pair.getRight().forEach(info -> {
+      info.setSysCmnRootInfo(systemCommon);
+      Arg prefix =
+          Arg.message("MSG_ERR_ABOUT_EXCEL_FILE_AND_SHEET", file.getName(), pair.getLeft());
+      violations.validate(info, CrossSheetConsistencyCheckGroup.class)
+          .withMessageParameters(p -> p.messagePrefix(prefix)).throwIfAny();
+      info.buildDisplayNameMap();
+    }));
   }
 
   /**

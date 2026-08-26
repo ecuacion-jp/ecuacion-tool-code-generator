@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
@@ -64,7 +65,13 @@ public class ReadExcelFilesBlf {
         new ExcelDataTypeReader(lang), new ExcelEnumReader(lang), new ExcelDbReader(lang),
         new ExcelDbCommonReader(lang), new ExcelTableListReader(lang));
     for (ExcelDataKindReader reader : list) {
-      putAllWithSheetName(rootInfoMap, reader, file.getAbsolutePath());
+      try {
+        putAllWithSheetName(rootInfoMap, reader, file.getAbsolutePath());
+
+      } catch (ViolationException ex) {
+        Arg prefix = Arg.message("MSG_ERR_ABOUT_EXCEL_FILE", file.getName());
+        ex.getViolations().withMessageParameters(p -> p.messagePrefix(prefix)).throwIfAny();
+      }
     }
 
     // Create rootInfo even when the corresponding file is absent (only for required kinds)
@@ -75,7 +82,8 @@ public class ReadExcelFilesBlf {
 
     // Batch validation and intra-RootInfo data complementation
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
-      Arg prefix = Arg.message("MSG_ERR_ABOUT_EXCEL_FILE", rootInfo.getSheetName(), file.getName());
+      Arg prefix = Arg.message("MSG_ERR_ABOUT_EXCEL_FILE_AND_SHEET", file.getName(),
+          rootInfo.getSheetName());
       new Violations().validate(rootInfo).withMessageParameters(
           p -> p.messagePrefix(prefix).representativePropertyPath("fileToUpload")).throwIfAny();
 
