@@ -73,13 +73,14 @@ public class CheckAndComplementDataBlf {
     // Consistency check and complementation for the existence of multiple RootInfos
     checkAndComplementFileLevelConsistencyCheckBl(systemName, rootInfoMap);
 
-    // Cross-sheet check of the additional-language columns (DB, DB common, table list, enum)
-    // against the languages configured in SystemCommonRootInfo, then completion of each row's
-    // language-keyed display-name map. Kept out of the per-sheet reading step because it depends
-    // on SystemCommonRootInfo, which belongs to a different sheet.
+    // Cross-sheet check of the additional-language columns (DB, DB common, table list, enum,
+    // dataType) against the languages configured in SystemCommonRootInfo, then completion of
+    // each row's language-keyed display-name map. Kept out of the per-sheet reading step because
+    // it depends on SystemCommonRootInfo, which belongs to a different sheet.
     checkCrossSheetLangConsistencyAndBuildDisplayNameMaps(file, systemCommon, rootInfoMap);
 
-    // dataType
+    // dataType: build the validator-generator list (lang-description consistency was already
+    // checked above)
     ((DataTypeRootInfo) rootInfoMap.get(DataKindEnum.DATA_TYPE)).dataTypeList
         .forEach(dt -> dt.checksAndComplements(systemCommon));
 
@@ -137,9 +138,10 @@ public class CheckAndComplementDataBlf {
   }
 
   /**
-   * Links every DB/DB-common/table-list/enum row to {@code systemCommon}, validates the rows'
-   * additional-language columns against it under {@link CrossSheetConsistencyCheckGroup}, and
-   * once that passes, builds each row's language-keyed display-name map.
+   * Links every DB/DB-common/table-list/enum/dataType row to {@code systemCommon}, validates
+   * the rows' additional-language columns against it under
+   * {@link CrossSheetConsistencyCheckGroup}, and once that passes, builds each row's
+   * language-keyed display-name map.
    *
    * <p>This is deliberately not done while each sheet is being read: at that point only that
    * sheet's own data should be in play, and {@code systemCommon} belongs to another sheet.</p>
@@ -164,6 +166,9 @@ public class CheckAndComplementDataBlf {
         for (EnumClassInfo eci : enumRootInfo.enumClassList) {
           infoList.addAll(eci.enumList);
         }
+
+      } else if (rootInfo instanceof DataTypeRootInfo dataTypeRootInfo) {
+        infoList.addAll(dataTypeRootInfo.dataTypeList);
       }
 
       pairList.add(Pair.of(rootInfo.getSheetName(), infoList));
