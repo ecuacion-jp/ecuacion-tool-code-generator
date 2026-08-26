@@ -27,13 +27,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.lib.core.violation.BusinessViolation;
-import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.lib.validation.constraints.EmptyWhen;
 import jp.ecuacion.lib.validation.constraints.EnumElement;
 import jp.ecuacion.lib.validation.constraints.IntegerString;
 import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
 import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
+import jp.ecuacion.lib.validation.constraints.ReturnTrue;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
@@ -47,6 +46,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.Simple
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.SizeGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.ValidatorGen;
 import jp.ecuacion.tool.codegenerator.core.util.ReaderUtil;
+import jp.ecuacion.tool.codegenerator.core.validation.CrossSheetConsistencyCheckGroup;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
@@ -80,8 +80,20 @@ import org.jspecify.annotations.Nullable;
 @NotEmptyWhen(propertyPath = "stringRegExDescLangDefault", conditionPropertyPath = "stringRegEx",
     conditionOperator = ConditionOperator.EQUAL_TO, conditionValue = ConditionValue.NOT_EMPTY,
     emptyWhenConditionNotSatisfied = true)
+@ReturnTrue(methodName = "isStringRegExDescLangSupport01Valid",
+    propertyPath = "stringRegExDescLangSupport01", message = DataTypeInfo.RETURN_TRUE_MSG,
+    groups = CrossSheetConsistencyCheckGroup.class)
+@ReturnTrue(methodName = "isStringRegExDescLangSupport02Valid",
+    propertyPath = "stringRegExDescLangSupport02", message = DataTypeInfo.RETURN_TRUE_MSG,
+    groups = CrossSheetConsistencyCheckGroup.class)
+@ReturnTrue(methodName = "isStringRegExDescLangSupport03Valid",
+    propertyPath = "stringRegExDescLangSupport03", message = DataTypeInfo.RETURN_TRUE_MSG,
+    groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
-public class DataTypeInfo extends StringExcelTableBean {
+public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
+
+  protected static final String RETURN_TRUE_MSG =
+      "{jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo.stringRegExDescLangSupport.message}";
 
   public static final String SHEET_NAME_JA = "dataType定義";
   public static final String SHEET_NAME_EN = "dataType Definition";
@@ -140,6 +152,11 @@ public class DataTypeInfo extends StringExcelTableBean {
 
   private List<ValidatorGen> validatorForBothList = new ArrayList<>();
   private List<ValidatorGen> validatorForRecordList = new ArrayList<>();
+
+  /** Held for {@code @ReturnTrue}'s lang-description checks below; not re-validated
+   * (not {@code @Valid}). */
+  @SuppressWarnings("unused")
+  private SystemCommonRootInfo sysCmnRootInfo;
 
   @Override
   protected @Nullable String[] getFieldNameArray() {
@@ -237,42 +254,55 @@ public class DataTypeInfo extends StringExcelTableBean {
     return StringUtil.getLowerCamelFromSnake(dataTypeName.substring(3));
   }
 
-  /** Validates the data type settings and builds the list of validator generators. */
-  public void checksAndComplements(SystemCommonRootInfo sysCmnRootInfo) {
-    checkLangDescriptions(sysCmnRootInfo);
-    createValidators(sysCmnRootInfo);
+  /**
+   * Sets the system-common root info, needed as the source of the support-language settings
+   * referenced by the {@code @ReturnTrue} lang-description checks above (validated under
+   * {@link CrossSheetConsistencyCheckGroup}).
+   *
+   * <p>Called from {@code CheckAndComplementDataBlf} once all sheets have been read; this info
+   * is intentionally unavailable while this sheet's own data is being parsed.</p>
+   */
+  public void setSysCmnRootInfo(SystemCommonRootInfo sysCmnRootInfo) {
+    this.sysCmnRootInfo = sysCmnRootInfo;
   }
 
   /**
-   * Checks that each additional-language pattern description is present exactly when both
-   * {@code stringRegEx} and the corresponding support language are configured.
+   * {@code DataTypeInfo} has no display name of its own to build a map for; the per-language
+   * pattern descriptions it does hold are looked up on demand via {@link #getStringRegExDesc},
+   * so this is a no-op required only to satisfy {@link LangsHolder}.
+   */
+  public void buildDisplayNameMap() {}
+
+  /**
+   * Returns {@code true} when {@code stringRegExDescLangSupport01} is present exactly when both
+   * {@code stringRegEx} and support language 1 are configured.
    *
    * <p>This can't be expressed with a single {@code @NotEmptyWhen} (unlike {@code
    * stringRegExDescLangDefault}, gated on {@code stringRegEx} alone) because it depends on two
-   * independent conditions at once, so it's checked here instead, where both are available.</p>
+   * independent conditions at once, so {@code @ReturnTrue} is used instead.</p>
    */
-  private void checkLangDescriptions(SystemCommonRootInfo sysCmnRootInfo) {
-    checkLangDescription(1, stringRegExDescLangSupport01, sysCmnRootInfo.getSupportLang1());
-    checkLangDescription(2, stringRegExDescLangSupport02, sysCmnRootInfo.getSupportLang2());
-    checkLangDescription(3, stringRegExDescLangSupport03, sysCmnRootInfo.getSupportLang3());
+  public boolean isStringRegExDescLangSupport01Valid() {
+    return isLangDescriptionValid(stringRegExDescLangSupport01, sysCmnRootInfo.getSupportLang1());
   }
 
-  private void checkLangDescription(int langNum, @Nullable String desc,
-      @Nullable String supportLang) {
+  /** Same as {@link #isStringRegExDescLangSupport01Valid()}, for support language 2. */
+  public boolean isStringRegExDescLangSupport02Valid() {
+    return isLangDescriptionValid(stringRegExDescLangSupport02, sysCmnRootInfo.getSupportLang2());
+  }
+
+  /** Same as {@link #isStringRegExDescLangSupport01Valid()}, for support language 3. */
+  public boolean isStringRegExDescLangSupport03Valid() {
+    return isLangDescriptionValid(stringRegExDescLangSupport03, sysCmnRootInfo.getSupportLang3());
+  }
+
+  private boolean isLangDescriptionValid(@Nullable String desc, @Nullable String supportLang) {
     boolean needsDesc = !StringUtils.isEmpty(stringRegEx) && !StringUtils.isEmpty(supportLang);
+    return needsDesc == !StringUtils.isEmpty(desc);
+  }
 
-    if (needsDesc && StringUtils.isEmpty(desc)) {
-      new Violations()
-          .add(new BusinessViolation("MSG_ERR_DT_LANG_DESC_REQUIRED", dataTypeName,
-              String.valueOf(langNum)))
-          .throwIfAny();
-
-    } else if (!needsDesc && !StringUtils.isEmpty(desc)) {
-      new Violations()
-          .add(new BusinessViolation("MSG_ERR_DT_LANG_DESC_MUST_BE_EMPTY", dataTypeName,
-              String.valueOf(langNum)))
-          .throwIfAny();
-    }
+  /** Builds the list of validator generators from the data type settings. */
+  public void checksAndComplements(SystemCommonRootInfo sysCmnRootInfo) {
+    createValidators(sysCmnRootInfo);
   }
 
   private void createValidators(SystemCommonRootInfo sysCmnRootInfo) {
