@@ -64,64 +64,72 @@ public class MainController {
     List<String> inputDirs = Arrays.stream(inputDir.split(",")).map(String::trim)
         .filter(s -> !s.isEmpty()).collect(Collectors.toList());
 
-    // Prepare
-    CodeGenContext info = prepare(inputDirs, outputDir);
+    try {
+      // Prepare
+      CodeGenContext info = prepare(inputDirs, outputDir);
 
-    // Build the list of target Excel files from all input directories.
-    // Dedup by canonical path so an overlapping directory in a comma-separated
-    // inputDir does not cause the same file to be processed (and generated) twice.
-    List<File> targetFiles = new ArrayList<>();
-    Set<String> targetFileCanonicalPaths = new HashSet<>();
-    for (String dir : inputDirs) {
-      for (File file : new File(dir).listFiles()) {
-        if (!shouldSkip(file, "xlsx") && targetFileCanonicalPaths.add(file.getCanonicalPath())) {
-          targetFiles.add(file);
+      // Build the list of target Excel files from all input directories.
+      // Dedup by canonical path so an overlapping directory in a comma-separated
+      // inputDir does not cause the same file to be processed (and generated) twice.
+      List<File> targetFiles = new ArrayList<>();
+      Set<String> targetFileCanonicalPaths = new HashSet<>();
+      for (String dir : inputDirs) {
+        for (File file : new File(dir).listFiles()) {
+          if (!shouldSkip(file, "xlsx") && targetFileCanonicalPaths.add(file.getCanonicalPath())) {
+            targetFiles.add(file);
+          }
         }
       }
-    }
 
-    if (targetFiles.isEmpty()) {
-      log.info("Warning: No target Excel files found in the input directory. [Directory: "
-          + inputDir + "]");
-      return;
-    }
-
-    // Start the excel file unit loop.
-    // Tracks which file first declared each system name, so the same system name defined in
-    // multiple excel files (which would otherwise generate into the same output path twice) is
-    // rejected instead of silently duplicating generated content.
-    Map<String, File> systemNameToFileMap = new HashMap<>();
-    for (File file : targetFiles) {
-      // 1. Read and validate excel formats, and complement data.
-
-      log.info("==========");
-      log.info("[" + file.getName() + "]");
-      log.info("Reading excel file.");
-      Map<DataKindEnum, AbstractRootInfo> rootInfoMap = new ReadExcelFilesBlf().execute(file, info);
-
-      // Put data to info.
-      String systemName =
-          Objects.requireNonNull((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
-              "SYSTEM_COMMON must be populated").getSystemName();
-
-      File existingFile = systemNameToFileMap.putIfAbsent(systemName, file);
-      if (existingFile != null) {
-        new Violations()
-            .add(new BusinessViolation("MSG_ERR_SAME_SYSTEM_NAME_DEFINED_TWICE", systemName,
-                existingFile.getName(), file.getName()))
-            .throwIfAny();
+      if (targetFiles.isEmpty()) {
+        log.info("Warning: No target Excel files found in the input directory. [Directory: "
+            + inputDir + "]");
+        return;
       }
 
-      info.setRootInfoUnitValues(systemName, rootInfoMap);
+      // Start the excel file unit loop.
+      // Tracks which file first declared each system name, so the same system name defined in
+      // multiple excel files (which would otherwise generate into the same output path twice) is
+      // rejected instead of silently duplicating generated content.
+      Map<String, File> systemNameToFileMap = new HashMap<>();
+      for (File file : targetFiles) {
+        // 1. Read and validate excel formats, and complement data.
 
-      // 2. Check and complement data
-      log.info("Checking data consistency.");
-      // Map<String, DataTypeInfo> dtMap =
-      new CheckAndComplementDataBlf().execute(file, info, systemName, rootInfoMap);
+        log.info("==========");
+        log.info("[" + file.getName() + "]");
+        log.info("Reading excel file.");
+        Map<DataKindEnum, AbstractRootInfo> rootInfoMap =
+            new ReadExcelFilesBlf().execute(file, info);
 
-      // 3.generate source
-      log.info("Starting source generation.");
-      new GenerationBlf(info).execute();
+        // Put data to info.
+        String systemName = Objects
+            .requireNonNull((SystemCommonRootInfo) rootInfoMap.get(DataKindEnum.SYSTEM_COMMON),
+                "SYSTEM_COMMON must be populated")
+            .getSystemName();
+
+        File existingFile = systemNameToFileMap.putIfAbsent(systemName, file);
+        if (existingFile != null) {
+          new Violations().add(new BusinessViolation("MSG_ERR_SAME_SYSTEM_NAME_DEFINED_TWICE",
+              systemName, existingFile.getName(), file.getName())).throwIfAny();
+        }
+
+        info.setRootInfoUnitValues(systemName, rootInfoMap);
+
+        // 2. Check and complement data
+        log.info("Checking data consistency.");
+        // Map<String, DataTypeInfo> dtMap =
+        new CheckAndComplementDataBlf().execute(file, info, systemName, rootInfoMap);
+
+        // 3.generate source
+        log.info("Starting source generation.");
+        new GenerationBlf(info).execute();
+      }
+
+    } finally {
+      // Prevent the CodeGenContext of this request from being held by the (pooled) worker
+      // thread beyond this call, which would otherwise leak memory and mix data across
+      // requests handled by the same thread.
+      tlInfo.remove();
     }
   }
 
