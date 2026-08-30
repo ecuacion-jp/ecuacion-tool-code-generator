@@ -262,6 +262,7 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
    * <p>Called from {@code CheckAndComplementDataBlf} once all sheets have been read; this info
    * is intentionally unavailable while this sheet's own data is being parsed.</p>
    */
+  @Override
   public void setSysCmnRootInfo(SystemCommonRootInfo sysCmnRootInfo) {
     this.sysCmnRootInfo = sysCmnRootInfo;
   }
@@ -271,6 +272,7 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
    * pattern descriptions it does hold are looked up on demand via {@link #getStringRegExDesc},
    * so this is a no-op required only to satisfy {@link LangsHolder}.
    */
+  @Override
   public void buildDisplayNameMap() {}
 
   /**
