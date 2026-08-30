@@ -113,6 +113,12 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
       break;
     }
 
+    if (dirName.isEmpty()) {
+      new Violations()
+          .add(new BusinessViolation("SOURCE_DOWNLOAD_MESSAGE_NO_SOURCE_GENERATED"))
+          .throwIfAny();
+    }
+
     final String outputFilename = "source.zip";
     ZipFile zipFile = new ZipFile(outputDir + "/" + outputFilename);
     zipFile.addFolder(new File(outputDir + "/" + dirName));
@@ -130,7 +136,9 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
 
   private MediaType getContentType(Path path) throws IOException {
     try {
-      return MediaType.parseMediaType(Files.probeContentType(path));
+      String contentType = Files.probeContentType(path);
+      return contentType == null ? MediaType.APPLICATION_OCTET_STREAM
+          : MediaType.parseMediaType(contentType);
     } catch (IOException e) {
       return MediaType.APPLICATION_OCTET_STREAM;
     }
@@ -142,7 +150,7 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
           "SOURCE_DOWNLOAD_MESSAGE_FILE_NOT_DESIGNATED")).throwIfAny();
     }
 
-    if (!originalFileName.endsWith(".xlsx")) {
+    if (!originalFileName.toLowerCase().endsWith(".xlsx")) {
       new Violations()
           .add(new BusinessViolation("SOURCE_DOWNLOAD_MESSAGE_FILE_EXTENSION_UNAVAILABLE"))
           .throwIfAny();
