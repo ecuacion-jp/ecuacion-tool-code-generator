@@ -49,10 +49,8 @@ public abstract class AbstractGen extends AbstractCode {
   @SuppressWarnings("null")
   public AbstractGen(@Nullable DataKindEnum xmlFilePostFix) {
     this.xmlFilePostFix = xmlFilePostFix;
-    String osName = System.getProperty("os.name");
     rootBasePackage = getInfo().getSysCmnRootInfo().getBasePackage();
-    rootBasePackageDirectry = rootBasePackage.replaceAll("\\.",
-        osName.equals("Windows") ? "\\\\" : "/");
+    rootBasePackageDirectry = rootBasePackage.replaceAll("\\.", "/");
   }
 
   /** Executes the code generation process and produces the output source files. */
