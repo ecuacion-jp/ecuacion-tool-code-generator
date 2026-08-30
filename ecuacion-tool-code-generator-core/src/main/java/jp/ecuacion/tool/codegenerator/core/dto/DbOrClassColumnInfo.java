@@ -188,6 +188,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
    * <p>Called from {@code CheckAndComplementDataBlf} once all sheets have been read; this info
    * is intentionally unavailable while this sheet's own data is being parsed.</p>
    */
+  @Override
   public void setSysCmnRootInfo(SystemCommonRootInfo sysCmnRootInfo) {
     this.sysCmnRootInfo = sysCmnRootInfo;
   }
@@ -198,6 +199,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
    * <p>Must be called after {@link #setSysCmnRootInfo} and after the
    * {@link CrossSheetConsistencyCheckGroup} validation has passed.</p>
    */
+  @Override
   public void buildDisplayNameMap() {
     String[] locales =
         new String[] {sysCmnRootInfo.getDefaultLang(), sysCmnRootInfo.getSupportLang1(),
