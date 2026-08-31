@@ -36,8 +36,6 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -45,6 +43,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 /** Processes source code generation requests and packages the output as a ZIP archive 
  * for download. */
@@ -68,7 +67,8 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
 
   /** Generates source code from the uploaded Excel file and returns the result as a ZIP archive. */
   @SuppressWarnings("null")
-  public ResponseEntity<Resource> execute(MultipartFile multipartFile) throws Exception {
+  public ResponseEntity<StreamingResponseBody> execute(MultipartFile multipartFile)
+      throws Exception {
     final String originalFileName = Objects.requireNonNull(multipartFile.getOriginalFilename());
 
     check(originalFileName);
@@ -79,6 +79,7 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
     Boolean hasDir = PropertiesFileUtil.hasApplication(PROP_WORK_DIR);
     String rootDir = (hasDir ? env.getProperty(PROP_WORK_DIR) : "./app-work")
         + "/ecuacion-tool-code-generator/" + dateTimeString + "-" + threadIdString;
+    File rootDirFile = new File(rootDir);
 
     String inputDir = rootDir + "/" + "inputExcel";
     new File(inputDir).mkdirs();
@@ -86,52 +87,71 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
     String outputDir = rootDir + "/" + "output";
     new File(outputDir).mkdirs();
 
-    // Write the Excel file to the input directory
-    Path base = Paths.get(inputDir).toAbsolutePath().normalize();
-    Path path = base.resolve(originalFileName).normalize();
-    if (!path.startsWith(base)) {
-      new Violations()
-          .add(new BusinessViolation("SOURCE_DOWNLOAD_MESSAGE_FILE_EXTENSION_UNAVAILABLE"))
-          .throwIfAny();
-    }
-    Files.write(path, multipartFile.getBytes());
+    // From here on the request-scoped work directory exists on disk, so any failure must
+    // clean it up before propagating: otherwise every rejected/failed request (not just
+    // successful downloads) leaves it behind forever.
+    try {
+      // Write the Excel file to the input directory
+      Path base = Paths.get(inputDir).toAbsolutePath().normalize();
+      Path path = base.resolve(originalFileName).normalize();
+      if (!path.startsWith(base)) {
+        new Violations()
+            .add(new BusinessViolation("SOURCE_DOWNLOAD_MESSAGE_FILE_EXTENSION_UNAVAILABLE"))
+            .throwIfAny();
+      }
+      Files.write(path, multipartFile.getBytes());
 
-    new MainController().execute(inputDir, outputDir);
+      new MainController().execute(inputDir, outputDir);
 
-    // Get all directories from outputDir except ###work###, then zip them
-    String dirName = "";
-    for (File dir : new File(outputDir).listFiles()) {
-      if (!dir.isDirectory()) {
-        continue;
+      // Get all directories from outputDir except ###work###, then zip them
+      String dirName = "";
+      for (File dir : new File(outputDir).listFiles()) {
+        if (!dir.isDirectory()) {
+          continue;
+        }
+
+        if (dir.getName().startsWith("#")) {
+          continue;
+        }
+
+        dirName = dir.getName();
+        break;
       }
 
-      if (dir.getName().startsWith("#")) {
-        continue;
+      if (dirName.isEmpty()) {
+        new Violations()
+            .add(new BusinessViolation("SOURCE_DOWNLOAD_MESSAGE_NO_SOURCE_GENERATED"))
+            .throwIfAny();
       }
 
-      dirName = dir.getName();
-      break;
+      final String outputFilename = "source.zip";
+      ZipFile zipFile = new ZipFile(outputDir + "/" + outputFilename);
+      zipFile.addFolder(new File(outputDir + "/" + dirName));
+      zipFile.close();
+
+      Path zipFilePath = Path.of(outputDir, outputFilename);
+      MediaType contentType = getContentType(zipFilePath);
+
+      // Streaming (rather than handing back a Resource) lets us delete the work directory
+      // only once the bytes have actually been written to the client, instead of right after
+      // this method returns while Spring may still be reading the file to send it.
+      StreamingResponseBody body = outputStream -> {
+        try {
+          Files.copy(zipFilePath, outputStream);
+        } finally {
+          MainController.delete(rootDirFile);
+        }
+      };
+
+      return ResponseEntity.ok().contentType(contentType)
+          .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+              .filename(outputFilename, StandardCharsets.UTF_8).build().toString())
+          .body(body);
+
+    } catch (Exception e) {
+      MainController.delete(rootDirFile);
+      throw e;
     }
-
-    if (dirName.isEmpty()) {
-      new Violations()
-          .add(new BusinessViolation("SOURCE_DOWNLOAD_MESSAGE_NO_SOURCE_GENERATED"))
-          .throwIfAny();
-    }
-
-    final String outputFilename = "source.zip";
-    ZipFile zipFile = new ZipFile(outputDir + "/" + outputFilename);
-    zipFile.addFolder(new File(outputDir + "/" + dirName));
-    zipFile.close();
-
-    Path zipFilePath = Path.of(outputDir, outputFilename);
-    Resource resource = new FileSystemResource(zipFilePath);
-
-    return ResponseEntity.ok().contentType(getContentType(zipFilePath))
-        .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
-            .filename(outputFilename, StandardCharsets.UTF_8).build().toString())
-        .body(resource);
-
   }
 
   private MediaType getContentType(Path path) throws IOException {
