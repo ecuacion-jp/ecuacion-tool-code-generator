@@ -15,8 +15,10 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
+import java.io.File;
 import java.util.Map;
 import java.util.stream.Collectors;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 
@@ -27,6 +29,25 @@ import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 public class CodeGenContext {
   // all systems common
   public String outputDir;
+
+  /**
+   * Whether error messages should be prefixed with the source Excel file name.
+   *
+   * <p>The CLI can process multiple files in one run, so it needs the file name to tell them
+   *     apart ({@code true}); the web app only ever handles the single file the user just
+   *     uploaded, so the file name would be redundant noise ({@code false}).</p>
+   */
+  public boolean showFileNameInErrorMessage;
+
+  /**
+   * Builds the validation-message prefix for an error tied to a specific Excel file and sheet,
+   * honoring {@link #showFileNameInErrorMessage}.
+   */
+  public Arg excelErrorMessagePrefix(File file, String sheetName) {
+    return showFileNameInErrorMessage
+        ? Arg.message("MSG_ERR_ABOUT_EXCEL_FILE_AND_SHEET", file.getName(), sheetName)
+        : Arg.message("MSG_ERR_ABOUT_EXCEL_SHEET", sheetName);
+  }
 
   // system unit values
   private Map<DataKindEnum, AbstractRootInfo> rootInfoMap;
