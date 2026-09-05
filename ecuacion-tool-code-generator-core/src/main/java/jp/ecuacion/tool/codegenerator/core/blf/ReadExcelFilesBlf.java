@@ -39,6 +39,7 @@ import jp.ecuacion.tool.codegenerator.core.reader.ExcelGeneralSettingsReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelTableListReader;
 import jp.ecuacion.tool.codegenerator.core.reader.ExcelTemplateLanguageDetector;
 import org.apache.poi.EncryptedDocumentException;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Reads Excel files and returns parsed data grouped by {@link DataKindEnum}.
@@ -69,7 +70,14 @@ public class ReadExcelFilesBlf {
         putAllWithSheetName(rootInfoMap, reader, file.getAbsolutePath());
 
       } catch (ViolationException ex) {
-        Arg prefix = Arg.message("MSG_ERR_ABOUT_EXCEL_FILE", file.getName());
+        // Messages here come from ecuacion-util-excel-table and already embed the sheet name
+        // (see e.g. jp.ecuacion.util.excel.reader.HeaderCellIsBlank), so unlike the other
+        // prefixes in this class, only the file name is added here to avoid showing the sheet
+        // name twice.
+        @Nullable
+        Arg prefix =
+            ctx.showFileNameInErrorMessage ? Arg.message("MSG_ERR_ABOUT_EXCEL_FILE", file.getName())
+                : null;
         ex.getViolations().withMessageParameters(p -> p.messagePrefix(prefix)).throwIfAny();
       }
     }
@@ -82,8 +90,7 @@ public class ReadExcelFilesBlf {
 
     // Batch validation and intra-RootInfo data complementation
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
-      Arg prefix = Arg.message("MSG_ERR_ABOUT_EXCEL_FILE_AND_SHEET", file.getName(),
-          rootInfo.getSheetName());
+      Arg prefix = ctx.excelErrorMessagePrefix(file, rootInfo.getSheetName());
       new Violations().validate(rootInfo).withMessageParameters(
           p -> p.messagePrefix(prefix).representativePropertyPath("fileToUpload")).throwIfAny();
 
