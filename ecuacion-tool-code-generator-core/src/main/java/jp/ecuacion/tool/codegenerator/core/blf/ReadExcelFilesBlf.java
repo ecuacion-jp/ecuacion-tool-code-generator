@@ -90,6 +90,7 @@ public class ReadExcelFilesBlf {
 
     // Batch validation and intra-RootInfo data complementation
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
+      @SuppressWarnings("null")
       Arg prefix = ctx.excelErrorMessagePrefix(file, rootInfo.getSheetName());
       new Violations().validate(rootInfo).withMessageParameters(
           p -> p.messagePrefix(prefix).representativePropertyPath("fileToUpload")).throwIfAny();
