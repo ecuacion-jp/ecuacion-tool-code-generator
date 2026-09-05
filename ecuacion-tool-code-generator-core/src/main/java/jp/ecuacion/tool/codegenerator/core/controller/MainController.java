@@ -57,16 +57,22 @@ public class MainController {
    * Is the entrypoint of the core module.
    *
    * <p>{@code inputDir} accepts a comma-separated list of directories.
+   *
+   * @param showFileNameInErrorMessage whether error messages should be prefixed with the source
+   *     Excel file name. The CLI can process multiple files in one run, so it needs the file
+   *     name to tell them apart ({@code true}); the web app only ever handles the single file
+   *     the user just uploaded, so the file name would be redundant noise ({@code false}).
    */
   @SuppressWarnings("null")
-  public void execute(String inputDir, String outputDir) throws Exception {
+  public void execute(String inputDir, String outputDir, boolean showFileNameInErrorMessage)
+      throws Exception {
 
     List<String> inputDirs = Arrays.stream(inputDir.split(",")).map(String::trim)
         .filter(s -> !s.isEmpty()).collect(Collectors.toList());
 
     try {
       // Prepare
-      CodeGenContext info = prepare(inputDirs, outputDir);
+      CodeGenContext info = prepare(inputDirs, outputDir, showFileNameInErrorMessage);
 
       // Build the list of target Excel files from all input directories.
       // Dedup by canonical path so an overlapping directory in a comma-separated
@@ -133,7 +139,8 @@ public class MainController {
     }
   }
 
-  private CodeGenContext prepare(List<String> inputDirs, String outputDir) {
+  private CodeGenContext prepare(List<String> inputDirs, String outputDir,
+      boolean showFileNameInErrorMessage) {
     // Show current directory.
     log.info("Current directory: " + Paths.get("").toAbsolutePath().toString());
 
@@ -153,6 +160,7 @@ public class MainController {
     CodeGenContext info = new CodeGenContext();
     tlInfo.set(info);
     info.outputDir = outputDir;
+    info.showFileNameInErrorMessage = showFileNameInErrorMessage;
     return info;
   }
 

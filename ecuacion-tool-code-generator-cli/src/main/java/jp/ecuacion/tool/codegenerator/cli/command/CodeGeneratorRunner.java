@@ -39,7 +39,9 @@ public class CodeGeneratorRunner implements SplibCliRunner {
 
   @Override
   public void execute(String @NonNull [] args) throws Exception {
+    // The CLI can process multiple Excel files in one run, so error messages need the file name
+    // to tell them apart.
     new MainController().execute(Objects.requireNonNull(inputDir),
-        Objects.requireNonNull(outputDir));
+        Objects.requireNonNull(outputDir), true);
   }
 }
