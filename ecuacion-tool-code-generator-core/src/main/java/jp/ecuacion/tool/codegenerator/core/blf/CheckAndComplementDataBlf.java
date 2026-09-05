@@ -77,7 +77,7 @@ public class CheckAndComplementDataBlf {
     // dataType) against the languages configured in SystemCommonRootInfo, then completion of
     // each row's language-keyed display-name map. Kept out of the per-sheet reading step because
     // it depends on SystemCommonRootInfo, which belongs to a different sheet.
-    checkCrossSheetLangConsistencyAndBuildDisplayNameMaps(file, systemCommon, rootInfoMap);
+    checkCrossSheetLangConsistencyAndBuildDisplayNameMaps(file, info, systemCommon, rootInfoMap);
 
     // dataType: build the validator-generator list (lang-description consistency was already
     // checked above)
@@ -146,7 +146,7 @@ public class CheckAndComplementDataBlf {
    * <p>This is deliberately not done while each sheet is being read: at that point only that
    * sheet's own data should be in play, and {@code systemCommon} belongs to another sheet.</p>
    */
-  private void checkCrossSheetLangConsistencyAndBuildDisplayNameMaps(File file,
+  private void checkCrossSheetLangConsistencyAndBuildDisplayNameMaps(File file, CodeGenContext ctx,
       SystemCommonRootInfo systemCommon, Map<DataKindEnum, AbstractRootInfo> rootInfoMap) {
     // String is a sheetName
     List<Pair<String, List<LangsHolder>>> pairList = new ArrayList<>();
@@ -178,8 +178,7 @@ public class CheckAndComplementDataBlf {
     Violations violations = new Violations();
     pairList.forEach(pair -> pair.getRight().forEach(info -> {
       info.setSysCmnRootInfo(systemCommon);
-      Arg prefix =
-          Arg.message("MSG_ERR_ABOUT_EXCEL_FILE_AND_SHEET", file.getName(), pair.getLeft());
+      Arg prefix = ctx.excelErrorMessagePrefix(file, pair.getLeft());
       violations.validate(info, CrossSheetConsistencyCheckGroup.class)
           .withMessageParameters(p -> p.messagePrefix(prefix)).throwIfAny();
       info.buildDisplayNameMap();
