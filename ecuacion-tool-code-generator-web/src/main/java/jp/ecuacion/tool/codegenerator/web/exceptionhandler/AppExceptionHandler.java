@@ -17,20 +17,20 @@ package jp.ecuacion.tool.codegenerator.web.exceptionhandler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jp.ecuacion.splib.core.exceptionhandler.SplibExceptionHandlerAction;
-import jp.ecuacion.splib.web.exceptionhandler.SplibExceptionHandler;
+import jp.ecuacion.splib.web.exceptionhandler.SplibWebExceptionHandler;
 import jp.ecuacion.splib.web.util.SplibLoginStateUtil;
 import org.jspecify.annotations.Nullable;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 /** Handles exceptions for the web application without JPA support. */
 @ControllerAdvice
-public class AppExceptionHandlerNoJpa extends SplibExceptionHandler {
+public class AppExceptionHandler extends SplibWebExceptionHandler {
 
   /**
    * Constructs an instance with request context, optional action on throwable, and login
    * state utility.
    */
-  protected AppExceptionHandlerNoJpa(HttpServletRequest request,
+  protected AppExceptionHandler(HttpServletRequest request,
       @Nullable SplibExceptionHandlerAction actionOnThrowable,
       SplibLoginStateUtil loginStateUtil) {
     super(request, actionOnThrowable, loginStateUtil);
