@@ -18,6 +18,7 @@ package jp.ecuacion.tool.codegenerator.core.blf;
 import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.lib.core.logging.DetailLogger;
+import jp.ecuacion.splib.core.util.SplibLogUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
@@ -43,7 +44,6 @@ public class GenerationBlf {
 
   private static final DetailLogger log = new DetailLogger(GenerationBlf.class);
   private CodeGenContext info;
-  private static final String IDT = "  ";
 
   /** Constructs this BLF with the given {@link CodeGenContext}. */
   public GenerationBlf(CodeGenContext info) {
@@ -62,7 +62,7 @@ public class GenerationBlf {
    * pattern.
    */
   public void controlGenerators() throws Exception {
-    log.info(IDT + "Collectiong generators.");
+    SplibLogUtil.info(log, "Collecting generators.", 2);
     List<AbstractGen> arrGen = new ArrayList<AbstractGen>();
     arrGen.add(new ConstantGen());
     arrGen.add(new SystemCommonBaseRecordGen());
@@ -91,10 +91,10 @@ public class GenerationBlf {
     // overwrites the file; appending table list data here ensures it is never lost.
     arrGen.add(new TableListPropertiesGen());
 
-    log.info(IDT + "Executing generators.");
+    SplibLogUtil.info(log, "Executing generators.", 2);
     for (AbstractGen gen : arrGen) {
 
-      log.debug(IDT + IDT + "Executing " + gen.getClass().getSimpleName() + ".");
+      SplibLogUtil.debug(log, "Executing " + gen.getClass().getSimpleName() + ".", 3);
       gen.generate();
     }
   }

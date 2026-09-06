@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
+import jp.ecuacion.splib.core.util.SplibLogUtil;
 import jp.ecuacion.tool.codegenerator.core.blf.CheckAndComplementDataBlf;
 import jp.ecuacion.tool.codegenerator.core.blf.GenerationBlf;
 import jp.ecuacion.tool.codegenerator.core.blf.ReadExcelFilesBlf;
@@ -93,6 +94,8 @@ public class MainController {
         return;
       }
 
+      log.info("Per-file code generation started.");
+
       // Start the excel file unit loop.
       // Tracks which file first declared each system name, so the same system name defined in
       // multiple excel files (which would otherwise generate into the same output path twice) is
@@ -100,10 +103,10 @@ public class MainController {
       Map<String, File> systemNameToFileMap = new HashMap<>();
       for (File file : targetFiles) {
         // 1. Read and validate excel formats, and complement data.
+        SplibLogUtil.info(log, "Target file : " + file.getName(), 1);
+        int logIndents = 2;
+        SplibLogUtil.info(log, "Reading excel file.", logIndents);
 
-        log.info("==========");
-        log.info("[" + file.getName() + "]");
-        log.info("Reading excel file.");
         Map<DataKindEnum, AbstractRootInfo> rootInfoMap =
             new ReadExcelFilesBlf().execute(file, info);
 
@@ -122,14 +125,17 @@ public class MainController {
         info.setRootInfoUnitValues(systemName, rootInfoMap);
 
         // 2. Check and complement data
-        log.info("Checking data consistency.");
-        // Map<String, DataTypeInfo> dtMap =
+        SplibLogUtil.info(log, "Checking data consistency.", logIndents);
         new CheckAndComplementDataBlf().execute(file, info, systemName, rootInfoMap);
 
         // 3.generate source
-        log.info("Starting source generation.");
+        SplibLogUtil.info(log, "Starting source generation.", logIndents);
         new GenerationBlf(info).execute();
+
+        SplibLogUtil.info(log, "Generation for the file finished.", 1);
       }
+
+      log.info("Process finished successfully.");
 
     } finally {
       // Prevent the CodeGenContext of this request from being held by the (pooled) worker
