@@ -86,9 +86,9 @@ jobs:
         working-directory: ecuacion-tool-code-generator
         run: |
           if [ "$UPLOAD_COVERAGE" = "true" ]; then
-            mvn verify -Dwagon.skip=true -e
+            mvn verify -Dwagon.skip=true -Dallure.report.skip=true -Dlicense.skip=true -e
           else
-            mvn verify -Dwagon.skip=true -Djacoco.skip=true -e
+            mvn verify -Dwagon.skip=true -Dallure.report.skip=true -Dlicense.skip=true -Djacoco.skip=true -e
           fi
 
       - name: Test (windows)
