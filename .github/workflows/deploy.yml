@@ -13,6 +13,9 @@ on:
 env:
   MAVEN_OPTS: -Xmx2g
 
+permissions:
+  contents: read
+
 jobs:
   release:
     runs-on: ubuntu-latest
