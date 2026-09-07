@@ -15,11 +15,12 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
+import java.io.File;
 import java.util.Map;
 import java.util.stream.Collectors;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Offers a container for needed data to generate various codes.
@@ -28,6 +29,25 @@ import org.jspecify.annotations.Nullable;
 public class CodeGenContext {
   // all systems common
   public String outputDir;
+
+  /**
+   * Whether error messages should be prefixed with the source Excel file name.
+   *
+   * <p>The CLI can process multiple files in one run, so it needs the file name to tell them
+   *     apart ({@code true}); the web app only ever handles the single file the user just
+   *     uploaded, so the file name would be redundant noise ({@code false}).</p>
+   */
+  public boolean showFileNameInErrorMessage;
+
+  /**
+   * Builds the validation-message prefix for an error tied to a specific Excel file and sheet,
+   * honoring {@link #showFileNameInErrorMessage}.
+   */
+  public Arg excelErrorMessagePrefix(File file, String sheetName) {
+    return showFileNameInErrorMessage
+        ? Arg.message("MSG_ERR_ABOUT_EXCEL_FILE_AND_SHEET", file.getName(), sheetName)
+        : Arg.message("MSG_ERR_ABOUT_EXCEL_SHEET", sheetName);
+  }
 
   // system unit values
   private Map<DataKindEnum, AbstractRootInfo> rootInfoMap;
@@ -147,10 +167,13 @@ public class CodeGenContext {
    * table
    */
 
-  /** Returns the common table info or {@code null} when DB_COMMON is not present. */
-  public @Nullable DbOrClassTableInfo getCommonTableInfo() {
-    return rootInfoMap.containsKey(DataKindEnum.DB_COMMON) ? dbCommonRootInfo.tableList.get(0)
-        : null;
+  /**
+   * Returns the common table info. DB_COMMON always has exactly one entry (a column-less
+   * "SYSTEM_COMMON" placeholder when the sheet has no rows); see {@link
+   * jp.ecuacion.tool.codegenerator.core.reader.ExcelDbCommonReader#readAndGetMap}.
+   */
+  public DbOrClassTableInfo getCommonTableInfo() {
+    return dbCommonRootInfo.tableList.get(0);
   }
 
   /**
@@ -160,9 +183,8 @@ public class CodeGenContext {
    *     expected to look up tables they know to be present in the parsed data.</p>
    */
   public DbOrClassTableInfo getTableInfo(String nameSnakeCase) {
-    DbOrClassTableInfo ti =
-        dbRootInfo.tableList.stream().collect(Collectors.toMap(t -> t.getName(), t -> t))
-            .get(nameSnakeCase);
+    DbOrClassTableInfo ti = dbRootInfo.tableList.stream()
+        .collect(Collectors.toMap(t -> t.getName(), t -> t)).get(nameSnakeCase);
     if (ti == null) {
       throw new IllegalStateException("Table not found: " + nameSnakeCase);
     }

@@ -24,23 +24,16 @@ import org.jspecify.annotations.Nullable;
 /**
  * Abstract base class for generators that produce Java source files derived from table definitions.
  *
- * <p>Provides the DAO/repository naming postfix resolution and a shared accessor generator for
- * relation fields, used by both entity and record generators.
+ * <p>Provides a shared accessor generator for relation fields, used by both entity and record
+ * generators.
  */
 public abstract class AbstractTableGen extends AbstractGen {
 
-  protected final String postfixSm;
-  protected final String postfixCp;
-
   /**
-   * Constructs an instance and resolves the DAO/repository postfix strings based on the Spring
-   * naming convention setting.
+   * Constructs an instance.
    */
   public AbstractTableGen(DataKindEnum xmlFilePostFix) {
     super(xmlFilePostFix);
-    boolean usesSpringName = getInfo().getSysCmnRootInfo().getUsesSpringNamingConvention();
-    postfixSm = usesSpringName ? "repositoryimpl" : "dao";
-    postfixCp = usesSpringName ? "RepositoryImpl" : "Dao";
   }
 
   /**

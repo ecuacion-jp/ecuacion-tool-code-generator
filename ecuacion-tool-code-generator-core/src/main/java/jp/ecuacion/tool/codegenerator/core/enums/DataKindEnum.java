@@ -16,7 +16,7 @@
 package jp.ecuacion.tool.codegenerator.core.enums;
 
 import java.util.Locale;
-import jp.ecuacion.tool.codegenerator.core.util.ExcelTemplateLabelUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 
 /** Identifies the kind of definition file (e.g. DB, data type, enum, system common). */
 public enum DataKindEnum {
@@ -30,7 +30,7 @@ public enum DataKindEnum {
    */
   public String getLabel() {
     Locale locale = ExcelTemplateLanguage.getCurrent().toLocale();
-    return ExcelTemplateLabelUtil.getEnumName(locale,
+    return PropertiesFileUtil.getEnumName(locale,
         DataKindEnum.class.getSimpleName() + "." + this.toString());
   }
 }

@@ -15,23 +15,54 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQUAL_TO;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_EMPTY;
+
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
+import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
+import jp.ecuacion.tool.codegenerator.core.constant.Constants;
+import jp.ecuacion.tool.codegenerator.core.validation.CrossSheetConsistencyCheckGroup;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
 /** Holds table display name information for each language, as read from the table-list sheet. */
+@NotEmptyWhen(propertyPath = "dispNameLang1", conditionPropertyPath = "sysCmnRootInfo.supportLang1",
+    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
+    groups = CrossSheetConsistencyCheckGroup.class)
+@NotEmptyWhen(propertyPath = "dispNameLang2", conditionPropertyPath = "sysCmnRootInfo.supportLang2",
+    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
+    groups = CrossSheetConsistencyCheckGroup.class)
+@NotEmptyWhen(propertyPath = "dispNameLang3", conditionPropertyPath = "sysCmnRootInfo.supportLang3",
+    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
+    groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
-public class TableListInfo extends StringExcelTableBean {
+public class TableListInfo extends StringExcelTableBean implements LangsHolder {
 
+  @NotEmpty
+  @Size(min = 1, max = 50)
+  @PatternWithDescription(regexp = Constants.REG_EX_UP_NUM_US, description = "upperSnakeCase")
   private String tableName;
+  @NotEmpty
+  @Size(min = 1, max = 50)
   private String dispNameDefaultLang;
+  @Size(min = 1, max = 50)
   private String dispNameLang1;
+  @Size(min = 1, max = 50)
   private String dispNameLang2;
+  @Size(min = 1, max = 50)
   private String dispNameLang3;
   private Map<String, String> dispNameMap = new HashMap<>();
+
+  /** Held for {@code @NotEmptyWhen}'s conditionPropertyPath; 
+   * not re-validated (not {@code @Valid}). */
+  @SuppressWarnings("unused")
+  private SystemCommonRootInfo sysCmnRootInfo;
 
   @Override
   protected @Nullable String[] getFieldNameArray() {
@@ -39,11 +70,33 @@ public class TableListInfo extends StringExcelTableBean {
         "dispNameLang3"};
   }
 
-  /** Constructs an instance from a column list and builds the display name map per language. */
+  /** Constructs an instance by parsing the given raw column value list. */
   @SuppressWarnings("null")
-  public TableListInfo(List<String> colList, SystemCommonRootInfo sysCmnRootInfo) {
+  public TableListInfo(List<String> colList) {
     super(colList);
+  }
 
+  /**
+   * Sets the system-common root info, needed both as the condition source for the
+   * {@code @NotEmptyWhen} constraints above (validated under {@link
+   * CrossSheetConsistencyCheckGroup}) and to build the display-name map.
+   *
+   * <p>Called from {@code CheckAndComplementDataBlf} once all sheets have been read; this info
+   * is intentionally unavailable while this sheet's own data is being parsed.</p>
+   */
+  @Override
+  public void setSysCmnRootInfo(SystemCommonRootInfo sysCmnRootInfo) {
+    this.sysCmnRootInfo = sysCmnRootInfo;
+  }
+
+  /**
+   * Builds the display-name map using the language settings from {@code sysCmnRootInfo}.
+   *
+   * <p>Must be called after {@link #setSysCmnRootInfo} and after the
+   * {@link CrossSheetConsistencyCheckGroup} validation has passed.</p>
+   */
+  @Override
+  public void buildDisplayNameMap() {
     Map<String, String> map = new HashMap<>();
     map.put(sysCmnRootInfo.getDefaultLang(), dispNameDefaultLang);
     if (!StringUtils.isEmpty(sysCmnRootInfo.getSupportLang1())) {

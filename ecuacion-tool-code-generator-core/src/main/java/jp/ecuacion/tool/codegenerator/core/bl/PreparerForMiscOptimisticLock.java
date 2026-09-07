@@ -65,6 +65,7 @@ public class PreparerForMiscOptimisticLock {
           if (ci.getName().equals(lockInfo.getColumnName())) {
             if (ci.getDataType().equals(lockInfo.getDataTypeName())) {
               ci.setOptLock(true);
+
             } else {
               // Treat as an error if the column name matches but the DataType differs
               new Violations().add(new BusinessViolation("MSG_ERR_DT_OF_COL_FOR_OPT_LOCK_DIFFER",

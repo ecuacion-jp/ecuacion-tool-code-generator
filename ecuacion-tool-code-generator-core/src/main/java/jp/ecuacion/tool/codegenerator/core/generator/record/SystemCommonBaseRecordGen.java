@@ -29,10 +29,10 @@ public class SystemCommonBaseRecordGen extends AbstractBaseRecordGen {
     super(DataKindEnum.DB_COMMON);
   }
 
+  @SuppressWarnings("null")
   @Override
   public void generate() {
-    internalGenerate(
-        Arrays.asList(new DbOrClassTableInfo[] {getInfo().getCommonTableInfo()}), true);
+    internalGenerate(Arrays.asList(getInfo().getCommonTableInfo()), true);
   }
 
   /**
@@ -40,7 +40,6 @@ public class SystemCommonBaseRecordGen extends AbstractBaseRecordGen {
    */
   @Override
   public void generateHeader(DbOrClassTableInfo tableInfo) {
-
     generateHeaderCommon(tableInfo, "jp.ecuacion.splib.core.record.SplibRecord",
         rootBasePackage + ".base.entity.SystemCommon", "jp.ecuacion.splib.core.container.*");
 
