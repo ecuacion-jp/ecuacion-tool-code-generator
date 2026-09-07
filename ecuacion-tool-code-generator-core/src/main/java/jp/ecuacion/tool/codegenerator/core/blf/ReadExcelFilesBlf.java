@@ -62,9 +62,10 @@ public class ReadExcelFilesBlf {
     ctx.setExcelLang(lang);
 
     // Read excel sheets
-    List<ExcelDataKindReader> list = List.of(new ExcelGeneralSettingsReader(lang),
-        new ExcelDataTypeReader(lang), new ExcelEnumReader(lang), new ExcelDbReader(lang),
-        new ExcelDbCommonReader(lang), new ExcelTableListReader(lang));
+    ExcelGeneralSettingsReader generalSettingsReader = new ExcelGeneralSettingsReader(lang);
+    List<ExcelDataKindReader> list =
+        List.of(generalSettingsReader, new ExcelDataTypeReader(lang), new ExcelEnumReader(lang),
+            new ExcelDbReader(lang), new ExcelDbCommonReader(lang), new ExcelTableListReader(lang));
     for (ExcelDataKindReader reader : list) {
       try {
         putAllWithSheetName(rootInfoMap, reader, file.getAbsolutePath());
@@ -82,15 +83,19 @@ public class ReadExcelFilesBlf {
       }
     }
 
-    // Create rootInfo even when the corresponding file is absent (only for required kinds)
-    putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_REMOVED_DATA, new MiscSoftDeleteRootInfo());
-    putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_GROUP, new MiscGroupRootInfo());
+    // Create rootInfo even when the corresponding file is absent (only for required kinds).
+    // These kinds all live on the general-settings sheet, so tag them with that sheet name too.
+    String generalSettingsSheetName = generalSettingsReader.getSheetName();
+    putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_REMOVED_DATA, new MiscSoftDeleteRootInfo(),
+        generalSettingsSheetName);
+    putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_GROUP, new MiscGroupRootInfo(),
+        generalSettingsSheetName);
     putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_OPTIMISTIC_LOCK,
-        new MiscOptimisticLockRootInfo());
+        new MiscOptimisticLockRootInfo(), generalSettingsSheetName);
 
     // Batch validation and intra-RootInfo data complementation
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
-      @SuppressWarnings("null")
+      @SuppressWarnings("NullAway")
       Arg prefix = ctx.excelErrorMessagePrefix(file, rootInfo.getSheetName());
       new Violations().validate(rootInfo).withMessageParameters(
           p -> p.messagePrefix(prefix).representativePropertyPath("fileToUpload")).throwIfAny();
@@ -102,8 +107,9 @@ public class ReadExcelFilesBlf {
   }
 
   private void putEmptyRootInfo(Map<DataKindEnum, AbstractRootInfo> fileMap,
-      DataKindEnum filePostfix, AbstractRootInfo rootInfo) {
+      DataKindEnum filePostfix, AbstractRootInfo rootInfo, String sheetName) {
     if (!fileMap.containsKey(filePostfix)) {
+      rootInfo.setSheetName(sheetName);
       fileMap.put(filePostfix, rootInfo);
     }
   }
