@@ -18,8 +18,8 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.lib.validation.constraints.ElementsNotEmpty;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-
 
 /** Holds the root information for all data type definitions. */
 public class DataTypeRootInfo extends AbstractRootInfo {
@@ -30,6 +30,7 @@ public class DataTypeRootInfo extends AbstractRootInfo {
     this.dataTypeList = list;
   }
 
+  @ElementsNotEmpty
   @Valid
   public List<DataTypeInfo> dataTypeList = new ArrayList<>();
   
@@ -39,8 +40,8 @@ public class DataTypeRootInfo extends AbstractRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() {
-    // ExcelDataTypeReader uses PoiStringTableToBeanReader, which performs validation during
-    // Excel reading, so no additional execution is needed here.
+  public void consistencyCheckAndComplementData() {
+    // ExcelDataTypeReader uses StringOneLineHeaderExcelTableToBeanReader, which performs
+    // validation during Excel reading, so no additional execution is needed here.
   }
 }

@@ -54,7 +54,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
    * consistency checks.
    */
   @Override
-  public void consistencyCheckAndCoplementData() {
+  public void consistencyCheckAndComplementData() {
     new Violations()
         .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(this))
         .throwIfAny();

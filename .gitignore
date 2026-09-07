@@ -132,13 +132,13 @@ buildNumber.properties
 
 ### ecuacion ###
 
-# ecuacion-tool-code-generator-batch
+# ecuacion-tool-code-generator-cli
 products/
 ecuacion-tool-code-generator-excel-format
 
-# local env settings (web / batch)
+# local env settings (web / cli)
 ecuacion-tool-code-generator-web/src/envs/
-ecuacion-tool-code-generator-batch/src/envs/
+ecuacion-tool-code-generator-cli/src/envs/
 
 # checkstyle
 .checkstyle

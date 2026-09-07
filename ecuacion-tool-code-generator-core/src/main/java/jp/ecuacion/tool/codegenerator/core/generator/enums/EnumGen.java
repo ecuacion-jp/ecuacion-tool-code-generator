@@ -51,15 +51,13 @@ public class EnumGen extends AbstractGen {
     PropertiesFileGen gen = new PropertiesFileGen();
 
     // Create properties files.
-    // Create a file for the default language. For example, if the default language is "en",
-    // create enum_names.properties with the same content as enum_names_en.properties.
+    // Create the no-suffix (ROOT) file, serving the default language. No separate
+    // _<defaultLang> copy is needed: PropertiesFileUtilBundleReader's ResourceBundle lookup
+    // already resolves the no-suffix file for any locale with no more specific bundle of its
+    // own, default language included.
     gen.writeMapToPropFile(
         createSortedMapForPropFile(getInfo().getSysCmnRootInfo().getDefaultLang(), enumClassList),
         "enum_names", null);
-    // Create enum_names_en.properties
-    gen.writeMapToPropFile(
-        createSortedMapForPropFile(getInfo().getSysCmnRootInfo().getDefaultLang(), enumClassList),
-        "enum_names", getInfo().getSysCmnRootInfo().getDefaultLang());
     // Create files for each language listed in supportedLangArr
     for (String lang : getInfo().getSysCmnRootInfo().getSupportedLangArr()) {
       gen.writeMapToPropFile(createSortedMapForPropFile(lang, enumClassList), "enum_names", lang);

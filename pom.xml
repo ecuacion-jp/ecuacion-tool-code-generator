@@ -24,10 +24,10 @@
 	<packaging>pom</packaging>
 	<parent>
 		<groupId>jp.ecuacion.splib</groupId>
-		<artifactId>ecuacion-splib-parent</artifactId>
+		<artifactId>ecuacion-splib-dependencies</artifactId>
 		<!-- The version number is updated to the latest release in the build script. -->
 		<version>0.0.2-SNAPSHOT</version>
-		<relativePath>../ecuacion-splib</relativePath>
+		<relativePath>../ecuacion-splib/ecuacion-splib-dependencies</relativePath>
 	</parent>
 	
 	<properties>
@@ -52,7 +52,7 @@
 	<!-- mvn versions plugin can't understand parameterized module name like ${app.name}-core... -->
 	<modules>
 		<module>ecuacion-tool-code-generator-core</module>
-		<module>ecuacion-tool-code-generator-batch</module>
+		<module>ecuacion-tool-code-generator-cli</module>
 		<module>ecuacion-tool-code-generator-web</module>
 	</modules>
 

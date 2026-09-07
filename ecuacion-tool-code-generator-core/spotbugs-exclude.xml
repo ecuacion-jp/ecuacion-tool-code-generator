@@ -32,4 +32,25 @@
     <Bug pattern="UWF_UNWRITTEN_FIELD" />
   </Match>
 
+  <!--
+    sysCmnRootInfo is read only via reflection (PropertyPathUtil, consulted through the
+    @NotEmptyWhen conditionPropertyPath on the class-level display-name-language validators).
+    SpotBugs cannot detect reflection-based reads, so suppress URF_UNREAD_FIELD here.
+  -->
+  <Match>
+    <Class name="jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo" />
+    <Field name="sysCmnRootInfo" />
+    <Bug pattern="URF_UNREAD_FIELD" />
+  </Match>
+  <Match>
+    <Class name="jp.ecuacion.tool.codegenerator.core.dto.EnumValueInfo" />
+    <Field name="sysCmnRootInfo" />
+    <Bug pattern="URF_UNREAD_FIELD" />
+  </Match>
+  <Match>
+    <Class name="jp.ecuacion.tool.codegenerator.core.dto.TableListInfo" />
+    <Field name="sysCmnRootInfo" />
+    <Bug pattern="URF_UNREAD_FIELD" />
+  </Match>
+
 </FindBugsFilter>

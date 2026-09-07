@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!--
+	No local/server split: this is a CLI app, always run interactively, so there is no
+	"unattended production" execution mode that would call for different logging per
+	environment. root level OFF means nothing is logged anywhere by default - a CLI app's
+	console is its UI, watched directly by the user, so only what the app deliberately prints
+	(via SplibCliRunner / SplibExceptionHandler) should appear there. See SplibExceptionHandler's
+	verbose-flag handling for how to still show a stack trace on request.
+-->
+<!DOCTYPE xml>
+<configuration>
+	<root level="OFF" />
+</configuration>

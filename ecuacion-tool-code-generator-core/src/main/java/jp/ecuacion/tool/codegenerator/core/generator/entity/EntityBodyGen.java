@@ -48,8 +48,6 @@ public class EntityBodyGen extends EntityGen {
       outputFile(sb, getFilePath("entity"),
           StringUtil.getUpperCamelFromSnake(tableInfo.getName()) + ".java");
     }
-
-    appendItemNamesProperties(getInfo().getDbRootInfo().tableList);
   }
 
   /**

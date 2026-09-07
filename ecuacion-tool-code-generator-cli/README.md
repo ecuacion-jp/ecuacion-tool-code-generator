@@ -1,0 +1,12 @@
+# ecuacion-tool-code-generator-cli
+
+## What is it?
+
+`ecuacion-tool-code-generator-cli` is the command-line execution module of the code generator.
+It reads DB/class specification Excel files from a local directory and writes the generated Java source code to an output directory.
+
+## Documentation
+
+For setup, quick start, and configuration details, see the official reference:
+
+- [ecuacion-references](https://references.ecuacion.jp/ecuacion-references-tool-code-generator/public/showMarkdown/page?id=code-generator-batch/overview) — Official reference documentation

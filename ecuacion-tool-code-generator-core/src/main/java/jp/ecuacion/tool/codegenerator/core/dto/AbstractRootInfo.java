@@ -16,6 +16,7 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for all root info objects, holding the data kind and providing common lifecycle
@@ -23,6 +24,9 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
  */
 public abstract class AbstractRootInfo extends AbstractInfo {
   protected DataKindEnum fileKind;
+
+  /** The name of the Excel sheet this root info was read from, used in validation messages. */
+  protected @Nullable String sheetName;
 
   /** Constructs an instance with the given data kind. */
   public AbstractRootInfo(DataKindEnum fileKind) {
@@ -41,10 +45,20 @@ public abstract class AbstractRootInfo extends AbstractInfo {
   public DataKindEnum getFileKind() {
     return fileKind;
   }
+
+  /** Returns the name of the Excel sheet this root info was read from. */
+  public @Nullable String getSheetName() {
+    return sheetName;
+  }
+
+  /** Sets the name of the Excel sheet this root info was read from. */
+  public void setSheetName(String sheetName) {
+    this.sheetName = sheetName;
+  }
   
   /**
    * Performs checks on data read from Excel that cannot be handled by Jakarta Validation,
    * such as conditionally required fields.
    */
-  public abstract void consistencyCheckAndCoplementData();
+  public abstract void consistencyCheckAndComplementData();
 }

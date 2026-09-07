@@ -17,10 +17,15 @@ package jp.ecuacion.tool.codegenerator.web.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 
 /** Configures component scanning for this web application. */
 @Configuration
 @ComponentScan(basePackages = "jp.ecuacion.splib.web.markdown.config")
+@PropertySources({
+  @PropertySource(value = "classpath:application-builtin.properties")
+})
 public class AppConfig {
 
 }

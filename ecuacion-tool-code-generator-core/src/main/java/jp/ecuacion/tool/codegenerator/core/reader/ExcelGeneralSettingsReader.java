@@ -37,7 +37,8 @@ import org.apache.poi.EncryptedDocumentException;
  *     error rather than as a typed null check here.</p>
  */
 @SuppressWarnings("NullAway")
-public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableReader {
+public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableReader
+    implements ExcelDataKindReader {
 
   public static final String SHEET_NAME_JA = "各種設定";
   public static final String SHEET_NAME_EN = "General Settings";
@@ -71,6 +72,8 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
    * Reads the Excel file at the given path and returns a data-kind-to-root-info map for all setting
    * groups.
    */
+  @Override
+  @SuppressWarnings("null")
   public Map<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
       throws EncryptedDocumentException, IOException {
 
@@ -104,12 +107,13 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
     return rtnMap;
   }
 
+  @SuppressWarnings("null")
   private AbstractRootInfo getSystemCommon(Map<String, String> props) {
     return new SystemCommonRootInfo(props.get("TEMPLATE_VERSION"), props.get("SYSTEM_NAME"),
         props.get("BASE_PACKAGE"),
         // props.get("PROJECT_KIND"),
-        props.get("FRAMEWORK_KIND"), props.get("USES_SPRING_NAMING_CONVENTION"),
-        props.get("USES_UTIL_JPA"), props.get("CHARSET"), props.get("LANG_DEFAULT"),
+        props.get("FRAMEWORK_KIND"),
+        props.get("CHARSET"), props.get("LANG_DEFAULT"),
         props.get("LANG_SUPPORT_01"), props.get("LANG_SUPPORT_02"), props.get("LANG_SUPPORT_03"),
         props.get("PROHIBITED_CHARS"), props.get("PROHIBITED_CHARS_DESC_LANG_DEFAULT"),
         props.get("PROHIBITED_CHARS_DESC_LANG_SUPPORT_01"),
@@ -117,19 +121,23 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
         props.get("PROHIBITED_CHARS_DESC_LANG_SUPPORT_03"));
   }
 
+  @SuppressWarnings("null")
   private AbstractRootInfo getLogicalDelete(Map<String, String> props) {
     MiscSoftDeleteRootInfo rootInfo = new MiscSoftDeleteRootInfo(props.get("COLUMN_NAME"),
         props.get("DATA_TYPE_NAME"), props.get("DEFAULT_VALUE"), props.get("UPDATE_VALUE"));
     return rootInfo;
   }
 
+  @SuppressWarnings("null")
   private AbstractRootInfo getGroup(Map<String, String> props) {
     MiscGroupRootInfo rootInfo = new MiscGroupRootInfo(props.get("COLUMN_NAME"),
         props.get("DATA_TYPE_NAME"), props.get("TABLE_NAMES_WITHOUT_GROUPING"));
     return rootInfo;
   }
 
+  @SuppressWarnings({"null"})
   private AbstractRootInfo getOptimisticLocking(Map<String, String> props) {
+    @SuppressWarnings("null")
     MiscOptimisticLockRootInfo rootInfo =
         new MiscOptimisticLockRootInfo(props.get("COLUMN_NAME"), props.get("DATA_TYPE_NAME"));
     return rootInfo;

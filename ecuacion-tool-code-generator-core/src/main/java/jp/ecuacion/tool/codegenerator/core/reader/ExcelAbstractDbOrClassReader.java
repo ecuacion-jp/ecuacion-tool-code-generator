@@ -23,7 +23,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
@@ -33,12 +32,11 @@ import org.apache.poi.EncryptedDocumentException;
  * Abstract reader that parses a DB or class specification sheet and builds a {@link
  * jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo}.
  */
-public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderExcelTableReader {
+public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderExcelTableReader
+    implements ExcelDataKindReader {
 
   private static int COL_TABLE_NAME = 0;
 
-  private SystemCommonRootInfo sysCmnRootInfo;
-  // private StringUtil strUtil = new StringUtil();
   private DataKindEnum fileKind;
 
   private static final String[] HEADER_LABELS_JA =
@@ -61,15 +59,15 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
           "Notes", "Column Display Name (Default Lang)", "Column Display Name (Additional Lang 1)",
           "Column Display Name (Additional Lang 2)", "Column Display Name (Additional Lang 3)"};
 
-  /** Constructs an instance for the given sheet name, data kind, and system-common root info. */
+  /** Constructs an instance for the given sheet name and data kind. */
   public ExcelAbstractDbOrClassReader(String sheetName, DataKindEnum fileKind,
-      SystemCommonRootInfo systemCommonRootInfo, ExcelTemplateLanguage lang) {
+      ExcelTemplateLanguage lang) {
     super(sheetName, lang == ExcelTemplateLanguage.JA ? HEADER_LABELS_JA : HEADER_LABELS_EN);
     this.fileKind = fileKind;
-    sysCmnRootInfo = systemCommonRootInfo;
   }
 
   /** Reads the Excel file at the given path and returns a data-kind-to-root-info map. */
+  @Override
   public Map<DataKindEnum, AbstractRootInfo> readAndGetMap(String excelPath)
       throws EncryptedDocumentException, IOException {
 
@@ -85,26 +83,29 @@ public abstract class ExcelAbstractDbOrClassReader extends StringOneLineHeaderEx
 
     for (List<String> colList : rowList) {
       String tableName = resolveTableName(colList.get(COL_TABLE_NAME));
-      if (!existingTableMap.containsKey(tableName)) {
-        existingTableMap.put(tableName, new DbOrClassTableInfo(tableName));
-        rootInfo.tableList.add(existingTableMap.get(tableName));
+      DbOrClassTableInfo info = existingTableMap.get(tableName);
+      if (info == null) {
+        info = new DbOrClassTableInfo(tableName);
+        existingTableMap.put(tableName, info);
+        rootInfo.tableList.add(info);
       }
 
-      DbOrClassTableInfo info = java.util.Objects.requireNonNull(existingTableMap.get(tableName),
-          "Table info just inserted into existingTableMap must be present");
-      info.columnList.add(new DbOrClassColumnInfo(colList, sysCmnRootInfo.getDefaultLang(),
-          sysCmnRootInfo.getSupportLang1(), sysCmnRootInfo.getSupportLang2(),
-          sysCmnRootInfo.getSupportLang3()));
+      info.columnList.add(new DbOrClassColumnInfo(colList));
     }
 
     return rtnMap;
   }
 
-  /** 
-   * Returns the table name to use for grouping rows. 
+  /**
+   * Returns the table name to use for grouping rows.
    *     Subclasses may override to supply defaults.
    */
   protected String resolveTableName(String rawTableName) {
     return rawTableName;
+  }
+
+  @Override
+  public String getSheetName() {
+    return super.getSheetName();
   }
 }

@@ -7,14 +7,6 @@ It accepts DB/class specification Excel files uploaded from a browser and return
 
 The artifact is an executable WAR file with an embedded Tomcat server. No external servlet container is needed.
 
-## How to Run
-
-```bash
-java -jar ecuacion-tool-code-generator-web-x.x.x.war
-```
-
-Open `http://localhost:8080` in a browser.
-
 ## Documentation
 
 For setup, quick start, and configuration details, see the official reference:

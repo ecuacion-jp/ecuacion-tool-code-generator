@@ -19,7 +19,6 @@ import jp.ecuacion.splib.web.controller.SplibGeneral1FormController;
 import jp.ecuacion.tool.codegenerator.web.form.SourceDownloadForm;
 import jp.ecuacion.tool.codegenerator.web.service.SourceDownloadService;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +26,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 /** Handles HTTP requests for the source code download feature. */
 @Controller
@@ -43,11 +43,11 @@ public class SourceDownloadController
 
   /** Downloads the generated source code as a ZIP file. */
   @PostMapping(value = "action", params = "action=download")
-  public ResponseEntity<Resource> download(Model model, @Validated SourceDownloadForm form,
-      BindingResult result) throws Exception {
+  public ResponseEntity<StreamingResponseBody> download(Model model,
+      @Validated SourceDownloadForm form, BindingResult result) throws Exception {
     prepare(model, form);
 
-    ResponseEntity<Resource> responseEntity =
+    ResponseEntity<StreamingResponseBody> responseEntity =
         getService().execute(form.getSourceDownload().getFileToUpload());
 
     addCookieForDownloadButton();

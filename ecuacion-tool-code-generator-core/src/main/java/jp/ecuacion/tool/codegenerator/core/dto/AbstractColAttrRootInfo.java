@@ -15,9 +15,9 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 public abstract class AbstractColAttrRootInfo extends AbstractRootInfo {
 
   @Size(min = 1, max = 30)
-  @Pattern(regexp = Constants.REG_EX_UP_NUM_US)
+  @PatternWithDescription(regexp = Constants.REG_EX_UP_NUM_US, description = "upperSnakeCase")
   private String columnName;
 
   /**
@@ -38,7 +38,7 @@ public abstract class AbstractColAttrRootInfo extends AbstractRootInfo {
    * field is intentionally included here to verify that the same dataType is being used.
    */
   @Size(min = 1, max = 30)
-  @Pattern(regexp = Constants.REG_EX_UP_NUM_US)
+  @PatternWithDescription(regexp = Constants.REG_EX_UP_NUM_US, description = "upperSnakeCase")
   private String dataTypeName;
 
   private DataTypeInfo dtInfo;

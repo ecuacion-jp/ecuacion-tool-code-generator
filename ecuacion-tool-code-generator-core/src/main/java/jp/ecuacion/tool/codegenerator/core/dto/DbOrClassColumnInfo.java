@@ -15,12 +15,13 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import java.util.Map;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.EmptyWhen;
 import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
+import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum;
@@ -37,6 +39,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.NotEmp
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.ValidatorGen;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
 import jp.ecuacion.tool.codegenerator.core.util.ReaderUtil;
+import jp.ecuacion.tool.codegenerator.core.validation.CrossSheetConsistencyCheckGroup;
 import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
@@ -50,13 +53,25 @@ import org.jspecify.annotations.Nullable;
     propertyPath = {"relationDirection", "relationFieldName", "relationRefTable", "relationRefCol"},
     conditionPropertyPath = "relationKind", conditionValue = EMPTY,
     conditionOperator = NOT_EQUAL_TO, emptyWhenConditionNotSatisfied = true)
-@EmptyWhen(propertyPath = "relationRefFieldName",
-    conditionPropertyPath = "relationDirection", conditionValue = STRING,
-    conditionOperator = NOT_EQUAL_TO, conditionValueString = "bidirectional")
+@EmptyWhen(propertyPath = "relationRefFieldName", conditionPropertyPath = "relationDirection",
+    conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
+    conditionValueString = "bidirectional")
 @EmptyWhen(propertyPath = "relationIsEager", conditionPropertyPath = "relationKind",
     conditionValue = EMPTY)
+@NotEmptyWhen(propertyPath = "supportedLang1",
+    conditionPropertyPath = "sysCmnRootInfo.supportLang1", conditionValue = NOT_EMPTY,
+    conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
+    groups = CrossSheetConsistencyCheckGroup.class)
+@NotEmptyWhen(propertyPath = "supportedLang2",
+    conditionPropertyPath = "sysCmnRootInfo.supportLang2", conditionValue = NOT_EMPTY,
+    conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
+    groups = CrossSheetConsistencyCheckGroup.class)
+@NotEmptyWhen(propertyPath = "supportedLang3",
+    conditionPropertyPath = "sysCmnRootInfo.supportLang3", conditionValue = NOT_EMPTY,
+    conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
+    groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
-public class DbOrClassColumnInfo extends StringExcelTableBean {
+public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHolder {
 
   private List<RelationRefInfo> relationRefInfoList = new ArrayList<>();
 
@@ -65,9 +80,11 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   @NotEmpty
   @Size(max = 50)
-  @Pattern(regexp = Constants.REG_EX_UP_NUM_US)
+  @PatternWithDescription(regexp = Constants.REG_EX_UP_NUM_US, description = "upperSnakeCase")
   private String name;
 
+  @NotEmpty
+  @Size(min = 1, max = 50)
   private String userFriendlyName;
 
   // Holds dispName as a Map to support multiple languages. Key is the language (e.g. "ja").
@@ -76,7 +93,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
 
   @NotEmpty
   @Size(max = 50)
-  @Pattern(regexp = Constants.REG_EX_DT_NAME)
+  @PatternWithDescription(regexp = Constants.REG_EX_DT_NAME, description = "dataTypeName")
   private String dataType;
   @StrBoolean
   private String isJavaOnly;
@@ -96,12 +113,12 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   private String isForcedUpdate;
   @StrBoolean
   private String isCustomGroupColumn;
-  @Pattern(regexp = "^CB|CD|LB|LD$")
+  @PatternWithDescription(regexp = "^CB|CD|LB|LD$", description = "springAuditing")
   private String springAuditing;
 
   private String updatedValue;
 
-  @Pattern(regexp = "^@ManyToOne|@OneToOne$")
+  @PatternWithDescription(regexp = "^@ManyToOne|@OneToOne$", description = "relationKind")
   private String relationKind;
   private String relationDirection;
   private String relationFieldName;
@@ -122,12 +139,20 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   private String index9;
   private String index10;
 
+  @Size(min = 1, max = 50)
   private String supportedLang1;
+  @Size(min = 1, max = 50)
   private String supportedLang2;
+  @Size(min = 1, max = 50)
   private String supportedLang3;
 
   /** Added for convenience; holds the resolved DataTypeInfo for this column. */
   private DataTypeInfo dtInfo;
+
+  /** Held for {@code @NotEmptyWhen}'s conditionPropertyPath; 
+   * not re-validated (not {@code @Valid}). */
+  @SuppressWarnings("unused")
+  private SystemCommonRootInfo sysCmnRootInfo;
 
   private ColumnGenUtil code = new ColumnGenUtil();
 
@@ -156,15 +181,29 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
   }
 
   /**
-   * Constructs a column info instance and builds the display-name map from the provided locale
-   * strings.
+   * Sets the system-common root info, needed both as the condition source for the
+   * {@code @NotEmptyWhen} constraints above (validated under {@link
+   * CrossSheetConsistencyCheckGroup}) and to build the display-name map.
+   *
+   * <p>Called from {@code CheckAndComplementDataBlf} once all sheets have been read; this info
+   * is intentionally unavailable while this sheet's own data is being parsed.</p>
    */
-  public DbOrClassColumnInfo(List<String> colList, String localeDefault, String locale1,
-      String locale2, String locale3) {
+  @Override
+  public void setSysCmnRootInfo(SystemCommonRootInfo sysCmnRootInfo) {
+    this.sysCmnRootInfo = sysCmnRootInfo;
+  }
 
-    this(colList);
-
-    String[] locales = new String[] {localeDefault, locale1, locale2, locale3};
+  /**
+   * Builds the display-name map using the language settings from {@code sysCmnRootInfo}.
+   *
+   * <p>Must be called after {@link #setSysCmnRootInfo} and after the
+   * {@link CrossSheetConsistencyCheckGroup} validation has passed.</p>
+   */
+  @Override
+  public void buildDisplayNameMap() {
+    String[] locales =
+        new String[] {sysCmnRootInfo.getDefaultLang(), sysCmnRootInfo.getSupportLang1(),
+            sysCmnRootInfo.getSupportLang2(), sysCmnRootInfo.getSupportLang3()};
     String[] localNames =
         new String[] {userFriendlyName, supportedLang1, supportedLang2, supportedLang3};
 
@@ -187,8 +226,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
         ReaderUtil.booleanToBoolStr(ci.isAutoUpdate()),
         ReaderUtil.booleanToBoolStr(ci.isForcedUpdate()),
         ReaderUtil.booleanToBoolStr(ci.isCustomGroupColumn()), ci.getSpringAuditing(), "", "", "",
-        "", "", "", "", "",
-        ci.getIndex1() == null ? null : ci.getIndex1().toString(),
+        "", "", "", "", "", ci.getIndex1() == null ? null : ci.getIndex1().toString(),
         ci.getIndex2() == null ? null : ci.getIndex2().toString(),
         ci.getIndex3() == null ? null : ci.getIndex3().toString(),
         ci.getIndex4() == null ? null : ci.getIndex4().toString(),
@@ -197,9 +235,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean {
         ci.getIndex7() == null ? null : ci.getIndex7().toString(),
         ci.getIndex8() == null ? null : ci.getIndex8().toString(),
         ci.getIndex9() == null ? null : ci.getIndex9().toString(),
-        ci.getIndex10() == null ? null : ci.getIndex10().toString(),
-        null, ci.getDisplayName(), ci.getSupportedLang1(), ci.getSupportedLang2(),
-        ci.getSupportedLang3()};
+        ci.getIndex10() == null ? null : ci.getIndex10().toString(), null, ci.getDisplayName(),
+        ci.getSupportedLang1(), ci.getSupportedLang2(), ci.getSupportedLang3()};
 
     DbOrClassColumnInfo rtnCi = new DbOrClassColumnInfo(Arrays.asList(arr));
 

@@ -106,6 +106,7 @@ public class PropertiesFileGen extends AbstractGen {
    * Copies a properties file from the classpath to the resources output directory, renaming it
    * according to the given prefix and language.
    */
+  @SuppressWarnings("null")
   public void copyFileToResourceDir(String systemName, String fromFilePath,
       String fromFilenamePrefix, String fromProjectType, String fromLang, String filenamePrefix,
       String projectType, String lang) throws IOException, InterruptedException {

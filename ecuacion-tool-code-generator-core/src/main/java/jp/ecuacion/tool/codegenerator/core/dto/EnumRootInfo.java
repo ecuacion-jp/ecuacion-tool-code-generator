@@ -67,7 +67,7 @@ public class EnumRootInfo extends AbstractRootInfo {
   }
 
   @Override
-  public void consistencyCheckAndCoplementData() {
+  public void consistencyCheckAndComplementData() {
     new Violations()
         .addAll(Validation.buildDefaultValidatorFactory().getValidator().validate(this))
         .throwIfAny();
