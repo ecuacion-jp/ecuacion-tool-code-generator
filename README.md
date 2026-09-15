@@ -1,8 +1,8 @@
 # ecuacion-tool-code-generator
 
+[![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)](https://www.oracle.com/java/technologies/downloads/)
 [![Java CI](https://github.com/ecuacion-jp/ecuacion-tool-code-generator/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ecuacion-jp/ecuacion-tool-code-generator/actions/workflows/ci.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/ecuacion-jp/ecuacion-tool-code-generator)](https://github.com/ecuacion-jp/ecuacion-tool-code-generator/releases)
-[![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)](https://www.oracle.com/java/technologies/downloads/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 ## What is it?
@@ -34,7 +34,8 @@ This project follows the spirit of [Semantic Versioning](https://semver.org/). M
 
 ## Documentation
 
-- [ecuacion-references](https://references.ecuacion.jp/ecuacion-references-tool-code-generator/public/showMarkdown/page?id=home) — Official reference documentation
+- Official reference documentation - [ecuacion-references-tool-code-generator](https://references.ecuacion.jp/ecuacion-references-tool-code-generator/public/showMarkdown/page?id=home)
+- javadoc - [javadoc.io](https://javadoc.io/doc/jp.ecuacion.tool.ecuacion-tool-code-generator/)
 
 ## Download & Usage
 
