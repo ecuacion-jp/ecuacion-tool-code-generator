@@ -7,8 +7,8 @@ It accepts DB/class specification Excel files uploaded from a browser and return
 
 The artifact is an executable WAR file with an embedded Tomcat server. No external servlet container is needed.
 
+Check out the reference documentation below for setup instructions, a quick start guide, and more!
+
 ## Documentation
 
-For setup, quick start, and configuration details, see the official reference:
-
-- [ecuacion-references](https://references.ecuacion.jp/ecuacion-references-tool-code-generator/public/showMarkdown/page?id=code-generator-web/overview) — Official reference documentation
+- Official reference documentation - [ecuacion-references-tool-code-generator](https://references.ecuacion.jp/ecuacion-references-tool-code-generator/public/showMarkdown/page?id=code-generator-web/overview)
