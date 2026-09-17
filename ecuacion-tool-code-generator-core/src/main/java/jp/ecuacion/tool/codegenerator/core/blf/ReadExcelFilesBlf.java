@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -96,7 +97,8 @@ public class ReadExcelFilesBlf {
     // Batch validation and intra-RootInfo data complementation
     for (AbstractRootInfo rootInfo : rootInfoMap.values()) {
       @SuppressWarnings("NullAway")
-      Arg prefix = ctx.excelErrorMessagePrefix(file, rootInfo.getSheetName());
+      Arg prefix =
+          ctx.excelErrorMessagePrefix(file, Objects.requireNonNull(rootInfo.getSheetName()));
       new Violations().validate(rootInfo).withMessageParameters(
           p -> p.messagePrefix(prefix).representativePropertyPath("fileToUpload")).throwIfAny();
 

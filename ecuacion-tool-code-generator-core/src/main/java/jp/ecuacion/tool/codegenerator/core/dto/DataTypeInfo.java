@@ -16,8 +16,6 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
-
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
@@ -33,8 +31,7 @@ import jp.ecuacion.lib.validation.constraints.IntegerString;
 import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
 import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.lib.validation.constraints.ReturnTrue;
-import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
-import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeStringDataPtnEnum;
@@ -60,26 +57,23 @@ import org.jspecify.annotations.Nullable;
     propertyPath = {"minLength", "maxLength", "stringDataPtn", "stringAllowsProhibitedCharacters",
         "stringRegEx", "stringRegExDescLangDefault", "stringRegExDescLangSupport01",
         "stringRegExDescLangSupport02", "stringRegExDescLangSupport03"},
-    conditionPropertyPath = "kata", conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
+    conditionPropertyPath = "kata", conditionOperator = NOT_EQUAL_TO,
     conditionValueString = "STRING")
 @EmptyWhen(propertyPath = {"numMinVal", "numMaxVal"}, conditionPropertyPath = "kata",
-    conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
+    conditionOperator = NOT_EQUAL_TO,
     conditionValueString = {"SHORT", "INTEGER", "LONG", "FLOAT", "DOUBLE", "BIG_INTEGER",
         "BIG_DECIMAL"})
 @EmptyWhen(propertyPath = {"numDigitInteger"}, conditionPropertyPath = "kata",
-    conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
+    conditionOperator = NOT_EQUAL_TO,
     conditionValueString = {"SHORT", "INTEGER", "LONG", "BIG_INTEGER", "BIG_DECIMAL"})
 @EmptyWhen(propertyPath = {"numDigitFraction"}, conditionPropertyPath = "kata",
-    conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
-    conditionValueString = {"BIG_DECIMAL"})
+    conditionOperator = NOT_EQUAL_TO, conditionValueString = {"BIG_DECIMAL"})
 @EmptyWhen(propertyPath = {"enumCodeLength"}, conditionPropertyPath = "kata",
-    conditionValue = STRING, conditionOperator = NOT_EQUAL_TO, conditionValueString = {"ENUM"})
+    conditionOperator = NOT_EQUAL_TO, conditionValueString = {"ENUM"})
 @EmptyWhen(propertyPath = {"notNeedsTimezone"}, conditionPropertyPath = "kata",
-    conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
-    conditionValueString = {"DATE_TIME", "TIMESTAMP"})
+    conditionOperator = NOT_EQUAL_TO, conditionValueString = {"DATE_TIME", "TIMESTAMP"})
 @NotEmptyWhen(propertyPath = "stringRegExDescLangDefault", conditionPropertyPath = "stringRegEx",
-    conditionOperator = ConditionOperator.EQUAL_TO, conditionValue = ConditionValue.NOT_EMPTY,
-    emptyWhenConditionNotSatisfied = true)
+    conditionValueState = ConditionValueState.NOT_EMPTY, emptyWhenConditionNotSatisfied = true)
 @ReturnTrue(methodName = "isStringRegExDescLangSupport01Valid",
     propertyPath = "stringRegExDescLangSupport01", message = DataTypeInfo.RETURN_TRUE_MSG,
     groups = CrossSheetConsistencyCheckGroup.class)
