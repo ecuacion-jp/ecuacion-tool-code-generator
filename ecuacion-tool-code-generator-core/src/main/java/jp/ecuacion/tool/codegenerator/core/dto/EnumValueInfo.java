@@ -15,9 +15,7 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQUAL_TO;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_EMPTY;
-
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValueState.NOT_EMPTY;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.HashMap;
@@ -37,13 +35,13 @@ import org.jspecify.annotations.Nullable;
  * language.
  */
 @NotEmptyWhen(propertyPath = "dispNameLang1", conditionPropertyPath = "sysCmnRootInfo.supportLang1",
-    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
+    conditionValueState = NOT_EMPTY, emptyWhenConditionNotSatisfied = true,
     groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "dispNameLang2", conditionPropertyPath = "sysCmnRootInfo.supportLang2",
-    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
+    conditionValueState = NOT_EMPTY, emptyWhenConditionNotSatisfied = true,
     groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "dispNameLang3", conditionPropertyPath = "sysCmnRootInfo.supportLang3",
-    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
+    conditionValueState = NOT_EMPTY, emptyWhenConditionNotSatisfied = true,
     groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
 public class EnumValueInfo extends StringExcelTableBean implements LangsHolder {

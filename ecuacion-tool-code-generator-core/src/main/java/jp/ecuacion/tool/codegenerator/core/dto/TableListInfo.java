@@ -16,7 +16,7 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQUAL_TO;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_EMPTY;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValueState.NOT_EMPTY;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -33,14 +33,14 @@ import org.jspecify.annotations.Nullable;
 
 /** Holds table display name information for each language, as read from the table-list sheet. */
 @NotEmptyWhen(propertyPath = "dispNameLang1", conditionPropertyPath = "sysCmnRootInfo.supportLang1",
-    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
-    groups = CrossSheetConsistencyCheckGroup.class)
+    conditionValueState = NOT_EMPTY, conditionOperator = EQUAL_TO,
+    emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "dispNameLang2", conditionPropertyPath = "sysCmnRootInfo.supportLang2",
-    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
-    groups = CrossSheetConsistencyCheckGroup.class)
+    conditionValueState = NOT_EMPTY, conditionOperator = EQUAL_TO,
+    emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "dispNameLang3", conditionPropertyPath = "sysCmnRootInfo.supportLang3",
-    conditionValue = NOT_EMPTY, conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
-    groups = CrossSheetConsistencyCheckGroup.class)
+    conditionValueState = NOT_EMPTY, conditionOperator = EQUAL_TO,
+    emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
 public class TableListInfo extends StringExcelTableBean implements LangsHolder {
 
