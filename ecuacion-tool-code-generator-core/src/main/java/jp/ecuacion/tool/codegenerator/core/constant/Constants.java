@@ -71,9 +71,6 @@ public class Constants {
   public static final String DIR_SRC_JAVA_PATH =
       "src" + PATH_SEPARATOR + "main" + PATH_SEPARATOR + "java" + PATH_SEPARATOR;
 
-  /** Default location of Excel input files; may be changed for testing purposes. */
-  public static final String DIR_INFO_EXCELS_DEFAULT = "./excel-format";
-
   // String retrieval for type-related values
 
   public static final Map<DataTypeKataEnum, String> JAVA_KATA_MAP =

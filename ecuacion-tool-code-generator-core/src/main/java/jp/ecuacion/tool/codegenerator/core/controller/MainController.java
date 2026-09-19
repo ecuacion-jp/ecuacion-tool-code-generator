@@ -57,7 +57,7 @@ public class MainController {
   /**
    * Is the entrypoint of the core module.
    *
-   * <p>{@code inputDir} accepts a comma-separated list of directories.
+   * <p>{@code inputFiles} accepts a comma-separated list of Excel file paths.
    *
    * @param showFileNameInErrorMessage whether error messages should be prefixed with the source
    *     Excel file name. The CLI can process multiple files in one run, so it needs the file
@@ -65,33 +65,27 @@ public class MainController {
    *     the user just uploaded, so the file name would be redundant noise ({@code false}).
    */
   @SuppressWarnings("null")
-  public void execute(String inputDir, String outputDir, boolean showFileNameInErrorMessage)
+  public void execute(String inputFiles, String outputDir, boolean showFileNameInErrorMessage)
       throws Exception {
 
-    List<String> inputDirs = Arrays.stream(inputDir.split(",")).map(String::trim)
+    List<String> inputFilePaths = Arrays.stream(inputFiles.split(",")).map(String::trim)
         .filter(s -> !s.isEmpty()).collect(Collectors.toList());
 
     try {
       // Prepare
-      CodeGenContext info = prepare(inputDirs, outputDir, showFileNameInErrorMessage);
+      CodeGenContext info = prepare(inputFilePaths, outputDir, showFileNameInErrorMessage);
 
-      // Build the list of target Excel files from all input directories.
-      // Dedup by canonical path so an overlapping directory in a comma-separated
-      // inputDir does not cause the same file to be processed (and generated) twice.
+      // Build the list of target Excel files.
+      // Dedup by canonical path so the same file specified twice in a comma-separated
+      // inputFiles does not get processed (and generated) twice.
       List<File> targetFiles = new ArrayList<>();
       Set<String> targetFileCanonicalPaths = new HashSet<>();
-      for (String dir : inputDirs) {
-        for (File file : new File(dir).listFiles()) {
-          if (!shouldSkip(file, "xlsx") && targetFileCanonicalPaths.add(file.getCanonicalPath())) {
-            targetFiles.add(file);
-          }
+      for (String path : inputFilePaths) {
+        File file = new File(path);
+        validateInputFile(file);
+        if (targetFileCanonicalPaths.add(file.getCanonicalPath())) {
+          targetFiles.add(file);
         }
-      }
-
-      if (targetFiles.isEmpty()) {
-        log.info("Warning: No target Excel files found in the input directory. [Directory: "
-            + inputDir + "]");
-        return;
       }
 
       log.info("Per-file code generation started.");
@@ -145,7 +139,7 @@ public class MainController {
     }
   }
 
-  private CodeGenContext prepare(List<String> inputDirs, String outputDir,
+  private CodeGenContext prepare(List<String> inputFilePaths, String outputDir,
       boolean showFileNameInErrorMessage) {
     // Show current directory.
     log.info("Current directory: " + Paths.get("").toAbsolutePath().toString());
@@ -154,12 +148,10 @@ public class MainController {
     log.info("Deleting the previously generated source files.");
     delete(new File(outputDir));
 
-    // Throw an exception if any directory does not exist.
-    for (String dir : inputDirs) {
-      if (!new File(dir).exists() || !new File(dir).isDirectory()) {
-        new Violations().add(new BusinessViolation("MSG_ERR_INFO_XML_DIR_NOT_EXIST", dir))
-            .throwIfAny();
-      }
+    // Throw an exception if no input file is specified.
+    if (inputFilePaths.isEmpty()) {
+      new Violations().add(new BusinessViolation("MSG_ERR_INFO_XML_FILE_NOT_SPECIFIED"))
+          .throwIfAny();
     }
 
     // Create and set Info.
@@ -192,41 +184,42 @@ public class MainController {
     }
   }
 
-  private static boolean shouldSkip(File file, String extension) {
-    if (file.isDirectory()) {
-      log.info("A directory is included in the XML directory. Skipping. [Directory name: "
-          + file.getName() + "]");
-      return true;
+  /**
+   * Validates that the given input file is a usable Excel file for this tool.
+   *
+   * <p>Since the caller now specifies each input file explicitly (rather than this tool scanning
+   * a directory for candidates), any file that does not qualify is treated as a configuration
+   * error rather than silently skipped.</p>
+   */
+  private static void validateInputFile(File file) {
+    if (!file.exists() || !file.isFile()) {
+      new Violations()
+          .add(new BusinessViolation("MSG_ERR_INFO_XML_FILE_NOT_EXIST", file.getPath()))
+          .throwIfAny();
 
-    } else if (!file.getName().endsWith("." + extension)) {
-      log.info("A non-XML file is included in the XML directory. Skipping. [File name: "
-          + file.getName() + "]");
-      return true;
+    } else if (!file.getName().endsWith(".xlsx")) {
+      new Violations()
+          .add(new BusinessViolation("MSG_ERR_INPUT_FILE_NOT_XLSX", file.getPath()))
+          .throwIfAny();
 
     } else if (file.getName().startsWith("~$")) {
-      log.info("An excel temporary file is included in the XML directory. Skipping. "
-          + "[File name: " + file.getName() + "]");
-      return true;
+      new Violations()
+          .add(new BusinessViolation("MSG_ERR_INPUT_FILE_IS_EXCEL_TEMP_FILE", file.getPath()))
+          .throwIfAny();
 
     } else if (!hasGeneralSettingsSheet(file)) {
-      log.info("The excel file does not have a general-settings sheet ('"
-          + ExcelGeneralSettingsReader.SHEET_NAME_JA + "' / '"
-          + ExcelGeneralSettingsReader.SHEET_NAME_EN
-          + "'). It is likely not a target file for this tool. Skipping. [File name: "
-          + file.getName() + "]");
-      return true;
-
-    } else {
-      return false;
+      new Violations().add(new BusinessViolation(
+          "MSG_ERR_INPUT_FILE_NO_GENERAL_SETTINGS_SHEET", file.getPath(),
+          ExcelGeneralSettingsReader.SHEET_NAME_JA, ExcelGeneralSettingsReader.SHEET_NAME_EN))
+          .throwIfAny();
     }
   }
 
   /**
    * Checks whether the given excel file contains a general-settings sheet (JA or EN).
    *
-   * <p>Files unrelated to this tool (e.g. an unrelated xlsx placed in the same input directory)
-   * are expected to lack this sheet, or to fail to open as a valid workbook. Both cases are
-   * treated as "not a target file" here.</p>
+   * <p>Files unrelated to this tool are expected to lack this sheet, or to fail to open as a
+   * valid workbook. Both cases are treated as "not a target file" here.</p>
    */
   private static boolean hasGeneralSettingsSheet(File file) {
     try (Workbook wb = WorkbookFactory.create(file, null, true)) {
@@ -234,7 +227,7 @@ public class MainController {
           || wb.getSheet(ExcelGeneralSettingsReader.SHEET_NAME_EN) != null;
 
     } catch (Exception e) {
-      log.info("Failed to open the excel file. Skipping. [File name: " + file.getName() + "]");
+      log.info("Failed to open the excel file. [File name: " + file.getName() + "]");
       return false;
     }
   }
