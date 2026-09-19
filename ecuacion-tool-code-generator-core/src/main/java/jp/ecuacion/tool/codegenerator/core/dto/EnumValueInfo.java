@@ -16,6 +16,7 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValueState.NOT_EMPTY;
+
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.HashMap;
