@@ -15,11 +15,9 @@
  */
 package jp.ecuacion.tool.codegenerator.core.dto;
 
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_EMPTY;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValueState.EMPTY;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValueState.NOT_EMPTY;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -51,25 +49,21 @@ import org.jspecify.annotations.Nullable;
  */
 @NotEmptyWhen(
     propertyPath = {"relationDirection", "relationFieldName", "relationRefTable", "relationRefCol"},
-    conditionPropertyPath = "relationKind", conditionValue = EMPTY,
+    conditionPropertyPath = "relationKind", conditionValueState = EMPTY,
     conditionOperator = NOT_EQUAL_TO, emptyWhenConditionNotSatisfied = true)
 @EmptyWhen(propertyPath = "relationRefFieldName", conditionPropertyPath = "relationDirection",
-    conditionValue = STRING, conditionOperator = NOT_EQUAL_TO,
-    conditionValueString = "bidirectional")
+    conditionOperator = NOT_EQUAL_TO, conditionValueString = "bidirectional")
 @EmptyWhen(propertyPath = "relationIsEager", conditionPropertyPath = "relationKind",
-    conditionValue = EMPTY)
+    conditionValueState = EMPTY)
 @NotEmptyWhen(propertyPath = "supportedLang1",
-    conditionPropertyPath = "sysCmnRootInfo.supportLang1", conditionValue = NOT_EMPTY,
-    conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
-    groups = CrossSheetConsistencyCheckGroup.class)
+    conditionPropertyPath = "sysCmnRootInfo.supportLang1", conditionValueState = NOT_EMPTY,
+    emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "supportedLang2",
-    conditionPropertyPath = "sysCmnRootInfo.supportLang2", conditionValue = NOT_EMPTY,
-    conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
-    groups = CrossSheetConsistencyCheckGroup.class)
+    conditionPropertyPath = "sysCmnRootInfo.supportLang2", conditionValueState = NOT_EMPTY,
+    emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "supportedLang3",
-    conditionPropertyPath = "sysCmnRootInfo.supportLang3", conditionValue = NOT_EMPTY,
-    conditionOperator = EQUAL_TO, emptyWhenConditionNotSatisfied = true,
-    groups = CrossSheetConsistencyCheckGroup.class)
+    conditionPropertyPath = "sysCmnRootInfo.supportLang3", conditionValueState = NOT_EMPTY,
+    emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
 public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHolder {
 

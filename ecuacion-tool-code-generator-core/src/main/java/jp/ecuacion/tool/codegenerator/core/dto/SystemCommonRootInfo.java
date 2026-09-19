@@ -24,7 +24,7 @@ import java.util.Map;
 import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
 import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
-import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +35,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @NotEmptyWhen(propertyPath = "prohibitedCharsDescDefaultLang",
     conditionPropertyPath = "prohibitedChars", conditionOperator = ConditionOperator.EQUAL_TO,
-    conditionValue = ConditionValue.NOT_EMPTY, emptyWhenConditionNotSatisfied = true)
+    conditionValueState = ConditionValueState.NOT_EMPTY, emptyWhenConditionNotSatisfied = true)
 public class SystemCommonRootInfo extends AbstractRootInfo {
 
   @NotEmpty

@@ -103,7 +103,7 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
 
       // The web app only ever handles the single file the user just uploaded, so the file name
       // would be redundant noise in error messages.
-      new MainController().execute(inputDir, outputDir, false);
+      new MainController().execute(path.toString(), outputDir, false);
 
       // Get all directories from outputDir except ###work###, then zip them
       String dirName = "";
