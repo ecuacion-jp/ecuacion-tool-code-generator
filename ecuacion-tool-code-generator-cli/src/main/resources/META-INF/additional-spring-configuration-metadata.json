@@ -1,10 +1,9 @@
 {
 	"properties": [
 		{
-			"name": "jp.ecuacion.tool.code-generator.input-dir",
+			"name": "jp.ecuacion.tool.code-generator.input-file",
 			"type": "java.lang.String",
-			"description": "",
-			"defaultValue": ""
+			"description": "Comma-separated list of Excel file paths to read as input. Required."
 		},
 		{
 			"name": "jp.ecuacion.tool.code-generator.output-dir",

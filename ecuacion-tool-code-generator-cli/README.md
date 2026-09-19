@@ -3,7 +3,7 @@
 ## What is it?
 
 `ecuacion-tool-code-generator-cli` is the command-line execution module of the code generator.
-It reads DB/class specification Excel files from a local directory and writes the generated Java source code to an output directory.
+It reads the specified DB/class specification Excel files and writes the generated Java source code to an output directory.
 
 Check out the reference documentation below for setup instructions, a quick start guide, and more!
 
