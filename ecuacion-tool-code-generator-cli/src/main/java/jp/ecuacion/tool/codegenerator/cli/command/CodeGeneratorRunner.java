@@ -17,7 +17,6 @@ package jp.ecuacion.tool.codegenerator.cli.command;
 
 import java.util.Objects;
 import jp.ecuacion.splib.cli.runner.SplibCliRunner;
-import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -28,11 +27,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class CodeGeneratorRunner implements SplibCliRunner {
 
-  public static final String PROP_INPUT_DIR = "jp.ecuacion.tool.code-generator.input-dir";
+  public static final String PROP_INPUT_FILE = "jp.ecuacion.tool.code-generator.input-file";
   public static final String PROP_OUTPUT_DIR = "jp.ecuacion.tool.code-generator.output-dir";
 
-  @Value("${" + PROP_INPUT_DIR + ":" + Constants.DIR_INFO_EXCELS_DEFAULT + "}")
-  private @Nullable String inputDir;
+  /** Comma-separated list of Excel file paths. Required; there is no default. */
+  @Value("${" + PROP_INPUT_FILE + "}")
+  private @Nullable String inputFile;
 
   @Value("${" + PROP_OUTPUT_DIR + ":./products/}")
   private @Nullable String outputDir;
@@ -41,7 +41,7 @@ public class CodeGeneratorRunner implements SplibCliRunner {
   public void execute(String @NonNull [] args) throws Exception {
     // The CLI can process multiple Excel files in one run, so error messages need the file name
     // to tell them apart.
-    new MainController().execute(Objects.requireNonNull(inputDir),
+    new MainController().execute(Objects.requireNonNull(inputFile),
         Objects.requireNonNull(outputDir), true);
   }
 }
