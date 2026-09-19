@@ -33,10 +33,21 @@
 
 	<build>
 		<resources>
-			<!-- Enable filtering only for version.properties, so that @project.version@
-			     is replaced with this project's actual version at build time. Other
-			     resource files are intentionally excluded from filtering to avoid
-			     unintended substitution of "@...@" or "${...}" patterns they may contain. -->
+			<!-- Enable filtering only for version_ecuacion-tool-code-generator.properties, so
+			     that @project.version@ is replaced with this project's actual version at build
+			     time. Other resource files are intentionally excluded from filtering to avoid
+			     unintended substitution of "@...@" or "${...}" patterns they may contain.
+			     No unsuffixed version.properties here, deliberately: this module is also a
+			     dependency of ecuacion-references-tool-code-generator (for this file, to show
+			     a version on its navbar), and that app also carries its own unsuffixed
+			     version.properties (via ecuacion-references-internal-utils) to show its own
+			     version on splib-web's built-in config page. If this module carried an
+			     unsuffixed version.properties too, both would land on
+			     ecuacion-references-tool-code-generator's classpath under the same name, and
+			     VersionUtil.getVersion("") would resolve to whichever one the classloader
+			     happens to find first — not reliably references' own. -cli and -web each carry
+			     their own unsuffixed version.properties instead, since
+			     ecuacion-references-tool-code-generator does not depend on either of those. -->
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>false</filtering>
@@ -44,7 +55,7 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<includes>
-					<include>version.properties</include>
+					<include>version_ecuacion-tool-code-generator.properties</include>
 				</includes>
 				<filtering>true</filtering>
 			</resource>
