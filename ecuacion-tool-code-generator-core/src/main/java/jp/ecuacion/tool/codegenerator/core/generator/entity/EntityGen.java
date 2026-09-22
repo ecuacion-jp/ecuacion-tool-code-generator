@@ -159,8 +159,6 @@ public abstract class EntityGen extends AbstractTableGen {
       // baseRecord
       importMgr.add(rootBasePackage + ".base.record." + tableNameCp + "BaseRecord");
 
-      importMgr.add("org.jspecify.annotations.NonNull");
-
     } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
       // Parent entity
       importMgr.add("jp.ecuacion.splib.jpa.entity.SplibEntity");
