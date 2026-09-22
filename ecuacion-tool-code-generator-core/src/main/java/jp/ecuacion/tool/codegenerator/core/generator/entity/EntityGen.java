@@ -19,7 +19,6 @@ import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -364,11 +363,15 @@ public abstract class EntityGen extends AbstractTableGen {
   /**
    * Appends a nested {@code Fields} class holding a String constant per non-Java-only column.
    *
+   * <p>Deliberately not {@code final}: the corresponding record's {@code Fields} class (see
+   * {@code AbstractBaseRecordGen#generateFieldNameCommon}) extends this one to add its
+   * java-only fields.</p>
+   *
    * @param tableNameCp Required only for Entity and Pk entity kinds; may be null otherwise.
    */
   protected void appendFieldName(StringBuilder sb, String tableNameCp,
       DbOrClassTableInfo tableInfo) {
-    sb.append(T1 + "public static final class Fields {" + RT);
+    sb.append(T1 + "public static class Fields {" + RT);
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
         .toList()) {
       sb.append(T2 + "public static final String " + colInfo.getName() + " = \""
@@ -720,47 +723,6 @@ public abstract class EntityGen extends AbstractTableGen {
     mergedList.addAll(commonColumnList);
 
     return mergedList;
-  }
-
-  /**
-    * Generates the hasSoftDeleteField() method indicating whether the entity holds a soft delete
-    * flag column.
-   *
-   * <p>When the entity has the soft delete column the method returns true; when the column is in a
-   * different class (e.g. SystemCommon), the method is generated as abstract (called from
-   * SystemCommon) or omitted (called from a per-table entity).
-   * </p>
-   * <ul>
-    * <li>1-1. Called from SystemCommon AND soft delete used AND column not present: abstract
-    * definition.</li>
-    * <li>1-2. Not called from SystemCommon AND soft delete used AND column not present: no
-    * output.</li>
-   * <li>2. Soft delete used AND column present: returns true.</li>
-   * <li>3. Otherwise: returns false.</li>
-   * </ul>
-   */
-  protected void appendHasSoftDeleteFieldGen(StringBuilder sb, DbOrClassTableInfo tableInfo,
-      boolean isCallFromSystemCommon) {
-    MiscSoftDeleteRootInfo softDeleteRootInfo = java.util.Objects.requireNonNull(
-        (MiscSoftDeleteRootInfo) getInfo().getRootInfoMap().get(DataKindEnum.MISC_REMOVED_DATA),
-        "MISC_REMOVED_DATA must be populated");
-    String colName = softDeleteRootInfo.getColumnName();
-    boolean usesSoftDelete = colName != null && !colName.equals("");
-
-    boolean containsSoftDeleteField = tableInfo.columnList.stream().map(e -> e.getName())
-        .collect(Collectors.toList()).contains(colName);
-
-    if (usesSoftDelete && !containsSoftDeleteField) {
-      if (isCallFromSystemCommon) {
-        sb.append(T1 + "public abstract boolean hasSoftDeleteField();" + RT);
-      }
-
-    } else {
-      sb.append(T1 + "public boolean hasSoftDeleteField() {" + RT);
-      sb.append(T2 + "return " + (usesSoftDelete && containsSoftDeleteField ? "true" : "false")
-          + ";" + RT);
-      sb.append(T1 + "}" + RT);
-    }
   }
 
   /**

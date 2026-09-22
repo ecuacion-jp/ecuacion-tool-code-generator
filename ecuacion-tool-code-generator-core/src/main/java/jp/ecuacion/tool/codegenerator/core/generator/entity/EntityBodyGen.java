@@ -113,9 +113,6 @@ public class EntityBodyGen extends EntityGen {
     // preUpdate
     appendAutoInsertOrUpdateGen(sb, tableInfo, true, false);
 
-    // hasSoftDeleteField
-    appendHasSoftDeleteFieldGen(sb, tableInfo, false);
-
     sb.append("}" + RT);
   }
 }
