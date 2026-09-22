@@ -454,6 +454,28 @@ public abstract class EntityGen extends AbstractTableGen {
     sb.append(T1 + "}" + RT2);
   }
 
+  /**
+   * Returns the extra constructor / {@code update()} parameters for columns that cannot be
+   * populated from the record: relation columns (which need the actual related entity, not just
+   * an id) and non-audited {@code DATE_TIME}/{@code TIMESTAMP} columns.
+   *
+   * <p>Entities are built from a record mainly on new-registration, where the record holds
+   *     user-input values. It is rare for a business requirement to need the user's own input
+   *     copied verbatim into a timestamp column; far more often the server sets "now" at the
+   *     moment the action happens (e.g. a "downloaded at" column set when a download button is
+   *     clicked, not typed into a form). Converting a record's browser/locale-formatted
+   *     date-time string back into a {@code LocalDateTime}/{@code OffsetDateTime} is also
+   *     awkward (timezone handling, format parsing), and that conversion is rarely needed in
+   *     practice. So rather than wiring every {@code DATE_TIME}/{@code TIMESTAMP} column through
+   *     the record, the caller is expected to pass the value explicitly (typically {@code
+   *     XxxDateTime.now()}). On the rare occasion a user-specified date-time genuinely must be
+   *     used, the caller can parse the record's string value into the right type by hand and
+   *     pass it here.</p>
+   *
+   * <p>{@code DATE} columns (e.g. a user-picked business date) are not affected by this and are
+   *     still populated from the record as usual - only {@code DATE_TIME}/{@code TIMESTAMP} get
+   *     this treatment.</p>
+   */
   private String args(DbOrClassTableInfo ti) {
     List<DbOrClassColumnInfo> baseList = ti.columnList.stream().filter(ci -> !ci.getIsJavaOnly())
         .filter(ci -> StringUtils.isEmpty(ci.getSpringAuditing())).toList();
@@ -509,6 +531,8 @@ public abstract class EntityGen extends AbstractTableGen {
 
       } else if (ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
           || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP) {
+        // Populated from the extra constructor/update() parameter, not from the record - see the
+        // javadoc on args() for why.
         sb.append(T2 + "if (" + fieldName + " != null" + updString + ") "
             + code.set(fieldName, fieldName) + ";" + RT);
 
