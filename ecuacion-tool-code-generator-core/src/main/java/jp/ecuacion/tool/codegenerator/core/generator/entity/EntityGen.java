@@ -362,65 +362,18 @@ public abstract class EntityGen extends AbstractTableGen {
   }
 
   /**
-   * Appends FIELD_xxx static constant declarations for all non-Java-only columns.
+   * Appends a nested {@code Fields} class holding a String constant per non-Java-only column.
    *
    * @param tableNameCp Required only for Entity and Pk entity kinds; may be null otherwise.
    */
   protected void appendFieldName(StringBuilder sb, String tableNameCp,
       DbOrClassTableInfo tableInfo) {
-    sb.append(T1 + "// ID" + RT);
+    sb.append(T1 + "public static final class Fields {" + RT);
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
         .toList()) {
-      sb.append(T1 + "public static final String FIELD_" + colInfo.getName() + " = \""
+      sb.append(T2 + "public static final String " + colInfo.getName() + " = \""
           + StringUtil.getLowerCamelFromSnake(colInfo.getName()) + "\";" + RT);
     }
-
-    sb.append(RT);
-  }
-
-  /** Appends the getFieldNameArr() override method listing all field names as a String array. */
-  protected void appendFieldNameArr(StringBuilder sb, DbOrClassTableInfo tableInfo,
-      String entityNameCp, boolean isInGetPkOfSurrogateKeyStrategyEntity) {
-    // Not generated for systemCommon
-    if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
-      return;
-    }
-
-    sb.append(T1 + "@Override" + RT);
-    sb.append(T1 + "public String[] getFieldNameArr() {" + RT);
-    sb.append(T2 + "return new String[] {");
-
-    // This list also displays dbCommon columns, so merge them in advance
-    ArrayList<DbOrClassColumnInfo> arr = new ArrayList<>();
-    arr.addAll(tableInfo.columnList);
-    if (getInfo().getDbCommonRootInfo() != null) {
-      arr.addAll(getInfo().getDbCommonRootInfo().tableList.get(0).columnList.stream()
-          .filter(e -> !e.getIsJavaOnly()).toList());
-    }
-
-    boolean isFirst = true;
-    for (DbOrClassColumnInfo ci : arr) {
-      // Inside getPk() of a surrogateKeyStrategy BODY, only PK fields are listed, so skip non-PK
-      // columns
-      if (isInGetPkOfSurrogateKeyStrategyEntity && !ci.isPk()) {
-        continue;
-      }
-
-      // For entityPk, only PK fields are generated
-      if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY) {
-
-        if (isFirst) {
-          isFirst = false;
-
-        } else {
-          sb.append(", ");
-        }
-
-        sb.append("\"" + StringUtil.getLowerCamelFromSnake(ci.getName()) + "\"");
-      }
-    }
-
-    sb.append("};" + RT);
     sb.append(T1 + "}" + RT2);
   }
 
@@ -540,12 +493,12 @@ public abstract class EntityGen extends AbstractTableGen {
     List<DbOrClassColumnInfo> baseList =
         ti.columnList.stream().filter(e -> !e.getIsJavaOnly()).toList();
 
-    // if (uploadedDateTime != null && !skipUpdateFieldList.contains(FIELD_UPLOADED_DATETIME))
+    // if (uploadedDateTime != null && !skipUpdateFieldList.contains(Fields.UPLOADED_DATETIME))
     // setUploadedDatetime(uploadedDateTime);
     for (DbOrClassColumnInfo ci : baseList) {
       String fieldName = code.uncapitalCamel(ci.getName());
       String updString =
-          !isUpdate ? "" : " && !skipUpdateFieldList.contains(FIELD_" + ci.getName() + ")";
+          !isUpdate ? "" : " && !skipUpdateFieldList.contains(Fields." + ci.getName() + ")";
       if (ci.isRelation()) {
         String name = ci.getEffectiveRelationObjVarName();
         sb.append(T2 + "if (" + name + " != null) set"

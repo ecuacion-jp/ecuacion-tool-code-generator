@@ -86,6 +86,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
 
       generateHeader(ti);
       generateFieldsCommon(ti);
+      generateFieldNameCommon(ti, isSystemCommon ? "SystemCommon" : ti.getNameCpCamel());
       generateStaticInitializerCommon(ti);
       generateConstNoArgsCommon(ti);
       generateConstEntityArgCommon(ti, isSystemCommon);
@@ -156,6 +157,26 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
   protected void generateFieldsCommon(DbOrClassTableInfo ti) {
     ti.columnList.stream().forEach(ci -> fieldDefinition(ci));
     sb.append(RT);
+  }
+
+  /**
+   * Appends a nested {@code Fields} class extending the corresponding entity's {@code Fields},
+   * adding a String constant per java-only column (a column that exists only on the record, not
+   * on the entity, e.g. {@code createUserName}). Columns shared with the entity are not
+   * redeclared here: they are already available through the extended entity {@code Fields}.
+   *
+   * @param entityClassName simple name of the entity class this record is generated from (e.g.
+   *     {@code "SystemCommon"} or {@code "DriveRecord"}); already imported by {@code
+   *     generateHeaderCommon}.
+   */
+  protected void generateFieldNameCommon(DbOrClassTableInfo ti, String entityClassName) {
+    sb.append(
+        T1 + "public static final class Fields extends " + entityClassName + ".Fields {" + RT);
+    for (DbOrClassColumnInfo ci : ti.columnList.stream().filter(e -> e.getIsJavaOnly()).toList()) {
+      sb.append(T2 + "public static final String " + ci.getName() + " = \""
+          + StringUtil.getLowerCamelFromSnake(ci.getName()) + "\";" + RT);
+    }
+    sb.append(T1 + "}" + RT2);
   }
 
   private void fieldDefinition(DbOrClassColumnInfo ci) {
