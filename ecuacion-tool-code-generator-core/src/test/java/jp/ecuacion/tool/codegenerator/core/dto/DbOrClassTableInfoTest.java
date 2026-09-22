@@ -108,10 +108,10 @@ class DbOrClassTableInfoTest {
     }
 
     @Test
-    @DisplayName("SYSTEM_COMMON_ENTITY is mapped to SYSTEM_COMMON")
-    void systemCommonEntityIsMapped() {
-      assertThat(new DbOrClassTableInfo("SYSTEM_COMMON_ENTITY").getName())
-          .isEqualTo("SYSTEM_COMMON");
+    @DisplayName("APP_COMMON_ENTITY is mapped to APP_COMMON")
+    void appCommonEntityIsMapped() {
+      assertThat(new DbOrClassTableInfo("APP_COMMON_ENTITY").getName())
+          .isEqualTo("APP_COMMON");
     }
   }
 

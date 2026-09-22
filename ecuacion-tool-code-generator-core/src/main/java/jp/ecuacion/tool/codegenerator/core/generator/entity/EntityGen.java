@@ -107,7 +107,7 @@ public abstract class EntityGen extends AbstractTableGen {
     // Also needs to be added when there is a bidirectional relation
     if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()
         && getInfo().getRemovedDataRootInfo().isDefined()) {
-      if (tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
+      if (tableInfo.hasSoftDeleteFieldExcludingAppCommon()) {
         importMgr.add("org.hibernate.annotations.Filter", "org.hibernate.annotations.FilterDef");
 
       } else if (tableInfo.hasBidirectionalRelationRefColumn()) {
@@ -117,7 +117,7 @@ public abstract class EntityGen extends AbstractTableGen {
 
     // Import when using @Filter
     if (getInfo().getGroupRootInfo().isDefined()) {
-      if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
+      if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_APP_COMMON) {
         // When a common group definition exists, its filterDef is always output to systemCommon
         importMgr.add("org.hibernate.annotations.FilterDef", "org.hibernate.annotations.ParamDef",
             "org.hibernate.type.descriptor.java.*");
@@ -159,11 +159,11 @@ public abstract class EntityGen extends AbstractTableGen {
       // baseRecord
       importMgr.add(rootBasePackage + ".base.record." + tableNameCp + "BaseRecord");
 
-    } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
+    } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_APP_COMMON) {
       // Parent entity
       importMgr.add("jp.ecuacion.splib.jpa.entity.SplibEntity");
       // baseRecord
-      importMgr.add(rootBasePackage + ".base.record.SystemCommonBaseRecord");
+      importMgr.add(rootBasePackage + ".base.record.AppCommonBaseRecord");
       // auditing. Spring only. Not truly hardcoded to systemCommon, but simplified here.
       importMgr.add("org.springframework.data.jpa.domain.support.*");
     }
@@ -256,7 +256,7 @@ public abstract class EntityGen extends AbstractTableGen {
   protected void getSoftDeleteAnnotationsString(StringBuilder sb, DbOrClassTableInfo tableInfo) {
     if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()
         && getInfo().getRemovedDataRootInfo().isDefined()
-        && tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
+        && tableInfo.hasSoftDeleteFieldExcludingAppCommon()) {
       sb.append("@FilterDef(name = \"softDeleteFilter\", defaultCondition = \""
           + getInfo().getRemovedDataRootInfo().getColumnName() + " = false\")" + RT);
       sb.append("@Filter(name = \"softDeleteFilter\")" + RT);
@@ -392,7 +392,7 @@ public abstract class EntityGen extends AbstractTableGen {
 
     // Deliberately using the name without "Pk" so that "Pk" is not inserted before "BaseRecord"
     sb.append(T1 + "public " + entityNameCp + "("
-        + (this instanceof SystemCommonGen ? "SystemCommon"
+        + (this instanceof AppCommonGen ? "AppCommon"
             : StringUtil.getUpperCamelFromSnake(ti.getName()))
         + "BaseRecord rec" + args(ti) + ") {" + RT);
     sb.append(T2 + "super("
@@ -618,14 +618,14 @@ public abstract class EntityGen extends AbstractTableGen {
    * values.
    */
   protected void appendAutoInsertOrUpdateGen(StringBuilder sb, DbOrClassTableInfo tableInfo,
-      boolean isUpdate, boolean isFromSystemCommon) {
+      boolean isUpdate, boolean isFromAppCommon) {
 
     // If there are no target fields at all, skip generating this method, so check that first.
-    // SystemCommon is the exception: it must always define preInsert()/preUpdate(), because
+    // AppCommon is the exception: it must always define preInsert()/preUpdate(), because
     // every per-table entity that needs one unconditionally calls super.preInsert() /
-    // super.preUpdate() (see the isFromSystemCommon branch below), which would fail to compile
-    // if the method didn't exist on SystemCommon.
-    boolean needsMethod = isFromSystemCommon;
+    // super.preUpdate() (see the isFromAppCommon branch below), which would fail to compile
+    // if the method didn't exist on AppCommon.
+    boolean needsMethod = isFromAppCommon;
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList) {
       boolean bl = needsAutoInsertOrUpdate(colInfo, isUpdate);
       if (bl) {
@@ -642,9 +642,9 @@ public abstract class EntityGen extends AbstractTableGen {
     sb.append(T1 + (isUpdate ? "@PreUpdate" : "@PrePersist") + RT);
     sb.append(T1 + "public void " + (isUpdate ? "preUpdate" : "preInsert") + "() {" + RT);
 
-    // When not called from SystemCommon, include a call to the same method in SystemCommon.
-    // Note: the case where SystemCommon has no prePersist / preUpdate is not yet handled.
-    if (!isFromSystemCommon) {
+    // When not called from AppCommon, include a call to the same method in AppCommon.
+    // Note: the case where AppCommon has no prePersist / preUpdate is not yet handled.
+    if (!isFromAppCommon) {
       sb.append(T2 + "// Calling super here because overriding @PrePersist / @PreUpdate "
           + "in a subclass would prevent the parent class method from being invoked." + RT);
       sb.append(T2 + "super." + (isUpdate ? "preUpdate" : "preInsert") + "();" + RT2);
