@@ -317,8 +317,8 @@ public class CheckAndComplementDataBlf {
         }
       }
 
-      // PK is required. SystemCommon is treated specially.
-      if (!tableInfo.getName().equals("SYSTEM_COMMON") && !hasS) {
+      // PK is required. AppCommon is treated specially.
+      if (!tableInfo.getName().equals("APP_COMMON") && !hasS) {
         new Violations().add(new BusinessViolation("MSG_ERR_PK_REQUIRED", tableInfo.getName()))
             .throwIfAny();
       }
@@ -366,11 +366,11 @@ public class CheckAndComplementDataBlf {
     // "custom group column" setting. As this background implies, a custom group column can only
     // exist in child tables, at most once.
 
-    // It makes no sense to have a "custom group column" in systemCommon, so treat it as an error.
+    // It makes no sense to have a "custom group column" in appCommon, so treat it as an error.
     // (The common group setting should be used instead.)
     if (dbCommonRootInfo.tableList.get(0).hasCustomGroupColumn()) {
       new Violations()
-          .add(new BusinessViolation("MSG_ERR_SYSTEM_COMMON_ENTITY_CANNOT_HAVE_CUSTOM_GROUP_COLUMN",
+          .add(new BusinessViolation("MSG_ERR_APP_COMMON_ENTITY_CANNOT_HAVE_CUSTOM_GROUP_COLUMN",
               systemName))
           .throwIfAny();
     }

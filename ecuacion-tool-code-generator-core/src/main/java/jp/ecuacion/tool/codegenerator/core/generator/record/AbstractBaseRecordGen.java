@@ -80,17 +80,17 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
    * Iterates over the table list, generates each record source file, and writes it to the output
    * directory.
    */
-  protected void internalGenerate(List<DbOrClassTableInfo> tiList, boolean isSystemCommon) {
+  protected void internalGenerate(List<DbOrClassTableInfo> tiList, boolean isAppCommon) {
     for (DbOrClassTableInfo ti : tiList) {
       sb = new StringBuilder();
 
       generateHeader(ti);
       generateFieldsCommon(ti);
-      generateFieldNameCommon(ti, isSystemCommon ? "SystemCommon" : ti.getNameCpCamel());
+      generateFieldNameCommon(ti, isAppCommon ? "AppCommon" : ti.getNameCpCamel());
       generateStaticInitializerCommon(ti);
       generateConstNoArgsCommon(ti);
-      generateConstEntityArgCommon(ti, isSystemCommon);
-      createConstRecArgCommon(ti, isSystemCommon);
+      generateConstEntityArgCommon(ti, isAppCommon);
+      createConstRecArgCommon(ti, isAppCommon);
       createAccessorCommon(ti);
       createListsForHtmlSelectCommon(ti);
       generateMethods(ti);
@@ -166,7 +166,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
    * redeclared here: they are already available through the extended entity {@code Fields}.
    *
    * @param entityClassName simple name of the entity class this record is generated from (e.g.
-   *     {@code "SystemCommon"} or {@code "DriveRecord"}); already imported by {@code
+   *     {@code "AppCommon"} or {@code "DriveRecord"}); already imported by {@code
    *     generateHeaderCommon}.
    */
   protected void generateFieldNameCommon(DbOrClassTableInfo ti, String entityClassName) {
@@ -283,13 +283,13 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
    * Generates the entity-argument constructor that copies entity field values into the record, with
    * relation support.
    */
-  public void generateConstEntityArgCommon(DbOrClassTableInfo ti, boolean isSystemCommon) {
+  public void generateConstEntityArgCommon(DbOrClassTableInfo ti, boolean isAppCommon) {
     boolean bl = ti.hasAnyRelationsOrRefs();
 
     sb.append(T1 + "public " + ti.getNameCpCamel() + "BaseRecord(" + ti.getNameCpCamel()
         + " e, DatetimeFormatParameters params) {" + RT);
     sb.append(T2 + (bl ? "this(e, params, " + Constants.OBJECT_CONSTRUCTION_COUNT + ")"
-        : "super(" + (isSystemCommon ? "" : "e, ") + "params)") + ";" + RT);
+        : "super(" + (isAppCommon ? "" : "e, ") + "params)") + ";" + RT);
 
     if (!bl) {
       insideConstEntityArg(ti, false);
@@ -403,14 +403,14 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
    * Generates a copy constructor that clones all fields from another record instance, with relation
    * support.
    */
-  protected void createConstRecArgCommon(DbOrClassTableInfo ti, boolean isSystemCommon) {
+  protected void createConstRecArgCommon(DbOrClassTableInfo ti, boolean isAppCommon) {
 
     boolean bl = ti.hasAnyRelationsOrRefs();
 
     sb.append(T1 + "public " + ti.getNameCpCamel() + "BaseRecord(" + ti.getNameCpCamel()
         + "BaseRecord rec) {" + RT);
     sb.append(T2 + (bl ? "this(rec, " + Constants.OBJECT_CONSTRUCTION_COUNT + ")"
-        : "super(rec" + (isSystemCommon ? ".getDateTimeFormatParams()" : "") + ")") + ";" + RT);
+        : "super(rec" + (isAppCommon ? ".getDateTimeFormatParams()" : "") + ")") + ";" + RT);
 
     if (!bl) {
       insideConstRecArg(ti);
