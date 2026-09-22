@@ -90,9 +90,6 @@ public class SystemCommonGen extends EntityGen {
     // preUpdate
     appendAutoInsertOrUpdateGen(sb, tableInfo, true, true);
 
-    // hasSoftDeleteField
-    appendHasSoftDeleteFieldGen(sb, tableInfo, true);
-
     sb.append("}");
   }
 }
