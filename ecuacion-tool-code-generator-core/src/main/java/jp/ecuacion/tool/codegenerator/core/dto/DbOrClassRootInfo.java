@@ -50,7 +50,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
   }
 
   /**
-   * Validates all tables and columns via bean validation, then runs SYSTEM_COMMON-specific
+   * Validates all tables and columns via bean validation, then runs APP_COMMON-specific
    * consistency checks.
    */
   @Override
@@ -74,7 +74,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
       // There should be at most one table
       if (tableList.size() > 1) {
         new Violations().add(new BusinessViolation(
-            "MSG_ERR_CONSISTENCY_CHECK_SYSTEM_COMMON_ENTITY_MUST_BE_0_OR_1")).throwIfAny();
+            "MSG_ERR_CONSISTENCY_CHECK_APP_COMMON_ENTITY_MUST_BE_0_OR_1")).throwIfAny();
       }
 
       if (tableList.size() == 0) {
@@ -84,18 +84,18 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
       // The following applies when a parent entity exists
       DbOrClassTableInfo ti = tableList.get(0);
 
-      // Name must be SystemCommon
-      if (!ti.getName().equals("SYSTEM_COMMON")) {
+      // Name must be AppCommon
+      if (!ti.getName().equals("APP_COMMON")) {
         new Violations().add(new BusinessViolation(
-            "MSG_ERR_CONSISTENCY_CHECK_NAME_OF_SYSTEM_COMMON_ENTITY_CANNOT_BE_CHANGED"))
+            "MSG_ERR_CONSISTENCY_CHECK_NAME_OF_APP_COMMON_ENTITY_CANNOT_BE_CHANGED"))
             .throwIfAny();
       }
 
-      // SystemCommon must not have relations (redmine#465)
+      // AppCommon must not have relations (redmine#465)
       for (DbOrClassColumnInfo ci : ti.columnList) {
         if (ci.getRelationKind() != null) {
           new Violations().add(new BusinessViolation(
-              "MSG_ERR_CONSISTENCY_CHECK_SYSTEM_COMMON_ENTITY_CANNOT_HAVE_RELATIONS")).throwIfAny();
+              "MSG_ERR_CONSISTENCY_CHECK_APP_COMMON_ENTITY_CANNOT_HAVE_RELATIONS")).throwIfAny();
         }
       }
     }

@@ -21,19 +21,19 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 /**
- * Generates the SystemCommon entity source file that serves as the mapped superclass for all
+ * Generates the AppCommon entity source file that serves as the mapped superclass for all
  * entities.
  */
-public class SystemCommonGen extends EntityGen {
+public class AppCommonGen extends EntityGen {
 
   /** Constructs an instance for the DB_COMMON data kind. */
-  public SystemCommonGen() {
+  public AppCommonGen() {
     super(DataKindEnum.DB_COMMON);
   }
 
   @Override
   protected EntityGenKindEnum getEntityGenKindEnum() {
-    return EntityGenKindEnum.ENTITY_SYSTEM_COMMON;
+    return EntityGenKindEnum.ENTITY_APP_COMMON;
   }
 
   @Override
@@ -42,10 +42,10 @@ public class SystemCommonGen extends EntityGen {
     sb = new StringBuilder();
     createSource(getInfo().getCommonTableInfo());
 
-    outputFile(sb, getFilePath("entity"), "SystemCommon.java");
+    outputFile(sb, getFilePath("entity"), "AppCommon.java");
   }
 
-  /** Generates and appends the full SystemCommon class source from the given table info. */
+  /** Generates and appends the full AppCommon class source from the given table info. */
   public void createSource(DbOrClassTableInfo tableInfo) {
 
     final String entityNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
@@ -55,7 +55,7 @@ public class SystemCommonGen extends EntityGen {
     appendImport(sb, tableInfo);
 
     // Class definition
-    // When a grouping definition exists, a filter definition is always written in systemCommon.
+    // When a grouping definition exists, a filter definition is always written in appCommon.
     if (getInfo().getGroupRootInfo().isDefined()) {
       getGroupFilterDefAnnotationString(sb);
     }
@@ -69,7 +69,7 @@ public class SystemCommonGen extends EntityGen {
     sb.append("@MappedSuperclass" + RT);
     sb.append("@EntityListeners(AuditingEntityListener.class)" + RT);
     sb.append(
-        "public abstract class SystemCommon extends SplibEntity implements Serializable {"
+        "public abstract class AppCommon extends SplibEntity implements Serializable {"
             + RT2);
 
     appendSerialVersionUid(sb);

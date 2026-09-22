@@ -67,7 +67,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   // name
 
   public String getName() {
-    return name.equals("SYSTEM_COMMON_ENTITY") ? "SYSTEM_COMMON" : name;
+    return name.equals("APP_COMMON_ENTITY") ? "APP_COMMON" : name;
   }
 
   public String getNameCpCamel() {
@@ -113,8 +113,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * all columns
    */
 
-  /** Returns all columns of this table combined with the SYSTEM_COMMON columns. */
-  public List<DbOrClassColumnInfo> getColumnListIncludingSystemCommon() {
+  /** Returns all columns of this table combined with the APP_COMMON columns. */
+  public List<DbOrClassColumnInfo> getColumnListIncludingAppCommon() {
     List<DbOrClassColumnInfo> list = new ArrayList<>(columnList);
     list.addAll(getInfo().getDbCommonRootInfo().tableList.get(0).columnList);
 
@@ -180,16 +180,16 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return getPkColumn() != null;
   }
 
-  public DbOrClassColumnInfo getPkColumnIncludingSystemCommon() {
+  public DbOrClassColumnInfo getPkColumnIncludingAppCommon() {
     // pk (surrogate key) always exists.
-    return getColumnListIncludingSystemCommon().stream().filter(ci -> ci.isPk()).toList().get(0);
+    return getColumnListIncludingAppCommon().stream().filter(ci -> ci.isPk()).toList().get(0);
   }
 
   /*
    * group
    */
 
-  /** Returns {@code true} if this table has a group column (excluding SYSTEM_COMMON). */
+  /** Returns {@code true} if this table has a group column (excluding APP_COMMON). */
   public boolean hasGroupColumn() {
     return getGroupColumn() != null;
   }
@@ -208,14 +208,14 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return null;
   }
 
-  /** Returns {@code true} if this table has a group column, considering SYSTEM_COMMON columns. */
-  public boolean hasGroupColumnIncludingSystemCommon() {
-    return getGroupColumnIncludingSystemCommon() != null;
+  /** Returns {@code true} if this table has a group column, considering APP_COMMON columns. */
+  public boolean hasGroupColumnIncludingAppCommon() {
+    return getGroupColumnIncludingAppCommon() != null;
   }
 
-  /** Returns the group column considering SYSTEM_COMMON, or {@code null} if not applicable. */
+  /** Returns the group column considering APP_COMMON, or {@code null} if not applicable. */
   @SuppressWarnings({"NullAway", "null"})
-  public DbOrClassColumnInfo getGroupColumnIncludingSystemCommon() {
+  public DbOrClassColumnInfo getGroupColumnIncludingAppCommon() {
 
     // Return null immediately if group is not defined
     if (!getInfo().getGroupRootInfo().isDefined()) {
@@ -225,7 +225,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     // Hold in a List for subsequent checks
     List<DbOrClassColumnInfo> groupCiList = new ArrayList<>();
 
-    for (DbOrClassColumnInfo ci : getColumnListIncludingSystemCommon()) {
+    for (DbOrClassColumnInfo ci : getColumnListIncludingAppCommon()) {
       if (ci.isGroupColumn()) {
         groupCiList.add(ci);
       }
@@ -272,12 +272,12 @@ public class DbOrClassTableInfo extends AbstractInfo {
    */
 
   /** Returns {@code true} if this table's own columns contain the soft-delete flag column. */
-  public boolean hasSoftDeleteFieldExcludingSystemCommon() {
+  public boolean hasSoftDeleteFieldExcludingAppCommon() {
     return softDeleteExistenceCheck(columnList, getName());
   }
 
-  /** Returns {@code true} if the SYSTEM_COMMON columns contain the soft-delete flag column. */
-  public boolean hasSoftDeleteFieldInSystemCommon() {
+  /** Returns {@code true} if the APP_COMMON columns contain the soft-delete flag column. */
+  public boolean hasSoftDeleteFieldInAppCommon() {
     List<DbOrClassColumnInfo> dbCommonCi =
         getInfo().getDbCommonRootInfo().tableList.get(0).columnList;
     return softDeleteExistenceCheck(dbCommonCi, getName());
@@ -287,8 +287,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * This value is derived from the two methods above, so no dedicated field is held — only a
    * method is provided.
    */
-  public boolean hasSoftDeleteFieldInludingSystemCommon() {
-    return hasSoftDeleteFieldExcludingSystemCommon() || hasSoftDeleteFieldInSystemCommon();
+  public boolean hasSoftDeleteFieldInludingAppCommon() {
+    return hasSoftDeleteFieldExcludingAppCommon() || hasSoftDeleteFieldInAppCommon();
   }
 
   private boolean softDeleteExistenceCheck(List<DbOrClassColumnInfo> columnList, String tableName) {
@@ -341,16 +341,16 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
   /**
    * Returns the optimistic-lock version column, searching both this table's columns and
-   * SYSTEM_COMMON columns.
+   * APP_COMMON columns.
    */
-  public DbOrClassColumnInfo getVersionColumnIncludingSystemCommon() {
-    return getVersionColumn(getColumnListIncludingSystemCommon());
+  public DbOrClassColumnInfo getVersionColumnIncludingAppCommon() {
+    return getVersionColumn(getColumnListIncludingAppCommon());
   }
 
-  /** Returns {@code true} if an optimistic-lock version column exists considering SYSTEM_COMMON
+  /** Returns {@code true} if an optimistic-lock version column exists considering APP_COMMON
    *     columns. */
-  public boolean hasVersionColumnIncludingSystemCommon() {
-    return getVersionColumnIncludingSystemCommon() != null;
+  public boolean hasVersionColumnIncludingAppCommon() {
+    return getVersionColumnIncludingAppCommon() != null;
   }
 
   /*

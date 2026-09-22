@@ -22,7 +22,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColFormat;
 
 /**
- * Generates a per-table base record class that extends {@code SystemCommonBaseRecord} and
+ * Generates a per-table base record class that extends {@code AppCommonBaseRecord} and
  * implements {@code ItemContainer}.
  */
 public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
@@ -50,7 +50,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
     sb.append("@ItemNameKeyClass(\"" + ti.getNameCamel() + "\")" + RT);
     sb.append("public abstract class " + ti.getNameCpCamel()
-        + "BaseRecord extends SystemCommonBaseRecord implements ItemContainer {" + RT2);
+        + "BaseRecord extends AppCommonBaseRecord implements ItemContainer {" + RT2);
   }
 
   @Override
@@ -90,7 +90,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     for (DbOrClassColumnInfo ci : relColList) {
       String relField = ci.getEffectiveRelationObjVarNameCp();
       DbOrClassColumnInfo pk =
-          getInfo().getTableInfo(ci.getRelationRefTable()).getPkColumnIncludingSystemCommon();
+          getInfo().getTableInfo(ci.getRelationRefTable()).getPkColumnIncludingAppCommon();
       String refPkGet = code.generateString(pk, ColFormat.GET);
       sb.append(", get" + relField + "() == null || get" + relField + "()." + refPkGet + " == null"
           + " ? \"\" : get" + relField + "()." + refPkGet);
@@ -98,7 +98,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     sb.append("}, \"" + sep + "\"));" + RT);
 
     // optimisticLockVersions snapshot: same order as ids.
-    String ver = ti.getVersionColumnIncludingSystemCommon().getNameCpCamel();
+    String ver = ti.getVersionColumnIncludingAppCommon().getNameCpCamel();
     String verGet = "get" + ver + "()";
     sb.append(
         T2 + "this.setOptimisticLockVersions(StringUtil.getSeparatedValuesString(new String[] {"
@@ -106,7 +106,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     for (DbOrClassColumnInfo ci : relColList) {
       String relFieldGet = "get" + ci.getEffectiveRelationObjVarNameCp() + "()";
       DbOrClassColumnInfo v =
-          getInfo().getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingSystemCommon();
+          getInfo().getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingAppCommon();
       String refVerGet = code.generateString(v, ColFormat.GET);
       sb.append(", " + relFieldGet + " == null || " + relFieldGet + "." + refVerGet
           + " == null ? \"\" : " + relFieldGet + "." + refVerGet);
@@ -174,7 +174,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     sb.append(T2 + "String[] vers = verCsv.split(\",\", -1);" + RT);
     sb.append(T2 + "if (vers.length < 1) return;" + RT2);
 
-    DbOrClassColumnInfo ownVerCi = ti.getVersionColumnIncludingSystemCommon();
+    DbOrClassColumnInfo ownVerCi = ti.getVersionColumnIncludingAppCommon();
     String ownVerSet = code.generateString(ownVerCi, ColFormat.SET, "vers[0]");
     sb.append(T2 + ownVerSet + ";" + RT);
 
@@ -184,7 +184,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
       String relField = ci.getEffectiveRelationObjVarNameCp();
       int index = v + 1;
       DbOrClassColumnInfo relVerCi =
-          getInfo().getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingSystemCommon();
+          getInfo().getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingAppCommon();
       String relVerSet = code.generateString(relVerCi, ColFormat.SET, "vers[" + index + "]");
 
       sb.append(T2 + "if (get" + relField + "() != null && vers.length > " + index + ") {" + RT);
