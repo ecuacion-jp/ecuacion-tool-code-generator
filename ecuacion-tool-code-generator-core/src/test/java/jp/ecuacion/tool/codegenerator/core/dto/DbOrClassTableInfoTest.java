@@ -16,11 +16,13 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import jp.ecuacion.lib.core.exception.ViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -293,6 +295,39 @@ class DbOrClassTableInfoTest {
 
       assertThat(result).doesNotContain("indexes");
     }
+
+    @Test
+    @DisplayName("a \"U\"-prefixed index value generates unique = true on the @Index")
+    void uPrefixedIndexIsUnique() {
+      DbOrClassTableInfo ti = new DbOrClassTableInfo("TEST_TABLE");
+      ti.columnList.add(colWithIndex("COL_A", 1, 1, true));
+
+      String result = ti.getTableAnnotationString(ti);
+
+      assertThat(result).contains("indexes").contains("COL_A").contains("unique = true");
+    }
+
+    @Test
+    @DisplayName("a plain (non-\"U\") index value does not generate unique = true")
+    void plainIndexIsNotUnique() {
+      DbOrClassTableInfo ti = new DbOrClassTableInfo("TEST_TABLE");
+      ti.columnList.add(colWithIndex("COL_A", 1, 1, false));
+
+      String result = ti.getTableAnnotationString(ti);
+
+      assertThat(result).contains("indexes").contains("COL_A").doesNotContain("unique");
+    }
+
+    @Test
+    @DisplayName("mixing \"U\"-prefixed and plain values within the same index group throws")
+    void mixedUniqueSpecificationThrows() {
+      DbOrClassTableInfo ti = new DbOrClassTableInfo("TEST_TABLE");
+      ti.columnList.add(colWithIndex("COL_A", 1, 1, true));
+      ti.columnList.add(colWithIndex("COL_B", 1, 2, false));
+
+      assertThatThrownBy(() -> ti.getTableAnnotationString(ti))
+          .isInstanceOf(ViolationException.class);
+    }
   }
 
   // ---------- getRelationColumnList / hasRelationColumn ----------
@@ -401,6 +436,17 @@ class DbOrClassTableInfoTest {
     // participating in index group 1 at position 0.
     when(c.getIndex(anyInt())).thenReturn(null);
     when(c.getIndex(indexSerial)).thenReturn(position);
+    return c;
+  }
+
+  /**
+   * Same as {@link #colWithIndex(String, int, Integer)}, but also stubs whether this column
+   * marks the given index serial as a unique index (i.e. a {@code "U"}-prefixed value).
+   */
+  private DbOrClassColumnInfo colWithIndex(String name, int indexSerial,
+      @org.jspecify.annotations.Nullable Integer position, boolean isUnique) {
+    DbOrClassColumnInfo c = colWithIndex(name, indexSerial, position);
+    when(c.isIndexUnique(indexSerial)).thenReturn(isUnique);
     return c;
   }
 
