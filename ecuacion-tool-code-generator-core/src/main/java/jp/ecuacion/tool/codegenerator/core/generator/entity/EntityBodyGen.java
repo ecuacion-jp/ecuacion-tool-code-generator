@@ -94,7 +94,6 @@ public class EntityBodyGen extends EntityGen {
     // Various field definitions
     appendField(sb, tableInfo, tableInfo.columnList);
     appendFieldName(sb, entityNameCp, tableInfo);
-    appendFieldNameArr(sb, tableInfo, entityNameCp, false);
 
     // Various constructor definitions
     appendDefaultConstructor(sb, entityNameCp);
