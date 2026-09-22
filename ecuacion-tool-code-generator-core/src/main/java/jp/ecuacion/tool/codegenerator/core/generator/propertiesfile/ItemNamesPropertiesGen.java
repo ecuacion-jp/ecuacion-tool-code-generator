@@ -26,7 +26,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
 
 /**
- * Generates {@code item_names} properties files, covering both SystemCommon columns and the
+ * Generates {@code item_names} properties files, covering both AppCommon columns and the
  * columns of each DB table.
  *
  * <p>The default language is served by the no-suffix (ROOT) file alone; no separate

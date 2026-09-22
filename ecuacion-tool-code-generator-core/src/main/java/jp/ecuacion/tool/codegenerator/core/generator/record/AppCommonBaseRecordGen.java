@@ -20,12 +20,12 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 /**
- * Generates SystemCommonBaseRecord.
+ * Generates AppCommonBaseRecord.
  */
-public class SystemCommonBaseRecordGen extends AbstractBaseRecordGen {
+public class AppCommonBaseRecordGen extends AbstractBaseRecordGen {
 
   /** Constructs an instance that targets the common DB column definition. */
-  public SystemCommonBaseRecordGen() {
+  public AppCommonBaseRecordGen() {
     super(DataKindEnum.DB_COMMON);
   }
 
@@ -36,14 +36,14 @@ public class SystemCommonBaseRecordGen extends AbstractBaseRecordGen {
   }
 
   /**
-   * Generates the class header that extends {@code SplibRecord} for the system-common base record.
+   * Generates the class header that extends {@code SplibRecord} for the app-common base record.
    */
   @Override
   public void generateHeader(DbOrClassTableInfo tableInfo) {
     generateHeaderCommon(tableInfo, "jp.ecuacion.splib.core.record.SplibRecord",
-        rootBasePackage + ".base.entity.SystemCommon", "jp.ecuacion.splib.core.container.*");
+        rootBasePackage + ".base.entity.AppCommon", "jp.ecuacion.splib.core.container.*");
 
-    sb.append("public abstract class SystemCommonBaseRecord extends SplibRecord {" + RT2);
+    sb.append("public abstract class AppCommonBaseRecord extends SplibRecord {" + RT2);
   }
 
   @Override

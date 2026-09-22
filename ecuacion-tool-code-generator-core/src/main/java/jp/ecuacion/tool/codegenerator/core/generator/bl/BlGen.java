@@ -46,15 +46,15 @@ public class BlGen extends AbstractGen {
     generateBl(false, getInfo().getDbRootInfo().tableList);
   }
 
-  private void generateBl(boolean isSystemCommon, @Valid List<DbOrClassTableInfo> tableList) {
+  private void generateBl(boolean isAppCommon, @Valid List<DbOrClassTableInfo> tableList) {
 
     for (DbOrClassTableInfo ti : tableList) {
       String entityNameCp = StringUtil.getUpperCamelFromSnake(ti.getName());
       sb = new StringBuilder();
 
-      generateHeader(isSystemCommon, ti, entityNameCp);
+      generateHeader(isAppCommon, ti, entityNameCp);
 
-      if (!isSystemCommon) {
+      if (!isAppCommon) {
         generateFields(ti, entityNameCp);
         getRepositoryForOptimisticLocking(entityNameCp);
         getFindAndOptimisticLockingCheckRec(ti, entityNameCp);
@@ -62,7 +62,7 @@ public class BlGen extends AbstractGen {
 
       generateGetVersionForOptimisticLocking(ti, entityNameCp);
 
-      if (!isSystemCommon) {
+      if (!isAppCommon) {
         generateInsertOrUpdate(ti);
         generateDuplicateCheck(ti);
         generateNaturalKeyDuplicateCheck(ti);
@@ -80,14 +80,14 @@ public class BlGen extends AbstractGen {
    * Generates the package declaration, import statements, and class declaration for the base
    * BL class.
    */
-  public void generateHeader(boolean isSystemCommon, DbOrClassTableInfo ti, String entityNameCp) {
+  public void generateHeader(boolean isAppCommon, DbOrClassTableInfo ti, String entityNameCp) {
     sb.append("package " + rootBasePackage + ".base.bl;" + RT2);
 
     ImportBlock importMgr = new ImportBlock();
 
     importMgr.add(rootBasePackage + ".base.entity.*");
 
-    if (isSystemCommon) {
+    if (isAppCommon) {
       importMgr.add("jp.ecuacion.splib.jpa.bl.*");
 
     } else {
@@ -105,23 +105,23 @@ public class BlGen extends AbstractGen {
       importMgr.add("java.util.Optional");
     }
 
-    if (!isSystemCommon && ti.getPkColumn().getRelationRefInfoList().size() > 0) {
+    if (!isAppCommon && ti.getPkColumn().getRelationRefInfoList().size() > 0) {
       importMgr.add("java.util.Arrays");
     }
 
     sb.append(importMgr.outputStr() + RT);
 
-    String extendsStr = isSystemCommon
-        ? "<E extends SystemCommon" + (ti.hasPkColumn() ? "" : ", I")
-            + (ti.hasVersionColumnIncludingSystemCommon() ? "" : ", V") + "> extends SplibJpaBl<E, "
+    String extendsStr = isAppCommon
+        ? "<E extends AppCommon" + (ti.hasPkColumn() ? "" : ", I")
+            + (ti.hasVersionColumnIncludingAppCommon() ? "" : ", V") + "> extends SplibJpaBl<E, "
             + (ti.hasPkColumn() ? code.getJavaKata(ti.getPkColumn()) : "I") + ", "
-            + (ti.hasVersionColumnIncludingSystemCommon()
-                ? code.getJavaKata(ti.getVersionColumnIncludingSystemCommon())
+            + (ti.hasVersionColumnIncludingAppCommon()
+                ? code.getJavaKata(ti.getVersionColumnIncludingAppCommon())
                 : "V")
             + ">"
-        : " extends SystemCommonBaseBl<" + entityNameCp + ", " + code.getJavaKata(ti.getPkColumn())
-            + (getInfo().getCommonTableInfo().hasVersionColumnIncludingSystemCommon() ? ""
-                : ", " + code.getJavaKata(ti.getVersionColumnIncludingSystemCommon()))
+        : " extends AppCommonBaseBl<" + entityNameCp + ", " + code.getJavaKata(ti.getPkColumn())
+            + (getInfo().getCommonTableInfo().hasVersionColumnIncludingAppCommon() ? ""
+                : ", " + code.getJavaKata(ti.getVersionColumnIncludingAppCommon()))
             + ">";
     sb.append("public abstract class " + entityNameCp + "BaseBl" + extendsStr + " {" + RT2);
   }
@@ -170,7 +170,7 @@ public class BlGen extends AbstractGen {
     }
 
     sb.append(T1 + "@Override" + RT);
-    sb.append(T1 + "public " + code.getJavaKata(ti.getVersionColumnIncludingSystemCommon())
+    sb.append(T1 + "public " + code.getJavaKata(ti.getVersionColumnIncludingAppCommon())
         + " getVersionForOptimisticLocking(" + entityNameCp + " e) {" + RT);
     sb.append(
         T2 + "return e.get" + code.capitalCamel(ti.getVersionColumn().getName()) + "();" + RT);
