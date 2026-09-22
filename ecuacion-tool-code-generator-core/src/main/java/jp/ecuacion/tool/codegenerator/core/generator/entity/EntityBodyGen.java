@@ -112,53 +112,10 @@ public class EntityBodyGen extends EntityGen {
     appendAutoInsertOrUpdateGen(sb, tableInfo, false, false);
     // preUpdate
     appendAutoInsertOrUpdateGen(sb, tableInfo, true, false);
-    // Unique-constraint-related
-    appendUniqueConstraintGen(sb, tableInfo);
 
     // hasSoftDeleteField
     appendHasSoftDeleteFieldGen(sb, tableInfo, false);
 
     sb.append("}" + RT);
-  }
-
-  private void appendUniqueConstraintGen(StringBuilder sb, DbOrClassTableInfo tableInfo) {
-    sb.append(T1 + "// getNaturalKeyFieldList()" + RT);
-    sb.append(T1 + "public List<String> getNaturalKeyFieldList() {" + RT);
-    if (tableInfo.hasUniqueConstraint()) {
-      sb.append(T2 + "List<String> rtnList = new ArrayList<>();" + RT);
-
-      for (DbOrClassColumnInfo ci : tableInfo.columnList) {
-        if (ci.isUniqueConstraint()) {
-          sb.append(T2 + "rtnList.add(\"" + StringUtil.getLowerCamelFromSnake(ci.getName()) + "\");"
-              + RT);
-        }
-      }
-      sb.append(T2 + "return rtnList;" + RT);
-
-    } else {
-      sb.append(T2 + "return null;" + RT);
-    }
-
-    sb.append(T1 + "}" + RT2);
-
-    sb.append(T1 + "// getSetOfUniqueConstraintFieldList()" + RT);
-    sb.append(T1
-        + "// Currently only naturalKey is effectively supported, "
-        + "so it is added to the Set and returned."
-        + RT);
-    sb.append(T1
-        + "// In the future, other unique keys should also be configurable "
-        + "(otherwise auto-deletion of soft-deleted records on insert would not work)."
-        + RT);
-
-    sb.append(T1 + "@NonNull" + RT);
-    sb.append(T1 + "public Set<List<String>> getSetOfUniqueConstraintFieldList() {" + RT);
-    sb.append(T2 + "Set<List<String>> rtnSet = new HashSet<>();" + RT);
-    sb.append(T2 + "List<String> list = getNaturalKeyFieldList();" + RT);
-    sb.append(T2 + "if (list != null) {" + RT);
-    sb.append(T3 + "rtnSet.add(list);" + RT);
-    sb.append(T2 + "}" + RT2);
-    sb.append(T2 + "return rtnSet;" + RT);
-    sb.append(T1 + "}" + RT2);
   }
 }
