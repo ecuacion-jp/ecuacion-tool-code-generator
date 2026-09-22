@@ -484,41 +484,25 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return hasRelationColumn() || hasBidirectionalRelationRefColumn();
   }
 
+  /** Number of independent index groups supported by the "index1".."index10" DB columns. */
+  private static final int MAX_INDEX_SERIAL = 10;
+
   private List<String[]> getIndexList() {
-
-    Map<Integer, DbOrClassColumnInfo> index1Map = new HashMap<>();
-    Map<Integer, DbOrClassColumnInfo> index2Map = new HashMap<>();
-    Map<Integer, DbOrClassColumnInfo> index3Map = new HashMap<>();
-
-    for (DbOrClassColumnInfo colInfo : columnList) {
-      if (colInfo.getIndex1() != null) {
-        index1Map.put(colInfo.getIndex1(), colInfo);
-      }
-    }
-
-    for (DbOrClassColumnInfo colInfo : columnList) {
-      if (colInfo.getIndex2() != null) {
-        index2Map.put(colInfo.getIndex2(), colInfo);
-      }
-    }
-
-    for (DbOrClassColumnInfo colInfo : columnList) {
-      if (colInfo.getIndex3() != null) {
-        index3Map.put(colInfo.getIndex3(), colInfo);
-      }
-    }
-
     List<String[]> list = new ArrayList<>();
-    if (getIndex(index1Map, 1) != null && getIndex(index1Map, 1).length != 0) {
-      list.add(getIndex(index1Map, 1));
-    }
 
-    if (getIndex(index2Map, 2) != null && getIndex(index1Map, 2).length != 0) {
-      list.add(getIndex(index2Map, 2));
-    }
+    for (int serial = 1; serial <= MAX_INDEX_SERIAL; serial++) {
+      Map<Integer, DbOrClassColumnInfo> indexMap = new HashMap<>();
+      for (DbOrClassColumnInfo colInfo : columnList) {
+        Integer position = colInfo.getIndex(serial);
+        if (position != null) {
+          indexMap.put(position, colInfo);
+        }
+      }
 
-    if (getIndex(index3Map, 3) != null && getIndex(index1Map, 3).length != 0) {
-      list.add(getIndex(index3Map, 3));
+      String[] index = getIndex(indexMap, serial);
+      if (index.length != 0) {
+        list.add(index);
+      }
     }
 
     return list;
