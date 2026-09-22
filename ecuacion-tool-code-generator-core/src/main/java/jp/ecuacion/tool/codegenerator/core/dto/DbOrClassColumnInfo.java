@@ -465,6 +465,30 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
     return toInteger(index10);
   }
 
+  /**
+   * Returns the index-group position for the given 1-based index serial (1 to 10), or
+   * {@code null} if this column does not participate in that index group.
+   *
+   * @param indexSerial which of the 10 independent index groups (1 to 10) to read.
+   * @return the column's position within that index group, or {@code null}.
+   */
+  public @org.jspecify.annotations.Nullable Integer getIndex(int indexSerial) {
+    return switch (indexSerial) {
+      case 1 -> getIndex1();
+      case 2 -> getIndex2();
+      case 3 -> getIndex3();
+      case 4 -> getIndex4();
+      case 5 -> getIndex5();
+      case 6 -> getIndex6();
+      case 7 -> getIndex7();
+      case 8 -> getIndex8();
+      case 9 -> getIndex9();
+      case 10 -> getIndex10();
+      default -> throw new IllegalArgumentException(
+          "indexSerial must be between 1 and 10: " + indexSerial);
+    };
+  }
+
   // supportedLang1
   public String getSupportedLang1() {
     return supportedLang1;

@@ -16,6 +16,7 @@
 package jp.ecuacion.tool.codegenerator.core.dto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -242,6 +243,58 @@ class DbOrClassTableInfoTest {
     }
   }
 
+  // ---------- getTableAnnotationString() indexes ----------
+
+  @Nested
+  @DisplayName("getTableAnnotationString() indexes (regression for index1-10 handling)")
+  class TableAnnotationIndexes {
+
+    @Test
+    @DisplayName("index4 is included (previously silently ignored: only index1-3 were read)")
+    void index4IsIncluded() {
+      DbOrClassTableInfo ti = new DbOrClassTableInfo("TEST_TABLE");
+      ti.columnList.add(colWithIndex("COL_A", 4, 1));
+
+      String result = ti.getTableAnnotationString(ti);
+
+      assertThat(result).contains("indexes").contains("COL_A");
+    }
+
+    @Test
+    @DisplayName("index10 is included (previously silently ignored)")
+    void index10IsIncluded() {
+      DbOrClassTableInfo ti = new DbOrClassTableInfo("TEST_TABLE");
+      ti.columnList.add(colWithIndex("COL_Z", 10, 1));
+
+      String result = ti.getTableAnnotationString(ti);
+
+      assertThat(result).contains("indexes").contains("COL_Z");
+    }
+
+    @Test
+    @DisplayName("index3 is included when index1/index2 are unused "
+        + "(regression: index3's own emptiness check previously read index1's map)")
+    void index3AloneIsIncluded() {
+      DbOrClassTableInfo ti = new DbOrClassTableInfo("TEST_TABLE");
+      ti.columnList.add(colWithIndex("COL_X", 3, 1));
+
+      String result = ti.getTableAnnotationString(ti);
+
+      assertThat(result).contains("indexes").contains("COL_X");
+    }
+
+    @Test
+    @DisplayName("no indexes attribute is generated when no column uses any index serial")
+    void noIndexesWhenNoneUsed() {
+      DbOrClassTableInfo ti = new DbOrClassTableInfo("TEST_TABLE");
+      ti.columnList.add(colWithIndex("COL_PLAIN", 1, null));
+
+      String result = ti.getTableAnnotationString(ti);
+
+      assertThat(result).doesNotContain("indexes");
+    }
+  }
+
   // ---------- getRelationColumnList / hasRelationColumn ----------
 
   @Nested
@@ -330,6 +383,24 @@ class DbOrClassTableInfoTest {
     @SuppressWarnings("null")
     DbOrClassColumnInfo c = mock(DbOrClassColumnInfo.class);
     when(c.getName()).thenReturn(name);
+    return c;
+  }
+
+  /**
+   * Returns a column mocked to report the given 1-based position within the given index serial
+   * (1-10); {@code position == null} means the column does not participate in that index group.
+   */
+  private DbOrClassColumnInfo colWithIndex(String name, int indexSerial,
+      @org.jspecify.annotations.Nullable Integer position) {
+    @SuppressWarnings("null")
+    DbOrClassColumnInfo c = mock(DbOrClassColumnInfo.class);
+    when(c.getName()).thenReturn(name);
+    // Mockito's default answer for an unstubbed boxed-Integer-returning call is 0, not null (see
+    // ReturnsEmptyValues), so every other index serial must be stubbed to null explicitly -
+    // otherwise getIndexList()'s "position != null" check would wrongly treat serial 1 (say) as
+    // participating in index group 1 at position 0.
+    when(c.getIndex(anyInt())).thenReturn(null);
+    when(c.getIndex(indexSerial)).thenReturn(position);
     return c;
   }
 
