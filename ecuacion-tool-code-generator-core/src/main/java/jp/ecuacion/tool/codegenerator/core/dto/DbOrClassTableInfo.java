@@ -394,13 +394,13 @@ public class DbOrClassTableInfo extends AbstractInfo {
     }
 
     // index
-    List<String[]> indexList = getIndexList();
+    List<IndexInfo> indexList = getIndexList();
     if (indexList.size() > 0) {
       List<NormalSingleAnnotationGen> indexAnnotationList = new ArrayList<>();
-      for (String[] index : indexList) {
+      for (IndexInfo index : indexList) {
         // Set indexName
         StringBuilder indexNameColList = new StringBuilder();
-        for (String col : index) {
+        for (String col : index.columnNames) {
           indexNameColList.append("_" + col);
         }
 
@@ -409,7 +409,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
         // columnList uses the "col1, col2" format.
         boolean is1stTime = true;
         StringBuilder columnList = new StringBuilder();
-        for (String colName : index) {
+        for (String colName : index.columnNames) {
           if (is1stTime) {
             is1stTime = false;
 
@@ -420,9 +420,12 @@ public class DbOrClassTableInfo extends AbstractInfo {
           columnList.append(colName);
         }
 
-        ParamListGen paramList =
-            new ParamListGen(new ParamGenWithSingleValue("name", indexName, true),
-                new ParamGenWithSingleValue("columnList", columnList.toString(), true));
+        ParamListGen paramList = new ParamListGen();
+        paramList.add(new ParamGenWithSingleValue("name", indexName, true));
+        paramList.add(new ParamGenWithSingleValue("columnList", columnList.toString(), true));
+        if (index.isUnique) {
+          paramList.add(new ParamGenWithSingleValue("unique", "true", false));
+        }
         indexAnnotationList
             .add(new NormalSingleAnnotationGen("Index", ElementType.TYPE, paramList));
       }
@@ -487,8 +490,19 @@ public class DbOrClassTableInfo extends AbstractInfo {
   /** Number of independent index groups supported by the "index1".."index10" DB columns. */
   private static final int MAX_INDEX_SERIAL = 10;
 
-  private List<String[]> getIndexList() {
-    List<String[]> list = new ArrayList<>();
+  /** Holds one generated index group: its ordered column names and whether it is unique. */
+  private static class IndexInfo {
+    private final String[] columnNames;
+    private final boolean isUnique;
+
+    private IndexInfo(String[] columnNames, boolean isUnique) {
+      this.columnNames = columnNames;
+      this.isUnique = isUnique;
+    }
+  }
+
+  private List<IndexInfo> getIndexList() {
+    List<IndexInfo> list = new ArrayList<>();
 
     for (int serial = 1; serial <= MAX_INDEX_SERIAL; serial++) {
       Map<Integer, DbOrClassColumnInfo> indexMap = new HashMap<>();
@@ -499,8 +513,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
         }
       }
 
-      String[] index = getIndex(indexMap, serial);
-      if (index.length != 0) {
+      IndexInfo index = getIndex(indexMap, serial);
+      if (index != null) {
         list.add(index);
       }
     }
@@ -508,13 +522,16 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return list;
   }
 
-  private String[] getIndex(Map<Integer, DbOrClassColumnInfo> indexMap, int indexSerial) {
+  @SuppressWarnings({"NullAway", "null"})
+  private @org.jspecify.annotations.Nullable IndexInfo getIndex(
+      Map<Integer, DbOrClassColumnInfo> indexMap, int indexSerial) {
 
     if (indexMap.size() == 0) {
-      return new String[] {};
+      return null;
     }
 
-    List<String> index = new ArrayList<>();
+    List<String> columnNames = new ArrayList<>();
+    Boolean isUnique = null;
     for (int i = 1; i <= indexMap.size(); i++) {
       if (!indexMap.containsKey(i)) {
         new Violations().add(new BusinessViolation("MSG_ERR_INDEX_NUMBER_NOT_CONTINUOUS_FROM_1", "",
@@ -526,10 +543,22 @@ public class DbOrClassTableInfo extends AbstractInfo {
         throw new IllegalStateException(
             "Index column missing for index serial " + indexSerial + " on table " + name);
       }
-      index.add(indexedCol.getName());
+
+      boolean colIsUnique = indexedCol.isIndexUnique(indexSerial);
+      if (isUnique == null) {
+        isUnique = colIsUnique;
+
+      } else if (isUnique != colIsUnique) {
+        new Violations()
+            .add(new BusinessViolation("MSG_ERR_INDEX_UNIQUE_SPECIFICATION_INCONSISTENT", "", name,
+                Integer.toString(indexSerial)))
+            .throwIfAny();
+      }
+
+      columnNames.add(indexedCol.getName());
     }
 
-    return index.toArray(new String[index.size()]);
+    return new IndexInfo(columnNames.toArray(new String[columnNames.size()]), isUnique);
   }
 
   /** Runs the {@code afterReading} consistency check for all columns in this table. */
