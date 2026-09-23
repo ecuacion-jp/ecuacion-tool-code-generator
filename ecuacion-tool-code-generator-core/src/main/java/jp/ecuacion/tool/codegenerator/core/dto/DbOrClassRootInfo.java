@@ -65,6 +65,9 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
 
     // Check only for systemCommon
     systemCommonCheck();
+
+    // Applies to both DB and DB_COMMON: a CB/LB column must not have a relation.
+    checkCbLbColumnsDoNotHaveRelations();
   }
 
   private void systemCommonCheck() {
@@ -90,12 +93,27 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
             "MSG_ERR_CONSISTENCY_CHECK_NAME_OF_APP_COMMON_ENTITY_CANNOT_BE_CHANGED"))
             .throwIfAny();
       }
+    }
+  }
 
-      // AppCommon must not have relations (redmine#465)
+  /**
+   * A column marked as CB ({@code @CreatedBy}) or LB ({@code @LastModifiedBy}) must not have a
+   * relation, regardless of whether it is defined in DB or DB_COMMON (AppCommon). If such a
+   * column has a relation, {@code AuditorAware} must return an entity of the related type, and if
+   * that implementation resolves the auditor via a JPA repository call (e.g. {@code findById}),
+   * that call can trigger Hibernate's auto-flush of the entity currently being updated. The flush
+   * re-resolves the CB/LB value, calling the same {@code AuditorAware} again from within the
+   * flush it just triggered, and the recursion ends in a {@code StackOverflowError} that fails
+   * the update.
+   */
+  private void checkCbLbColumnsDoNotHaveRelations() {
+    for (DbOrClassTableInfo ti : tableList) {
       for (DbOrClassColumnInfo ci : ti.columnList) {
-        if (ci.getRelationKind() != null) {
-          new Violations().add(new BusinessViolation(
-              "MSG_ERR_CONSISTENCY_CHECK_APP_COMMON_ENTITY_CANNOT_HAVE_RELATIONS")).throwIfAny();
+        String springAuditing = ci.getSpringAuditing();
+        boolean isCbOrLb = "CB".equals(springAuditing) || "LB".equals(springAuditing);
+        if (isCbOrLb && ci.getRelationKind() != null) {
+          new Violations().add(new BusinessViolation("MSG_ERR_CB_LB_COLUMN_CANNOT_HAVE_RELATION",
+              ti.getName(), ci.getName())).throwIfAny();
         }
       }
     }
