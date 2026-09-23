@@ -297,8 +297,7 @@ public abstract class EntityGen extends AbstractTableGen {
             sb.append(T1 + "@OrderBy(\"id ASC\")" + RT);
           }
           // Filter condition required when referenced by a bidirectional relation
-          MiscSoftDeleteRootInfo softDeleteInfo =
-              getInfo().getRemovedDataRootInfo();
+          MiscSoftDeleteRootInfo softDeleteInfo = getInfo().getRemovedDataRootInfo();
           MiscGroupRootInfo groupInfo = getInfo().getGroupRootInfo();
           if (softDeleteInfo.isDefined()) {
             sb.append(T1 + "@Filter(name = \"softDeleteFilter\")" + RT);
@@ -347,8 +346,11 @@ public abstract class EntityGen extends AbstractTableGen {
 
       String entityNameUp = StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable());
       String fieldNameLw = ci.getRelationFieldName();
-      sb.append(T1 + "private " + StringUtils.capitalize(entityNameUp) + " " + fieldNameLw
-          + " = new " + StringUtils.capitalize(entityNameUp) + "();" + RT2);
+      // Deliberately left uninitialized (not "= new Xxx()"): a nullable relation left entirely
+      // unset (neither setXxx() nor setXxxId() called) must stay null, or Hibernate throws
+      // TransientPropertyValueException on flush for referencing an unsaved transient instance.
+      sb.append(
+          T1 + "private " + StringUtils.capitalize(entityNameUp) + " " + fieldNameLw + ";" + RT2);
 
     } else {
       // Normally private would suffice, but fields defined in EclibEntity (e.g. LST_UPD_TIME) are
@@ -487,8 +489,7 @@ public abstract class EntityGen extends AbstractTableGen {
 
     StringBuilder relString = new StringBuilder();
     baseList.stream().filter(e -> e.isRelation()).forEach(ci -> relString.append(
-        ", " + code.capitalCamel(ci.getRelationRefTable()) + " "
-            + ci.getRelationFieldName()));
+        ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
 
     return dateTimeString.toString() + relString.toString();
   }
@@ -555,20 +556,26 @@ public abstract class EntityGen extends AbstractTableGen {
       sb.append(T1 + "public " + code.getJavaKata(ci) + " get" + columnNameCp + "() {" + RT);
       sb.append(T2 + "return "
           + (ci.isRelation()
-              ? ci.getRelationFieldName() + " == null ? null : "
-                  + ci.getRelationFieldName() + ".get" + relFieldName + "()"
+              ? ci.getRelationFieldName() + " == null ? null : " + ci.getRelationFieldName()
+                  + ".get" + relFieldName + "()"
               : columnNameSm)
           + ";" + RT);
       sb.append(T1 + "}" + RT2);
 
       sb.append(T1 + "public void set" + columnNameCp + "(" + getEnumConsideredKata(ci) + " "
           + columnNameSm + ") {" + RT);
-      sb.append(T2 + "this."
-          + (ci.isRelation()
-              ? ci.getRelationFieldName() + ".set" + relFieldName + "(" + columnNameSm
-                  + ")"
-              : columnNameSm + " = " + columnNameSm)
-          + ";" + RT);
+      if (ci.isRelation()) {
+        String relFieldNameLocal = ci.getRelationFieldName();
+        String relEntityNameUp = StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable());
+        sb.append(T2 + "if (this." + relFieldNameLocal + " == null) {" + RT);
+        sb.append(T3 + "this." + relFieldNameLocal + " = new "
+            + StringUtils.capitalize(relEntityNameUp) + "();" + RT);
+        sb.append(T2 + "}" + RT2);
+        sb.append(T2 + "this." + relFieldNameLocal + ".set" + relFieldName + "(" + columnNameSm
+            + ");" + RT);
+      } else {
+        sb.append(T2 + "this." + columnNameSm + " = " + columnNameSm + ";" + RT);
+      }
       sb.append(T1 + "}" + RT2);
 
       if (ci.isRelation()) {
@@ -664,8 +671,8 @@ public abstract class EntityGen extends AbstractTableGen {
             + " = Enum.FALSE;" + RT);
 
       } else if (dtInfo.getKata() == DataTypeKataEnum.BOOLEAN) {
-        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName
-            + " = false;" + RT);
+        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = false;"
+            + RT);
 
       } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
           || dtInfo.getKata() == DataTypeKataEnum.DATE_TIME) {
