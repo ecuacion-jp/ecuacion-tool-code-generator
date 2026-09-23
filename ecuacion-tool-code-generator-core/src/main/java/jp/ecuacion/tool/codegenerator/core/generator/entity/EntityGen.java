@@ -346,7 +346,7 @@ public abstract class EntityGen extends AbstractTableGen {
       }
 
       String entityNameUp = StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable());
-      String fieldNameLw = ci.getEffectiveRelationObjVarName();
+      String fieldNameLw = ci.getRelationFieldName();
       sb.append(T1 + "private " + StringUtils.capitalize(entityNameUp) + " " + fieldNameLw
           + " = new " + StringUtils.capitalize(entityNameUp) + "();" + RT2);
 
@@ -488,7 +488,7 @@ public abstract class EntityGen extends AbstractTableGen {
     StringBuilder relString = new StringBuilder();
     baseList.stream().filter(e -> e.isRelation()).forEach(ci -> relString.append(
         ", " + code.capitalCamel(ci.getRelationRefTable()) + " "
-            + ci.getEffectiveRelationObjVarName()));
+            + ci.getRelationFieldName()));
 
     return dateTimeString.toString() + relString.toString();
   }
@@ -523,9 +523,9 @@ public abstract class EntityGen extends AbstractTableGen {
       String updString =
           !isUpdate ? "" : " && !skipUpdateFieldList.contains(Fields." + ci.getName() + ")";
       if (ci.isRelation()) {
-        String name = ci.getEffectiveRelationObjVarName();
+        String name = ci.getRelationFieldName();
         sb.append(T2 + "if (" + name + " != null) set"
-            + StringUtils.capitalize(ci.getEffectiveRelationObjVarName()) + "(" + name + ");" + RT);
+            + StringUtils.capitalize(ci.getRelationFieldName()) + "(" + name + ");" + RT);
 
       } else if (ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
           || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP) {
@@ -555,8 +555,8 @@ public abstract class EntityGen extends AbstractTableGen {
       sb.append(T1 + "public " + code.getJavaKata(ci) + " get" + columnNameCp + "() {" + RT);
       sb.append(T2 + "return "
           + (ci.isRelation()
-              ? ci.getEffectiveRelationObjVarName() + " == null ? null : "
-                  + ci.getEffectiveRelationObjVarName() + ".get" + relFieldName + "()"
+              ? ci.getRelationFieldName() + " == null ? null : "
+                  + ci.getRelationFieldName() + ".get" + relFieldName + "()"
               : columnNameSm)
           + ";" + RT);
       sb.append(T1 + "}" + RT2);
@@ -565,7 +565,7 @@ public abstract class EntityGen extends AbstractTableGen {
           + columnNameSm + ") {" + RT);
       sb.append(T2 + "this."
           + (ci.isRelation()
-              ? ci.getEffectiveRelationObjVarName() + ".set" + relFieldName + "(" + columnNameSm
+              ? ci.getRelationFieldName() + ".set" + relFieldName + "(" + columnNameSm
                   + ")"
               : columnNameSm + " = " + columnNameSm)
           + ";" + RT);
@@ -574,7 +574,7 @@ public abstract class EntityGen extends AbstractTableGen {
       if (ci.isRelation()) {
         // For relation columns, also provide an accessor for the field representing the entity
         // itself
-        appendAccessorForRelation(sb, relEntityName, ci.getEffectiveRelationObjVarName(), null);
+        appendAccessorForRelation(sb, relEntityName, ci.getRelationFieldName(), null);
       }
 
       if (ci.hasBidirectionalRelationRef()) {

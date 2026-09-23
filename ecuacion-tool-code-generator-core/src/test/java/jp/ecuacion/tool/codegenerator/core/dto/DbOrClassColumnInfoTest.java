@@ -32,9 +32,9 @@ import org.junit.jupiter.api.Test;
 class DbOrClassColumnInfoTest {
 
   // Position of "index1" within DbOrClassColumnInfo.getFieldNameArray(); the other 9 index
-  // columns immediately follow it (index2 = 23, ..., index10 = 31).
-  private static final int INDEX1_POSITION = 22;
-  private static final int FIELD_COUNT = 37;
+  // columns immediately follow it (index2 = 22, ..., index10 = 30).
+  private static final int INDEX1_POSITION = 21;
+  private static final int FIELD_COUNT = 36;
 
   private DbOrClassColumnInfo colWithIndex1Value(String value) {
     List<String> values = new ArrayList<>(Collections.nCopies(FIELD_COUNT, ""));
