@@ -191,7 +191,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     }
 
     String rel =
-        StringUtils.capitalize(refEnName) + "BaseRecord " + ci.getEffectiveRelationObjVarName();
+        StringUtils.capitalize(refEnName) + "BaseRecord " + ci.getRelationFieldName();
     sb.append(
         T1 + "protected " + (ci.isRelation() ? rel : kata + " " + ci.getNameCamel()) + ";" + RT);
 
@@ -257,7 +257,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
 
     for (DbOrClassColumnInfo ci : ti.columnList) {
       if (ci.isRelation()) {
-        sb.append(T3 + ci.getEffectiveRelationObjVarName() + " = new "
+        sb.append(T3 + ci.getRelationFieldName() + " = new "
             + StringUtils.capitalize(ci.getRelationRefTableCamel()) + "BaseRecord("
             + (getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs() ? "count"
                 : "")
@@ -364,14 +364,14 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       if (ci.isRelation()) {
         sb.append(
             isCalledFromB2
-                ? T2 + "if (count > 0 && e.get" + ci.getEffectiveRelationObjVarNameCp()
+                ? T2 + "if (count > 0 && e.get" + ci.getRelationFieldNameCp()
                     + "() != null) {" + RT
                 : "");
 
         boolean hasRel = getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs();
-        sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getEffectiveRelationObjVarName()
+        sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getRelationFieldName()
             + " = new " + ci.getRelationRefTableCpCamel() + "BaseRecord(e.get"
-            + ci.getEffectiveRelationObjVarNameCp() + "(), params" + (hasRel ? ", count" : "")
+            + ci.getRelationFieldNameCp() + "(), params" + (hasRel ? ", count" : "")
             + ") {public Item[] customizedItems() {return null;}};" + RT);
 
         sb.append(isCalledFromB2 ? T2 + "}" + RT : "");
@@ -442,7 +442,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       String lefthand = "rec.get" + ci.getNameCpCamel();
 
       if (ci.isRelation()) {
-        sb.append(T2 + "this." + ci.getEffectiveRelationObjVarName() + " = new "
+        sb.append(T2 + "this." + ci.getRelationFieldName() + " = new "
             + ci.getRelationRefTableCpCamel() + "BaseRecord("
             + (getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs() ? "count"
                 : "")
@@ -460,7 +460,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       String fiName = ci.getNameCamel();
       String fiNameCp = ci.getNameCpCamel();
-      String relFiName = ci.getEffectiveRelationObjVarName();
+      String relFiName = ci.getRelationFieldName();
       String relRefColNameCp =
           ci.getRelationRefCol() == null ? null : ci.getRelationRefColCpCamel();
 

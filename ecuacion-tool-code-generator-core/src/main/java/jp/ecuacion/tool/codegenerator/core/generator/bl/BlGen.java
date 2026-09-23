@@ -194,7 +194,7 @@ public class BlGen extends AbstractGen {
             .append(", " + code.getJavaKata(ci) + " " + code.uncapitalCamel(ci.getName())));
     StringBuilder relString = new StringBuilder();
     relFieldList.stream().forEach(ci -> relString.append(", "
-        + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getEffectiveRelationObjVarName()));
+        + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
     sb.append(T1 + "public " + entityName + " insertOrUpdate(" + code.capitalCamel(ti.getName())
         + "BaseRecord rec" + dateTimeString + relString + ", String... skipUpdateFields) {" + RT);
     sb.append(T2 + entityName + " e = null;" + RT);
@@ -208,7 +208,7 @@ public class BlGen extends AbstractGen {
         .forEach(ci -> dateTimeString2.append(", " + code.uncapitalCamel(ci.getName())));
     StringBuilder relString2 = new StringBuilder();
     relFieldList.stream()
-        .forEach(ci -> relString2.append(", " + ci.getEffectiveRelationObjVarName()));
+        .forEach(ci -> relString2.append(", " + ci.getRelationFieldName()));
 
     sb.append(T2 + "if (isInsert) {" + RT);
     sb.append(T3 + "e = new " + entityName + "(rec" + dateTimeString2 + relString2 + ");" + RT);
