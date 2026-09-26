@@ -17,7 +17,7 @@ package jp.ecuacion.tool.codegenerator.web.form;
 
 import jakarta.validation.Valid;
 import jp.ecuacion.splib.web.form.SplibGeneralForm;
-import jp.ecuacion.tool.codegenerator.web.form.record.SourceDownloadRecord;
+import jp.ecuacion.tool.codegenerator.web.record.SourceDownloadRecord;
 
 /** Contains form data for the source code download feature. */
 public class SourceDownloadForm extends SplibGeneralForm {
