@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.tool.codegenerator.web.form.record;
+package jp.ecuacion.tool.codegenerator.web.record;
 
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.splib.core.record.SplibRecord;
