@@ -10,9 +10,6 @@ on:
 
 env:
   MAVEN_OPTS: -Xmx2g
-  # Codecov only ingests coverage for main pushes and PRs targeting main; jacoco's
-  # report generation is skipped everywhere else since nothing would consume it.
-  UPLOAD_COVERAGE: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
 
 permissions:
   contents: read
@@ -63,23 +60,9 @@ jobs:
       - name: Verify (ubuntu)
         if: matrix.os == 'ubuntu-latest'
         working-directory: ecuacion-tool-code-generator
-        run: |
-          if [ "$UPLOAD_COVERAGE" = "true" ]; then
-            mvn verify -Dwagon.skip=true -Dallure.report.skip=true -Dlicense.skip=true -e
-          else
-            mvn verify -Dwagon.skip=true -Dallure.report.skip=true -Dlicense.skip=true -Djacoco.skip=true -e
-          fi
+        run: mvn verify -Dwagon.skip=true -Dallure.report.skip=true -Dlicense.skip=true -e
 
       - name: Test (windows)
         if: matrix.os == 'windows-latest'
         working-directory: ecuacion-tool-code-generator
         run: mvn test -Dcheckstyle.skip=true -Dspotbugs.skip=true -Dlicense.skip=true -Djacoco.skip=true -e
-
-      - uses: ecuacion-jp/ecuacion-lib/.github/actions/upload-coverage@main
-        if: matrix.os == 'ubuntu-latest' && env.UPLOAD_COVERAGE == 'true'
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: >-
-            ecuacion-tool-code-generator/ecuacion-tool-code-generator-core/target/site/jacoco/jacoco.xml,
-            ecuacion-tool-code-generator/ecuacion-tool-code-generator-cli/target/site/jacoco/jacoco.xml,
-            ecuacion-tool-code-generator/ecuacion-tool-code-generator-web/target/site/jacoco/jacoco.xml
