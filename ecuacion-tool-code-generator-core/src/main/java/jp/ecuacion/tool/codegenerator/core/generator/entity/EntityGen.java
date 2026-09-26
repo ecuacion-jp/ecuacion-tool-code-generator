@@ -74,8 +74,10 @@ public abstract class EntityGen extends AbstractTableGen {
     final String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
     // Required imports
-    // Java standard library
-    if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY) {
+    // Java standard library. Only emitted when the generated body actually references
+    // java.util.* (update()'s "Arrays.asList"/"List<String>" for skipped field names, or a
+    // bidirectional one-to-many field) - otherwise it ends up as an unused import.
+    if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY && needsJavaUtilImport(tableInfo)) {
       importMgr.add("java.util.*");
     }
 
@@ -200,6 +202,26 @@ public abstract class EntityGen extends AbstractTableGen {
     // Output import statements. An extra RT is added to leave a blank line before the class
     // declaration.
     sb.append(importMgr.outputStr() + RT);
+  }
+
+  /**
+   * Returns {@code true} if the entity body being generated for {@code tableInfo} will contain
+   * code that actually needs {@code java.util.*} - namely {@code update()}'s
+   * {@code Arrays.asList}/{@code List<String>} for skipped field names (emitted whenever a
+   * non-relation column exists; see {@link #appendUpdate}), or a bidirectional one-to-many
+   * field (emitted as {@code List<Xxx>}; see {@link #appendField}).
+   */
+  private boolean needsJavaUtilImport(DbOrClassTableInfo tableInfo) {
+    List<DbOrClassColumnInfo> baseList =
+        tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly()).toList();
+
+    if (baseList.stream().anyMatch(ci -> !ci.isRelation())) {
+      return true;
+    }
+
+    return baseList.stream().filter(DbOrClassColumnInfo::hasBidirectionalRelationRef)
+        .flatMap(ci -> ci.getBidirectionalRelationRefInfoList().stream())
+        .anyMatch(info -> info.getRelationKind() == RelationKindEnum.ONE_TO_MANY);
   }
 
   private void auditingImport(ImportBlock importMgr, String springAuditing, String keyword,
