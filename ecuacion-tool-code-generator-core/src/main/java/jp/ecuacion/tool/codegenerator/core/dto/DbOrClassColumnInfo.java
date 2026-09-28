@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.EmptyWhen;
 import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
@@ -116,7 +118,6 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
   private String relationKind;
   private String relationDirection;
   private String relationFieldName;
-  private String relationSrcObjVarName;
   private String relationRefTable;
   private String relationRefCol;
   private String relationRefFieldName;
@@ -159,8 +160,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
         "isForcedIncrement",
         "isAutoUpdate", "isForcedUpdate", "isCustomGroupColumn", "springAuditing", "relationKind",
         "relationDirection",
-        "relationFieldName", "relationSrcObjVarName", "relationRefTable", "relationRefCol",
-        "relationRefFieldName", "relationIsEager",
+        "relationFieldName", "relationRefTable", "relationRefCol", "relationRefFieldName",
+        "relationIsEager",
         "index1", "index2", "index3", "index4", "index5", "index6", "index7", "index8", "index9",
         "index10", null, "userFriendlyName", "supportedLang1",
         "supportedLang2", "supportedLang3"
@@ -220,7 +221,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
         ReaderUtil.booleanToBoolStr(ci.isAutoUpdate()),
         ReaderUtil.booleanToBoolStr(ci.isForcedUpdate()),
         ReaderUtil.booleanToBoolStr(ci.isCustomGroupColumn()), ci.getSpringAuditing(), "", "", "",
-        "", "", "", "", "", ci.getIndex1() == null ? null : ci.getIndex1().toString(),
+        "", "", "", "", ci.getIndex1() == null ? null : ci.getIndex1().toString(),
         ci.getIndex2() == null ? null : ci.getIndex2().toString(),
         ci.getIndex3() == null ? null : ci.getIndex3().toString(),
         ci.getIndex4() == null ? null : ci.getIndex4().toString(),
@@ -381,22 +382,6 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
     return StringUtils.capitalize(relationFieldName);
   }
 
-  public String getRelationSrcObjVarName() {
-    return relationSrcObjVarName;
-  }
-
-  /** Returns the effective object variable name for the relation field in the entity.
-   *  When {@code relationSrcObjVarName} is specified, that value is used; otherwise falls back to
-   *  {@code relationFieldName}.
-   */
-  public String getEffectiveRelationObjVarName() {
-    return StringUtils.isEmpty(relationSrcObjVarName) ? relationFieldName : relationSrcObjVarName;
-  }
-
-  public String getEffectiveRelationObjVarNameCp() {
-    return StringUtils.capitalize(getEffectiveRelationObjVarName());
-  }
-
   public String getRelationRefTable() {
     return relationRefTable;
   }
@@ -425,44 +410,119 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
     return ReaderUtil.boolStrToBoolean(relationIsEager);
   }
 
+  // An index column value is either a plain position ("1", "2", ...) for a normal index, or the
+  // same position prefixed with "U" ("U1", "U2", ...) to mark that index group as unique.
+  private static final Pattern INDEX_VALUE_PATTERN = Pattern.compile("^(U)?([1-9][0-9]*)$");
+
   public @org.jspecify.annotations.Nullable Integer getIndex1() {
-    return toInteger(index1);
+    return toIndexPosition(index1);
   }
 
   public @org.jspecify.annotations.Nullable Integer getIndex2() {
-    return toInteger(index2);
+    return toIndexPosition(index2);
   }
 
   public @org.jspecify.annotations.Nullable Integer getIndex3() {
-    return toInteger(index3);
+    return toIndexPosition(index3);
   }
 
   public @org.jspecify.annotations.Nullable Integer getIndex4() {
-    return toInteger(index4);
+    return toIndexPosition(index4);
   }
 
   public @org.jspecify.annotations.Nullable Integer getIndex5() {
-    return toInteger(index5);
+    return toIndexPosition(index5);
   }
 
   public @org.jspecify.annotations.Nullable Integer getIndex6() {
-    return toInteger(index6);
+    return toIndexPosition(index6);
   }
 
   public @org.jspecify.annotations.Nullable Integer getIndex7() {
-    return toInteger(index7);
+    return toIndexPosition(index7);
   }
 
   public @org.jspecify.annotations.Nullable Integer getIndex8() {
-    return toInteger(index8);
+    return toIndexPosition(index8);
   }
 
   public @org.jspecify.annotations.Nullable Integer getIndex9() {
-    return toInteger(index9);
+    return toIndexPosition(index9);
   }
 
   public @org.jspecify.annotations.Nullable Integer getIndex10() {
-    return toInteger(index10);
+    return toIndexPosition(index10);
+  }
+
+  /**
+   * Returns the index-group position for the given 1-based index serial (1 to 10), or
+   * {@code null} if this column does not participate in that index group.
+   *
+   * @param indexSerial which of the 10 independent index groups (1 to 10) to read.
+   * @return the column's position within that index group, or {@code null}.
+   */
+  public @org.jspecify.annotations.Nullable Integer getIndex(int indexSerial) {
+    return switch (indexSerial) {
+      case 1 -> getIndex1();
+      case 2 -> getIndex2();
+      case 3 -> getIndex3();
+      case 4 -> getIndex4();
+      case 5 -> getIndex5();
+      case 6 -> getIndex6();
+      case 7 -> getIndex7();
+      case 8 -> getIndex8();
+      case 9 -> getIndex9();
+      case 10 -> getIndex10();
+      default -> throw new IllegalArgumentException(
+          "indexSerial must be between 1 and 10: " + indexSerial);
+    };
+  }
+
+  /**
+   * Returns {@code true} if this column's entry for the given index serial (1 to 10) marks
+   * that index group as a unique index, i.e. its value is prefixed with {@code "U"}.
+   *
+   * @param indexSerial which of the 10 independent index groups (1 to 10) to read.
+   * @return {@code true} if this column marks the index group as unique.
+   */
+  public boolean isIndexUnique(int indexSerial) {
+    String value = switch (indexSerial) {
+      case 1 -> index1;
+      case 2 -> index2;
+      case 3 -> index3;
+      case 4 -> index4;
+      case 5 -> index5;
+      case 6 -> index6;
+      case 7 -> index7;
+      case 8 -> index8;
+      case 9 -> index9;
+      case 10 -> index10;
+      default -> throw new IllegalArgumentException(
+          "indexSerial must be between 1 and 10: " + indexSerial);
+    };
+
+    Matcher matcher = matchIndexValue(value);
+    return matcher != null && matcher.group(1) != null;
+  }
+
+  private @org.jspecify.annotations.Nullable Integer toIndexPosition(@Nullable String value) {
+    Matcher matcher = matchIndexValue(value);
+    return matcher == null ? null : Integer.valueOf(matcher.group(2));
+  }
+
+  private @org.jspecify.annotations.Nullable Matcher matchIndexValue(@Nullable String value) {
+    if (value == null || value.equals("")) {
+      return null;
+    }
+
+    Matcher matcher = INDEX_VALUE_PATTERN.matcher(value);
+    if (!matcher.matches()) {
+      throw new IllegalArgumentException("Index value must be a positive integer, optionally "
+          + "prefixed with \"U\" to mark it as a unique index (e.g. \"1\", \"U1\"): \"" + value
+          + "\" (column: " + name + ")");
+    }
+
+    return matcher;
   }
 
   // supportedLang1

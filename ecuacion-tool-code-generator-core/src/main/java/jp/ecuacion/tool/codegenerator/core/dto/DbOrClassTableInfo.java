@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -43,6 +44,9 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListG
  */
 @SuppressWarnings("NullAway.Init")
 public class DbOrClassTableInfo extends AbstractInfo {
+  // Keeps the itemNameKey class part the same as when DbOrClassColumnInfo is validated directly
+  // (the default for a nested path would be this field name).
+  @ItemNameKeyClass("dbOrClassColumnInfo")
   @Valid
   public List<DbOrClassColumnInfo> columnList = new ArrayList<>();
 
@@ -67,7 +71,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
   // name
 
   public String getName() {
-    return name.equals("SYSTEM_COMMON_ENTITY") ? "SYSTEM_COMMON" : name;
+    return name.equals("APP_COMMON_ENTITY") ? "APP_COMMON" : name;
   }
 
   public String getNameCpCamel() {
@@ -113,8 +117,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * all columns
    */
 
-  /** Returns all columns of this table combined with the SYSTEM_COMMON columns. */
-  public List<DbOrClassColumnInfo> getColumnListIncludingSystemCommon() {
+  /** Returns all columns of this table combined with the APP_COMMON columns. */
+  public List<DbOrClassColumnInfo> getColumnListIncludingAppCommon() {
     List<DbOrClassColumnInfo> list = new ArrayList<>(columnList);
     list.addAll(getInfo().getDbCommonRootInfo().tableList.get(0).columnList);
 
@@ -180,16 +184,16 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return getPkColumn() != null;
   }
 
-  public DbOrClassColumnInfo getPkColumnIncludingSystemCommon() {
+  public DbOrClassColumnInfo getPkColumnIncludingAppCommon() {
     // pk (surrogate key) always exists.
-    return getColumnListIncludingSystemCommon().stream().filter(ci -> ci.isPk()).toList().get(0);
+    return getColumnListIncludingAppCommon().stream().filter(ci -> ci.isPk()).toList().get(0);
   }
 
   /*
    * group
    */
 
-  /** Returns {@code true} if this table has a group column (excluding SYSTEM_COMMON). */
+  /** Returns {@code true} if this table has a group column (excluding APP_COMMON). */
   public boolean hasGroupColumn() {
     return getGroupColumn() != null;
   }
@@ -208,14 +212,14 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return null;
   }
 
-  /** Returns {@code true} if this table has a group column, considering SYSTEM_COMMON columns. */
-  public boolean hasGroupColumnIncludingSystemCommon() {
-    return getGroupColumnIncludingSystemCommon() != null;
+  /** Returns {@code true} if this table has a group column, considering APP_COMMON columns. */
+  public boolean hasGroupColumnIncludingAppCommon() {
+    return getGroupColumnIncludingAppCommon() != null;
   }
 
-  /** Returns the group column considering SYSTEM_COMMON, or {@code null} if not applicable. */
+  /** Returns the group column considering APP_COMMON, or {@code null} if not applicable. */
   @SuppressWarnings({"NullAway", "null"})
-  public DbOrClassColumnInfo getGroupColumnIncludingSystemCommon() {
+  public DbOrClassColumnInfo getGroupColumnIncludingAppCommon() {
 
     // Return null immediately if group is not defined
     if (!getInfo().getGroupRootInfo().isDefined()) {
@@ -225,7 +229,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
     // Hold in a List for subsequent checks
     List<DbOrClassColumnInfo> groupCiList = new ArrayList<>();
 
-    for (DbOrClassColumnInfo ci : getColumnListIncludingSystemCommon()) {
+    for (DbOrClassColumnInfo ci : getColumnListIncludingAppCommon()) {
       if (ci.isGroupColumn()) {
         groupCiList.add(ci);
       }
@@ -272,12 +276,12 @@ public class DbOrClassTableInfo extends AbstractInfo {
    */
 
   /** Returns {@code true} if this table's own columns contain the soft-delete flag column. */
-  public boolean hasSoftDeleteFieldExcludingSystemCommon() {
+  public boolean hasSoftDeleteFieldExcludingAppCommon() {
     return softDeleteExistenceCheck(columnList, getName());
   }
 
-  /** Returns {@code true} if the SYSTEM_COMMON columns contain the soft-delete flag column. */
-  public boolean hasSoftDeleteFieldInSystemCommon() {
+  /** Returns {@code true} if the APP_COMMON columns contain the soft-delete flag column. */
+  public boolean hasSoftDeleteFieldInAppCommon() {
     List<DbOrClassColumnInfo> dbCommonCi =
         getInfo().getDbCommonRootInfo().tableList.get(0).columnList;
     return softDeleteExistenceCheck(dbCommonCi, getName());
@@ -287,8 +291,8 @@ public class DbOrClassTableInfo extends AbstractInfo {
    * This value is derived from the two methods above, so no dedicated field is held — only a
    * method is provided.
    */
-  public boolean hasSoftDeleteFieldInludingSystemCommon() {
-    return hasSoftDeleteFieldExcludingSystemCommon() || hasSoftDeleteFieldInSystemCommon();
+  public boolean hasSoftDeleteFieldInludingAppCommon() {
+    return hasSoftDeleteFieldExcludingAppCommon() || hasSoftDeleteFieldInAppCommon();
   }
 
   private boolean softDeleteExistenceCheck(List<DbOrClassColumnInfo> columnList, String tableName) {
@@ -341,16 +345,16 @@ public class DbOrClassTableInfo extends AbstractInfo {
 
   /**
    * Returns the optimistic-lock version column, searching both this table's columns and
-   * SYSTEM_COMMON columns.
+   * APP_COMMON columns.
    */
-  public DbOrClassColumnInfo getVersionColumnIncludingSystemCommon() {
-    return getVersionColumn(getColumnListIncludingSystemCommon());
+  public DbOrClassColumnInfo getVersionColumnIncludingAppCommon() {
+    return getVersionColumn(getColumnListIncludingAppCommon());
   }
 
-  /** Returns {@code true} if an optimistic-lock version column exists considering SYSTEM_COMMON
+  /** Returns {@code true} if an optimistic-lock version column exists considering APP_COMMON
    *     columns. */
-  public boolean hasVersionColumnIncludingSystemCommon() {
-    return getVersionColumnIncludingSystemCommon() != null;
+  public boolean hasVersionColumnIncludingAppCommon() {
+    return getVersionColumnIncludingAppCommon() != null;
   }
 
   /*
@@ -394,13 +398,13 @@ public class DbOrClassTableInfo extends AbstractInfo {
     }
 
     // index
-    List<String[]> indexList = getIndexList();
+    List<IndexInfo> indexList = getIndexList();
     if (indexList.size() > 0) {
       List<NormalSingleAnnotationGen> indexAnnotationList = new ArrayList<>();
-      for (String[] index : indexList) {
+      for (IndexInfo index : indexList) {
         // Set indexName
         StringBuilder indexNameColList = new StringBuilder();
-        for (String col : index) {
+        for (String col : index.columnNames) {
           indexNameColList.append("_" + col);
         }
 
@@ -409,7 +413,7 @@ public class DbOrClassTableInfo extends AbstractInfo {
         // columnList uses the "col1, col2" format.
         boolean is1stTime = true;
         StringBuilder columnList = new StringBuilder();
-        for (String colName : index) {
+        for (String colName : index.columnNames) {
           if (is1stTime) {
             is1stTime = false;
 
@@ -420,9 +424,12 @@ public class DbOrClassTableInfo extends AbstractInfo {
           columnList.append(colName);
         }
 
-        ParamListGen paramList =
-            new ParamListGen(new ParamGenWithSingleValue("name", indexName, true),
-                new ParamGenWithSingleValue("columnList", columnList.toString(), true));
+        ParamListGen paramList = new ParamListGen();
+        paramList.add(new ParamGenWithSingleValue("name", indexName, true));
+        paramList.add(new ParamGenWithSingleValue("columnList", columnList.toString(), true));
+        if (index.isUnique) {
+          paramList.add(new ParamGenWithSingleValue("unique", "true", false));
+        }
         indexAnnotationList
             .add(new NormalSingleAnnotationGen("Index", ElementType.TYPE, paramList));
       }
@@ -484,53 +491,51 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return hasRelationColumn() || hasBidirectionalRelationRefColumn();
   }
 
-  private List<String[]> getIndexList() {
+  /** Number of independent index groups supported by the "index1".."index10" DB columns. */
+  private static final int MAX_INDEX_SERIAL = 10;
 
-    Map<Integer, DbOrClassColumnInfo> index1Map = new HashMap<>();
-    Map<Integer, DbOrClassColumnInfo> index2Map = new HashMap<>();
-    Map<Integer, DbOrClassColumnInfo> index3Map = new HashMap<>();
+  /** Holds one generated index group: its ordered column names and whether it is unique. */
+  private static class IndexInfo {
+    private final String[] columnNames;
+    private final boolean isUnique;
 
-    for (DbOrClassColumnInfo colInfo : columnList) {
-      if (colInfo.getIndex1() != null) {
-        index1Map.put(colInfo.getIndex1(), colInfo);
+    private IndexInfo(String[] columnNames, boolean isUnique) {
+      this.columnNames = columnNames;
+      this.isUnique = isUnique;
+    }
+  }
+
+  private List<IndexInfo> getIndexList() {
+    List<IndexInfo> list = new ArrayList<>();
+
+    for (int serial = 1; serial <= MAX_INDEX_SERIAL; serial++) {
+      Map<Integer, DbOrClassColumnInfo> indexMap = new HashMap<>();
+      for (DbOrClassColumnInfo colInfo : columnList) {
+        Integer position = colInfo.getIndex(serial);
+        if (position != null) {
+          indexMap.put(position, colInfo);
+        }
       }
-    }
 
-    for (DbOrClassColumnInfo colInfo : columnList) {
-      if (colInfo.getIndex2() != null) {
-        index2Map.put(colInfo.getIndex2(), colInfo);
+      IndexInfo index = getIndex(indexMap, serial);
+      if (index != null) {
+        list.add(index);
       }
-    }
-
-    for (DbOrClassColumnInfo colInfo : columnList) {
-      if (colInfo.getIndex3() != null) {
-        index3Map.put(colInfo.getIndex3(), colInfo);
-      }
-    }
-
-    List<String[]> list = new ArrayList<>();
-    if (getIndex(index1Map, 1) != null && getIndex(index1Map, 1).length != 0) {
-      list.add(getIndex(index1Map, 1));
-    }
-
-    if (getIndex(index2Map, 2) != null && getIndex(index1Map, 2).length != 0) {
-      list.add(getIndex(index2Map, 2));
-    }
-
-    if (getIndex(index3Map, 3) != null && getIndex(index1Map, 3).length != 0) {
-      list.add(getIndex(index3Map, 3));
     }
 
     return list;
   }
 
-  private String[] getIndex(Map<Integer, DbOrClassColumnInfo> indexMap, int indexSerial) {
+  @SuppressWarnings({"NullAway", "null"})
+  private @org.jspecify.annotations.Nullable IndexInfo getIndex(
+      Map<Integer, DbOrClassColumnInfo> indexMap, int indexSerial) {
 
     if (indexMap.size() == 0) {
-      return new String[] {};
+      return null;
     }
 
-    List<String> index = new ArrayList<>();
+    List<String> columnNames = new ArrayList<>();
+    Boolean isUnique = null;
     for (int i = 1; i <= indexMap.size(); i++) {
       if (!indexMap.containsKey(i)) {
         new Violations().add(new BusinessViolation("MSG_ERR_INDEX_NUMBER_NOT_CONTINUOUS_FROM_1", "",
@@ -542,10 +547,22 @@ public class DbOrClassTableInfo extends AbstractInfo {
         throw new IllegalStateException(
             "Index column missing for index serial " + indexSerial + " on table " + name);
       }
-      index.add(indexedCol.getName());
+
+      boolean colIsUnique = indexedCol.isIndexUnique(indexSerial);
+      if (isUnique == null) {
+        isUnique = colIsUnique;
+
+      } else if (isUnique != colIsUnique) {
+        new Violations()
+            .add(new BusinessViolation("MSG_ERR_INDEX_UNIQUE_SPECIFICATION_INCONSISTENT", "", name,
+                Integer.toString(indexSerial)))
+            .throwIfAny();
+      }
+
+      columnNames.add(indexedCol.getName());
     }
 
-    return index.toArray(new String[index.size()]);
+    return new IndexInfo(columnNames.toArray(new String[columnNames.size()]), isUnique);
   }
 
   /** Runs the {@code afterReading} consistency check for all columns in this table. */

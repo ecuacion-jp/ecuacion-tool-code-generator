@@ -169,7 +169,7 @@ public class CodeGenContext {
 
   /**
    * Returns the common table info. DB_COMMON always has exactly one entry (a column-less
-   * "SYSTEM_COMMON" placeholder when the sheet has no rows); see {@link
+   * "APP_COMMON" placeholder when the sheet has no rows); see {@link
    * jp.ecuacion.tool.codegenerator.core.reader.ExcelDbCommonReader#readAndGetMap}.
    */
   public DbOrClassTableInfo getCommonTableInfo() {

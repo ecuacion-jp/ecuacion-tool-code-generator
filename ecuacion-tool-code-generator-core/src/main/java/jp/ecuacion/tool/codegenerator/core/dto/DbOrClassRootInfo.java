@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
@@ -36,6 +37,9 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
     return new Item[] {};
   }
   
+  // Keeps the itemNameKey class part the same as when DbOrClassTableInfo is validated directly
+  // (the default for a nested path would be this field name).
+  @ItemNameKeyClass("dbOrClassTableInfo")
   @Valid
   public List<DbOrClassTableInfo> tableList = new ArrayList<DbOrClassTableInfo>();
 
@@ -50,7 +54,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
   }
 
   /**
-   * Validates all tables and columns via bean validation, then runs SYSTEM_COMMON-specific
+   * Validates all tables and columns via bean validation, then runs APP_COMMON-specific
    * consistency checks.
    */
   @Override
@@ -65,6 +69,9 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
 
     // Check only for systemCommon
     systemCommonCheck();
+
+    // Applies to both DB and DB_COMMON: a CB/LB column must not have a relation.
+    checkCbLbColumnsDoNotHaveRelations();
   }
 
   private void systemCommonCheck() {
@@ -74,7 +81,7 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
       // There should be at most one table
       if (tableList.size() > 1) {
         new Violations().add(new BusinessViolation(
-            "MSG_ERR_CONSISTENCY_CHECK_SYSTEM_COMMON_ENTITY_MUST_BE_0_OR_1")).throwIfAny();
+            "MSG_ERR_CONSISTENCY_CHECK_APP_COMMON_ENTITY_MUST_BE_0_OR_1")).throwIfAny();
       }
 
       if (tableList.size() == 0) {
@@ -84,18 +91,33 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
       // The following applies when a parent entity exists
       DbOrClassTableInfo ti = tableList.get(0);
 
-      // Name must be SystemCommon
-      if (!ti.getName().equals("SYSTEM_COMMON")) {
+      // Name must be AppCommon
+      if (!ti.getName().equals("APP_COMMON")) {
         new Violations().add(new BusinessViolation(
-            "MSG_ERR_CONSISTENCY_CHECK_NAME_OF_SYSTEM_COMMON_ENTITY_CANNOT_BE_CHANGED"))
+            "MSG_ERR_CONSISTENCY_CHECK_NAME_OF_APP_COMMON_ENTITY_CANNOT_BE_CHANGED"))
             .throwIfAny();
       }
+    }
+  }
 
-      // SystemCommon must not have relations (redmine#465)
+  /**
+   * A column marked as CB ({@code @CreatedBy}) or LB ({@code @LastModifiedBy}) must not have a
+   * relation, regardless of whether it is defined in DB or DB_COMMON (AppCommon). If such a
+   * column has a relation, {@code AuditorAware} must return an entity of the related type, and if
+   * that implementation resolves the auditor via a JPA repository call (e.g. {@code findById}),
+   * that call can trigger Hibernate's auto-flush of the entity currently being updated. The flush
+   * re-resolves the CB/LB value, calling the same {@code AuditorAware} again from within the
+   * flush it just triggered, and the recursion ends in a {@code StackOverflowError} that fails
+   * the update.
+   */
+  private void checkCbLbColumnsDoNotHaveRelations() {
+    for (DbOrClassTableInfo ti : tableList) {
       for (DbOrClassColumnInfo ci : ti.columnList) {
-        if (ci.getRelationKind() != null) {
-          new Violations().add(new BusinessViolation(
-              "MSG_ERR_CONSISTENCY_CHECK_SYSTEM_COMMON_ENTITY_CANNOT_HAVE_RELATIONS")).throwIfAny();
+        String springAuditing = ci.getSpringAuditing();
+        boolean isCbOrLb = "CB".equals(springAuditing) || "LB".equals(springAuditing);
+        if (isCbOrLb && ci.getRelationKind() != null) {
+          new Violations().add(new BusinessViolation("MSG_ERR_CB_LB_COLUMN_CANNOT_HAVE_RELATION",
+              ti.getName(), ci.getName())).throwIfAny();
         }
       }
     }

@@ -24,5 +24,5 @@ package jp.ecuacion.tool.codegenerator.core.generator.entity;
  * </p>
  */
 public enum EntityGenKindEnum {
-  ENTITY_SYSTEM_COMMON, ENTITY_BODY, CONTAINER;
+  ENTITY_APP_COMMON, ENTITY_BODY, CONTAINER;
 }

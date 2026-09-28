@@ -22,7 +22,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil.ColFormat;
 
 /**
- * Generates a per-table base record class that extends {@code SystemCommonBaseRecord} and
+ * Generates a per-table base record class that extends {@code AppCommonBaseRecord} and
  * implements {@code ItemContainer}.
  */
 public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
@@ -50,7 +50,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
 
     sb.append("@ItemNameKeyClass(\"" + ti.getNameCamel() + "\")" + RT);
     sb.append("public abstract class " + ti.getNameCpCamel()
-        + "BaseRecord extends SystemCommonBaseRecord implements ItemContainer {" + RT2);
+        + "BaseRecord extends AppCommonBaseRecord implements ItemContainer {" + RT2);
   }
 
   @Override
@@ -82,15 +82,15 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
       // The PK is delegated through a relation (e.g. a @MapsId column), so pkGet itself is a
       // chained call like "getAcc().getId()" - the relation getter can return null and must be
       // guarded, same as each entry in the relColList loop below.
-      sb.append("get" + pkCi.getEffectiveRelationObjVarNameCp() + "() == null || " + pkGet
+      sb.append("get" + pkCi.getRelationFieldNameCp() + "() == null || " + pkGet
           + " == null ? \"\" : " + pkGet);
     } else {
       sb.append(pkGet + " == null ? \"\" : " + pkGet);
     }
     for (DbOrClassColumnInfo ci : relColList) {
-      String relField = ci.getEffectiveRelationObjVarNameCp();
+      String relField = ci.getRelationFieldNameCp();
       DbOrClassColumnInfo pk =
-          getInfo().getTableInfo(ci.getRelationRefTable()).getPkColumnIncludingSystemCommon();
+          getInfo().getTableInfo(ci.getRelationRefTable()).getPkColumnIncludingAppCommon();
       String refPkGet = code.generateString(pk, ColFormat.GET);
       sb.append(", get" + relField + "() == null || get" + relField + "()." + refPkGet + " == null"
           + " ? \"\" : get" + relField + "()." + refPkGet);
@@ -98,15 +98,15 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     sb.append("}, \"" + sep + "\"));" + RT);
 
     // optimisticLockVersions snapshot: same order as ids.
-    String ver = ti.getVersionColumnIncludingSystemCommon().getNameCpCamel();
+    String ver = ti.getVersionColumnIncludingAppCommon().getNameCpCamel();
     String verGet = "get" + ver + "()";
     sb.append(
         T2 + "this.setOptimisticLockVersions(StringUtil.getSeparatedValuesString(new String[] {"
             + verGet + " == null ? \"\" : " + verGet);
     for (DbOrClassColumnInfo ci : relColList) {
-      String relFieldGet = "get" + ci.getEffectiveRelationObjVarNameCp() + "()";
+      String relFieldGet = "get" + ci.getRelationFieldNameCp() + "()";
       DbOrClassColumnInfo v =
-          getInfo().getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingSystemCommon();
+          getInfo().getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingAppCommon();
       String refVerGet = code.generateString(v, ColFormat.GET);
       sb.append(", " + relFieldGet + " == null || " + relFieldGet + "." + refVerGet
           + " == null ? \"\" : " + relFieldGet + "." + refVerGet);
@@ -139,7 +139,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
       // the record graph the relation object itself may not have been built (see
       // generateIdsAndVersionsInit's count cutoff), so guard against it being null.
       sb.append(
-          T2 + "if (get" + setIdsPkCi.getEffectiveRelationObjVarNameCp() + "() != null) {" + RT);
+          T2 + "if (get" + setIdsPkCi.getRelationFieldNameCp() + "() != null) {" + RT);
       sb.append(T3 + pkSet + ";" + RT);
       sb.append(T2 + "}" + RT);
     } else {
@@ -152,7 +152,7 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     int i = 0;
     while (relColList.size() > i) {
       DbOrClassColumnInfo ci = relColList.get(i);
-      String relField = ci.getEffectiveRelationObjVarNameCp();
+      String relField = ci.getRelationFieldNameCp();
       int index = i + 1;
 
       sb.append(T1 + "public String get" + relField + "IdSnapshot() {" + RT);
@@ -174,17 +174,17 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     sb.append(T2 + "String[] vers = verCsv.split(\",\", -1);" + RT);
     sb.append(T2 + "if (vers.length < 1) return;" + RT2);
 
-    DbOrClassColumnInfo ownVerCi = ti.getVersionColumnIncludingSystemCommon();
+    DbOrClassColumnInfo ownVerCi = ti.getVersionColumnIncludingAppCommon();
     String ownVerSet = code.generateString(ownVerCi, ColFormat.SET, "vers[0]");
     sb.append(T2 + ownVerSet + ";" + RT);
 
     int v = 0;
     while (relColList.size() > v) {
       DbOrClassColumnInfo ci = relColList.get(v);
-      String relField = ci.getEffectiveRelationObjVarNameCp();
+      String relField = ci.getRelationFieldNameCp();
       int index = v + 1;
       DbOrClassColumnInfo relVerCi =
-          getInfo().getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingSystemCommon();
+          getInfo().getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingAppCommon();
       String relVerSet = code.generateString(relVerCi, ColFormat.SET, "vers[" + index + "]");
 
       sb.append(T2 + "if (get" + relField + "() != null && vers.length > " + index + ") {" + RT);
