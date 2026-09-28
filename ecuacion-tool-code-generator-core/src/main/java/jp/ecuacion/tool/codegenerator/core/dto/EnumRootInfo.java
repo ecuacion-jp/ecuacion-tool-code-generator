@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
@@ -29,6 +30,9 @@ public class EnumRootInfo extends AbstractRootInfo {
   private String dataTypeNamePrefix;
   private List<String> dispNameLangArr = new ArrayList<String>();
 
+  // Keeps the itemNameKey class part the same as when EnumClassInfo is validated directly
+  // (the default for a nested path would be this field name).
+  @ItemNameKeyClass("enumClassInfo")
   @Valid
   public List<EnumClassInfo> enumClassList = new ArrayList<EnumClassInfo>();
 

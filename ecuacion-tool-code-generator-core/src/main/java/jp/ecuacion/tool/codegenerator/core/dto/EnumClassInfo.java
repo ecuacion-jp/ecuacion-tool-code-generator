@@ -20,6 +20,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
 import jp.ecuacion.tool.codegenerator.core.generatorhelper.util.ColumnGenUtil;
@@ -30,6 +31,9 @@ import org.jspecify.annotations.Nullable;
 @SuppressWarnings("NullAway.Init")
 public class EnumClassInfo extends StringExcelTableBean {
 
+  // Keeps the itemNameKey class part the same as when EnumValueInfo is validated directly
+  // (the default for a nested path would be this field name).
+  @ItemNameKeyClass("enumValueInfo")
   @Valid
   public List<EnumValueInfo> enumList = new ArrayList<EnumValueInfo>();
 
