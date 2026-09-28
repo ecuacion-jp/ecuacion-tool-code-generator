@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
@@ -36,6 +37,9 @@ public class DbOrClassRootInfo extends AbstractRootInfo implements ItemContainer
     return new Item[] {};
   }
   
+  // Keeps the itemNameKey class part the same as when DbOrClassTableInfo is validated directly
+  // (the default for a nested path would be this field name).
+  @ItemNameKeyClass("dbOrClassTableInfo")
   @Valid
   public List<DbOrClassTableInfo> tableList = new ArrayList<DbOrClassTableInfo>();
 

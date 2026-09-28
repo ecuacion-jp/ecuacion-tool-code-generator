@@ -18,6 +18,7 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.validation.constraints.ElementsNotEmpty;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
@@ -26,6 +27,9 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 public class TableListRootInfo extends AbstractRootInfo {
 
   @ElementsNotEmpty
+  // Keeps the itemNameKey class part the same as when TableListInfo is validated directly
+  // (the default for a nested path would be this field name).
+  @ItemNameKeyClass("tableListInfo")
   @Valid
   public List<TableListInfo> tableList = new ArrayList<>();
 

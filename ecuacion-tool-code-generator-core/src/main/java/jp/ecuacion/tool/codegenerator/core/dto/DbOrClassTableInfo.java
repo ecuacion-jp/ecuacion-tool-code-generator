@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -43,6 +44,9 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListG
  */
 @SuppressWarnings("NullAway.Init")
 public class DbOrClassTableInfo extends AbstractInfo {
+  // Keeps the itemNameKey class part the same as when DbOrClassColumnInfo is validated directly
+  // (the default for a nested path would be this field name).
+  @ItemNameKeyClass("dbOrClassColumnInfo")
   @Valid
   public List<DbOrClassColumnInfo> columnList = new ArrayList<>();
 
