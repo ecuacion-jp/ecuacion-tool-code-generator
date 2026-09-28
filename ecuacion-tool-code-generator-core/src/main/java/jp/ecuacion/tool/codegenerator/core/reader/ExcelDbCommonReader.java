@@ -43,12 +43,12 @@ public class ExcelDbCommonReader extends ExcelAbstractDbOrClassReader {
 
   @Override
   protected String resolveTableName(String rawTableName) {
-    return (rawTableName == null || rawTableName.isEmpty()) ? "SYSTEM_COMMON" : rawTableName;
+    return (rawTableName == null || rawTableName.isEmpty()) ? "APP_COMMON" : rawTableName;
   }
 
   /**
    * Reads the Excel file, guaranteeing the returned {@code DbOrClassRootInfo.tableList} always
-   * holds exactly one entry (a column-less "SYSTEM_COMMON" placeholder when the sheet has no
+   * holds exactly one entry (a column-less "APP_COMMON" placeholder when the sheet has no
    * rows), so downstream code can always rely on {@code tableList.get(0)} being safe.
    */
   @Override
@@ -58,7 +58,7 @@ public class ExcelDbCommonReader extends ExcelAbstractDbOrClassReader {
     DbOrClassRootInfo rootInfo =
         Objects.requireNonNull((DbOrClassRootInfo) rtnMap.get(DataKindEnum.DB_COMMON));
     if (rootInfo.tableList.isEmpty()) {
-      rootInfo.tableList.add(new DbOrClassTableInfo("SYSTEM_COMMON"));
+      rootInfo.tableList.add(new DbOrClassTableInfo("APP_COMMON"));
     }
 
     return rtnMap;

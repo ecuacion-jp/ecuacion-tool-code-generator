@@ -53,7 +53,7 @@ public class DaoGen extends AbstractTableGen {
 
     // Generate baseRepository when using Spring
     if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()) {
-      createSystemCommonBaseRepository();
+      createAppCommonBaseRepository();
     }
   }
 
@@ -83,7 +83,7 @@ public class DaoGen extends AbstractTableGen {
     createBaseRepositoryImport(tableInfo, tableNameCp);
 
     sb.append("public interface " + tableNameCp + "BaseRepository"
-        + " extends SystemCommonBaseRepository<" + tableNameCp
+        + " extends AppCommonBaseRepository<" + tableNameCp
         + ", Long>, JpaSpecificationExecutor<" + tableNameCp + "> {" + RT2);
 
     sb.append(T1 + "/** Is defined with jpql because hibernate filter "
@@ -111,7 +111,7 @@ public class DaoGen extends AbstractTableGen {
               .getPkColumn().getNameCamel() + ");" + RT2);
     }
 
-    if (tableInfo.hasSoftDeleteFieldInludingSystemCommon()) {
+    if (tableInfo.hasSoftDeleteFieldInludingAppCommon()) {
 
       // findAllFromAllGroups
       sb.append(T1 + "@Query(nativeQuery = true, value = "
@@ -186,7 +186,7 @@ public class DaoGen extends AbstractTableGen {
     sb.append(importMgr.outputStr() + RT);
   }
 
-  private void createSystemCommonBaseRepository() {
+  private void createAppCommonBaseRepository() {
 
     sb = new StringBuilder();
 
@@ -199,10 +199,10 @@ public class DaoGen extends AbstractTableGen {
 
     sb.append("@NoRepositoryBean" + RT);
     sb.append(
-        "public interface SystemCommonBaseRepository<T, I> extends SplibRepository<T, I> {" + RT2);
+        "public interface AppCommonBaseRepository<T, I> extends SplibRepository<T, I> {" + RT2);
 
     sb.append("}" + RT);
 
-    outputFile(sb, getFilePath("repository"), "SystemCommonBaseRepository.java");
+    outputFile(sb, getFilePath("repository"), "AppCommonBaseRepository.java");
   }
 }

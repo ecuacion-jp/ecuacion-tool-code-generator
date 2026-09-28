@@ -21,12 +21,12 @@ import org.springframework.stereotype.Component;
 
 /** Provides an exception handler action for the web module, sending an error mail on failure. */
 @Component
-public class ActionOnThrowable implements SplibExceptionHandlerAction {
+public class AppExceptionHandlerAction implements SplibExceptionHandlerAction {
 
   private final SplibMailUtil splibMailUtil;
 
   /** Constructs a new instance. */
-  public ActionOnThrowable(SplibMailUtil splibMailUtil) {
+  public AppExceptionHandlerAction(SplibMailUtil splibMailUtil) {
     this.splibMailUtil = splibMailUtil;
   }
 

@@ -18,6 +18,7 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.validation.constraints.ElementsNotEmpty;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
@@ -31,6 +32,9 @@ public class DataTypeRootInfo extends AbstractRootInfo {
   }
 
   @ElementsNotEmpty
+  // Keeps the itemNameKey class part the same as when DataTypeInfo is validated directly
+  // (the default for a nested path would be this field name).
+  @ItemNameKeyClass("dataTypeInfo")
   @Valid
   public List<DataTypeInfo> dataTypeList = new ArrayList<>();
   

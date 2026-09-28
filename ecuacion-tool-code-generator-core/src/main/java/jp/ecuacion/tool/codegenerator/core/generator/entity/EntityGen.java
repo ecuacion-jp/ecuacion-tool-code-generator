@@ -19,7 +19,6 @@ import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -75,8 +74,10 @@ public abstract class EntityGen extends AbstractTableGen {
     final String tableNameCp = StringUtil.getUpperCamelFromSnake(tableInfo.getName());
 
     // Required imports
-    // Java standard library
-    if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY) {
+    // Java standard library. Only emitted when the generated body actually references
+    // java.util.* (update()'s "Arrays.asList"/"List<String>" for skipped field names, or a
+    // bidirectional one-to-many field) - otherwise it ends up as an unused import.
+    if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY && needsJavaUtilImport(tableInfo)) {
       importMgr.add("java.util.*");
     }
 
@@ -108,7 +109,7 @@ public abstract class EntityGen extends AbstractTableGen {
     // Also needs to be added when there is a bidirectional relation
     if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()
         && getInfo().getRemovedDataRootInfo().isDefined()) {
-      if (tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
+      if (tableInfo.hasSoftDeleteFieldExcludingAppCommon()) {
         importMgr.add("org.hibernate.annotations.Filter", "org.hibernate.annotations.FilterDef");
 
       } else if (tableInfo.hasBidirectionalRelationRefColumn()) {
@@ -118,7 +119,7 @@ public abstract class EntityGen extends AbstractTableGen {
 
     // Import when using @Filter
     if (getInfo().getGroupRootInfo().isDefined()) {
-      if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
+      if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_APP_COMMON) {
         // When a common group definition exists, its filterDef is always output to systemCommon
         importMgr.add("org.hibernate.annotations.FilterDef", "org.hibernate.annotations.ParamDef",
             "org.hibernate.type.descriptor.java.*");
@@ -160,13 +161,11 @@ public abstract class EntityGen extends AbstractTableGen {
       // baseRecord
       importMgr.add(rootBasePackage + ".base.record." + tableNameCp + "BaseRecord");
 
-      importMgr.add("org.jspecify.annotations.NonNull");
-
-    } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
+    } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_APP_COMMON) {
       // Parent entity
       importMgr.add("jp.ecuacion.splib.jpa.entity.SplibEntity");
       // baseRecord
-      importMgr.add(rootBasePackage + ".base.record.SystemCommonBaseRecord");
+      importMgr.add(rootBasePackage + ".base.record.AppCommonBaseRecord");
       // auditing. Spring only. Not truly hardcoded to systemCommon, but simplified here.
       importMgr.add("org.springframework.data.jpa.domain.support.*");
     }
@@ -203,6 +202,26 @@ public abstract class EntityGen extends AbstractTableGen {
     // Output import statements. An extra RT is added to leave a blank line before the class
     // declaration.
     sb.append(importMgr.outputStr() + RT);
+  }
+
+  /**
+   * Returns {@code true} if the entity body being generated for {@code tableInfo} will contain
+   * code that actually needs {@code java.util.*} - namely {@code update()}'s
+   * {@code Arrays.asList}/{@code List<String>} for skipped field names (emitted whenever a
+   * non-relation column exists; see {@link #appendUpdate}), or a bidirectional one-to-many
+   * field (emitted as {@code List<Xxx>}; see {@link #appendField}).
+   */
+  private boolean needsJavaUtilImport(DbOrClassTableInfo tableInfo) {
+    List<DbOrClassColumnInfo> baseList =
+        tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly()).toList();
+
+    if (baseList.stream().anyMatch(ci -> !ci.isRelation())) {
+      return true;
+    }
+
+    return baseList.stream().filter(DbOrClassColumnInfo::hasBidirectionalRelationRef)
+        .flatMap(ci -> ci.getBidirectionalRelationRefInfoList().stream())
+        .anyMatch(info -> info.getRelationKind() == RelationKindEnum.ONE_TO_MANY);
   }
 
   private void auditingImport(ImportBlock importMgr, String springAuditing, String keyword,
@@ -259,7 +278,7 @@ public abstract class EntityGen extends AbstractTableGen {
   protected void getSoftDeleteAnnotationsString(StringBuilder sb, DbOrClassTableInfo tableInfo) {
     if (getInfo().getSysCmnRootInfo().isFrameworkKindSpring()
         && getInfo().getRemovedDataRootInfo().isDefined()
-        && tableInfo.hasSoftDeleteFieldExcludingSystemCommon()) {
+        && tableInfo.hasSoftDeleteFieldExcludingAppCommon()) {
       sb.append("@FilterDef(name = \"softDeleteFilter\", defaultCondition = \""
           + getInfo().getRemovedDataRootInfo().getColumnName() + " = false\")" + RT);
       sb.append("@Filter(name = \"softDeleteFilter\")" + RT);
@@ -300,8 +319,7 @@ public abstract class EntityGen extends AbstractTableGen {
             sb.append(T1 + "@OrderBy(\"id ASC\")" + RT);
           }
           // Filter condition required when referenced by a bidirectional relation
-          MiscSoftDeleteRootInfo softDeleteInfo =
-              getInfo().getRemovedDataRootInfo();
+          MiscSoftDeleteRootInfo softDeleteInfo = getInfo().getRemovedDataRootInfo();
           MiscGroupRootInfo groupInfo = getInfo().getGroupRootInfo();
           if (softDeleteInfo.isDefined()) {
             sb.append(T1 + "@Filter(name = \"softDeleteFilter\")" + RT);
@@ -349,9 +367,12 @@ public abstract class EntityGen extends AbstractTableGen {
       }
 
       String entityNameUp = StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable());
-      String fieldNameLw = ci.getEffectiveRelationObjVarName();
-      sb.append(T1 + "private " + StringUtils.capitalize(entityNameUp) + " " + fieldNameLw
-          + " = new " + StringUtils.capitalize(entityNameUp) + "();" + RT2);
+      String fieldNameLw = ci.getRelationFieldName();
+      // Deliberately left uninitialized (not "= new Xxx()"): a nullable relation left entirely
+      // unset (neither setXxx() nor setXxxId() called) must stay null, or Hibernate throws
+      // TransientPropertyValueException on flush for referencing an unsaved transient instance.
+      sb.append(
+          T1 + "private " + StringUtils.capitalize(entityNameUp) + " " + fieldNameLw + ";" + RT2);
 
     } else {
       // Normally private would suffice, but fields defined in EclibEntity (e.g. LST_UPD_TIME) are
@@ -362,65 +383,22 @@ public abstract class EntityGen extends AbstractTableGen {
   }
 
   /**
-   * Appends FIELD_xxx static constant declarations for all non-Java-only columns.
+   * Appends a nested {@code Fields} class holding a String constant per non-Java-only column.
+   *
+   * <p>Deliberately not {@code final}: the corresponding record's {@code Fields} class (see
+   * {@code AbstractBaseRecordGen#generateFieldNameCommon}) extends this one to add its
+   * java-only fields.</p>
    *
    * @param tableNameCp Required only for Entity and Pk entity kinds; may be null otherwise.
    */
   protected void appendFieldName(StringBuilder sb, String tableNameCp,
       DbOrClassTableInfo tableInfo) {
-    sb.append(T1 + "// ID" + RT);
+    sb.append(T1 + "public static class Fields {" + RT);
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
         .toList()) {
-      sb.append(T1 + "public static final String FIELD_" + colInfo.getName() + " = \""
+      sb.append(T2 + "public static final String " + colInfo.getName() + " = \""
           + StringUtil.getLowerCamelFromSnake(colInfo.getName()) + "\";" + RT);
     }
-
-    sb.append(RT);
-  }
-
-  /** Appends the getFieldNameArr() override method listing all field names as a String array. */
-  protected void appendFieldNameArr(StringBuilder sb, DbOrClassTableInfo tableInfo,
-      String entityNameCp, boolean isInGetPkOfSurrogateKeyStrategyEntity) {
-    // Not generated for systemCommon
-    if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_SYSTEM_COMMON) {
-      return;
-    }
-
-    sb.append(T1 + "@Override" + RT);
-    sb.append(T1 + "public String[] getFieldNameArr() {" + RT);
-    sb.append(T2 + "return new String[] {");
-
-    // This list also displays dbCommon columns, so merge them in advance
-    ArrayList<DbOrClassColumnInfo> arr = new ArrayList<>();
-    arr.addAll(tableInfo.columnList);
-    if (getInfo().getDbCommonRootInfo() != null) {
-      arr.addAll(getInfo().getDbCommonRootInfo().tableList.get(0).columnList.stream()
-          .filter(e -> !e.getIsJavaOnly()).toList());
-    }
-
-    boolean isFirst = true;
-    for (DbOrClassColumnInfo ci : arr) {
-      // Inside getPk() of a surrogateKeyStrategy BODY, only PK fields are listed, so skip non-PK
-      // columns
-      if (isInGetPkOfSurrogateKeyStrategyEntity && !ci.isPk()) {
-        continue;
-      }
-
-      // For entityPk, only PK fields are generated
-      if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY) {
-
-        if (isFirst) {
-          isFirst = false;
-
-        } else {
-          sb.append(", ");
-        }
-
-        sb.append("\"" + StringUtil.getLowerCamelFromSnake(ci.getName()) + "\"");
-      }
-    }
-
-    sb.append("};" + RT);
     sb.append(T1 + "}" + RT2);
   }
 
@@ -438,7 +416,7 @@ public abstract class EntityGen extends AbstractTableGen {
 
     // Deliberately using the name without "Pk" so that "Pk" is not inserted before "BaseRecord"
     sb.append(T1 + "public " + entityNameCp + "("
-        + (this instanceof SystemCommonGen ? "SystemCommon"
+        + (this instanceof AppCommonGen ? "AppCommon"
             : StringUtil.getUpperCamelFromSnake(ti.getName()))
         + "BaseRecord rec" + args(ti) + ") {" + RT);
     sb.append(T2 + "super("
@@ -498,6 +476,28 @@ public abstract class EntityGen extends AbstractTableGen {
     sb.append(T1 + "}" + RT2);
   }
 
+  /**
+   * Returns the extra constructor / {@code update()} parameters for columns that cannot be
+   * populated from the record: relation columns (which need the actual related entity, not just
+   * an id) and non-audited {@code DATE_TIME}/{@code TIMESTAMP} columns.
+   *
+   * <p>Entities are built from a record mainly on new-registration, where the record holds
+   *     user-input values. It is rare for a business requirement to need the user's own input
+   *     copied verbatim into a timestamp column; far more often the server sets "now" at the
+   *     moment the action happens (e.g. a "downloaded at" column set when a download button is
+   *     clicked, not typed into a form). Converting a record's browser/locale-formatted
+   *     date-time string back into a {@code LocalDateTime}/{@code OffsetDateTime} is also
+   *     awkward (timezone handling, format parsing), and that conversion is rarely needed in
+   *     practice. So rather than wiring every {@code DATE_TIME}/{@code TIMESTAMP} column through
+   *     the record, the caller is expected to pass the value explicitly (typically {@code
+   *     XxxDateTime.now()}). On the rare occasion a user-specified date-time genuinely must be
+   *     used, the caller can parse the record's string value into the right type by hand and
+   *     pass it here.</p>
+   *
+   * <p>{@code DATE} columns (e.g. a user-picked business date) are not affected by this and are
+   *     still populated from the record as usual - only {@code DATE_TIME}/{@code TIMESTAMP} get
+   *     this treatment.</p>
+   */
   private String args(DbOrClassTableInfo ti) {
     List<DbOrClassColumnInfo> baseList = ti.columnList.stream().filter(ci -> !ci.getIsJavaOnly())
         .filter(ci -> StringUtils.isEmpty(ci.getSpringAuditing())).toList();
@@ -511,8 +511,7 @@ public abstract class EntityGen extends AbstractTableGen {
 
     StringBuilder relString = new StringBuilder();
     baseList.stream().filter(e -> e.isRelation()).forEach(ci -> relString.append(
-        ", " + code.capitalCamel(ci.getRelationRefTable()) + " "
-            + ci.getEffectiveRelationObjVarName()));
+        ", " + code.capitalCamel(ci.getRelationRefTable()) + " " + ci.getRelationFieldName()));
 
     return dateTimeString.toString() + relString.toString();
   }
@@ -540,19 +539,21 @@ public abstract class EntityGen extends AbstractTableGen {
     List<DbOrClassColumnInfo> baseList =
         ti.columnList.stream().filter(e -> !e.getIsJavaOnly()).toList();
 
-    // if (uploadedDateTime != null && !skipUpdateFieldList.contains(FIELD_UPLOADED_DATETIME))
+    // if (uploadedDateTime != null && !skipUpdateFieldList.contains(Fields.UPLOADED_DATETIME))
     // setUploadedDatetime(uploadedDateTime);
     for (DbOrClassColumnInfo ci : baseList) {
       String fieldName = code.uncapitalCamel(ci.getName());
       String updString =
-          !isUpdate ? "" : " && !skipUpdateFieldList.contains(FIELD_" + ci.getName() + ")";
+          !isUpdate ? "" : " && !skipUpdateFieldList.contains(Fields." + ci.getName() + ")";
       if (ci.isRelation()) {
-        String name = ci.getEffectiveRelationObjVarName();
+        String name = ci.getRelationFieldName();
         sb.append(T2 + "if (" + name + " != null) set"
-            + StringUtils.capitalize(ci.getEffectiveRelationObjVarName()) + "(" + name + ");" + RT);
+            + StringUtils.capitalize(ci.getRelationFieldName()) + "(" + name + ");" + RT);
 
       } else if (ci.getDtInfo().getKata() == DataTypeKataEnum.DATE_TIME
           || ci.getDtInfo().getKata() == DataTypeKataEnum.TIMESTAMP) {
+        // Populated from the extra constructor/update() parameter, not from the record - see the
+        // javadoc on args() for why.
         sb.append(T2 + "if (" + fieldName + " != null" + updString + ") "
             + code.set(fieldName, fieldName) + ";" + RT);
 
@@ -577,26 +578,32 @@ public abstract class EntityGen extends AbstractTableGen {
       sb.append(T1 + "public " + code.getJavaKata(ci) + " get" + columnNameCp + "() {" + RT);
       sb.append(T2 + "return "
           + (ci.isRelation()
-              ? ci.getEffectiveRelationObjVarName() + " == null ? null : "
-                  + ci.getEffectiveRelationObjVarName() + ".get" + relFieldName + "()"
+              ? ci.getRelationFieldName() + " == null ? null : " + ci.getRelationFieldName()
+                  + ".get" + relFieldName + "()"
               : columnNameSm)
           + ";" + RT);
       sb.append(T1 + "}" + RT2);
 
       sb.append(T1 + "public void set" + columnNameCp + "(" + getEnumConsideredKata(ci) + " "
           + columnNameSm + ") {" + RT);
-      sb.append(T2 + "this."
-          + (ci.isRelation()
-              ? ci.getEffectiveRelationObjVarName() + ".set" + relFieldName + "(" + columnNameSm
-                  + ")"
-              : columnNameSm + " = " + columnNameSm)
-          + ";" + RT);
+      if (ci.isRelation()) {
+        String relFieldNameLocal = ci.getRelationFieldName();
+        String relEntityNameUp = StringUtil.getUpperCamelFromSnake(ci.getRelationRefTable());
+        sb.append(T2 + "if (this." + relFieldNameLocal + " == null) {" + RT);
+        sb.append(T3 + "this." + relFieldNameLocal + " = new "
+            + StringUtils.capitalize(relEntityNameUp) + "();" + RT);
+        sb.append(T2 + "}" + RT2);
+        sb.append(T2 + "this." + relFieldNameLocal + ".set" + relFieldName + "(" + columnNameSm
+            + ");" + RT);
+      } else {
+        sb.append(T2 + "this." + columnNameSm + " = " + columnNameSm + ";" + RT);
+      }
       sb.append(T1 + "}" + RT2);
 
       if (ci.isRelation()) {
         // For relation columns, also provide an accessor for the field representing the entity
         // itself
-        appendAccessorForRelation(sb, relEntityName, ci.getEffectiveRelationObjVarName(), null);
+        appendAccessorForRelation(sb, relEntityName, ci.getRelationFieldName(), null);
       }
 
       if (ci.hasBidirectionalRelationRef()) {
@@ -640,14 +647,14 @@ public abstract class EntityGen extends AbstractTableGen {
    * values.
    */
   protected void appendAutoInsertOrUpdateGen(StringBuilder sb, DbOrClassTableInfo tableInfo,
-      boolean isUpdate, boolean isFromSystemCommon) {
+      boolean isUpdate, boolean isFromAppCommon) {
 
     // If there are no target fields at all, skip generating this method, so check that first.
-    // SystemCommon is the exception: it must always define preInsert()/preUpdate(), because
+    // AppCommon is the exception: it must always define preInsert()/preUpdate(), because
     // every per-table entity that needs one unconditionally calls super.preInsert() /
-    // super.preUpdate() (see the isFromSystemCommon branch below), which would fail to compile
-    // if the method didn't exist on SystemCommon.
-    boolean needsMethod = isFromSystemCommon;
+    // super.preUpdate() (see the isFromAppCommon branch below), which would fail to compile
+    // if the method didn't exist on AppCommon.
+    boolean needsMethod = isFromAppCommon;
     for (DbOrClassColumnInfo colInfo : tableInfo.columnList) {
       boolean bl = needsAutoInsertOrUpdate(colInfo, isUpdate);
       if (bl) {
@@ -664,9 +671,9 @@ public abstract class EntityGen extends AbstractTableGen {
     sb.append(T1 + (isUpdate ? "@PreUpdate" : "@PrePersist") + RT);
     sb.append(T1 + "public void " + (isUpdate ? "preUpdate" : "preInsert") + "() {" + RT);
 
-    // When not called from SystemCommon, include a call to the same method in SystemCommon.
-    // Note: the case where SystemCommon has no prePersist / preUpdate is not yet handled.
-    if (!isFromSystemCommon) {
+    // When not called from AppCommon, include a call to the same method in AppCommon.
+    // Note: the case where AppCommon has no prePersist / preUpdate is not yet handled.
+    if (!isFromAppCommon) {
       sb.append(T2 + "// Calling super here because overriding @PrePersist / @PreUpdate "
           + "in a subclass would prevent the parent class method from being invoked." + RT);
       sb.append(T2 + "super." + (isUpdate ? "preUpdate" : "preInsert") + "();" + RT2);
@@ -686,8 +693,8 @@ public abstract class EntityGen extends AbstractTableGen {
             + " = Enum.FALSE;" + RT);
 
       } else if (dtInfo.getKata() == DataTypeKataEnum.BOOLEAN) {
-        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName
-            + " = false;" + RT);
+        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = false;"
+            + RT);
 
       } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
           || dtInfo.getKata() == DataTypeKataEnum.DATE_TIME) {
@@ -767,47 +774,6 @@ public abstract class EntityGen extends AbstractTableGen {
     mergedList.addAll(commonColumnList);
 
     return mergedList;
-  }
-
-  /**
-    * Generates the hasSoftDeleteField() method indicating whether the entity holds a soft delete
-    * flag column.
-   *
-   * <p>When the entity has the soft delete column the method returns true; when the column is in a
-   * different class (e.g. SystemCommon), the method is generated as abstract (called from
-   * SystemCommon) or omitted (called from a per-table entity).
-   * </p>
-   * <ul>
-    * <li>1-1. Called from SystemCommon AND soft delete used AND column not present: abstract
-    * definition.</li>
-    * <li>1-2. Not called from SystemCommon AND soft delete used AND column not present: no
-    * output.</li>
-   * <li>2. Soft delete used AND column present: returns true.</li>
-   * <li>3. Otherwise: returns false.</li>
-   * </ul>
-   */
-  protected void appendHasSoftDeleteFieldGen(StringBuilder sb, DbOrClassTableInfo tableInfo,
-      boolean isCallFromSystemCommon) {
-    MiscSoftDeleteRootInfo softDeleteRootInfo = java.util.Objects.requireNonNull(
-        (MiscSoftDeleteRootInfo) getInfo().getRootInfoMap().get(DataKindEnum.MISC_REMOVED_DATA),
-        "MISC_REMOVED_DATA must be populated");
-    String colName = softDeleteRootInfo.getColumnName();
-    boolean usesSoftDelete = colName != null && !colName.equals("");
-
-    boolean containsSoftDeleteField = tableInfo.columnList.stream().map(e -> e.getName())
-        .collect(Collectors.toList()).contains(colName);
-
-    if (usesSoftDelete && !containsSoftDeleteField) {
-      if (isCallFromSystemCommon) {
-        sb.append(T1 + "public abstract boolean hasSoftDeleteField();" + RT);
-      }
-
-    } else {
-      sb.append(T1 + "public boolean hasSoftDeleteField() {" + RT);
-      sb.append(T2 + "return " + (usesSoftDelete && containsSoftDeleteField ? "true" : "false")
-          + ";" + RT);
-      sb.append(T1 + "}" + RT);
-    }
   }
 
   /**

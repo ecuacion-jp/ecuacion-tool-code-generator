@@ -28,15 +28,15 @@ import jp.ecuacion.tool.codegenerator.core.generator.config.ConfigGen;
 import jp.ecuacion.tool.codegenerator.core.generator.constant.ConstantGen;
 import jp.ecuacion.tool.codegenerator.core.generator.dao.DaoGen;
 import jp.ecuacion.tool.codegenerator.core.generator.datatype.DataTypeGen;
+import jp.ecuacion.tool.codegenerator.core.generator.entity.AppCommonGen;
 import jp.ecuacion.tool.codegenerator.core.generator.entity.EntityBodyGen;
-import jp.ecuacion.tool.codegenerator.core.generator.entity.SystemCommonGen;
 import jp.ecuacion.tool.codegenerator.core.generator.enums.EnumGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.ItemNamesPropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.MessagesBasePropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.TableListPropertiesGen;
 import jp.ecuacion.tool.codegenerator.core.generator.propertiesfile.ValidationMessagesPatternDescriptionsGen;
+import jp.ecuacion.tool.codegenerator.core.generator.record.AppCommonBaseRecordGen;
 import jp.ecuacion.tool.codegenerator.core.generator.record.PerTableBaseRecordGen;
-import jp.ecuacion.tool.codegenerator.core.generator.record.SystemCommonBaseRecordGen;
 import jp.ecuacion.tool.codegenerator.core.generator.util.JpaFilterUtilGen;
 
 /** Orchestrates all code-generation steps for a single system. */
@@ -65,8 +65,8 @@ public class GenerationBlf {
     SplibLogUtil.info(log, "Collecting generators.", 2);
     List<AbstractGen> arrGen = new ArrayList<AbstractGen>();
     arrGen.add(new ConstantGen());
-    arrGen.add(new SystemCommonBaseRecordGen());
-    arrGen.add(new SystemCommonGen());
+    arrGen.add(new AppCommonBaseRecordGen());
+    arrGen.add(new AppCommonGen());
     arrGen.add(new BlGen());
     arrGen.add(new ValidationMessagesPatternDescriptionsGen());
 

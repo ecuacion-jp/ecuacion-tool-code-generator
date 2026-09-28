@@ -80,16 +80,17 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
    * Iterates over the table list, generates each record source file, and writes it to the output
    * directory.
    */
-  protected void internalGenerate(List<DbOrClassTableInfo> tiList, boolean isSystemCommon) {
+  protected void internalGenerate(List<DbOrClassTableInfo> tiList, boolean isAppCommon) {
     for (DbOrClassTableInfo ti : tiList) {
       sb = new StringBuilder();
 
       generateHeader(ti);
       generateFieldsCommon(ti);
+      generateFieldNameCommon(ti, isAppCommon ? "AppCommon" : ti.getNameCpCamel());
       generateStaticInitializerCommon(ti);
       generateConstNoArgsCommon(ti);
-      generateConstEntityArgCommon(ti, isSystemCommon);
-      createConstRecArgCommon(ti, isSystemCommon);
+      generateConstEntityArgCommon(ti, isAppCommon);
+      createConstRecArgCommon(ti, isAppCommon);
       createAccessorCommon(ti);
       createListsForHtmlSelectCommon(ti);
       generateMethods(ti);
@@ -158,6 +159,26 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     sb.append(RT);
   }
 
+  /**
+   * Appends a nested {@code Fields} class extending the corresponding entity's {@code Fields},
+   * adding a String constant per java-only column (a column that exists only on the record, not
+   * on the entity, e.g. {@code createUserName}). Columns shared with the entity are not
+   * redeclared here: they are already available through the extended entity {@code Fields}.
+   *
+   * @param entityClassName simple name of the entity class this record is generated from (e.g.
+   *     {@code "AppCommon"} or {@code "DriveRecord"}); already imported by {@code
+   *     generateHeaderCommon}.
+   */
+  protected void generateFieldNameCommon(DbOrClassTableInfo ti, String entityClassName) {
+    sb.append(
+        T1 + "public static final class Fields extends " + entityClassName + ".Fields {" + RT);
+    for (DbOrClassColumnInfo ci : ti.columnList.stream().filter(e -> e.getIsJavaOnly()).toList()) {
+      sb.append(T2 + "public static final String " + ci.getName() + " = \""
+          + StringUtil.getLowerCamelFromSnake(ci.getName()) + "\";" + RT);
+    }
+    sb.append(T1 + "}" + RT2);
+  }
+
   private void fieldDefinition(DbOrClassColumnInfo ci) {
     final String refEnName =
         ci.getRelationRefTable() == null ? null : ci.getRelationRefTableCamel();
@@ -170,7 +191,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     }
 
     String rel =
-        StringUtils.capitalize(refEnName) + "BaseRecord " + ci.getEffectiveRelationObjVarName();
+        StringUtils.capitalize(refEnName) + "BaseRecord " + ci.getRelationFieldName();
     sb.append(
         T1 + "protected " + (ci.isRelation() ? rel : kata + " " + ci.getNameCamel()) + ";" + RT);
 
@@ -236,7 +257,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
 
     for (DbOrClassColumnInfo ci : ti.columnList) {
       if (ci.isRelation()) {
-        sb.append(T3 + ci.getEffectiveRelationObjVarName() + " = new "
+        sb.append(T3 + ci.getRelationFieldName() + " = new "
             + StringUtils.capitalize(ci.getRelationRefTableCamel()) + "BaseRecord("
             + (getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs() ? "count"
                 : "")
@@ -262,13 +283,13 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
    * Generates the entity-argument constructor that copies entity field values into the record, with
    * relation support.
    */
-  public void generateConstEntityArgCommon(DbOrClassTableInfo ti, boolean isSystemCommon) {
+  public void generateConstEntityArgCommon(DbOrClassTableInfo ti, boolean isAppCommon) {
     boolean bl = ti.hasAnyRelationsOrRefs();
 
     sb.append(T1 + "public " + ti.getNameCpCamel() + "BaseRecord(" + ti.getNameCpCamel()
         + " e, DatetimeFormatParameters params) {" + RT);
     sb.append(T2 + (bl ? "this(e, params, " + Constants.OBJECT_CONSTRUCTION_COUNT + ")"
-        : "super(" + (isSystemCommon ? "" : "e, ") + "params)") + ";" + RT);
+        : "super(" + (isAppCommon ? "" : "e, ") + "params)") + ";" + RT);
 
     if (!bl) {
       insideConstEntityArg(ti, false);
@@ -343,14 +364,14 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       if (ci.isRelation()) {
         sb.append(
             isCalledFromB2
-                ? T2 + "if (count > 0 && e.get" + ci.getEffectiveRelationObjVarNameCp()
+                ? T2 + "if (count > 0 && e.get" + ci.getRelationFieldNameCp()
                     + "() != null) {" + RT
                 : "");
 
         boolean hasRel = getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs();
-        sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getEffectiveRelationObjVarName()
+        sb.append((isCalledFromB2 ? T3 : T2) + "this." + ci.getRelationFieldName()
             + " = new " + ci.getRelationRefTableCpCamel() + "BaseRecord(e.get"
-            + ci.getEffectiveRelationObjVarNameCp() + "(), params" + (hasRel ? ", count" : "")
+            + ci.getRelationFieldNameCp() + "(), params" + (hasRel ? ", count" : "")
             + ") {public Item[] customizedItems() {return null;}};" + RT);
 
         sb.append(isCalledFromB2 ? T2 + "}" + RT : "");
@@ -382,14 +403,14 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
    * Generates a copy constructor that clones all fields from another record instance, with relation
    * support.
    */
-  protected void createConstRecArgCommon(DbOrClassTableInfo ti, boolean isSystemCommon) {
+  protected void createConstRecArgCommon(DbOrClassTableInfo ti, boolean isAppCommon) {
 
     boolean bl = ti.hasAnyRelationsOrRefs();
 
     sb.append(T1 + "public " + ti.getNameCpCamel() + "BaseRecord(" + ti.getNameCpCamel()
         + "BaseRecord rec) {" + RT);
     sb.append(T2 + (bl ? "this(rec, " + Constants.OBJECT_CONSTRUCTION_COUNT + ")"
-        : "super(rec" + (isSystemCommon ? ".getDateTimeFormatParams()" : "") + ")") + ";" + RT);
+        : "super(rec" + (isAppCommon ? ".getDateTimeFormatParams()" : "") + ")") + ";" + RT);
 
     if (!bl) {
       insideConstRecArg(ti);
@@ -421,7 +442,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       String lefthand = "rec.get" + ci.getNameCpCamel();
 
       if (ci.isRelation()) {
-        sb.append(T2 + "this." + ci.getEffectiveRelationObjVarName() + " = new "
+        sb.append(T2 + "this." + ci.getRelationFieldName() + " = new "
             + ci.getRelationRefTableCpCamel() + "BaseRecord("
             + (getInfo().getTableInfo(ci.getRelationRefTable()).hasAnyRelationsOrRefs() ? "count"
                 : "")
@@ -439,7 +460,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     for (DbOrClassColumnInfo ci : tableInfo.columnList) {
       String fiName = ci.getNameCamel();
       String fiNameCp = ci.getNameCpCamel();
-      String relFiName = ci.getEffectiveRelationObjVarName();
+      String relFiName = ci.getRelationFieldName();
       String relRefColNameCp =
           ci.getRelationRefCol() == null ? null : ci.getRelationRefColCpCamel();
 
