@@ -149,10 +149,14 @@ public class BlGen extends AbstractGen {
   }
 
   private void getFindAndOptimisticLockingCheckRec(DbOrClassTableInfo ti, String entityNameCp) {
+    if (!ti.hasVersionColumnIncludingAppCommon()) {
+      return;
+    }
 
-    // The version to check against comes from the record's own live "version" field via
-    // getVersionOfEntityDataType(). Unlike a nested relation's live id field - which stays
-    // untouched unless it's also the PK-delegation target - every record's live version field is
+    // The version to check against comes from the record's own live version field via its
+    // getXxxOfEntityDataType() (Xxx being the version column name defined in the Excel). Unlike a
+    // nested relation's live id field - which stays untouched unless it's also the PK-delegation
+    // target - every record's live version field is
     // kept in sync with the screen round trip by the generated setOptimisticLockVersions()
     // override (see PerTableBaseRecordGen), so it's always safe to read here, whether rec is a
     // stand-alone record or a nested relation of another record.
@@ -160,7 +164,7 @@ public class BlGen extends AbstractGen {
         + "BaseRecord rec) {" + RT);
     sb.append(T2 + "return findAndOptimisticLockingCheck(rec.get"
         + code.capitalCamel(ti.getPkColumn().getName()) + "OfEntityDataType(), "
-        + "rec.getVersionOfEntityDataType());" + RT);
+        + "rec." + code.getOfEntityDataType(ti.getVersionColumnIncludingAppCommon()) + ");" + RT);
     sb.append(T1 + "}" + RT2);
   }
 
