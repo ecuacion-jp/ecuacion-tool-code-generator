@@ -64,6 +64,18 @@ public class EntityBodyGen extends EntityGen {
     appendImport(sb, tableInfo);
 
     // Class definition
+    // The entity class is not declared "final" because the Jakarta Persistence specification
+    // prohibits it and Hibernate cannot create lazy-loading proxies for final classes.
+    sb.append("/**" + RT);
+    sb.append(" * Entity class for table {@code " + tableInfo.getName() + "}." + RT);
+    sb.append(" *" + RT);
+    sb.append(" * <p>This class is not intended to be extended. It is not declared {@code final}"
+        + RT);
+    sb.append(" * only because the Jakarta Persistence specification prohibits final entity"
+        + RT);
+    sb.append(" * classes (persistence providers subclass entities to create lazy-loading"
+        + " proxies).</p>" + RT);
+    sb.append(" */" + RT);
     sb.append("@Entity" + RT);
     sb.append(tableInfo.getTableAnnotationString(tableInfo) + RT);
 
@@ -86,7 +98,7 @@ public class EntityBodyGen extends EntityGen {
     // When using soft delete
     getSoftDeleteAnnotationsString(sb, tableInfo);
 
-    sb.append("public final class " + entityNameCp
+    sb.append("public class " + entityNameCp
         + " extends AppCommon implements Serializable {" + RT2);
 
     appendSerialVersionUid(sb);
