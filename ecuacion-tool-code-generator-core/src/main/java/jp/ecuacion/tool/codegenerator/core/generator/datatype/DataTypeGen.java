@@ -97,13 +97,25 @@ public class DataTypeGen extends AbstractGen {
       sb.append("package " + rootBasePackage + ".base.converter;" + RT2);
       sb.append("import jakarta.persistence.AttributeConverter;" + RT);
       sb.append("import jakarta.persistence.Converter;" + RT);
-      sb.append("import jp.ecuacion.lib.core.util.EnumUtil;" + RT2);
+      sb.append("import java.util.Arrays;" + RT);
+      sb.append("import java.util.Map;" + RT);
+      sb.append("import java.util.stream.Collectors;" + RT2);
       sb.append("import " + rootPackage + ".base.enums." + dataTypeName + "Enum;" + RT2);
 
       // Enum to String conversion
       sb.append("@Converter(autoApply = true)" + RT);
       sb.append("public class " + dataTypeName + "Converter implements AttributeConverter<"
           + dataTypeName + "Enum, " + dbKata + "> {" + RT2);
+
+      // Map of code to enum value.
+      // EnumUtil.getEnumFromCode could also be used to obtain the enum value from the code,
+      // but it is slow because it obtains display names from properties files on every call.
+      // Since convertToEntityAttribute is called for every record (it took about 35 seconds
+      // to load 10,000 records), the conversion is processed individually with this map.
+      sb.append(T1 + "private static final Map<String, " + dataTypeName + "Enum> CODE_MAP ="
+          + RT);
+      sb.append(T3 + "Arrays.stream(" + dataTypeName + "Enum.values()).collect(Collectors.toMap("
+          + dataTypeName + "Enum::getCode, e -> e));" + RT2);
       sb.append(T1 + "@Override" + RT);
       sb.append(T1 + "public " + dbKata + " convertToDatabaseColumn(" + dataTypeName + "Enum obj) {"
           + RT);
@@ -117,8 +129,15 @@ public class DataTypeGen extends AbstractGen {
       sb.append(T2 + "// As long as the DB value is valid no issue will occur, "
           + "so any problem here is a programming bug and an unchecked exception is appropriate."
           + RT);
-      sb.append(T2 + "return obj == null ? null : EnumUtil.getEnumFromCode(" + dataTypeName
-          + "Enum.class, obj);" + RT);
+      sb.append(T2 + "if (obj == null) {" + RT);
+      sb.append(T3 + "return null;" + RT);
+      sb.append(T2 + "}" + RT2);
+      sb.append(T2 + dataTypeName + "Enum anEnum = CODE_MAP.get(obj);" + RT);
+      sb.append(T2 + "if (anEnum == null) {" + RT);
+      sb.append(T3 + "throw new RuntimeException(\"Enum: " + dataTypeName
+          + "Enum doesn't have the code. (code : \" + obj + \")\");" + RT);
+      sb.append(T2 + "}" + RT2);
+      sb.append(T2 + "return anEnum;" + RT);
       sb.append(T1 + "}" + RT);
       sb.append("}" + RT);
 
