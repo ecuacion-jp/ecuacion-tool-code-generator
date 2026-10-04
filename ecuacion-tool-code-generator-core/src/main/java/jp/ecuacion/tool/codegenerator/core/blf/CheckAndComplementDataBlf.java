@@ -207,7 +207,7 @@ public class CheckAndComplementDataBlf {
           }
           relRefInfoList.add(new DbOrClassColumnInfo.RelationRefInfo(ci.isRelationBidirectinal(),
               relationKind.getInverse(), ci.getRelationRefTable(), ci.getRelationRefCol(),
-              ci.getRelationRefFieldName(), ti.getName(),
+              ci.getRelationRefFieldName(), ci.getRelationRefItemNameKeyClass(), ti.getName(),
               StringUtil.getLowerCamelFromSnake(ci.getName()),
               ci.getRelationFieldName()));
         }

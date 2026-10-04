@@ -141,6 +141,11 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
         imp.add("jakarta.validation.Valid");
       }
 
+      // Add @ItemNameKeyClass import when it's specified to relation fields
+      if (ti.columnList.stream().anyMatch(DbOrClassColumnInfo::hasRelationItemNameKeyClass)) {
+        imp.add(ITEM_NAME_KEY_CLASS_IMPORT);
+      }
+
       // Add imports for columns referred by bidirectional relation.
       ti.columnList.stream().filter(ci -> ci.hasBidirectionalRelationRef())
           .map(ci -> ci.getBidirectionalRelationRefInfoList()).flatMap(l -> l.stream())
@@ -188,6 +193,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
 
     if (ci.isRelation()) {
       sb.append(T1 + "@Valid" + RT);
+      appendItemNameKeyClass(ci.getRelationItemNameKeyClass());
     }
 
     String rel =
@@ -198,6 +204,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     // Add method for bidirectional relation if the column has it.
     for (RelationRefInfo info : ci.getBidirectionalRelationRefInfoList()) {
       sb.append(T1 + "@Valid" + RT);
+      appendItemNameKeyClass(info.getDstItemNameKeyClassToReferOrgTable());
       boolean is1To1 = info.getRelationKind() == RelationKindEnum.ONE_TO_ONE;
       String recKata = is1To1 ? info.getOrgTableNameCpCamel() + "BaseRecord"
           : "List<" + info.getOrgTableNameCpCamel() + "BaseRecord>";
