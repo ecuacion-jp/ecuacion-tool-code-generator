@@ -148,6 +148,12 @@ public abstract class EntityGen extends AbstractTableGen {
       }
     }
 
+    // When @ItemNameKeyClass is specified to relation fields
+    if (tableInfo.columnList.stream().filter(ci -> !ci.getIsJavaOnly())
+        .anyMatch(DbOrClassColumnInfo::hasRelationItemNameKeyClass)) {
+      importMgr.add(ITEM_NAME_KEY_CLASS_IMPORT);
+    }
+
     // When using relations
     if (tableInfo.hasRelationColumn()) {
       importMgr.add("jakarta.validation.*");
@@ -327,6 +333,7 @@ public abstract class EntityGen extends AbstractTableGen {
           if (groupInfo.isDefined()) {
             sb.append(T1 + "@Filter(name = \"groupFilter\")" + RT);
           }
+          appendItemNameKeyClass(info.getDstItemNameKeyClassToReferOrgTable());
 
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
             sb.append(T1 + "protected " + StringUtils.capitalize(refEntityNameLw) + " "
@@ -354,6 +361,7 @@ public abstract class EntityGen extends AbstractTableGen {
           java.util.Objects.requireNonNull(ci.getRelationKind(),
               "isRelation() guarantees getRelationKind() is non-null");
       sb.append(T1 + "@Valid" + RT);
+      appendItemNameKeyClass(ci.getRelationItemNameKeyClass());
       sb.append(T1 + relationKind.getName() + "(fetch = FetchType."
           + (ci.getRelationIsEager() ? "EAGER" : "LAZY") + ", cascade = {CascadeType.DETACH})"
           + RT);
