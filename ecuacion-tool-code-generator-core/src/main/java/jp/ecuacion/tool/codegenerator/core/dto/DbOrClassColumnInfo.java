@@ -53,8 +53,11 @@ import org.jspecify.annotations.Nullable;
     propertyPath = {"relationDirection", "relationFieldName", "relationRefTable", "relationRefCol"},
     conditionPropertyPath = "relationKind", conditionValueState = EMPTY,
     conditionOperator = NOT_EQUAL_TO, emptyWhenConditionNotSatisfied = true)
-@EmptyWhen(propertyPath = "relationRefFieldName", conditionPropertyPath = "relationDirection",
-    conditionOperator = NOT_EQUAL_TO, conditionValueString = "bidirectional")
+@EmptyWhen(propertyPath = "relationItemNameKeyClass", conditionPropertyPath = "relationKind",
+    conditionValueState = EMPTY)
+@EmptyWhen(propertyPath = {"relationRefFieldName", "relationRefItemNameKeyClass"},
+    conditionPropertyPath = "relationDirection", conditionOperator = NOT_EQUAL_TO,
+    conditionValueString = "bidirectional")
 @EmptyWhen(propertyPath = "relationIsEager", conditionPropertyPath = "relationKind",
     conditionValueState = EMPTY)
 @NotEmptyWhen(propertyPath = "supportedLang1",
@@ -118,9 +121,11 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
   private String relationKind;
   private String relationDirection;
   private String relationFieldName;
+  private String relationItemNameKeyClass;
   private String relationRefTable;
   private String relationRefCol;
   private String relationRefFieldName;
+  private String relationRefItemNameKeyClass;
   private String relationIsEager;
 
   private String index1;
@@ -160,8 +165,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
         "isForcedIncrement",
         "isAutoUpdate", "isForcedUpdate", "isCustomGroupColumn", "springAuditing", "relationKind",
         "relationDirection",
-        "relationFieldName", "relationRefTable", "relationRefCol", "relationRefFieldName",
-        "relationIsEager",
+        "relationFieldName", "relationItemNameKeyClass", "relationRefTable", "relationRefCol",
+        "relationRefFieldName", "relationRefItemNameKeyClass", "relationIsEager",
         "index1", "index2", "index3", "index4", "index5", "index6", "index7", "index8", "index9",
         "index10", null, "userFriendlyName", "supportedLang1",
         "supportedLang2", "supportedLang3"
@@ -221,7 +226,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
         ReaderUtil.booleanToBoolStr(ci.isAutoUpdate()),
         ReaderUtil.booleanToBoolStr(ci.isForcedUpdate()),
         ReaderUtil.booleanToBoolStr(ci.isCustomGroupColumn()), ci.getSpringAuditing(), "", "", "",
-        "", "", "", "", ci.getIndex1() == null ? null : ci.getIndex1().toString(),
+        "", "", "", "", "", "", ci.getIndex1() == null ? null : ci.getIndex1().toString(),
         ci.getIndex2() == null ? null : ci.getIndex2().toString(),
         ci.getIndex3() == null ? null : ci.getIndex3().toString(),
         ci.getIndex4() == null ? null : ci.getIndex4().toString(),
@@ -382,6 +387,10 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
     return StringUtils.capitalize(relationFieldName);
   }
 
+  public String getRelationItemNameKeyClass() {
+    return relationItemNameKeyClass;
+  }
+
   public String getRelationRefTable() {
     return relationRefTable;
   }
@@ -404,6 +413,20 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
 
   public String getRelationRefFieldName() {
     return relationRefFieldName;
+  }
+
+  public String getRelationRefItemNameKeyClass() {
+    return relationRefItemNameKeyClass;
+  }
+
+  /**
+   * Returns {@code true} if {@code @ItemNameKeyClass} is specified for this column's relation
+   *     field or for any field referring back to this column through a bidirectional relation.
+   */
+  public boolean hasRelationItemNameKeyClass() {
+    return (isRelation() && StringUtils.isNotEmpty(relationItemNameKeyClass))
+        || getBidirectionalRelationRefInfoList().stream()
+            .anyMatch(info -> StringUtils.isNotEmpty(info.getDstItemNameKeyClassToReferOrgTable()));
   }
 
   public boolean getRelationIsEager() {
@@ -555,6 +578,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
     private String dstTableName;
     private String dstColumnName;
     private String dstFieldNameToReferOrgTable;
+    private String dstItemNameKeyClassToReferOrgTable;
     private String orgTableName;
     private String orgFieldName;
     private String orgFieldNameToReferDst;
@@ -564,12 +588,14 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
     /** Constructs a relation-reference info with all required relationship metadata. */
     public RelationRefInfo(boolean isBidirectional, RelationKindEnum relationKind,
         String dstTableName, String dstColumnName, String dstFieldNameToReferOrgTable,
-        String orgTableName, String orgFieldName, String orgFieldNameToReferDst) {
+        String dstItemNameKeyClassToReferOrgTable, String orgTableName, String orgFieldName,
+        String orgFieldNameToReferDst) {
       this.isBidirectional = isBidirectional;
       this.relationKind = relationKind;
       this.dstTableName = dstTableName;
       this.dstColumnName = dstColumnName;
       this.dstFieldNameToReferOrgTable = dstFieldNameToReferOrgTable;
+      this.dstItemNameKeyClassToReferOrgTable = dstItemNameKeyClassToReferOrgTable;
       this.orgTableName = orgTableName;
       this.orgFieldName = orgFieldName;
       this.orgFieldNameToReferDst = orgFieldNameToReferDst;
@@ -593,6 +619,10 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
 
     public String getDstFieldNameToReferOrgTable() {
       return dstFieldNameToReferOrgTable;
+    }
+
+    public String getDstItemNameKeyClassToReferOrgTable() {
+      return dstItemNameKeyClassToReferOrgTable;
     }
 
     public String getOrgTableName() {

@@ -36,6 +36,22 @@ public abstract class AbstractTableGen extends AbstractGen {
     super(xmlFilePostFix);
   }
 
+  /** Fully qualified name of {@code @ItemNameKeyClass}. */
+  protected static final String ITEM_NAME_KEY_CLASS_IMPORT =
+      "jp.ecuacion.lib.core.annotation.ItemNameKeyClass";
+
+  /**
+   * Appends {@code @ItemNameKeyClass} for a relation field to {@link AbstractGen#sb}
+   *     when {@code itemNameKeyClass} is specified. Nothing is appended otherwise.
+   *
+   * @param itemNameKeyClass the value of {@code @ItemNameKeyClass}, may be {@code null} or empty
+   */
+  protected void appendItemNameKeyClass(@Nullable String itemNameKeyClass) {
+    if (StringUtils.isNotEmpty(itemNameKeyClass)) {
+      sb.append(T1 + "@ItemNameKeyClass(\"" + itemNameKeyClass + "\")" + RT);
+    }
+  }
+
   /**
    * Appends getter and setter methods for a relation field to {@link AbstractGen#sb}.
    *
