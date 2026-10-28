@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.validation.constraints.Condition;
 import jp.ecuacion.lib.validation.constraints.EmptyWhen;
 import jp.ecuacion.lib.validation.constraints.EnumElement;
 import jp.ecuacion.lib.validation.constraints.IntegerString;
@@ -73,6 +74,11 @@ import org.jspecify.annotations.Nullable;
     conditionValueString = {"SHORT", "INTEGER", "LONG", "BIG_INTEGER", "BIG_DECIMAL"})
 @EmptyWhen(propertyPath = {"numDigitFraction"}, conditionPropertyPath = "kata",
     conditionOperator = NOT_EQUAL_TO, conditionValueString = {"BIG_DECIMAL"})
+@NotEmptyWhen(propertyPath = "numDigitInteger", conditionPropertyPath = "numDigitFraction",
+    conditionValueState = ConditionValueState.NOT_EMPTY)
+@NotEmptyWhen(propertyPath = "numDigitFraction",
+    conditions = {@Condition(propertyPath = "kata", valueString = "BIG_DECIMAL"),
+        @Condition(propertyPath = "numDigitInteger", valueState = ConditionValueState.NOT_EMPTY)})
 @EmptyWhen(propertyPath = {"enumCodeLength"}, conditionPropertyPath = "kata",
     conditionOperator = NOT_EQUAL_TO, conditionValueString = {"ENUM"})
 @EmptyWhen(propertyPath = {"notNeedsTimezone"}, conditionPropertyPath = "kata",
