@@ -107,7 +107,18 @@ public enum DataTypeKataEnum {
 
   DATE, TIME, DATE_TIME, YEAR_MONTH,
 
-  ENUM, BOOLEAN;
+  ENUM, BOOLEAN,
+
+  /**
+   * Binary data (file contents etc.), held as {@code byte[]} in Java.<br>
+   * {@code @Lob} is deliberately not used: with Hibernate on PostgreSQL it maps {@code byte[]} to
+   * a large object ({@code oid}), whose contents remain in the DB even after the row is
+   * physically deleted. Without it the column is {@code bytea} on PostgreSQL.<br>
+   * Records hold the value as {@code byte[]} as it is (not converted to a string, like
+   * {@code BOOLEAN}). As with other types, {@code null} in the record means "not updated" when
+   * the entity is updated from it.
+   */
+  BINARY;
 
   /**
    * Returns the display name for use on screen. This name can be retrieved but cannot be used
