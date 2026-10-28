@@ -155,6 +155,9 @@ public class ColumnGenUtil {
     } else if (dtInfo.getKata() == DataTypeKataEnum.TIME) {
       rtn = "LocalTime";
 
+    } else if (dtInfo.getKata() == DataTypeKataEnum.BINARY) {
+      rtn = "byte[]";
+
     } else {
       rtn = StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString());
     }

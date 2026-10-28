@@ -17,8 +17,12 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -73,6 +77,8 @@ import org.jspecify.annotations.Nullable;
     conditionOperator = NOT_EQUAL_TO, conditionValueString = {"ENUM"})
 @EmptyWhen(propertyPath = {"notNeedsTimezone"}, conditionPropertyPath = "kata",
     conditionOperator = NOT_EQUAL_TO, conditionValueString = {"DATE_TIME", "TIMESTAMP"})
+@NotEmptyWhen(propertyPath = "binaryMaxSizeMb", conditionPropertyPath = "kata",
+    conditionValueString = "BINARY", emptyWhenConditionNotSatisfied = true)
 @NotEmptyWhen(propertyPath = "stringRegExDescLangDefault", conditionPropertyPath = "stringRegEx",
     conditionValueState = ConditionValueState.NOT_EMPTY, emptyWhenConditionNotSatisfied = true)
 @ReturnTrue(methodName = "isStringRegExDescLangSupport01Valid",
@@ -93,15 +99,17 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
   public static final String SHEET_NAME_JA = "dataType定義";
   public static final String SHEET_NAME_EN = "dataType Definition";
 
-  public static final List<String> HEADER_LABELS_JA = List.of("DataType名", "型", "長さ最小", "長さ最大",
-      "データパターン（日本語）", "データパターン", "禁則文字チェック除外", "正規表現", "最小値", "最大値", "整数部桁数", "小数部桁数", "コードの長さ",
-      "timezoneなし", "備考", "パターン説明（デフォルト言語）", "パターン説明（追加言語1）", "パターン説明（追加言語2）", "パターン説明（追加言語）");
+  public static final List<String> HEADER_LABELS_JA =
+      List.of("DataType名", "型", "長さ最小", "長さ最大", "データパターン（日本語）", "データパターン", "禁則文字チェック除外", "正規表現",
+          "最小値", "最大値", "整数部桁数", "小数部桁数", "コードの長さ", "timezoneなし", "最大バイト数[MB]", "備考",
+          "パターン説明（デフォルト言語）", "パターン説明（追加言語1）", "パターン説明（追加言語2）", "パターン説明（追加言語）");
 
-  public static final List<String> HEADER_LABELS_EN = List.of("DataType Name", "Type", "Min Length",
-      "Max Length", "Data Pattern (display name)", "Data Pattern", "Exclude Prohibited Chars Check",
-      "Regex", "Min Value", "Max Value", "Integer Digits", "Decimal Digits", "Code Length",
-      "No Timezone", "Notes", "Pattern Desc (Default Lang)", "Pattern Desc (Additional Lang 1)",
-      "Pattern Desc (Additional Lang 2)", "Pattern Desc (Additional Lang 3)");
+  public static final List<String> HEADER_LABELS_EN =
+      List.of("DataType Name", "Type", "Min Length", "Max Length", "Data Pattern (display name)",
+          "Data Pattern", "Exclude Prohibited Chars Check", "Regex", "Min Value", "Max Value",
+          "Integer Digits", "Decimal Digits", "Code Length", "No Timezone", "Max Size [MB]",
+          "Notes", "Pattern Desc (Default Lang)", "Pattern Desc (Additional Lang 1)",
+          "Pattern Desc (Additional Lang 2)", "Pattern Desc (Additional Lang 3)");
 
   @NotEmpty
   @Size(min = 0, max = 50)
@@ -142,6 +150,10 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
   private String enumCodeLength;
   @StrBoolean
   private String notNeedsTimezone;
+  @PatternWithDescription(regexp = Constants.REG_EX_DECIMAL, description = "decimal")
+  @DecimalMin(value = "0", inclusive = false)
+  @DecimalMax(value = "2047")
+  private String binaryMaxSizeMb;
   @Size(max = 10000)
   private String remarks;
 
@@ -157,8 +169,8 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
   protected @Nullable String[] getFieldNameArray() {
     return new String[] {"dataTypeName", "kata", "minLength", "maxLength", null, "stringDataPtn",
         "stringAllowsProhibitedCharacters", "stringRegEx", "numMinVal", "numMaxVal",
-        "numDigitInteger", "numDigitFraction", "enumCodeLength", "notNeedsTimezone", "remarks",
-        "stringRegExDescLangDefault", "stringRegExDescLangSupport01",
+        "numDigitInteger", "numDigitFraction", "enumCodeLength", "notNeedsTimezone",
+        "binaryMaxSizeMb", "remarks", "stringRegExDescLangDefault", "stringRegExDescLangSupport01",
         "stringRegExDescLangSupport02", "stringRegExDescLangSupport03"};
   }
 
@@ -219,6 +231,20 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
 
   public boolean getNotNeedsTimezone() {
     return ReaderUtil.boolStrToBoolean(notNeedsTimezone);
+  }
+
+  /**
+   * Returns the max size of {@code BINARY} in bytes, converted from the value in megabytes
+   * (1MB = 1024 * 1024 bytes, the same as Spring's {@code DataSize}) with the fraction truncated.
+   *
+   * <p>Made public because it is also used for column size.</p>
+   *
+   * @return integer
+   */
+  public @Nullable Integer getBinaryMaxBytes() {
+    return binaryMaxSizeMb == null ? null
+        : new BigDecimal(binaryMaxSizeMb).multiply(BigDecimal.valueOf(1024 * 1024))
+            .setScale(0, RoundingMode.DOWN).intValueExact();
   }
 
   public String getRemarks() {
@@ -306,6 +332,10 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
     // create vavlidators
     if (SizeGen.needsValidator(getMinLength(), getMaxLength())) {
       validatorForBothList.add(new SizeGen(this, getMinLength(), getMaxLength()));
+    }
+
+    if (getKata() == DataTypeKataEnum.BINARY) {
+      validatorForBothList.add(new SizeGen(this, null, getBinaryMaxBytes()));
     }
 
     if (stringDataPtn != null) {
