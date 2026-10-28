@@ -97,7 +97,7 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
       "{jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo.stringRegExDescLangSupport.message}";
 
   public static final String SHEET_NAME_JA = "dataType定義";
-  public static final String SHEET_NAME_EN = "dataType Definition";
+  public static final String SHEET_NAME_EN = "DataType Definition";
 
   public static final List<String> HEADER_LABELS_JA =
       List.of("DataType名", "型", "長さ最小", "長さ最大", "データパターン（日本語）", "データパターン", "禁則文字チェック除外", "正規表現",
