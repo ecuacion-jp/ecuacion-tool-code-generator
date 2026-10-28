@@ -184,10 +184,24 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     sb.append(T1 + "}" + RT2);
   }
 
+  /**
+   * Returns the Java type of the record field for the given kata.
+   *
+   * <p>Values are mostly held as strings for screens, but {@code BOOLEAN} (e.g. for radio
+   *     buttons) and {@code BINARY} (no meaningful string form) are held as they are.</p>
+   */
+  private String getRecordKata(DataTypeKataEnum kata) {
+    return switch (kata) {
+      case BOOLEAN -> "Boolean";
+      case BINARY -> "byte[]";
+      default -> "String";
+    };
+  }
+
   private void fieldDefinition(DbOrClassColumnInfo ci) {
     final String refEnName =
         ci.getRelationRefTable() == null ? null : ci.getRelationRefTableCamel();
-    String kata = ci.getDtInfo().getKata() == BOOLEAN ? "Boolean" : "String";
+    String kata = getRecordKata(ci.getDtInfo().getKata());
 
     sb.append(AnnotationGenUtil.getCode(ci.getValidatorList(false), ElementType.FIELD));
 
@@ -391,7 +405,8 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
         String get = "e.get" + fiNameCp + "()";
 
         switch (dtInfo.getKata()) {
-          case STRING, BOOLEAN -> sb.append(T2 + "this." + fiName + " = " + get + ";" + RT);
+          case STRING, BOOLEAN, BINARY -> sb
+              .append(T2 + "this." + fiName + " = " + get + ";" + RT);
           case INTEGER, SHORT, LONG, FLOAT, DOUBLE, ENUM -> sb.append(T2 + "this." + fiName + " = ("
               + get + " == null) ? \"\" : "
               + (dtInfo.getKata() == ENUM ? get + ".getCode();" : kata + ".toString(" + get + ");")
@@ -474,7 +489,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       sb.append(T1 + "// accessor:" + fiName + RT);
 
       DataTypeInfo dtInfo = ci.getDtInfo();
-      String recKata = dtInfo.getKata() == BOOLEAN ? "Boolean" : "String";
+      String recKata = getRecordKata(dtInfo.getKata());
       final String javaKata = code.getJavaKata(ci);
 
       // When the object field name equals the column name, the String-based accessor would
