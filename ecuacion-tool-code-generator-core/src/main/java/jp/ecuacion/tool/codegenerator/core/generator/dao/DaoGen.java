@@ -114,8 +114,11 @@ public class DaoGen extends AbstractTableGen {
     if (tableInfo.hasSoftDeleteFieldInludingAppCommon()) {
 
       // findAllFromAllGroups
-      sb.append(T1 + "@Query(nativeQuery = true, value = "
-          + "\"select * from Instance where del_flg = false\")" + RT);
+      sb.append(T1 + "/** Used for duplicate check across all groups. "
+          + "Native query is used to bypass the group filter. */" + RT);
+      sb.append(T1 + "@Query(nativeQuery = true, " + RT);
+      sb.append(T3 + "value = \"select * from " + tableInfo.getName() + " where "
+          + code.softDeleteColLowerSnake() + " = false\")" + RT);
       sb.append(T1 + "public List<" + tableNameCp + "> findAllFromAllGroups();" + RT2);
 
       String commonComment = "/** Used for procedures in libraries. "
