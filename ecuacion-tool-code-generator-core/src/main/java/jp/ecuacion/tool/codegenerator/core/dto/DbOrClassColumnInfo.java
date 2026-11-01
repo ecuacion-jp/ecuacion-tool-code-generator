@@ -60,6 +60,9 @@ import org.jspecify.annotations.Nullable;
     conditionValueString = "bidirectional")
 @EmptyWhen(propertyPath = "relationIsEager", conditionPropertyPath = "relationKind",
     conditionValueState = EMPTY)
+// Envers always needs the primary key in the history table.
+@EmptyWhen(propertyPath = "isExcludedFromChangeHistory", conditionPropertyPath = "isSurrogateKey",
+    conditionValueState = NOT_EMPTY)
 @NotEmptyWhen(propertyPath = "supportedLang1",
     conditionPropertyPath = "sysCmnRootInfo.supportLang1", conditionValueState = NOT_EMPTY,
     emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
@@ -114,6 +117,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
   private String isCustomGroupColumn;
   @PatternWithDescription(regexp = "^CB|CD|LB|LD$", description = "springAuditing")
   private String springAuditing;
+  @StrBoolean
+  private String isExcludedFromChangeHistory;
 
   private String updatedValue;
 
@@ -163,8 +168,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
         null, "name", "dataType", null,
         "isJavaOnly", "isSurrogateKey", "isNaturalKey", "isNullable", "isAutoIncrement",
         "isForcedIncrement",
-        "isAutoUpdate", "isForcedUpdate", "isCustomGroupColumn", "springAuditing", "relationKind",
-        "relationDirection",
+        "isAutoUpdate", "isForcedUpdate", "isCustomGroupColumn", "springAuditing",
+        "isExcludedFromChangeHistory", "relationKind", "relationDirection",
         "relationFieldName", "relationItemNameKeyClass", "relationRefTable", "relationRefCol",
         "relationRefFieldName", "relationRefItemNameKeyClass", "relationIsEager",
         "index1", "index2", "index3", "index4", "index5", "index6", "index7", "index8", "index9",
@@ -225,7 +230,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
         ReaderUtil.booleanToBoolStr(ci.isForcedIncrement()),
         ReaderUtil.booleanToBoolStr(ci.isAutoUpdate()),
         ReaderUtil.booleanToBoolStr(ci.isForcedUpdate()),
-        ReaderUtil.booleanToBoolStr(ci.isCustomGroupColumn()), ci.getSpringAuditing(), "", "", "",
+        ReaderUtil.booleanToBoolStr(ci.isCustomGroupColumn()), ci.getSpringAuditing(),
+        ReaderUtil.booleanToBoolStr(ci.isExcludedFromChangeHistory()), "", "", "",
         "", "", "", "", "", "", ci.getIndex1() == null ? null : ci.getIndex1().toString(),
         ci.getIndex2() == null ? null : ci.getIndex2().toString(),
         ci.getIndex3() == null ? null : ci.getIndex3().toString(),
@@ -340,6 +346,16 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
 
   public String getSpringAuditing() {
     return springAuditing;
+  }
+
+  /**
+   * Returns {@code true} if this column is excluded from data change history (Hibernate Envers).
+   *
+   * <p>Only the Excel value. Whether data change history is used at all is not considered here.
+   *     </p>
+   */
+  public boolean isExcludedFromChangeHistory() {
+    return ReaderUtil.boolStrToBoolean(isExcludedFromChangeHistory);
   }
 
   // updatedValue
@@ -582,6 +598,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
     private String orgTableName;
     private String orgFieldName;
     private String orgFieldNameToReferDst;
+    private boolean isOrgColumnExcludedFromChangeHistory;
 
     private ColumnGenUtil code = new ColumnGenUtil();
 
@@ -589,7 +606,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
     public RelationRefInfo(boolean isBidirectional, RelationKindEnum relationKind,
         String dstTableName, String dstColumnName, String dstFieldNameToReferOrgTable,
         String dstItemNameKeyClassToReferOrgTable, String orgTableName, String orgFieldName,
-        String orgFieldNameToReferDst) {
+        String orgFieldNameToReferDst, boolean isOrgColumnExcludedFromChangeHistory) {
       this.isBidirectional = isBidirectional;
       this.relationKind = relationKind;
       this.dstTableName = dstTableName;
@@ -599,6 +616,7 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
       this.orgTableName = orgTableName;
       this.orgFieldName = orgFieldName;
       this.orgFieldNameToReferDst = orgFieldNameToReferDst;
+      this.isOrgColumnExcludedFromChangeHistory = isOrgColumnExcludedFromChangeHistory;
     }
 
     public boolean isBidirectional() {
@@ -643,6 +661,14 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
 
     public String getOrgFieldNameToReferDst() {
       return orgFieldNameToReferDst;
+    }
+
+    /**
+     * Returns {@code true} if the relation column on the original (owning) side is excluded from
+     *     data change history.
+     */
+    public boolean isOrgColumnExcludedFromChangeHistory() {
+      return isOrgColumnExcludedFromChangeHistory;
     }
 
     /**
