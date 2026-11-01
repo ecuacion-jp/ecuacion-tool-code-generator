@@ -37,11 +37,12 @@ public class ExcelTableListReader extends StringOneLineHeaderExcelTableReader
   private static final String SHEET_NAME_EN = "Table List";
 
   private static final String[] HEADER_LABELS_JA =
-      new String[] {"テーブル名", "テーブル表示名（デフォルト言語）", "テーブル表示名（追加言語1）",
-          "テーブル表示名（追加言語2）", "テーブル表示名（追加言語3）"};
+      new String[] {"テーブル名", "変更履歴除外", "テーブル表示名（デフォルト言語）",
+          "テーブル表示名（追加言語1）", "テーブル表示名（追加言語2）", "テーブル表示名（追加言語3）"};
 
   private static final String[] HEADER_LABELS_EN =
-      new String[] {"Table Name", "Table Display Name (Default Lang)",
+      new String[] {"Table Name", "Exclude from Change History",
+          "Table Display Name (Default Lang)",
           "Table Display Name (Additional Lang 1)", "Table Display Name (Additional Lang 2)",
           "Table Display Name (Additional Lang 3)"};
 
