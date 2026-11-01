@@ -190,4 +190,27 @@ public class CodeGenContext {
     }
     return ti;
   }
+
+  /*
+   * data change history (Hibernate Envers)
+   */
+
+  /** Returns {@code true} if data change history is used in this system. */
+  public boolean isDataChangeHistoryEnabled() {
+    return sysCmnRootInfo.isDataChangeHistoryEnabled();
+  }
+
+  /**
+   * Returns {@code true} if the entity for the given table records data change history, that is,
+   *     data change history is used and the table is not excluded in the table list.
+   */
+  public boolean isDataChangeHistoryTable(String tableNameSnakeCase) {
+    if (!isDataChangeHistoryEnabled()) {
+      return false;
+    }
+
+    return tableListRootInfo.tableList.stream()
+        .filter(t -> tableNameSnakeCase.equals(t.getTableName()))
+        .noneMatch(TableListInfo::isExcludedFromChangeHistory);
+  }
 }

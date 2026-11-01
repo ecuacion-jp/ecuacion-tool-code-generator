@@ -66,6 +66,7 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
   private static String GROUP_LOGICAL_DELETE = "LOGICAL_DELETE";
   private static String GROUP_GROUPING = "GROUPING";
   private static String GROUP_OPTIMISTIC_LOCKING = "OPTIMISTIC_LOCKING";
+  private static String GROUP_DATA_CHANGE_HISTORY = "DATA_CHANGE_HISTORY";
 
 
   /**
@@ -94,7 +95,14 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
     }
 
     // SYSTEM_COMMON
-    rtnMap.put(DataKindEnum.SYSTEM_COMMON, getSystemCommon(propertiesMap.get(GROUP_SYSTEM_COMMON)));
+    SystemCommonRootInfo systemCommon = getSystemCommon(propertiesMap.get(GROUP_SYSTEM_COMMON));
+    // DATA_CHANGE_HISTORY is held in SYSTEM_COMMON. The category may be absent in the Excel file
+    // (then treated as not used), so a null map is allowed here unlike the other categories.
+    HashMap<String, String> dataChangeHistoryProps =
+        propertiesMap.get(GROUP_DATA_CHANGE_HISTORY);
+    systemCommon.setDataChangeHistoryEnabled(
+        dataChangeHistoryProps == null ? null : dataChangeHistoryProps.get("ENABLED"));
+    rtnMap.put(DataKindEnum.SYSTEM_COMMON, systemCommon);
     // LOGICAL_DELETE
     rtnMap.put(DataKindEnum.MISC_REMOVED_DATA,
         getLogicalDelete(propertiesMap.get(GROUP_LOGICAL_DELETE)));
@@ -108,7 +116,7 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
   }
 
   @SuppressWarnings("null")
-  private AbstractRootInfo getSystemCommon(Map<String, String> props) {
+  private SystemCommonRootInfo getSystemCommon(Map<String, String> props) {
     return new SystemCommonRootInfo(props.get("TEMPLATE_VERSION"), props.get("SYSTEM_NAME"),
         props.get("BASE_PACKAGE"),
         // props.get("PROJECT_KIND"),

@@ -94,6 +94,14 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
   private Map<String, String> prohibitedCharsDescLangMap = new HashMap<>();
 
   /**
+   * Whether data change history (Hibernate Envers) is used. Read from a separate category of the
+   *     general-settings sheet, so it is set via {@link #setDataChangeHistoryEnabled} rather than
+   *     the constructor. Empty (including the row itself being absent) means {@code false}.
+   */
+  @PatternWithDescription(regexp = "^true|false$", description = "trueOrFalse")
+  private @org.jspecify.annotations.Nullable String dataChangeHistoryEnabled;
+
+  /**
    * Constructs an instance with all system-common settings and builds the prohibited-chars
    * description map for each language.
    */
@@ -212,6 +220,16 @@ public class SystemCommonRootInfo extends AbstractRootInfo {
 
   public String getProhibitedCharsDescSupportLang3() {
     return prohibitedCharsDescSupportLang3;
+  }
+
+  public void setDataChangeHistoryEnabled(
+      @org.jspecify.annotations.Nullable String dataChangeHistoryEnabled) {
+    this.dataChangeHistoryEnabled = dataChangeHistoryEnabled;
+  }
+
+  /** Returns {@code true} if data change history (Hibernate Envers) is used. */
+  public boolean isDataChangeHistoryEnabled() {
+    return "true".equals(dataChangeHistoryEnabled);
   }
 
   /** Returns the prohibited-chars description for the given language, or {@code null} if absent. */

@@ -98,6 +98,11 @@ public class EntityBodyGen extends EntityGen {
     // When using soft delete
     getSoftDeleteAnnotationsString(sb, tableInfo);
 
+    // Data change history (Hibernate Envers)
+    if (isDataChangeHistoryEntity(tableInfo)) {
+      sb.append("@Audited" + RT);
+    }
+
     sb.append("public class " + entityNameCp
         + " extends AppCommon implements Serializable {" + RT2);
 
