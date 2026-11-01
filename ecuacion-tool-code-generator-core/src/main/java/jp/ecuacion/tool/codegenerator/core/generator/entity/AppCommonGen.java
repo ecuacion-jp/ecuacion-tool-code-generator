@@ -66,6 +66,11 @@ public class AppCommonGen extends EntityGen {
     // When using soft delete
     getSoftDeleteAnnotationsString(sb, tableInfo);
 
+    // Data change history (Hibernate Envers)
+    if (isDataChangeHistoryEntity(tableInfo)) {
+      sb.append("@Audited" + RT);
+    }
+
     sb.append("@MappedSuperclass" + RT);
     sb.append("@EntityListeners(AuditingEntityListener.class)" + RT);
     sb.append(

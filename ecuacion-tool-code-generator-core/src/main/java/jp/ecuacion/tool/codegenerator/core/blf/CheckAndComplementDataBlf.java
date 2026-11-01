@@ -209,7 +209,7 @@ public class CheckAndComplementDataBlf {
               relationKind.getInverse(), ci.getRelationRefTable(), ci.getRelationRefCol(),
               ci.getRelationRefFieldName(), ci.getRelationRefItemNameKeyClass(), ti.getName(),
               StringUtil.getLowerCamelFromSnake(ci.getName()),
-              ci.getRelationFieldName()));
+              ci.getRelationFieldName(), ci.isExcludedFromChangeHistory()));
         }
       }
     }

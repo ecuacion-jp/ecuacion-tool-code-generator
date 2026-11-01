@@ -53,6 +53,10 @@ import org.apache.commons.lang3.StringUtils;
  */
 public abstract class EntityGen extends AbstractTableGen {
 
+  private static final String NOT_AUDITED = "@NotAudited";
+  private static final String AUDITED_WITH_TARGET_NOT_AUDITED =
+      "@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)";
+
   private ColumnGenUtil code = new ColumnGenUtil();
 
   /** Constructs an instance for the specified data kind. */
@@ -148,6 +152,27 @@ public abstract class EntityGen extends AbstractTableGen {
       }
     }
 
+    // Data change history (Hibernate Envers)
+    if (isDataChangeHistoryEntity(tableInfo)) {
+      importMgr.add("org.hibernate.envers.Audited");
+
+      List<String> fieldAnnotations = new ArrayList<>();
+      for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
+          .toList()) {
+        fieldAnnotations.add(getDataChangeHistoryAnnotation(true, ci));
+        for (RelationRefInfo info : ci.getBidirectionalRelationRefInfoList()) {
+          fieldAnnotations.add(getDataChangeHistoryAnnotationForRelationRef(true, info));
+        }
+      }
+
+      if (fieldAnnotations.contains(NOT_AUDITED)) {
+        importMgr.add("org.hibernate.envers.NotAudited");
+      }
+      if (fieldAnnotations.contains(AUDITED_WITH_TARGET_NOT_AUDITED)) {
+        importMgr.add("org.hibernate.envers.RelationTargetAuditMode");
+      }
+    }
+
     // When @ItemNameKeyClass is specified to relation fields
     if (tableInfo.columnList.stream().filter(ci -> !ci.getIsJavaOnly())
         .anyMatch(DbOrClassColumnInfo::hasRelationItemNameKeyClass)) {
@@ -230,6 +255,69 @@ public abstract class EntityGen extends AbstractTableGen {
         .anyMatch(info -> info.getRelationKind() == RelationKindEnum.ONE_TO_MANY);
   }
 
+  /**
+   * Returns {@code true} if the entity being generated for {@code tableInfo} records data change
+   *     history (Hibernate Envers), so {@code @Audited} is put on its class.
+   *
+   * <p>{@code AppCommon} is audited whenever data change history is used: without it, the columns
+   *     it holds are not recorded for any entity.</p>
+   */
+  protected boolean isDataChangeHistoryEntity(DbOrClassTableInfo tableInfo) {
+    return getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_APP_COMMON
+        ? getInfo().isDataChangeHistoryEnabled()
+        : getInfo().isDataChangeHistoryTable(tableInfo.getName());
+  }
+
+  /**
+   * Returns the Envers annotation for a column field, or an empty string if none is needed.
+   *
+   * <p>A relation to an entity that does not record history needs
+   *     {@code targetAuditMode = NOT_AUDITED}, otherwise Envers fails at startup.</p>
+   */
+  private String getDataChangeHistoryAnnotation(boolean isDataChangeHistoryEntity,
+      DbOrClassColumnInfo ci) {
+    if (!isDataChangeHistoryEntity) {
+      return "";
+    }
+
+    if (ci.isExcludedFromChangeHistory()) {
+      return NOT_AUDITED;
+    }
+
+    if (ci.isRelation() && !getInfo().isDataChangeHistoryTable(ci.getRelationRefTable())) {
+      return AUDITED_WITH_TARGET_NOT_AUDITED;
+    }
+
+    return "";
+  }
+
+  /**
+   * Returns the Envers annotation for the field on the referenced side of a bidirectional
+   *     relation, or an empty string if none is needed.
+   *
+   * <p>The field is mapped by the owning side, so it cannot be recorded when the owning side is
+   *     not.</p>
+   */
+  private String getDataChangeHistoryAnnotationForRelationRef(boolean isDataChangeHistoryEntity,
+      RelationRefInfo info) {
+    if (!isDataChangeHistoryEntity) {
+      return "";
+    }
+
+    if (info.isOrgColumnExcludedFromChangeHistory()
+        || !getInfo().isDataChangeHistoryTable(info.getOrgTableName())) {
+      return NOT_AUDITED;
+    }
+
+    return "";
+  }
+
+  private void appendDataChangeHistoryAnnotation(StringBuilder sb, String annotation) {
+    if (!annotation.isEmpty()) {
+      sb.append(T1 + annotation + RT);
+    }
+  }
+
   private void auditingImport(ImportBlock importMgr, String springAuditing, String keyword,
       String importClass) {
     if (springAuditing != null && springAuditing.equals(keyword)) {
@@ -305,13 +393,15 @@ public abstract class EntityGen extends AbstractTableGen {
   protected void appendField(StringBuilder sb, DbOrClassTableInfo tableInfo,
       List<DbOrClassColumnInfo> colInfoList) {
 
+    final boolean isDataChangeHistoryEntity = isDataChangeHistoryEntity(tableInfo);
+
     for (DbOrClassColumnInfo ci : colInfoList.stream().filter(e -> !e.getIsJavaOnly()).toList()) {
-      createFieldInternal(sb, tableInfo.getName(), ci);
+      createFieldInternal(sb, tableInfo.getName(), ci, isDataChangeHistoryEntity);
 
       // When a column is both @Id and a relation, a normal @Id column is also needed for @MapsId
       if (ci.isPk() && ci.isRelation()) {
         DbOrClassColumnInfo ci2 = DbOrClassColumnInfo.cloneWithoutRelationRelated(ci);
-        createFieldInternal(sb, tableInfo.getName(), ci2);
+        createFieldInternal(sb, tableInfo.getName(), ci2, isDataChangeHistoryEntity);
       }
 
       if (ci.hasBidirectionalRelationRef()) {
@@ -334,6 +424,8 @@ public abstract class EntityGen extends AbstractTableGen {
             sb.append(T1 + "@Filter(name = \"groupFilter\")" + RT);
           }
           appendItemNameKeyClass(info.getDstItemNameKeyClassToReferOrgTable());
+          appendDataChangeHistoryAnnotation(sb,
+              getDataChangeHistoryAnnotationForRelationRef(isDataChangeHistoryEntity, info));
 
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
             sb.append(T1 + "protected " + StringUtils.capitalize(refEntityNameLw) + " "
@@ -348,13 +440,16 @@ public abstract class EntityGen extends AbstractTableGen {
     }
   }
 
-  private void createFieldInternal(StringBuilder sb, String tableName, DbOrClassColumnInfo ci) {
+  private void createFieldInternal(StringBuilder sb, String tableName, DbOrClassColumnInfo ci,
+      boolean isDataChangeHistoryEntity) {
 
     String columnName = StringUtil.getLowerCamelFromSnake(ci.getName());
     String kata = code.getJavaKata(ci);
 
     // The second argument may be null in the case of CommonInfo, so null must be considered
     sb.append(getEntityFieldAnnotations(getEntityGenKindEnum(), tableName, ci));
+    appendDataChangeHistoryAnnotation(sb,
+        getDataChangeHistoryAnnotation(isDataChangeHistoryEntity, ci));
 
     if (ci.isRelation()) {
       jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum relationKind =

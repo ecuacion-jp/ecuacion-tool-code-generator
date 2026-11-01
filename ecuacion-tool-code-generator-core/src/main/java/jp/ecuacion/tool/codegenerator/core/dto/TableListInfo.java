@@ -26,7 +26,9 @@ import java.util.Map;
 import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
 import jp.ecuacion.lib.validation.constraints.PatternWithDescription;
 import jp.ecuacion.tool.codegenerator.core.constant.Constants;
+import jp.ecuacion.tool.codegenerator.core.util.ReaderUtil;
 import jp.ecuacion.tool.codegenerator.core.validation.CrossSheetConsistencyCheckGroup;
+import jp.ecuacion.tool.codegenerator.core.validation.StrBoolean;
 import jp.ecuacion.util.excel.table.bean.StringExcelTableBean;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
@@ -57,6 +59,8 @@ public class TableListInfo extends StringExcelTableBean implements LangsHolder {
   private String dispNameLang2;
   @Size(min = 1, max = 50)
   private String dispNameLang3;
+  @StrBoolean
+  private String isExcludedFromChangeHistory;
   private Map<String, String> dispNameMap = new HashMap<>();
 
   /** Held for {@code @NotEmptyWhen}'s conditionPropertyPath; 
@@ -66,8 +70,8 @@ public class TableListInfo extends StringExcelTableBean implements LangsHolder {
 
   @Override
   protected @Nullable String[] getFieldNameArray() {
-    return new String[] {"tableName", "dispNameDefaultLang", "dispNameLang1", "dispNameLang2",
-        "dispNameLang3"};
+    return new String[] {"tableName", "isExcludedFromChangeHistory", "dispNameDefaultLang",
+        "dispNameLang1", "dispNameLang2", "dispNameLang3"};
   }
 
   /** Constructs an instance by parsing the given raw column value list. */
@@ -113,6 +117,16 @@ public class TableListInfo extends StringExcelTableBean implements LangsHolder {
 
   public String getTableName() {
     return tableName;
+  }
+
+  /**
+   * Returns {@code true} if this table is excluded from data change history (Hibernate Envers).
+   *
+   * <p>Only the Excel value. Whether data change history is used at all is not considered here.
+   *     </p>
+   */
+  public boolean isExcludedFromChangeHistory() {
+    return ReaderUtil.boolStrToBoolean(isExcludedFromChangeHistory);
   }
 
   public Map<String, String> getDisplayNameMap() {
