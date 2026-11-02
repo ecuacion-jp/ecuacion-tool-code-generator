@@ -19,16 +19,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
-import org.jspecify.annotations.Nullable;
 
 /** Holds group-related settings such as the group column and tables excluded from grouping. */
 @SuppressWarnings("NullAway.Init")
 public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
 
   private List<String> tableNamesWithoutGrouping;
-
-  private @Nullable String customGroupTableName;
-  private @Nullable String customGroupColumnName;
 
   /** Constructs an empty instance when no group XML file is provided. */
   @SuppressWarnings("null")
@@ -60,21 +56,5 @@ public class MiscGroupRootInfo extends AbstractColAttrRootInfo {
   @Override
   public void consistencyCheckAndComplementData() {
 
-  }
-
-  public @Nullable String getCustomGroupTableName() {
-    return customGroupTableName;
-  }
-
-  public void setCustomGroupTableName(@Nullable String customGroupTableName) {
-    this.customGroupTableName = customGroupTableName;
-  }
-
-  public @Nullable String getCustomGroupColumnName() {
-    return customGroupColumnName;
-  }
-
-  public void setCustomGroupColumnName(@Nullable String customGroupColumnName) {
-    this.customGroupColumnName = customGroupColumnName;
   }
 }

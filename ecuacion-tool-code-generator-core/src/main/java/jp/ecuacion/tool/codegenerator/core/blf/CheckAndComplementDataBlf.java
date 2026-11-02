@@ -375,27 +375,16 @@ public class CheckAndComplementDataBlf {
           .throwIfAny();
     }
 
-    // Having more than one "custom group column" in child tables is an error
-    int numOfCustomGroupColumns = 0;
-    String customGroupTableName = null;
-    String customGroupColumnName = null;
+    // A "custom group column" can exist in multiple tables (each table has its own filter),
+    // but having more than one in a table is an error.
+    Violations violations = new Violations();
     for (DbOrClassTableInfo ti : dbRootInfo.tableList) {
-      if (ti.hasCustomGroupColumn()) {
-        numOfCustomGroupColumns++;
-        customGroupTableName = ti.getName();
-        customGroupColumnName = ti.getCustomGroupColumn().getName();
-        if (numOfCustomGroupColumns > 1) {
-          new Violations()
-              .add(new BusinessViolation("MSG_ERR_MULTIPLE_CUSTOM_GROUP_COLUMN_CANNOT_EXIST",
-                  systemName))
-              .throwIfAny();
-        }
+      if (ti.columnList.stream().filter(DbOrClassColumnInfo::isCustomGroupColumn).count() > 1) {
+        violations.add(new BusinessViolation(
+            "MSG_ERR_MULTIPLE_CUSTOM_GROUP_COLUMNS_IN_TABLE", systemName, ti.getName()));
       }
     }
-
-    // Add customGroup information
-    groupRootInfo.setCustomGroupTableName(customGroupTableName);
-    groupRootInfo.setCustomGroupColumnName(customGroupColumnName);
+    violations.throwIfAny();
   }
 
   /**
