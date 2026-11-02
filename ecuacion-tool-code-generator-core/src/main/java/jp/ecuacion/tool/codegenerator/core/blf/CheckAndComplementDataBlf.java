@@ -383,6 +383,17 @@ public class CheckAndComplementDataBlf {
         violations.add(new BusinessViolation(
             "MSG_ERR_MULTIPLE_CUSTOM_GROUP_COLUMNS_IN_TABLE", systemName, ti.getName()));
       }
+
+      // A table listed in "TABLE_NAMES_WITHOUT_GROUPING" is not narrowed by any group filter,
+      // so having a group column (common or custom) in it is an error.
+      if (groupRootInfo.getTableNamesWithoutGrouping().contains(ti.getName())) {
+        for (DbOrClassColumnInfo ci : ti.columnList) {
+          if (ci.getName().equals(colName) || ci.isCustomGroupColumn()) {
+            violations.add(new BusinessViolation("MSG_ERR_TABLE_WITHOUT_GROUPING_HAS_GROUP_COLUMN",
+                systemName, ti.getName(), ci.getName()));
+          }
+        }
+      }
     }
     violations.throwIfAny();
   }
