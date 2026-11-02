@@ -120,6 +120,12 @@ public abstract class EntityGen extends AbstractTableGen {
       }
     }
 
+    // A group filter is put on a bidirectional relation field when the referring table is narrowed
+    // by one, even if this table itself is listed in TABLE_NAMES_WITHOUT_GROUPING.
+    if (hasGroupFilteredBidirectionalRelationRef(tableInfo)) {
+      importMgr.add("org.hibernate.annotations.Filter");
+    }
+
     // Import when using @Filter
     if (getInfo().getGroupRootInfo().isDefined()) {
       if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_APP_COMMON) {
@@ -252,6 +258,19 @@ public abstract class EntityGen extends AbstractTableGen {
     return baseList.stream().filter(DbOrClassColumnInfo::hasBidirectionalRelationRef)
         .flatMap(ci -> ci.getBidirectionalRelationRefInfoList().stream())
         .anyMatch(info -> info.getRelationKind() == RelationKindEnum.ONE_TO_MANY);
+  }
+
+  /**
+   * Returns {@code true} if {@code tableInfo} has a bidirectional relation field on which a group
+   *     filter is put (= the referring table is narrowed by a group filter; see
+   *     {@link #appendField}).
+   */
+  private boolean hasGroupFilteredBidirectionalRelationRef(DbOrClassTableInfo tableInfo) {
+    return tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
+        .filter(DbOrClassColumnInfo::hasBidirectionalRelationRef)
+        .flatMap(ci -> ci.getBidirectionalRelationRefInfoList().stream())
+        .anyMatch(info -> getInfo().getTableInfo(info.getOrgTableName())
+            .getGroupFilterName() != null);
   }
 
   /**
