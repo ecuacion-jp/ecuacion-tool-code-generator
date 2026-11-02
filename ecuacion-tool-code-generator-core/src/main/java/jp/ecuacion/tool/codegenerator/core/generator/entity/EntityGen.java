@@ -26,7 +26,6 @@ import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
@@ -416,12 +415,15 @@ public abstract class EntityGen extends AbstractTableGen {
           }
           // Filter condition required when referenced by a bidirectional relation
           MiscSoftDeleteRootInfo softDeleteInfo = getInfo().getRemovedDataRootInfo();
-          MiscGroupRootInfo groupInfo = getInfo().getGroupRootInfo();
           if (softDeleteInfo.isDefined()) {
             sb.append(T1 + "@Filter(name = \"softDeleteFilter\")" + RT);
           }
-          if (groupInfo.isDefined()) {
-            sb.append(T1 + "@Filter(name = \"groupFilter\")" + RT);
+          // The filter must match the referring (child) table: a table without grouping has no
+          // group column, and one with a custom group column is narrowed by its own filter.
+          String groupFilterName =
+              getInfo().getTableInfo(info.getOrgTableName()).getGroupFilterName();
+          if (groupFilterName != null) {
+            sb.append(T1 + "@Filter(name = \"" + groupFilterName + "\")" + RT);
           }
           appendItemNameKeyClass(info.getDstItemNameKeyClassToReferOrgTable());
           appendDataChangeHistoryAnnotation(sb,
