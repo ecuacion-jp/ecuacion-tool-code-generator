@@ -111,15 +111,19 @@ public class DaoGen extends AbstractTableGen {
               .getPkColumn().getNameCamel() + ");" + RT2);
     }
 
-    if (tableInfo.hasSoftDeleteFieldInludingAppCommon()) {
+    // findAllFromAllGroups
+    // Generated regardless of soft delete since BaseBl always refers to it.
+    sb.append(T1 + "/** Used for duplicate check across all groups. "
+        + "Native query is used to bypass the group filter. */" + RT);
+    sb.append(T1 + "@Query(nativeQuery = true, " + RT);
+    sb.append(T3 + "value = \"select * from " + tableInfo.getName()
+        + (tableInfo.hasSoftDeleteFieldInludingAppCommon()
+            ? " where " + code.softDeleteColLowerSnake() + " = false"
+            : "")
+        + "\")" + RT);
+    sb.append(T1 + "public List<" + tableNameCp + "> findAllFromAllGroups();" + RT2);
 
-      // findAllFromAllGroups
-      sb.append(T1 + "/** Used for duplicate check across all groups. "
-          + "Native query is used to bypass the group filter. */" + RT);
-      sb.append(T1 + "@Query(nativeQuery = true, " + RT);
-      sb.append(T3 + "value = \"select * from " + tableInfo.getName() + " where "
-          + code.softDeleteColLowerSnake() + " = false\")" + RT);
-      sb.append(T1 + "public List<" + tableNameCp + "> findAllFromAllGroups();" + RT2);
+    if (tableInfo.hasSoftDeleteFieldInludingAppCommon()) {
 
       String commonComment = "/** Used for procedures in libraries. "
           + "Native query is used to search soft deleted records.";
