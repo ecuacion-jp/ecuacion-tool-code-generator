@@ -127,17 +127,38 @@ public class BlGen extends AbstractGen {
   }
 
   private void generateFields(DbOrClassTableInfo ti, String entityNameCp) {
-    sb.append(T1 + "@Autowired" + RT);
-    sb.append(T1 + "protected " + entityNameCp + "BaseRepository repo;" + RT2);
-
     // Deduplicate by orgTableName: when multiple FK columns from the same source table
     // all reference this table, only one repository field per source table is needed.
-    ti.columnList.stream().map(ci -> ci.getRelationRefInfoList()).flatMap(l -> l.stream())
-        .map(RelationRefInfo::getOrgTableName).distinct().forEach(orgTableName -> {
-          sb.append(T1 + "@Autowired" + RT);
-          sb.append(T1 + "protected " + code.capitalCamel(orgTableName) + "BaseRepository "
-              + code.uncapitalCamel(orgTableName) + "Repo;" + RT2);
-        });
+    List<String> orgTableNames = ti.columnList.stream().map(ci -> ci.getRelationRefInfoList())
+        .flatMap(l -> l.stream()).map(RelationRefInfo::getOrgTableName).distinct().toList();
+
+    sb.append(T1 + "protected " + entityNameCp + "BaseRepository repo;" + RT2);
+    for (String orgTableName : orgTableNames) {
+      sb.append(T1 + "protected " + code.capitalCamel(orgTableName) + "BaseRepository "
+          + code.uncapitalCamel(orgTableName) + "Repo;" + RT2);
+    }
+
+    generateRepositorySetter(entityNameCp + "BaseRepository", "repo");
+    for (String orgTableName : orgTableNames) {
+      generateRepositorySetter(code.capitalCamel(orgTableName) + "BaseRepository",
+          code.uncapitalCamel(orgTableName) + "Repo");
+    }
+  }
+
+  /**
+   * Generates an autowired setter of a repository field.
+   *
+   * <p>Setter injection is used instead of constructor injection so that hand-written subclasses
+   *     don't have to declare constructors which change whenever a relation is added or removed.
+   *     The setter is named after the field, not the repository type, because a self-referencing
+   *     table has two fields of the same type.</p>
+   */
+  private void generateRepositorySetter(String repoType, String fieldName) {
+    sb.append(T1 + "@Autowired" + RT);
+    sb.append(T1 + "public void set" + StringUtils.capitalize(fieldName) + "(" + repoType + " "
+        + fieldName + ") {" + RT);
+    sb.append(T2 + "this." + fieldName + " = " + fieldName + ";" + RT);
+    sb.append(T1 + "}" + RT2);
   }
 
   private void getRepositoryForOptimisticLocking(String entityNameCp) {
