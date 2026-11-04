@@ -33,7 +33,6 @@ import jp.ecuacion.tool.codegenerator.core.controller.MainController;
 import jp.ecuacion.tool.codegenerator.web.form.SourceDownloadForm;
 import net.lingala.zip4j.ZipFile;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ContentDisposition;
@@ -53,8 +52,11 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
 
   public static final String PROP_WORK_DIR = "jp.ecuacion.tool.code-generator.work-dir";
 
-  @Autowired
-  private Environment env;
+  private final Environment env;
+
+  SourceDownloadService(Environment env) {
+    this.env = env;
+  }
 
   @Override
   public void page(@Nullable SourceDownloadForm form, @Nullable UserDetails loginUser)
