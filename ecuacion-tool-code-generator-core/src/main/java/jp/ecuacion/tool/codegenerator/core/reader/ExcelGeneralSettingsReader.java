@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.MiscAdminScopeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
@@ -28,6 +29,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.ExcelTemplateLanguage;
 import jp.ecuacion.util.excel.table.reader.concrete.StringOneLineHeaderExcelTableReader;
 import org.apache.poi.EncryptedDocumentException;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Reads the "general settings" sheet from the input Excel file.
@@ -65,6 +67,7 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
   private static String GROUP_SYSTEM_COMMON = "SYSTEM_COMMON";
   private static String GROUP_LOGICAL_DELETE = "LOGICAL_DELETE";
   private static String GROUP_GROUPING = "GROUPING";
+  private static String GROUP_ADMIN_SCOPE = "ADMIN_SCOPE";
   private static String GROUP_OPTIMISTIC_LOCKING = "OPTIMISTIC_LOCKING";
   private static String GROUP_DATA_CHANGE_HISTORY = "DATA_CHANGE_HISTORY";
 
@@ -108,6 +111,8 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
         getLogicalDelete(propertiesMap.get(GROUP_LOGICAL_DELETE)));
     // GROUPING
     rtnMap.put(DataKindEnum.MISC_GROUP, getGroup(propertiesMap.get(GROUP_GROUPING)));
+    // ADMIN_SCOPE. The category may be absent in the Excel file (then treated as not used).
+    rtnMap.put(DataKindEnum.MISC_ADMIN_SCOPE, getAdminScope(propertiesMap.get(GROUP_ADMIN_SCOPE)));
     // OPTIMISTIC_LOCKING
     rtnMap.put(DataKindEnum.MISC_OPTIMISTIC_LOCK,
         getOptimisticLocking(propertiesMap.get(GROUP_OPTIMISTIC_LOCKING)));
@@ -141,6 +146,13 @@ public class ExcelGeneralSettingsReader extends StringOneLineHeaderExcelTableRea
     MiscGroupRootInfo rootInfo = new MiscGroupRootInfo(props.get("COLUMN_NAME"),
         props.get("DATA_TYPE_NAME"), props.get("TABLE_NAMES_WITHOUT_GROUPING"));
     return rootInfo;
+  }
+
+  @SuppressWarnings("null")
+  private AbstractRootInfo getAdminScope(@Nullable Map<String, String> props) {
+    return props == null ? new MiscAdminScopeRootInfo()
+        : new MiscAdminScopeRootInfo(props.get("COLUMN_NAME"), props.get("DATA_TYPE_NAME"),
+            props.get("TABLE_NAMES_WITHOUT_ADMIN_SCOPE"));
   }
 
   @SuppressWarnings({"null"})

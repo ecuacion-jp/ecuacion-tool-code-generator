@@ -95,6 +95,9 @@ public class EntityBodyGen extends EntityGen {
       }
     }
 
+    // Admin scope definition
+    appendAdminScopeAnnotations(sb, tableInfo);
+
     // When using soft delete
     getSoftDeleteAnnotationsString(sb, tableInfo);
 
@@ -131,5 +134,26 @@ public class EntityBodyGen extends EntityGen {
     appendAutoInsertOrUpdateGen(sb, tableInfo, true, false);
 
     sb.append("}" + RT);
+  }
+
+  /**
+   * Appends the admin scope filter of the table. A table with a custom admin scope column has its
+   *     own filter, and the common filter on {@code AppCommon} is inherited if it has the column.
+   */
+  private void appendAdminScopeAnnotations(StringBuilder sb, DbOrClassTableInfo tableInfo) {
+    String filterName = tableInfo.getAdminScopeFilterName();
+    if (filterName == null) {
+      return;
+    }
+
+    if (tableInfo.hasCustomAdminScopeColumn()) {
+      DbOrClassColumnInfo customCi = tableInfo.getCustomAdminScopeColumn();
+      getAdminScopeFilterDefAnnotationString(sb, filterName, customCi.getName(),
+          customCi.getDtInfo());
+      getGroupFilterAnnotationString(sb, filterName);
+
+    } else if (tableInfo.hasColumn(getInfo().getAdminScopeRootInfo().getColumnName())) {
+      getGroupFilterAnnotationString(sb, filterName);
+    }
   }
 }

@@ -115,6 +115,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
   private String isForcedUpdate;
   @StrBoolean
   private String isCustomGroupColumn;
+  @StrBoolean
+  private String isCustomAdminScopeColumn;
   @PatternWithDescription(regexp = "^CB|CD|LB|LD$", description = "springAuditing")
   private String springAuditing;
   @StrBoolean
@@ -168,7 +170,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
         null, "name", "dataType", null,
         "isJavaOnly", "isSurrogateKey", "isNaturalKey", "isNullable", "isAutoIncrement",
         "isForcedIncrement",
-        "isAutoUpdate", "isForcedUpdate", "isCustomGroupColumn", "springAuditing",
+        "isAutoUpdate", "isForcedUpdate", "isCustomGroupColumn", "isCustomAdminScopeColumn",
+        "springAuditing",
         "isExcludedFromChangeHistory", "relationKind", "relationDirection",
         "relationFieldName", "relationItemNameKeyClass", "relationRefTable", "relationRefCol",
         "relationRefFieldName", "relationRefItemNameKeyClass", "relationIsEager",
@@ -230,7 +233,8 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
         ReaderUtil.booleanToBoolStr(ci.isForcedIncrement()),
         ReaderUtil.booleanToBoolStr(ci.isAutoUpdate()),
         ReaderUtil.booleanToBoolStr(ci.isForcedUpdate()),
-        ReaderUtil.booleanToBoolStr(ci.isCustomGroupColumn()), ci.getSpringAuditing(),
+        ReaderUtil.booleanToBoolStr(ci.isCustomGroupColumn()),
+        ReaderUtil.booleanToBoolStr(ci.isCustomAdminScopeColumn()), ci.getSpringAuditing(),
         ReaderUtil.booleanToBoolStr(ci.isExcludedFromChangeHistory()), "", "", "",
         "", "", "", "", "", "", ci.getIndex1() == null ? null : ci.getIndex1().toString(),
         ci.getIndex2() == null ? null : ci.getIndex2().toString(),
@@ -342,6 +346,10 @@ public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHo
 
   public boolean isCustomGroupColumn() {
     return ReaderUtil.boolStrToBoolean(isCustomGroupColumn);
+  }
+
+  public boolean isCustomAdminScopeColumn() {
+    return ReaderUtil.boolStrToBoolean(isCustomAdminScopeColumn);
   }
 
   public String getSpringAuditing() {

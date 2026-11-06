@@ -26,6 +26,7 @@ import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
+import jp.ecuacion.tool.codegenerator.core.bl.CheckerForMiscAdminScope;
 import jp.ecuacion.tool.codegenerator.core.bl.PreparerForDbAndDataType;
 import jp.ecuacion.tool.codegenerator.core.bl.PreparerForMiscGroup;
 import jp.ecuacion.tool.codegenerator.core.bl.PreparerForMiscOptimisticLock;
@@ -40,6 +41,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumClassInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.LangsHolder;
+import jp.ecuacion.tool.codegenerator.core.dto.MiscAdminScopeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.TableListRootInfo;
@@ -98,6 +100,12 @@ public class CheckAndComplementDataBlf {
         (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON),
         (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB),
         (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP));
+
+    // Between table and admin scope
+    new CheckerForMiscAdminScope().check(systemName,
+        (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON),
+        (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB),
+        (MiscAdminScopeRootInfo) rootInfoMap.get(DataKindEnum.MISC_ADMIN_SCOPE));
 
     // Store dataTypeInfo into colInfo
     Map<String, DataTypeInfo> dtMap = createDataTypeMap(systemName, rootInfoMap);
@@ -450,6 +458,14 @@ public class CheckAndComplementDataBlf {
         if (grpInfo.isDefined()) {
           grpInfo.setDtInfo(checkAndGetDataTypeInfo(dtMap, grpInfo.getDataTypeName(), systemName,
               "grouping column: " + grpInfo.getColumnName()));
+        }
+
+      } else if (rootInfo instanceof MiscAdminScopeRootInfo adminScopeInfo) {
+        // MiscAdminScopeRootInfo
+
+        if (adminScopeInfo.isDefined()) {
+          adminScopeInfo.setDtInfo(checkAndGetDataTypeInfo(dtMap, adminScopeInfo.getDataTypeName(),
+              systemName, "admin scope column: " + adminScopeInfo.getColumnName()));
         }
       }
     }

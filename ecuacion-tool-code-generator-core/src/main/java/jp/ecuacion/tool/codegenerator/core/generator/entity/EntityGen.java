@@ -26,6 +26,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.MiscAdminScopeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
@@ -125,6 +126,14 @@ public abstract class EntityGen extends AbstractTableGen {
     if (hasGroupFilteredBidirectionalRelationRef(tableInfo)) {
       importMgr.add("org.hibernate.annotations.Filter");
     }
+
+    // An admin scope filter is put on a bidirectional relation field in the same way.
+    if (hasAdminScopeFilteredBidirectionalRelationRef(tableInfo)) {
+      importMgr.add("org.hibernate.annotations.Filter");
+    }
+
+    // Import when using the admin scope filter
+    appendAdminScopeImport(importMgr, tableInfo);
 
     // Import when using @Filter
     if (getInfo().getGroupRootInfo().isDefined()) {
@@ -274,6 +283,42 @@ public abstract class EntityGen extends AbstractTableGen {
   }
 
   /**
+   * Returns {@code true} if {@code tableInfo} has a bidirectional relation field on which an admin
+   *     scope filter is put (= the referring table is narrowed by one).
+   */
+  private boolean hasAdminScopeFilteredBidirectionalRelationRef(DbOrClassTableInfo tableInfo) {
+    return tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
+        .filter(DbOrClassColumnInfo::hasBidirectionalRelationRef)
+        .flatMap(ci -> ci.getBidirectionalRelationRefInfoList().stream())
+        .anyMatch(info -> getInfo().getTableInfo(info.getOrgTableName())
+            .getAdminScopeFilterName() != null);
+  }
+
+  private void appendAdminScopeImport(ImportBlock importMgr, DbOrClassTableInfo tableInfo) {
+    MiscAdminScopeRootInfo adminScopeInfo = getInfo().getAdminScopeRootInfo();
+    if (!adminScopeInfo.isDefined()) {
+      return;
+    }
+
+    if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_APP_COMMON) {
+      // The common filterDef is always output to systemCommon.
+      importMgr.add("org.hibernate.annotations.FilterDef", "org.hibernate.annotations.ParamDef",
+          "org.hibernate.type.descriptor.java.*");
+      if (tableInfo.hasColumn(adminScopeInfo.getColumnName())) {
+        importMgr.add("org.hibernate.annotations.Filter");
+      }
+
+    } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY
+        && tableInfo.getAdminScopeFilterName() != null) {
+      importMgr.add("org.hibernate.annotations.Filter", "jakarta.persistence.Table");
+      if (tableInfo.hasCustomAdminScopeColumn()) {
+        importMgr.add("org.hibernate.annotations.FilterDef", "org.hibernate.annotations.ParamDef",
+            "org.hibernate.type.descriptor.java.*");
+      }
+    }
+  }
+
+  /**
    * Returns {@code true} if the entity being generated for {@code tableInfo} records data change
    *     history (Hibernate Envers), so {@code @Audited} is put on its class.
    *
@@ -384,6 +429,20 @@ public abstract class EntityGen extends AbstractTableGen {
   }
 
   /**
+   * Appends a FilterDef annotation of an admin scope filter to the StringBuilder.
+   */
+  protected void getAdminScopeFilterDefAnnotationString(StringBuilder sb, String filterName,
+      String colName, DataTypeInfo dtInfo) {
+
+    String fieldNameLc = StringUtil.getLowerCamelFromSnake(colName);
+
+    sb.append("@FilterDef(name = \"" + filterName + "\", " + RT);
+    sb.append(T2 + "parameters = @ParamDef(name = \"" + fieldNameLc + "\", type = "
+        + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "JavaType.class)," + RT);
+    sb.append(T2 + "defaultCondition = \"" + colName + " in (:" + fieldNameLc + ")\")" + RT);
+  }
+
+  /**
    * Appends soft delete FilterDef and Filter annotation strings if soft delete is configured for
    * the table.
    */
@@ -443,6 +502,11 @@ public abstract class EntityGen extends AbstractTableGen {
               getInfo().getTableInfo(info.getOrgTableName()).getGroupFilterName();
           if (groupFilterName != null) {
             sb.append(T1 + "@Filter(name = \"" + groupFilterName + "\")" + RT);
+          }
+          String adminScopeFilterName =
+              getInfo().getTableInfo(info.getOrgTableName()).getAdminScopeFilterName();
+          if (adminScopeFilterName != null) {
+            sb.append(T1 + "@Filter(name = \"" + adminScopeFilterName + "\")" + RT);
           }
           appendItemNameKeyClass(info.getDstItemNameKeyClassToReferOrgTable());
           appendDataChangeHistoryAnnotation(sb,
