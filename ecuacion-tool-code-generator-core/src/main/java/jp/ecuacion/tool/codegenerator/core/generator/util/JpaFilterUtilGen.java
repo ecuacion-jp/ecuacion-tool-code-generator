@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.MiscAdminScopeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
@@ -62,9 +63,32 @@ public class JpaFilterUtilGen extends AbstractGen {
         + ", "
         + (grDefined ? "\"" + StringUtil.getLowerCamelFromSnake(grInfo.getColumnName()) + "\""
             : "null")
-        + ", " + customGroupFilterParamNameMapString() + ");" + RT);
+        + ", " + customGroupFilterParamNameMapString() + adminScopeArgumentString() + ");" + RT);
     sb.append(T1 + "}" + RT);
     sb.append("}" + RT);
+  }
+
+  /**
+   * Returns the source of the argument of the map from each admin scope filter name to its
+   *     parameter name. It's not output if the admin scope is not used.
+   */
+  private String adminScopeArgumentString() {
+    MiscAdminScopeRootInfo adminScopeInfo = getInfo().getAdminScopeRootInfo();
+    if (!adminScopeInfo.isDefined()) {
+      return "";
+    }
+
+    List<String> entries = new ArrayList<>();
+    entries.add(
+        T4 + "Map.entry(\"adminScopeFilter\", \"" + adminScopeInfo.getLwFieldName() + "\")");
+    for (DbOrClassTableInfo ti : getInfo().getDbRootInfo().tableList) {
+      if (ti.hasCustomAdminScopeColumn()) {
+        entries.add(T4 + "Map.entry(\"" + ti.getAdminScopeFilterName() + "\", \""
+            + ti.getCustomAdminScopeColumn().getNameCamel() + "\")");
+      }
+    }
+
+    return ", Map.ofEntries(" + RT + String.join("," + RT, entries) + ")";
   }
 
   /**

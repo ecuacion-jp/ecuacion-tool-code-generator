@@ -467,6 +467,67 @@ class DbOrClassTableInfoTest {
     }
   }
 
+  // ---------- getAdminScopeFilterName ----------
+
+  @Nested
+  @DisplayName("getAdminScopeFilterName()")
+  class AdminScopeFilterName {
+
+    @AfterEach
+    void tearDown() {
+      MainController.tlInfo.remove();
+    }
+
+    private void setAdminScopeRootInfo(MiscAdminScopeRootInfo adminScopeInfo) {
+      @SuppressWarnings("null")
+      CodeGenContext ctx = mock(CodeGenContext.class);
+      when(ctx.getAdminScopeRootInfo()).thenReturn(adminScopeInfo);
+      MainController.tlInfo.set(ctx);
+    }
+
+    private DbOrClassTableInfo table(String name, boolean hasCustomColumn) {
+      DbOrClassTableInfo ti = new DbOrClassTableInfo(name);
+      @SuppressWarnings("null")
+      DbOrClassColumnInfo c = mock(DbOrClassColumnInfo.class);
+      when(c.isCustomAdminScopeColumn()).thenReturn(hasCustomColumn);
+      ti.columnList.add(c);
+      return ti;
+    }
+
+    @Test
+    @DisplayName("returns \"adminScopeFilter\" for a table with the scope column")
+    void commonFilter() {
+      setAdminScopeRootInfo(new MiscAdminScopeRootInfo("TARGET_SYSTEM_ID", "ID", "ACC"));
+
+      assertThat(table("INQUIRY", false).getAdminScopeFilterName()).isEqualTo("adminScopeFilter");
+    }
+
+    @Test
+    @DisplayName("returns the table's own filter name for a table with a custom column")
+    void ownFilter() {
+      setAdminScopeRootInfo(new MiscAdminScopeRootInfo("TARGET_SYSTEM_ID", "ID", "ACC"));
+
+      assertThat(table("TARGET_SYSTEM", true).getAdminScopeFilterName())
+          .isEqualTo("adminScopeFilterTargetSystem");
+    }
+
+    @Test
+    @DisplayName("returns null for a table listed in TABLE_NAMES_WITHOUT_ADMIN_SCOPE")
+    void nullForTableWithoutAdminScope() {
+      setAdminScopeRootInfo(new MiscAdminScopeRootInfo("TARGET_SYSTEM_ID", "ID", "ACC"));
+
+      assertThat(table("ACC", false).getAdminScopeFilterName()).isNull();
+    }
+
+    @Test
+    @DisplayName("returns null when the admin scope is not defined")
+    void nullWhenUndefined() {
+      setAdminScopeRootInfo(new MiscAdminScopeRootInfo());
+
+      assertThat(table("INQUIRY", false).getAdminScopeFilterName()).isNull();
+    }
+  }
+
   // ---------- helpers ----------
 
   private DbOrClassColumnInfo col(boolean isJavaOnly) {

@@ -292,6 +292,44 @@ public class DbOrClassTableInfo extends AbstractInfo {
     return hasCustomGroupColumn() ? "groupFilter" + getNameCpCamel() : "groupFilter";
   }
 
+  /** Returns {@code true} if this table has a custom admin scope column. */
+  public boolean hasCustomAdminScopeColumn() {
+    return getCustomAdminScopeColumn() != null;
+  }
+
+  /** Returns the custom admin scope column, or {@code null} if absent. */
+  @SuppressWarnings({"NullAway", "null"})
+  public DbOrClassColumnInfo getCustomAdminScopeColumn() {
+    for (DbOrClassColumnInfo ci : columnList) {
+      if (ci.isCustomAdminScopeColumn()) {
+        return ci;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Returns the name of the admin scope filter this table is narrowed by, or {@code null}.
+   *
+   * <ul>
+   * <li>{@code null}: the admin scope is not used, or the table is listed in
+   *     {@code TABLE_NAMES_WITHOUT_ADMIN_SCOPE}</li>
+   * <li>{@code adminScopeFilter<TableName>}: the table has a custom admin scope column</li>
+   * <li>{@code adminScopeFilter}: otherwise (= the table has the scope column)</li>
+   * </ul>
+   */
+  public @Nullable String getAdminScopeFilterName() {
+    MiscAdminScopeRootInfo adminScopeInfo = getInfo().getAdminScopeRootInfo();
+    if (!adminScopeInfo.isDefined()
+        || adminScopeInfo.getTableNamesWithoutAdminScope().contains(name)) {
+      return null;
+    }
+
+    return hasCustomAdminScopeColumn() ? "adminScopeFilter" + getNameCpCamel()
+        : "adminScopeFilter";
+  }
+
   /*
    * soft delete
    */
