@@ -26,6 +26,7 @@ import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.dto.AbstractRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
+import jp.ecuacion.tool.codegenerator.core.dto.MiscAdminScopeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscOptimisticLockRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
@@ -90,6 +91,8 @@ public class ReadExcelFilesBlf {
     putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_REMOVED_DATA, new MiscSoftDeleteRootInfo(),
         generalSettingsSheetName);
     putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_GROUP, new MiscGroupRootInfo(),
+        generalSettingsSheetName);
+    putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_ADMIN_SCOPE, new MiscAdminScopeRootInfo(),
         generalSettingsSheetName);
     putEmptyRootInfo(rootInfoMap, DataKindEnum.MISC_OPTIMISTIC_LOCK,
         new MiscOptimisticLockRootInfo(), generalSettingsSheetName);

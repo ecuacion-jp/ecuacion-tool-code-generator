@@ -61,6 +61,7 @@ public class CodeGenContext {
   private DbOrClassRootInfo dbCommonRootInfo;
   private MiscSoftDeleteRootInfo removedDataRootInfo;
   private MiscGroupRootInfo groupRootInfo;
+  private MiscAdminScopeRootInfo adminScopeRootInfo;
   private MiscOptimisticLockRootInfo optimisticLockRootInfo;
   private TableListRootInfo tableListRootInfo;
 
@@ -111,6 +112,11 @@ public class CodeGenContext {
     return groupRootInfo;
   }
 
+  /** Returns adminScopeRootInfo. */
+  public MiscAdminScopeRootInfo getAdminScopeRootInfo() {
+    return adminScopeRootInfo;
+  }
+
   /** Returns optimisticLockRootInfo. */
   public MiscOptimisticLockRootInfo getOptimisticLockRootInfo() {
     return optimisticLockRootInfo;
@@ -158,6 +164,7 @@ public class CodeGenContext {
     dbCommonRootInfo = (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON);
     removedDataRootInfo = (MiscSoftDeleteRootInfo) rootInfoMap.get(DataKindEnum.MISC_REMOVED_DATA);
     groupRootInfo = (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP);
+    adminScopeRootInfo = (MiscAdminScopeRootInfo) rootInfoMap.get(DataKindEnum.MISC_ADMIN_SCOPE);
     optimisticLockRootInfo =
         (MiscOptimisticLockRootInfo) rootInfoMap.get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
     tableListRootInfo = (TableListRootInfo) rootInfoMap.get(DataKindEnum.TABLE_LIST);

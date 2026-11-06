@@ -22,7 +22,7 @@ import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 public enum DataKindEnum {
   //@formatter:off
   SYSTEM_COMMON, DATA_TYPE, ENUM, DB, DB_COMMON,
-  MISC_REMOVED_DATA, MISC_GROUP, MISC_OPTIMISTIC_LOCK, OTHER, TABLE_LIST;
+  MISC_REMOVED_DATA, MISC_GROUP, MISC_ADMIN_SCOPE, MISC_OPTIMISTIC_LOCK, OTHER, TABLE_LIST;
   //@formatter:on
 
   /**

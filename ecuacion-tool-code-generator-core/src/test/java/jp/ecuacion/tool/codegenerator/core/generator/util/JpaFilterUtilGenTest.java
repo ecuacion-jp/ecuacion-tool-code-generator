@@ -27,6 +27,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.CodeGenContext;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.MiscAdminScopeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
@@ -64,6 +65,7 @@ class JpaFilterUtilGenTest {
     when(ctx.getSysCmnRootInfo()).thenReturn(sysCmn);
     when(ctx.getRemovedDataRootInfo()).thenReturn(softDelete);
     when(ctx.getDbRootInfo()).thenReturn(dbRootInfo);
+    when(ctx.getAdminScopeRootInfo()).thenReturn(new MiscAdminScopeRootInfo());
     MainController.tlInfo.set(ctx);
   }
 
@@ -107,11 +109,39 @@ class JpaFilterUtilGenTest {
     assertThat(generate()).contains("super(true, false, null, Map.of());");
   }
 
+  @Test
+  @DisplayName("passes the admin scope filters when the admin scope is defined")
+  void adminScopeDefined() throws Exception {
+    when(ctx.getGroupRootInfo()).thenReturn(new MiscGroupRootInfo());
+    when(ctx.getAdminScopeRootInfo())
+        .thenReturn(new MiscAdminScopeRootInfo("TARGET_SYSTEM_ID", "DT_SERIAL", "ACC"));
+    dbRootInfo.tableList.add(table("INQUIRY", null));
+    dbRootInfo.tableList.add(tableWithCustomAdminScopeColumn("TARGET_SYSTEM", "ID"));
+    dbRootInfo.tableList.add(tableWithCustomAdminScopeColumn("PARTNER_SYSTEM", "SYSTEM_ID"));
+
+    assertThat(generate()).contains("super(true, false, null, Map.of(), Map.ofEntries(\n"
+        + "        Map.entry(\"adminScopeFilter\", \"targetSystemId\"),\n"
+        + "        Map.entry(\"adminScopeFilterTargetSystem\", \"id\"),\n"
+        + "        Map.entry(\"adminScopeFilterPartnerSystem\", \"systemId\")));");
+  }
+
   private String generate() throws Exception {
     new JpaFilterUtilGen().generate();
     return Files.readString(
         outputDir.resolve("app/src/main/java/jp/example/app/base/util/JpaFilterUtil.java"),
         StandardCharsets.UTF_8).replace("\r\n", "\n");
+  }
+
+  /** Returns a table with one column, which is an admin scope identifier column. */
+  private DbOrClassTableInfo tableWithCustomAdminScopeColumn(String name, String columnName) {
+    DbOrClassTableInfo ti = new DbOrClassTableInfo(name);
+    @SuppressWarnings("null")
+    DbOrClassColumnInfo ci = mock(DbOrClassColumnInfo.class);
+    when(ci.isCustomAdminScopeColumn()).thenReturn(true);
+    when(ci.getNameCamel())
+        .thenReturn(jp.ecuacion.lib.core.util.StringUtil.getLowerCamelFromSnake(columnName));
+    ti.columnList.add(ci);
+    return ti;
   }
 
   /**
