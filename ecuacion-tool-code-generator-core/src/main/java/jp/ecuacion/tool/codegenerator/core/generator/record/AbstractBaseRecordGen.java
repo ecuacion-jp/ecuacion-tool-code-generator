@@ -232,6 +232,10 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
   /**
    * Appends a static initializer that populates the string length map for all applicable column
    * types.
+   *
+   * <p>The lengths are registered with the BaseRecord class itself as the key
+   *     ({@code getStringLengthMap(XxxBaseRecord.class)}) so that fields with the same name
+   *     in different tables don't overwrite each other.</p>
    */
   protected void generateStaticInitializerCommon(DbOrClassTableInfo ti) {
     sb.append(T1 + "static {" + RT);
@@ -239,9 +243,10 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     List<DataTypeKataEnum> kataList = Arrays.asList(new DataTypeKataEnum[] {STRING, SHORT, INTEGER,
         LONG, FLOAT, DOUBLE, BIG_INTEGER, BIG_DECIMAL, TIMESTAMP, DATE_TIME});
 
+    String baseRecordClass = ti.getNameCpCamel() + "BaseRecord.class";
     ti.columnList.stream().filter(ci -> kataList.contains(ci.getDtInfo().getKata()))
-        .forEach(ci -> sb.append(T2 + "getStringLengthMap().put(\"" + ci.getNameCamel() + "\", "
-            + ci.getDtInfo().getMaxLength() + ");" + RT));
+        .forEach(ci -> sb.append(T2 + "getStringLengthMap(" + baseRecordClass + ").put(\""
+            + ci.getNameCamel() + "\", " + ci.getDtInfo().getMaxLength() + ");" + RT));
 
     sb.append(T1 + "}" + RT2);
   }
