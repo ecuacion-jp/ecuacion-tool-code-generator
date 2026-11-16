@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Objects;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
@@ -174,7 +175,7 @@ public class SourceDownloadService extends SplibGeneral1FormService<SourceDownlo
           "SOURCE_DOWNLOAD_MESSAGE_FILE_NOT_DESIGNATED")).throwIfAny();
     }
 
-    if (!originalFileName.toLowerCase().endsWith(".xlsx")) {
+    if (!originalFileName.toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
       new Violations()
           .add(new BusinessViolation("SOURCE_DOWNLOAD_MESSAGE_FILE_EXTENSION_UNAVAILABLE"))
           .throwIfAny();

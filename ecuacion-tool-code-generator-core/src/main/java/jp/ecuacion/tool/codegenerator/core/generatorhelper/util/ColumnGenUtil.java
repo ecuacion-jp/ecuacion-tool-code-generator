@@ -138,31 +138,18 @@ public class ColumnGenUtil {
    * Returns the datatype when you use the definition of the field in entities.
    */
   public String getJavaKata(DbOrClassColumnInfo ci) {
-    String rtn = null;
     DataTypeInfo dtInfo = ci.getDtInfo();
 
-    if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-      rtn = dataTypeNameToCapitalCamel(dtInfo.getDataTypeName())
+    return switch (dtInfo.getKata()) {
+      case ENUM -> dataTypeNameToCapitalCamel(dtInfo.getDataTypeName())
           + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString());
-
-    } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
-        || dtInfo.getKata() == DataTypeKataEnum.DATE_TIME) {
-      rtn = dtInfo.getNotNeedsTimezone() ? "LocalDateTime" : "OffsetDateTime";
-
-    } else if (dtInfo.getKata() == DataTypeKataEnum.DATE) {
-      rtn = "LocalDate";
-
-    } else if (dtInfo.getKata() == DataTypeKataEnum.TIME) {
-      rtn = "LocalTime";
-
-    } else if (dtInfo.getKata() == DataTypeKataEnum.BINARY) {
-      rtn = "byte[]";
-
-    } else {
-      rtn = StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString());
-    }
-
-    return rtn;
+      case TIMESTAMP, DATE_TIME -> dtInfo.getNotNeedsTimezone() ? "LocalDateTime"
+          : "OffsetDateTime";
+      case DATE -> "LocalDate";
+      case TIME -> "LocalTime";
+      case BINARY -> "byte[]";
+      default -> StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString());
+    };
   }
 
   /*
