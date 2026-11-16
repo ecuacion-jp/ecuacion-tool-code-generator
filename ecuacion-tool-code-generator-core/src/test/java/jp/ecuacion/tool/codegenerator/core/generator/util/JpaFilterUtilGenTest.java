@@ -85,9 +85,10 @@ class JpaFilterUtilGenTest {
     dbRootInfo.tableList.add(table("TARGET_SYSTEM", null));
 
     assertThat(generate()).contains("import java.util.Map;")
-        .contains("super(true, true, \"accGeneralId\", Map.ofEntries(\n"
-            + "        Map.entry(\"groupFilterAcc\", \"id\"),\n"
-            + "        Map.entry(\"groupFilterAccGeneral\", \"accId\")));");
+        .contains("""
+            super(true, true, "accGeneralId", Map.ofEntries(
+                    Map.entry("groupFilterAcc", "id"),
+                    Map.entry("groupFilterAccGeneral", "accId")));""");
   }
 
   @Test
@@ -119,10 +120,11 @@ class JpaFilterUtilGenTest {
     dbRootInfo.tableList.add(tableWithCustomAdminScopeColumn("TARGET_SYSTEM", "ID"));
     dbRootInfo.tableList.add(tableWithCustomAdminScopeColumn("PARTNER_SYSTEM", "SYSTEM_ID"));
 
-    assertThat(generate()).contains("super(true, false, null, Map.of(), Map.ofEntries(\n"
-        + "        Map.entry(\"adminScopeFilter\", \"targetSystemId\"),\n"
-        + "        Map.entry(\"adminScopeFilterTargetSystem\", \"id\"),\n"
-        + "        Map.entry(\"adminScopeFilterPartnerSystem\", \"systemId\")));");
+    assertThat(generate()).contains("""
+        super(true, false, null, Map.of(), Map.ofEntries(
+                Map.entry("adminScopeFilter", "targetSystemId"),
+                Map.entry("adminScopeFilterTargetSystem", "id"),
+                Map.entry("adminScopeFilterPartnerSystem", "systemId")));""");
   }
 
   private String generate() throws Exception {
