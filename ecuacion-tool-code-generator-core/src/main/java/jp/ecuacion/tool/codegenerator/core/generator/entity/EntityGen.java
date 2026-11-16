@@ -876,28 +876,24 @@ public abstract class EntityGen extends AbstractTableGen {
         continue;
       }
 
-      if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName
-            + " = Enum.FALSE;" + RT);
+      switch (dtInfo.getKata()) {
+        case ENUM -> sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ")
+            + fieldName + " = Enum.FALSE;" + RT);
 
-      } else if (dtInfo.getKata() == DataTypeKataEnum.BOOLEAN) {
-        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = false;"
-            + RT);
+        case BOOLEAN -> sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ")
+            + fieldName + " = false;" + RT);
 
-      } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
-          || dtInfo.getKata() == DataTypeKataEnum.DATE_TIME) {
-        String kataName = code.getJavaKata(ci);
-        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = "
-            + kataName + ".now();" + RT);
+        case TIMESTAMP, DATE_TIME -> {
+          String kataName = code.getJavaKata(ci);
+          sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = "
+              + kataName + ".now();" + RT);
+        }
 
-      } else if (dtInfo.getKata() == DataTypeKataEnum.SHORT
-          || dtInfo.getKata() == DataTypeKataEnum.INTEGER
-          || dtInfo.getKata() == DataTypeKataEnum.LONG) {
-        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = 1"
+        case SHORT, INTEGER, LONG -> sb.append(T2
+            + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = 1"
             + ((dtInfo.getKata() == DataTypeKataEnum.LONG) ? "L" : "") + ";" + RT);
 
-      } else {
-        new Violations().add(new BusinessViolation("MSG_ERR_IMPOSSIBLE")).throwIfAny();
+        default -> new Violations().add(new BusinessViolation("MSG_ERR_IMPOSSIBLE")).throwIfAny();
       }
     }
 
