@@ -141,6 +141,11 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
         imp.add("jakarta.validation.Valid");
       }
 
+      // Add @ItemNameKeyClass import when it's specified to relation fields
+      if (ti.columnList.stream().anyMatch(DbOrClassColumnInfo::hasRelationItemNameKeyClass)) {
+        imp.add(ITEM_NAME_KEY_CLASS_IMPORT);
+      }
+
       // Add imports for columns referred by bidirectional relation.
       ti.columnList.stream().filter(ci -> ci.hasBidirectionalRelationRef())
           .map(ci -> ci.getBidirectionalRelationRefInfoList()).flatMap(l -> l.stream())
@@ -179,15 +184,30 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     sb.append(T1 + "}" + RT2);
   }
 
+  /**
+   * Returns the Java type of the record field for the given kata.
+   *
+   * <p>Values are mostly held as strings for screens, but {@code BOOLEAN} (e.g. for radio
+   *     buttons) and {@code BINARY} (no meaningful string form) are held as they are.</p>
+   */
+  private String getRecordKata(DataTypeKataEnum kata) {
+    return switch (kata) {
+      case BOOLEAN -> "Boolean";
+      case BINARY -> "byte[]";
+      default -> "String";
+    };
+  }
+
   private void fieldDefinition(DbOrClassColumnInfo ci) {
     final String refEnName =
         ci.getRelationRefTable() == null ? null : ci.getRelationRefTableCamel();
-    String kata = ci.getDtInfo().getKata() == BOOLEAN ? "Boolean" : "String";
+    String kata = getRecordKata(ci.getDtInfo().getKata());
 
     sb.append(AnnotationGenUtil.getCode(ci.getValidatorList(false), ElementType.FIELD));
 
     if (ci.isRelation()) {
       sb.append(T1 + "@Valid" + RT);
+      appendItemNameKeyClass(ci.getRelationItemNameKeyClass());
     }
 
     String rel =
@@ -198,6 +218,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     // Add method for bidirectional relation if the column has it.
     for (RelationRefInfo info : ci.getBidirectionalRelationRefInfoList()) {
       sb.append(T1 + "@Valid" + RT);
+      appendItemNameKeyClass(info.getDstItemNameKeyClassToReferOrgTable());
       boolean is1To1 = info.getRelationKind() == RelationKindEnum.ONE_TO_ONE;
       String recKata = is1To1 ? info.getOrgTableNameCpCamel() + "BaseRecord"
           : "List<" + info.getOrgTableNameCpCamel() + "BaseRecord>";
@@ -211,6 +232,10 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
   /**
    * Appends a static initializer that populates the string length map for all applicable column
    * types.
+   *
+   * <p>The lengths are registered with the BaseRecord class itself as the key
+   *     ({@code getStringLengthMap(XxxBaseRecord.class)}) so that fields with the same name
+   *     in different tables don't overwrite each other.</p>
    */
   protected void generateStaticInitializerCommon(DbOrClassTableInfo ti) {
     sb.append(T1 + "static {" + RT);
@@ -218,9 +243,10 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
     List<DataTypeKataEnum> kataList = Arrays.asList(new DataTypeKataEnum[] {STRING, SHORT, INTEGER,
         LONG, FLOAT, DOUBLE, BIG_INTEGER, BIG_DECIMAL, TIMESTAMP, DATE_TIME});
 
+    String baseRecordClass = ti.getNameCpCamel() + "BaseRecord.class";
     ti.columnList.stream().filter(ci -> kataList.contains(ci.getDtInfo().getKata()))
-        .forEach(ci -> sb.append(T2 + "getStringLengthMap().put(\"" + ci.getNameCamel() + "\", "
-            + ci.getDtInfo().getMaxLength() + ");" + RT));
+        .forEach(ci -> sb.append(T2 + "getStringLengthMap(" + baseRecordClass + ").put(\""
+            + ci.getNameCamel() + "\", " + ci.getDtInfo().getMaxLength() + ");" + RT));
 
     sb.append(T1 + "}" + RT2);
   }
@@ -384,7 +410,8 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
         String get = "e.get" + fiNameCp + "()";
 
         switch (dtInfo.getKata()) {
-          case STRING, BOOLEAN -> sb.append(T2 + "this." + fiName + " = " + get + ";" + RT);
+          case STRING, BOOLEAN, BINARY -> sb
+              .append(T2 + "this." + fiName + " = " + get + ";" + RT);
           case INTEGER, SHORT, LONG, FLOAT, DOUBLE, ENUM -> sb.append(T2 + "this." + fiName + " = ("
               + get + " == null) ? \"\" : "
               + (dtInfo.getKata() == ENUM ? get + ".getCode();" : kata + ".toString(" + get + ");")
@@ -467,7 +494,7 @@ public abstract class AbstractBaseRecordGen extends AbstractTableGen {
       sb.append(T1 + "// accessor:" + fiName + RT);
 
       DataTypeInfo dtInfo = ci.getDtInfo();
-      String recKata = dtInfo.getKata() == BOOLEAN ? "Boolean" : "String";
+      String recKata = getRecordKata(dtInfo.getKata());
       final String javaKata = code.getJavaKata(ci);
 
       // When the object field name equals the column name, the String-based accessor would

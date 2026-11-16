@@ -72,6 +72,18 @@ public class ColumnGen extends FieldSingleAnnotationGen {
       }
       plistGen.add(new ParamGenWithSingleValue("length", strLength, DataTypeKataEnum.INTEGER));
     }
+    // "length" lets Hibernate choose the column type: bytea on PostgreSQL (which has no length),
+    // varbinary / blob types by capacity on MySQL / MariaDB.
+    if (dtInfo.getKata() == DataTypeKataEnum.BINARY) {
+      Integer binaryMaxBytes = dtInfo.getBinaryMaxBytes();
+      if (binaryMaxBytes == null) {
+        throw new IllegalStateException(
+            "BINARY data type requires binaryMaxBytes: " + dtInfo.getDataTypeName());
+      }
+      plistGen.add(new ParamGenWithSingleValue("length", binaryMaxBytes.toString(),
+          DataTypeKataEnum.INTEGER));
+    }
+
     // Setting to map the PostgreSQL column type to serial/bigserial for numeric auto-increment
     if (ci.isAutoIncrement()) {
       if (dtInfo.getKata() == DataTypeKataEnum.INTEGER) {

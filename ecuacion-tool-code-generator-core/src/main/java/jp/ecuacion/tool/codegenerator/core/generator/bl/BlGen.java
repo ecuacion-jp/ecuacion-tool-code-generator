@@ -127,17 +127,38 @@ public class BlGen extends AbstractGen {
   }
 
   private void generateFields(DbOrClassTableInfo ti, String entityNameCp) {
-    sb.append(T1 + "@Autowired" + RT);
-    sb.append(T1 + "protected " + entityNameCp + "BaseRepository repo;" + RT2);
-
     // Deduplicate by orgTableName: when multiple FK columns from the same source table
     // all reference this table, only one repository field per source table is needed.
-    ti.columnList.stream().map(ci -> ci.getRelationRefInfoList()).flatMap(l -> l.stream())
-        .map(RelationRefInfo::getOrgTableName).distinct().forEach(orgTableName -> {
-          sb.append(T1 + "@Autowired" + RT);
-          sb.append(T1 + "protected " + code.capitalCamel(orgTableName) + "BaseRepository "
-              + code.uncapitalCamel(orgTableName) + "Repo;" + RT2);
-        });
+    List<String> orgTableNames = ti.columnList.stream().map(ci -> ci.getRelationRefInfoList())
+        .flatMap(l -> l.stream()).map(RelationRefInfo::getOrgTableName).distinct().toList();
+
+    sb.append(T1 + "protected " + entityNameCp + "BaseRepository repo;" + RT2);
+    for (String orgTableName : orgTableNames) {
+      sb.append(T1 + "protected " + code.capitalCamel(orgTableName) + "BaseRepository "
+          + code.uncapitalCamel(orgTableName) + "Repo;" + RT2);
+    }
+
+    generateRepositorySetter(entityNameCp + "BaseRepository", "repo");
+    for (String orgTableName : orgTableNames) {
+      generateRepositorySetter(code.capitalCamel(orgTableName) + "BaseRepository",
+          code.uncapitalCamel(orgTableName) + "Repo");
+    }
+  }
+
+  /**
+   * Generates an autowired setter of a repository field.
+   *
+   * <p>Setter injection is used instead of constructor injection so that hand-written subclasses
+   *     don't have to declare constructors which change whenever a relation is added or removed.
+   *     The setter is named after the field, not the repository type, because a self-referencing
+   *     table has two fields of the same type.</p>
+   */
+  private void generateRepositorySetter(String repoType, String fieldName) {
+    sb.append(T1 + "@Autowired" + RT);
+    sb.append(T1 + "public void set" + StringUtils.capitalize(fieldName) + "(" + repoType + " "
+        + fieldName + ") {" + RT);
+    sb.append(T2 + "this." + fieldName + " = " + fieldName + ";" + RT);
+    sb.append(T1 + "}" + RT2);
   }
 
   private void getRepositoryForOptimisticLocking(String entityNameCp) {
@@ -149,10 +170,14 @@ public class BlGen extends AbstractGen {
   }
 
   private void getFindAndOptimisticLockingCheckRec(DbOrClassTableInfo ti, String entityNameCp) {
+    if (!ti.hasVersionColumnIncludingAppCommon()) {
+      return;
+    }
 
-    // The version to check against comes from the record's own live "version" field via
-    // getVersionOfEntityDataType(). Unlike a nested relation's live id field - which stays
-    // untouched unless it's also the PK-delegation target - every record's live version field is
+    // The version to check against comes from the record's own live version field via its
+    // getXxxOfEntityDataType() (Xxx being the version column name defined in the Excel). Unlike a
+    // nested relation's live id field - which stays untouched unless it's also the PK-delegation
+    // target - every record's live version field is
     // kept in sync with the screen round trip by the generated setOptimisticLockVersions()
     // override (see PerTableBaseRecordGen), so it's always safe to read here, whether rec is a
     // stand-alone record or a nested relation of another record.
@@ -160,7 +185,7 @@ public class BlGen extends AbstractGen {
         + "BaseRecord rec) {" + RT);
     sb.append(T2 + "return findAndOptimisticLockingCheck(rec.get"
         + code.capitalCamel(ti.getPkColumn().getName()) + "OfEntityDataType(), "
-        + "rec.getVersionOfEntityDataType());" + RT);
+        + "rec." + code.getOfEntityDataType(ti.getVersionColumnIncludingAppCommon()) + ");" + RT);
     sb.append(T1 + "}" + RT2);
   }
 

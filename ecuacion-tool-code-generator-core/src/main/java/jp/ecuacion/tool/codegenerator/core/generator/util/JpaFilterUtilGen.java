@@ -16,8 +16,11 @@
 package jp.ecuacion.tool.codegenerator.core.generator.util;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.MiscAdminScopeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
@@ -48,7 +51,7 @@ public class JpaFilterUtilGen extends AbstractGen {
     sb.append("package " + rootBasePackage + ".base.util;" + RT2);
 
     ImportBlock importMgr = new ImportBlock();
-    importMgr.add("jp.ecuacion.splib.jpa.util.SplibJpaFilterUtil",
+    importMgr.add("java.util.Map", "jp.ecuacion.splib.jpa.util.SplibJpaFilterUtil",
         "org.springframework.stereotype.Component");
     sb.append(importMgr.outputStr() + RT);
 
@@ -56,18 +59,55 @@ public class JpaFilterUtilGen extends AbstractGen {
     sb.append("public class JpaFilterUtil extends SplibJpaFilterUtil {" + RT2);
 
     sb.append(T1 + "public JpaFilterUtil() {" + RT);
-    sb.append(T2 + "super(" + getInfo().getRemovedDataRootInfo().isDefined() + ", "
-        + grDefined + ", " + (grDefined ? "\""
-            + StringUtil.getLowerCamelFromSnake(grInfo.getColumnName()) + "\"" : "null")
-        + ", " + (grInfo.getCustomGroupTableName() != null) + ", "
-        + (grDefined ? "\"groupFilter" + StringUtil
-            .getUpperCamelFromSnake(Objects.requireNonNull(grInfo.getCustomGroupTableName())) + "\""
-            : "null")
+    sb.append(T2 + "super(" + getInfo().getRemovedDataRootInfo().isDefined() + ", " + grDefined
         + ", "
-        + (grDefined ? "\"" + StringUtil.getLowerCamelFromSnake(
-            Objects.requireNonNull(grInfo.getCustomGroupColumnName())) + "\"" : "null")
-        + ");" + RT);
+        + (grDefined ? "\"" + StringUtil.getLowerCamelFromSnake(grInfo.getColumnName()) + "\""
+            : "null")
+        + ", " + customGroupFilterParamNameMapString() + adminScopeArgumentString() + ");" + RT);
     sb.append(T1 + "}" + RT);
     sb.append("}" + RT);
+  }
+
+  /**
+   * Returns the source of the argument of the map from each admin scope filter name to its
+   *     parameter name. It's not output if the admin scope is not used.
+   */
+  private String adminScopeArgumentString() {
+    MiscAdminScopeRootInfo adminScopeInfo = getInfo().getAdminScopeRootInfo();
+    if (!adminScopeInfo.isDefined()) {
+      return "";
+    }
+
+    List<String> entries = new ArrayList<>();
+    entries.add(
+        T4 + "Map.entry(\"adminScopeFilter\", \"" + adminScopeInfo.getLwFieldName() + "\")");
+    for (DbOrClassTableInfo ti : getInfo().getDbRootInfo().tableList) {
+      if (ti.hasCustomAdminScopeColumn()) {
+        entries.add(T4 + "Map.entry(\"" + ti.getAdminScopeFilterName() + "\", \""
+            + ti.getCustomAdminScopeColumn().getNameCamel() + "\")");
+      }
+    }
+
+    return ", Map.ofEntries(" + RT + String.join("," + RT, entries) + ")";
+  }
+
+  /**
+   * Returns the source of the map from each custom group filter name to its parameter name.
+   *
+   * <p>Each table with a group identifier column has its own filter
+   *     ({@code groupFilter<TableName>}).</p>
+   */
+  private String customGroupFilterParamNameMapString() {
+    List<String> entries = new ArrayList<>();
+    for (DbOrClassTableInfo ti : getInfo().getDbRootInfo().tableList) {
+      String filterName = ti.hasCustomGroupColumn() ? ti.getGroupFilterName() : null;
+      if (filterName != null) {
+        entries.add(T4 + "Map.entry(\"" + filterName + "\", \""
+            + ti.getCustomGroupColumn().getNameCamel() + "\")");
+      }
+    }
+
+    return entries.isEmpty() ? "Map.of()"
+        : "Map.ofEntries(" + RT + String.join("," + RT, entries) + ")";
   }
 }

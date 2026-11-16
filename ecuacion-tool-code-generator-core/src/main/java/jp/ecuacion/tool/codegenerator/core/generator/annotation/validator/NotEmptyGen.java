@@ -17,6 +17,7 @@ package jp.ecuacion.tool.codegenerator.core.generator.annotation.validator;
 
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BIG_DECIMAL;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BIG_INTEGER;
+import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BINARY;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BOOLEAN;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BYTE;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.DATE;
@@ -89,7 +90,7 @@ public class NotEmptyGen extends ValidatorGen {
   protected DataTypeKataEnum[] getAvailableKatas() {
     // All types are OK
     return new DataTypeKataEnum[] {STRING, INTEGER, BYTE, SHORT, LONG, FLOAT, DOUBLE, BIG_INTEGER,
-        BIG_DECIMAL, TIMESTAMP, DATE, TIME, DATE_TIME, YEAR_MONTH, ENUM, BOOLEAN};
+        BIG_DECIMAL, TIMESTAMP, DATE, TIME, DATE_TIME, YEAR_MONTH, ENUM, BOOLEAN, BINARY};
   }
 
   @Override

@@ -18,6 +18,7 @@ package jp.ecuacion.tool.codegenerator.core.generator.entity;
 import java.io.IOException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.MiscAdminScopeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 
 /**
@@ -63,8 +64,23 @@ public class AppCommonGen extends EntityGen {
       getGroupFilterAnnotationString(sb);
     }
 
+    // When an admin scope definition exists, a filter definition is always written in appCommon.
+    MiscAdminScopeRootInfo adminScopeInfo = getInfo().getAdminScopeRootInfo();
+    if (adminScopeInfo.isDefined()) {
+      getAdminScopeFilterDefAnnotationString(sb, "adminScopeFilter", adminScopeInfo.getColumnName(),
+          adminScopeInfo.getDtInfo());
+      if (tableInfo.hasColumn(adminScopeInfo.getColumnName())) {
+        getGroupFilterAnnotationString(sb, "adminScopeFilter");
+      }
+    }
+
     // When using soft delete
     getSoftDeleteAnnotationsString(sb, tableInfo);
+
+    // Data change history (Hibernate Envers)
+    if (isDataChangeHistoryEntity(tableInfo)) {
+      sb.append("@Audited" + RT);
+    }
 
     sb.append("@MappedSuperclass" + RT);
     sb.append("@EntityListeners(AuditingEntityListener.class)" + RT);

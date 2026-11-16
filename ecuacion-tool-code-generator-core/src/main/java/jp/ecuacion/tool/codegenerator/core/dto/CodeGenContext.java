@@ -61,6 +61,7 @@ public class CodeGenContext {
   private DbOrClassRootInfo dbCommonRootInfo;
   private MiscSoftDeleteRootInfo removedDataRootInfo;
   private MiscGroupRootInfo groupRootInfo;
+  private MiscAdminScopeRootInfo adminScopeRootInfo;
   private MiscOptimisticLockRootInfo optimisticLockRootInfo;
   private TableListRootInfo tableListRootInfo;
 
@@ -111,6 +112,11 @@ public class CodeGenContext {
     return groupRootInfo;
   }
 
+  /** Returns adminScopeRootInfo. */
+  public MiscAdminScopeRootInfo getAdminScopeRootInfo() {
+    return adminScopeRootInfo;
+  }
+
   /** Returns optimisticLockRootInfo. */
   public MiscOptimisticLockRootInfo getOptimisticLockRootInfo() {
     return optimisticLockRootInfo;
@@ -158,6 +164,7 @@ public class CodeGenContext {
     dbCommonRootInfo = (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON);
     removedDataRootInfo = (MiscSoftDeleteRootInfo) rootInfoMap.get(DataKindEnum.MISC_REMOVED_DATA);
     groupRootInfo = (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP);
+    adminScopeRootInfo = (MiscAdminScopeRootInfo) rootInfoMap.get(DataKindEnum.MISC_ADMIN_SCOPE);
     optimisticLockRootInfo =
         (MiscOptimisticLockRootInfo) rootInfoMap.get(DataKindEnum.MISC_OPTIMISTIC_LOCK);
     tableListRootInfo = (TableListRootInfo) rootInfoMap.get(DataKindEnum.TABLE_LIST);
@@ -189,5 +196,28 @@ public class CodeGenContext {
       throw new IllegalStateException("Table not found: " + nameSnakeCase);
     }
     return ti;
+  }
+
+  /*
+   * data change history (Hibernate Envers)
+   */
+
+  /** Returns {@code true} if data change history is used in this system. */
+  public boolean isDataChangeHistoryEnabled() {
+    return sysCmnRootInfo.isDataChangeHistoryEnabled();
+  }
+
+  /**
+   * Returns {@code true} if the entity for the given table records data change history, that is,
+   *     data change history is used and the table is not excluded in the table list.
+   */
+  public boolean isDataChangeHistoryTable(String tableNameSnakeCase) {
+    if (!isDataChangeHistoryEnabled()) {
+      return false;
+    }
+
+    return tableListRootInfo.tableList.stream()
+        .filter(t -> tableNameSnakeCase.equals(t.getTableName()))
+        .noneMatch(TableListInfo::isExcludedFromChangeHistory);
   }
 }

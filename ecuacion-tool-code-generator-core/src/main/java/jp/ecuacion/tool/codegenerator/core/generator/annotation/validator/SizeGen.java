@@ -16,6 +16,7 @@
 package jp.ecuacion.tool.codegenerator.core.generator.annotation.validator;
 
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BIG_DECIMAL;
+import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.BINARY;
 import static jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum.STRING;
 
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
@@ -27,6 +28,9 @@ import org.jspecify.annotations.Nullable;
 /**
  * Generator for the {@code @SizeString} validator annotation, constraining the minimum and maximum
  * length of a string or BigDecimal field.
+ *
+ * <p>For {@code BINARY} ({@code byte[]}) fields the standard {@code @Size} is used instead,
+ *     constraining the number of bytes.</p>
  */
 public class SizeGen extends ValidatorGen {
 
@@ -35,9 +39,13 @@ public class SizeGen extends ValidatorGen {
 
   /** Builds a {@code Size} validator generator with the optional min/max bounds. */
   public SizeGen(DataTypeInfo dtInfo, @Nullable Integer minSize, @Nullable Integer maxSize) {
-    super("SizeString", dtInfo);
+    super(getAnnotationName(dtInfo), dtInfo);
     this.minSize = minSize;
     this.maxSize = maxSize;
+  }
+
+  private static String getAnnotationName(DataTypeInfo dtInfo) {
+    return (dtInfo.getKata() == BINARY) ? "Size" : "SizeString";
   }
 
   /** Returns whether a {@code Size} validator should be generated for the given bounds. */
@@ -47,7 +55,7 @@ public class SizeGen extends ValidatorGen {
 
   @Override
   protected DataTypeKataEnum[] getAvailableKatas() {
-    return new DataTypeKataEnum[] {STRING, BIG_DECIMAL};
+    return new DataTypeKataEnum[] {STRING, BIG_DECIMAL, BINARY};
   }
 
 
@@ -69,6 +77,6 @@ public class SizeGen extends ValidatorGen {
 
   @Override
   public boolean isJakartaEeStandardValidator() {
-    return false;
+    return dtInfo.getKata() == BINARY;
   }
 }

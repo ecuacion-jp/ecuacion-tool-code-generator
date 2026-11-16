@@ -23,6 +23,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import jp.ecuacion.lib.core.exception.ViolationException;
+import jp.ecuacion.tool.codegenerator.core.controller.MainController;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -402,6 +404,127 @@ class DbOrClassTableInfoTest {
     void hasCustomGroupColumnFalse() {
       tableInfo.columnList.add(colWithCustomGroup(false));
       assertThat(tableInfo.hasCustomGroupColumn()).isFalse();
+    }
+  }
+
+  // ---------- getGroupFilterName ----------
+
+  @Nested
+  @DisplayName("getGroupFilterName()")
+  class GroupFilterName {
+
+    @AfterEach
+    void tearDown() {
+      MainController.tlInfo.remove();
+    }
+
+    private void setGroupRootInfo(MiscGroupRootInfo groupInfo) {
+      @SuppressWarnings("null")
+      CodeGenContext ctx = mock(CodeGenContext.class);
+      when(ctx.getGroupRootInfo()).thenReturn(groupInfo);
+      MainController.tlInfo.set(ctx);
+    }
+
+    @Test
+    @DisplayName("returns \"groupFilter\" for a table with the common group column")
+    void commonFilterForCommonGroupColumnTable() {
+      setGroupRootInfo(new MiscGroupRootInfo("ACC_GENERAL_ID", "ID", "OTHER_TABLE"));
+      DbOrClassTableInfo ti = new DbOrClassTableInfo("INQUIRY_MSG");
+      ti.columnList.add(colWithCustomGroup(false));
+
+      assertThat(ti.getGroupFilterName()).isEqualTo("groupFilter");
+    }
+
+    @Test
+    @DisplayName("returns the table's own filter name for a table with a custom group column")
+    void ownFilterForCustomGroupColumnTable() {
+      setGroupRootInfo(new MiscGroupRootInfo("ACC_GENERAL_ID", "ID", ""));
+      DbOrClassTableInfo ti = new DbOrClassTableInfo("ACC_GENERAL");
+      ti.columnList.add(colWithCustomGroup(true));
+
+      assertThat(ti.getGroupFilterName()).isEqualTo("groupFilterAccGeneral");
+    }
+
+    @Test
+    @DisplayName("returns null for a table listed in TABLE_NAMES_WITHOUT_GROUPING")
+    void nullForTableWithoutGrouping() {
+      setGroupRootInfo(
+          new MiscGroupRootInfo("ACC_GENERAL_ID", "ID", "OTHER_TABLE,TARGET_SYSTEM_NAME"));
+      DbOrClassTableInfo ti = new DbOrClassTableInfo("TARGET_SYSTEM_NAME");
+      ti.columnList.add(colWithCustomGroup(false));
+
+      assertThat(ti.getGroupFilterName()).isNull();
+    }
+
+    @Test
+    @DisplayName("returns null when grouping is not defined")
+    void nullWhenGroupingUndefined() {
+      setGroupRootInfo(new MiscGroupRootInfo());
+      DbOrClassTableInfo ti = new DbOrClassTableInfo("INQUIRY_MSG");
+      ti.columnList.add(colWithCustomGroup(false));
+
+      assertThat(ti.getGroupFilterName()).isNull();
+    }
+  }
+
+  // ---------- getAdminScopeFilterName ----------
+
+  @Nested
+  @DisplayName("getAdminScopeFilterName()")
+  class AdminScopeFilterName {
+
+    @AfterEach
+    void tearDown() {
+      MainController.tlInfo.remove();
+    }
+
+    private void setAdminScopeRootInfo(MiscAdminScopeRootInfo adminScopeInfo) {
+      @SuppressWarnings("null")
+      CodeGenContext ctx = mock(CodeGenContext.class);
+      when(ctx.getAdminScopeRootInfo()).thenReturn(adminScopeInfo);
+      MainController.tlInfo.set(ctx);
+    }
+
+    private DbOrClassTableInfo table(String name, boolean hasCustomColumn) {
+      DbOrClassTableInfo ti = new DbOrClassTableInfo(name);
+      @SuppressWarnings("null")
+      DbOrClassColumnInfo c = mock(DbOrClassColumnInfo.class);
+      when(c.isCustomAdminScopeColumn()).thenReturn(hasCustomColumn);
+      ti.columnList.add(c);
+      return ti;
+    }
+
+    @Test
+    @DisplayName("returns \"adminScopeFilter\" for a table with the scope column")
+    void commonFilter() {
+      setAdminScopeRootInfo(new MiscAdminScopeRootInfo("TARGET_SYSTEM_ID", "ID", "ACC"));
+
+      assertThat(table("INQUIRY", false).getAdminScopeFilterName()).isEqualTo("adminScopeFilter");
+    }
+
+    @Test
+    @DisplayName("returns the table's own filter name for a table with a custom column")
+    void ownFilter() {
+      setAdminScopeRootInfo(new MiscAdminScopeRootInfo("TARGET_SYSTEM_ID", "ID", "ACC"));
+
+      assertThat(table("TARGET_SYSTEM", true).getAdminScopeFilterName())
+          .isEqualTo("adminScopeFilterTargetSystem");
+    }
+
+    @Test
+    @DisplayName("returns null for a table listed in TABLE_NAMES_WITHOUT_ADMIN_SCOPE")
+    void nullForTableWithoutAdminScope() {
+      setAdminScopeRootInfo(new MiscAdminScopeRootInfo("TARGET_SYSTEM_ID", "ID", "ACC"));
+
+      assertThat(table("ACC", false).getAdminScopeFilterName()).isNull();
+    }
+
+    @Test
+    @DisplayName("returns null when the admin scope is not defined")
+    void nullWhenUndefined() {
+      setAdminScopeRootInfo(new MiscAdminScopeRootInfo());
+
+      assertThat(table("INQUIRY", false).getAdminScopeFilterName()).isNull();
     }
   }
 
