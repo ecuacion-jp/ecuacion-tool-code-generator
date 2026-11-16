@@ -26,6 +26,7 @@ import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
+import jp.ecuacion.tool.codegenerator.core.bl.CheckerForMiscAdminScope;
 import jp.ecuacion.tool.codegenerator.core.bl.PreparerForDbAndDataType;
 import jp.ecuacion.tool.codegenerator.core.bl.PreparerForMiscGroup;
 import jp.ecuacion.tool.codegenerator.core.bl.PreparerForMiscOptimisticLock;
@@ -40,6 +41,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumClassInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.EnumRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.LangsHolder;
+import jp.ecuacion.tool.codegenerator.core.dto.MiscAdminScopeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.SystemCommonRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.TableListRootInfo;
@@ -98,6 +100,12 @@ public class CheckAndComplementDataBlf {
         (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON),
         (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB),
         (MiscGroupRootInfo) rootInfoMap.get(DataKindEnum.MISC_GROUP));
+
+    // Between table and admin scope
+    new CheckerForMiscAdminScope().check(systemName,
+        (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB_COMMON),
+        (DbOrClassRootInfo) rootInfoMap.get(DataKindEnum.DB),
+        (MiscAdminScopeRootInfo) rootInfoMap.get(DataKindEnum.MISC_ADMIN_SCOPE));
 
     // Store dataTypeInfo into colInfo
     Map<String, DataTypeInfo> dtMap = createDataTypeMap(systemName, rootInfoMap);
@@ -207,9 +215,9 @@ public class CheckAndComplementDataBlf {
           }
           relRefInfoList.add(new DbOrClassColumnInfo.RelationRefInfo(ci.isRelationBidirectinal(),
               relationKind.getInverse(), ci.getRelationRefTable(), ci.getRelationRefCol(),
-              ci.getRelationRefFieldName(), ti.getName(),
+              ci.getRelationRefFieldName(), ci.getRelationRefItemNameKeyClass(), ti.getName(),
               StringUtil.getLowerCamelFromSnake(ci.getName()),
-              ci.getRelationFieldName()));
+              ci.getRelationFieldName(), ci.isExcludedFromChangeHistory()));
         }
       }
     }
@@ -375,27 +383,27 @@ public class CheckAndComplementDataBlf {
           .throwIfAny();
     }
 
-    // Having more than one "custom group column" in child tables is an error
-    int numOfCustomGroupColumns = 0;
-    String customGroupTableName = null;
-    String customGroupColumnName = null;
+    // A "custom group column" can exist in multiple tables (each table has its own filter),
+    // but having more than one in a table is an error.
+    Violations violations = new Violations();
     for (DbOrClassTableInfo ti : dbRootInfo.tableList) {
-      if (ti.hasCustomGroupColumn()) {
-        numOfCustomGroupColumns++;
-        customGroupTableName = ti.getName();
-        customGroupColumnName = ti.getCustomGroupColumn().getName();
-        if (numOfCustomGroupColumns > 1) {
-          new Violations()
-              .add(new BusinessViolation("MSG_ERR_MULTIPLE_CUSTOM_GROUP_COLUMN_CANNOT_EXIST",
-                  systemName))
-              .throwIfAny();
+      if (ti.columnList.stream().filter(DbOrClassColumnInfo::isCustomGroupColumn).count() > 1) {
+        violations.add(new BusinessViolation(
+            "MSG_ERR_MULTIPLE_CUSTOM_GROUP_COLUMNS_IN_TABLE", systemName, ti.getName()));
+      }
+
+      // A table listed in "TABLE_NAMES_WITHOUT_GROUPING" is not narrowed by any group filter,
+      // so having a group column (common or custom) in it is an error.
+      if (groupRootInfo.getTableNamesWithoutGrouping().contains(ti.getName())) {
+        for (DbOrClassColumnInfo ci : ti.columnList) {
+          if (ci.getName().equals(colName) || ci.isCustomGroupColumn()) {
+            violations.add(new BusinessViolation("MSG_ERR_TABLE_WITHOUT_GROUPING_HAS_GROUP_COLUMN",
+                systemName, ti.getName(), ci.getName()));
+          }
         }
       }
     }
-
-    // Add customGroup information
-    groupRootInfo.setCustomGroupTableName(customGroupTableName);
-    groupRootInfo.setCustomGroupColumnName(customGroupColumnName);
+    violations.throwIfAny();
   }
 
   /**
@@ -450,6 +458,14 @@ public class CheckAndComplementDataBlf {
         if (grpInfo.isDefined()) {
           grpInfo.setDtInfo(checkAndGetDataTypeInfo(dtMap, grpInfo.getDataTypeName(), systemName,
               "grouping column: " + grpInfo.getColumnName()));
+        }
+
+      } else if (rootInfo instanceof MiscAdminScopeRootInfo adminScopeInfo) {
+        // MiscAdminScopeRootInfo
+
+        if (adminScopeInfo.isDefined()) {
+          adminScopeInfo.setDtInfo(checkAndGetDataTypeInfo(dtMap, adminScopeInfo.getDataTypeName(),
+              systemName, "admin scope column: " + adminScopeInfo.getColumnName()));
         }
       }
     }

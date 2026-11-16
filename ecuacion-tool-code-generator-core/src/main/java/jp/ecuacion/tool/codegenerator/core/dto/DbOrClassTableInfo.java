@@ -37,6 +37,7 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGen;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithMultipleValues;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Holds DB or class table information including its columns, unique constraints, and relation
@@ -269,6 +270,64 @@ public class DbOrClassTableInfo extends AbstractInfo {
     }
 
     return null;
+  }
+
+  /**
+   * Returns the name of the group filter which narrows this table,
+   *     or {@code null} if this table is not narrowed by any group filter.
+   *
+   * <ul>
+   * <li>{@code groupFilter<TableName>}: the table has a custom group column</li>
+   * <li>{@code null}: grouping is not defined, or the table is listed in
+   *     {@code TABLE_NAMES_WITHOUT_GROUPING} (= it has no group column)</li>
+   * <li>{@code groupFilter}: otherwise (= the table has the common group column)</li>
+   * </ul>
+   */
+  public @Nullable String getGroupFilterName() {
+    MiscGroupRootInfo groupInfo = getInfo().getGroupRootInfo();
+    if (!groupInfo.isDefined() || groupInfo.getTableNamesWithoutGrouping().contains(name)) {
+      return null;
+    }
+
+    return hasCustomGroupColumn() ? "groupFilter" + getNameCpCamel() : "groupFilter";
+  }
+
+  /** Returns {@code true} if this table has a custom admin scope column. */
+  public boolean hasCustomAdminScopeColumn() {
+    return getCustomAdminScopeColumn() != null;
+  }
+
+  /** Returns the custom admin scope column, or {@code null} if absent. */
+  @SuppressWarnings({"NullAway", "null"})
+  public DbOrClassColumnInfo getCustomAdminScopeColumn() {
+    for (DbOrClassColumnInfo ci : columnList) {
+      if (ci.isCustomAdminScopeColumn()) {
+        return ci;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Returns the name of the admin scope filter this table is narrowed by, or {@code null}.
+   *
+   * <ul>
+   * <li>{@code null}: the admin scope is not used, or the table is listed in
+   *     {@code TABLE_NAMES_WITHOUT_ADMIN_SCOPE}</li>
+   * <li>{@code adminScopeFilter<TableName>}: the table has a custom admin scope column</li>
+   * <li>{@code adminScopeFilter}: otherwise (= the table has the scope column)</li>
+   * </ul>
+   */
+  public @Nullable String getAdminScopeFilterName() {
+    MiscAdminScopeRootInfo adminScopeInfo = getInfo().getAdminScopeRootInfo();
+    if (!adminScopeInfo.isDefined()
+        || adminScopeInfo.getTableNamesWithoutAdminScope().contains(name)) {
+      return null;
+    }
+
+    return hasCustomAdminScopeColumn() ? "adminScopeFilter" + getNameCpCamel()
+        : "adminScopeFilter";
   }
 
   /*

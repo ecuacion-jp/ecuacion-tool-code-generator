@@ -39,7 +39,20 @@ public class DigitsGen extends ValidatorGen {
   public DigitsGen(DataTypeInfo dtInfo, @Nullable Integer integer, @Nullable Integer fraction) {
     super("FieldDigits", dtInfo);
     this.integer = integer;
-    this.fraction = fraction;
+    this.fraction = resolveFraction(integer, fraction);
+  }
+
+  /**
+   * Returns the fraction to generate.
+   *
+   * <p>{@code @Digits} has no default for {@code fraction}, so generating only {@code integer}
+   *     does not compile. The Excel check requires both of them for {@code BIG_DECIMAL}
+   *     and allows only {@code integer} for integer kinds,
+   *     so a missing {@code fraction} means an integer kind, for which {@code 0} is used.</p>
+   */
+  static @Nullable Integer resolveFraction(@Nullable Integer integer,
+      @Nullable Integer fraction) {
+    return integer != null && fraction == null ? Integer.valueOf(0) : fraction;
   }
 
   /** Returns whether a {@code Digits} validator should be generated for the given bounds. */

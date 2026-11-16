@@ -36,6 +36,7 @@ public class Constants {
   public static final String REG_EX_DOWN_NUM_DOT = "^[a-z0-9\\.]*$";
   public static final String REG_EX_NUM = "^[0-9]*$";
   public static final String REG_EX_NUM_DOT = "^[0-9\\.]*$";
+  public static final String REG_EX_DECIMAL = "^[0-9]+(\\.[0-9]+)?$";
   public static final String REG_EX_AL_NUM_DOT = "^[A-Za-z0-9\\.]*$";
   public static final String REG_EX_AL_NUM_HY = "^[A-Za-z0-9\\-]*$";
   public static final String REG_EX_AL_NUM_US_CM_DOT = "^[A-Za-z0-9_,\\.]*$";

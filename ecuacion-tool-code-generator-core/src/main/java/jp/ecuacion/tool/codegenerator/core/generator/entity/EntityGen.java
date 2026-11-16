@@ -26,7 +26,7 @@ import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassColumnInfo.RelationRefInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.DbOrClassTableInfo;
-import jp.ecuacion.tool.codegenerator.core.dto.MiscGroupRootInfo;
+import jp.ecuacion.tool.codegenerator.core.dto.MiscAdminScopeRootInfo;
 import jp.ecuacion.tool.codegenerator.core.dto.MiscSoftDeleteRootInfo;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
@@ -52,6 +52,10 @@ import org.apache.commons.lang3.StringUtils;
  * constructors, accessors, and properties.
  */
 public abstract class EntityGen extends AbstractTableGen {
+
+  private static final String NOT_AUDITED = "@NotAudited";
+  private static final String AUDITED_WITH_TARGET_NOT_AUDITED =
+      "@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)";
 
   private ColumnGenUtil code = new ColumnGenUtil();
 
@@ -117,6 +121,20 @@ public abstract class EntityGen extends AbstractTableGen {
       }
     }
 
+    // A group filter is put on a bidirectional relation field when the referring table is narrowed
+    // by one, even if this table itself is listed in TABLE_NAMES_WITHOUT_GROUPING.
+    if (hasGroupFilteredBidirectionalRelationRef(tableInfo)) {
+      importMgr.add("org.hibernate.annotations.Filter");
+    }
+
+    // An admin scope filter is put on a bidirectional relation field in the same way.
+    if (hasAdminScopeFilteredBidirectionalRelationRef(tableInfo)) {
+      importMgr.add("org.hibernate.annotations.Filter");
+    }
+
+    // Import when using the admin scope filter
+    appendAdminScopeImport(importMgr, tableInfo);
+
     // Import when using @Filter
     if (getInfo().getGroupRootInfo().isDefined()) {
       if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_APP_COMMON) {
@@ -146,6 +164,33 @@ public abstract class EntityGen extends AbstractTableGen {
           importMgr.add("jakarta.persistence.Table");
         }
       }
+    }
+
+    // Data change history (Hibernate Envers)
+    if (isDataChangeHistoryEntity(tableInfo)) {
+      importMgr.add("org.hibernate.envers.Audited");
+
+      List<String> fieldAnnotations = new ArrayList<>();
+      for (DbOrClassColumnInfo ci : tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
+          .toList()) {
+        fieldAnnotations.add(getDataChangeHistoryAnnotation(true, ci));
+        for (RelationRefInfo info : ci.getBidirectionalRelationRefInfoList()) {
+          fieldAnnotations.add(getDataChangeHistoryAnnotationForRelationRef(true, info));
+        }
+      }
+
+      if (fieldAnnotations.contains(NOT_AUDITED)) {
+        importMgr.add("org.hibernate.envers.NotAudited");
+      }
+      if (fieldAnnotations.contains(AUDITED_WITH_TARGET_NOT_AUDITED)) {
+        importMgr.add("org.hibernate.envers.RelationTargetAuditMode");
+      }
+    }
+
+    // When @ItemNameKeyClass is specified to relation fields
+    if (tableInfo.columnList.stream().filter(ci -> !ci.getIsJavaOnly())
+        .anyMatch(DbOrClassColumnInfo::hasRelationItemNameKeyClass)) {
+      importMgr.add(ITEM_NAME_KEY_CLASS_IMPORT);
     }
 
     // When using relations
@@ -224,6 +269,118 @@ public abstract class EntityGen extends AbstractTableGen {
         .anyMatch(info -> info.getRelationKind() == RelationKindEnum.ONE_TO_MANY);
   }
 
+  /**
+   * Returns {@code true} if {@code tableInfo} has a bidirectional relation field on which a group
+   *     filter is put (= the referring table is narrowed by a group filter; see
+   *     {@link #appendField}).
+   */
+  private boolean hasGroupFilteredBidirectionalRelationRef(DbOrClassTableInfo tableInfo) {
+    return tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
+        .filter(DbOrClassColumnInfo::hasBidirectionalRelationRef)
+        .flatMap(ci -> ci.getBidirectionalRelationRefInfoList().stream())
+        .anyMatch(info -> getInfo().getTableInfo(info.getOrgTableName())
+            .getGroupFilterName() != null);
+  }
+
+  /**
+   * Returns {@code true} if {@code tableInfo} has a bidirectional relation field on which an admin
+   *     scope filter is put (= the referring table is narrowed by one).
+   */
+  private boolean hasAdminScopeFilteredBidirectionalRelationRef(DbOrClassTableInfo tableInfo) {
+    return tableInfo.columnList.stream().filter(e -> !e.getIsJavaOnly())
+        .filter(DbOrClassColumnInfo::hasBidirectionalRelationRef)
+        .flatMap(ci -> ci.getBidirectionalRelationRefInfoList().stream())
+        .anyMatch(info -> getInfo().getTableInfo(info.getOrgTableName())
+            .getAdminScopeFilterName() != null);
+  }
+
+  private void appendAdminScopeImport(ImportBlock importMgr, DbOrClassTableInfo tableInfo) {
+    MiscAdminScopeRootInfo adminScopeInfo = getInfo().getAdminScopeRootInfo();
+    if (!adminScopeInfo.isDefined()) {
+      return;
+    }
+
+    if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_APP_COMMON) {
+      // The common filterDef is always output to systemCommon.
+      importMgr.add("org.hibernate.annotations.FilterDef", "org.hibernate.annotations.ParamDef",
+          "org.hibernate.type.descriptor.java.*");
+      if (tableInfo.hasColumn(adminScopeInfo.getColumnName())) {
+        importMgr.add("org.hibernate.annotations.Filter");
+      }
+
+    } else if (getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_BODY
+        && tableInfo.getAdminScopeFilterName() != null) {
+      importMgr.add("org.hibernate.annotations.Filter", "jakarta.persistence.Table");
+      if (tableInfo.hasCustomAdminScopeColumn()) {
+        importMgr.add("org.hibernate.annotations.FilterDef", "org.hibernate.annotations.ParamDef",
+            "org.hibernate.type.descriptor.java.*");
+      }
+    }
+  }
+
+  /**
+   * Returns {@code true} if the entity being generated for {@code tableInfo} records data change
+   *     history (Hibernate Envers), so {@code @Audited} is put on its class.
+   *
+   * <p>{@code AppCommon} is audited whenever data change history is used: without it, the columns
+   *     it holds are not recorded for any entity.</p>
+   */
+  protected boolean isDataChangeHistoryEntity(DbOrClassTableInfo tableInfo) {
+    return getEntityGenKindEnum() == EntityGenKindEnum.ENTITY_APP_COMMON
+        ? getInfo().isDataChangeHistoryEnabled()
+        : getInfo().isDataChangeHistoryTable(tableInfo.getName());
+  }
+
+  /**
+   * Returns the Envers annotation for a column field, or an empty string if none is needed.
+   *
+   * <p>A relation to an entity that does not record history needs
+   *     {@code targetAuditMode = NOT_AUDITED}, otherwise Envers fails at startup.</p>
+   */
+  private String getDataChangeHistoryAnnotation(boolean isDataChangeHistoryEntity,
+      DbOrClassColumnInfo ci) {
+    if (!isDataChangeHistoryEntity) {
+      return "";
+    }
+
+    if (ci.isExcludedFromChangeHistory()) {
+      return NOT_AUDITED;
+    }
+
+    if (ci.isRelation() && !getInfo().isDataChangeHistoryTable(ci.getRelationRefTable())) {
+      return AUDITED_WITH_TARGET_NOT_AUDITED;
+    }
+
+    return "";
+  }
+
+  /**
+   * Returns the Envers annotation for the field on the referenced side of a bidirectional
+   *     relation, or an empty string if none is needed.
+   *
+   * <p>The field is mapped by the owning side, so it cannot be recorded when the owning side is
+   *     not.</p>
+   */
+  private String getDataChangeHistoryAnnotationForRelationRef(boolean isDataChangeHistoryEntity,
+      RelationRefInfo info) {
+    if (!isDataChangeHistoryEntity) {
+      return "";
+    }
+
+    if (info.isOrgColumnExcludedFromChangeHistory()
+        || !getInfo().isDataChangeHistoryTable(info.getOrgTableName())) {
+      return NOT_AUDITED;
+    }
+
+    return "";
+  }
+
+  private void appendDataChangeHistoryAnnotation(StringBuilder sb, String annotation) {
+    if (!annotation.isEmpty()) {
+      sb.append(T1 + annotation + RT);
+    }
+  }
+
   private void auditingImport(ImportBlock importMgr, String springAuditing, String keyword,
       String importClass) {
     if (springAuditing != null && springAuditing.equals(keyword)) {
@@ -272,6 +429,20 @@ public abstract class EntityGen extends AbstractTableGen {
   }
 
   /**
+   * Appends a FilterDef annotation of an admin scope filter to the StringBuilder.
+   */
+  protected void getAdminScopeFilterDefAnnotationString(StringBuilder sb, String filterName,
+      String colName, DataTypeInfo dtInfo) {
+
+    String fieldNameLc = StringUtil.getLowerCamelFromSnake(colName);
+
+    sb.append("@FilterDef(name = \"" + filterName + "\", " + RT);
+    sb.append(T2 + "parameters = @ParamDef(name = \"" + fieldNameLc + "\", type = "
+        + StringUtil.getUpperCamelFromSnake(dtInfo.getKata().toString()) + "JavaType.class)," + RT);
+    sb.append(T2 + "defaultCondition = \"" + colName + " in (:" + fieldNameLc + ")\")" + RT);
+  }
+
+  /**
    * Appends soft delete FilterDef and Filter annotation strings if soft delete is configured for
    * the table.
    */
@@ -299,13 +470,15 @@ public abstract class EntityGen extends AbstractTableGen {
   protected void appendField(StringBuilder sb, DbOrClassTableInfo tableInfo,
       List<DbOrClassColumnInfo> colInfoList) {
 
+    final boolean isDataChangeHistoryEntity = isDataChangeHistoryEntity(tableInfo);
+
     for (DbOrClassColumnInfo ci : colInfoList.stream().filter(e -> !e.getIsJavaOnly()).toList()) {
-      createFieldInternal(sb, tableInfo.getName(), ci);
+      createFieldInternal(sb, tableInfo.getName(), ci, isDataChangeHistoryEntity);
 
       // When a column is both @Id and a relation, a normal @Id column is also needed for @MapsId
       if (ci.isPk() && ci.isRelation()) {
         DbOrClassColumnInfo ci2 = DbOrClassColumnInfo.cloneWithoutRelationRelated(ci);
-        createFieldInternal(sb, tableInfo.getName(), ci2);
+        createFieldInternal(sb, tableInfo.getName(), ci2, isDataChangeHistoryEntity);
       }
 
       if (ci.hasBidirectionalRelationRef()) {
@@ -320,13 +493,24 @@ public abstract class EntityGen extends AbstractTableGen {
           }
           // Filter condition required when referenced by a bidirectional relation
           MiscSoftDeleteRootInfo softDeleteInfo = getInfo().getRemovedDataRootInfo();
-          MiscGroupRootInfo groupInfo = getInfo().getGroupRootInfo();
           if (softDeleteInfo.isDefined()) {
             sb.append(T1 + "@Filter(name = \"softDeleteFilter\")" + RT);
           }
-          if (groupInfo.isDefined()) {
-            sb.append(T1 + "@Filter(name = \"groupFilter\")" + RT);
+          // The filter must match the referring (child) table: a table without grouping has no
+          // group column, and one with a custom group column is narrowed by its own filter.
+          String groupFilterName =
+              getInfo().getTableInfo(info.getOrgTableName()).getGroupFilterName();
+          if (groupFilterName != null) {
+            sb.append(T1 + "@Filter(name = \"" + groupFilterName + "\")" + RT);
           }
+          String adminScopeFilterName =
+              getInfo().getTableInfo(info.getOrgTableName()).getAdminScopeFilterName();
+          if (adminScopeFilterName != null) {
+            sb.append(T1 + "@Filter(name = \"" + adminScopeFilterName + "\")" + RT);
+          }
+          appendItemNameKeyClass(info.getDstItemNameKeyClassToReferOrgTable());
+          appendDataChangeHistoryAnnotation(sb,
+              getDataChangeHistoryAnnotationForRelationRef(isDataChangeHistoryEntity, info));
 
           if (info.getRelationKind() == RelationKindEnum.ONE_TO_ONE) {
             sb.append(T1 + "protected " + StringUtils.capitalize(refEntityNameLw) + " "
@@ -341,19 +525,23 @@ public abstract class EntityGen extends AbstractTableGen {
     }
   }
 
-  private void createFieldInternal(StringBuilder sb, String tableName, DbOrClassColumnInfo ci) {
+  private void createFieldInternal(StringBuilder sb, String tableName, DbOrClassColumnInfo ci,
+      boolean isDataChangeHistoryEntity) {
 
     String columnName = StringUtil.getLowerCamelFromSnake(ci.getName());
     String kata = code.getJavaKata(ci);
 
     // The second argument may be null in the case of CommonInfo, so null must be considered
     sb.append(getEntityFieldAnnotations(getEntityGenKindEnum(), tableName, ci));
+    appendDataChangeHistoryAnnotation(sb,
+        getDataChangeHistoryAnnotation(isDataChangeHistoryEntity, ci));
 
     if (ci.isRelation()) {
       jp.ecuacion.tool.codegenerator.core.enums.RelationKindEnum relationKind =
           java.util.Objects.requireNonNull(ci.getRelationKind(),
               "isRelation() guarantees getRelationKind() is non-null");
       sb.append(T1 + "@Valid" + RT);
+      appendItemNameKeyClass(ci.getRelationItemNameKeyClass());
       sb.append(T1 + relationKind.getName() + "(fetch = FetchType."
           + (ci.getRelationIsEager() ? "EAGER" : "LAZY") + ", cascade = {CascadeType.DETACH})"
           + RT);
@@ -688,28 +876,24 @@ public abstract class EntityGen extends AbstractTableGen {
         continue;
       }
 
-      if (dtInfo.getKata() == DataTypeKataEnum.ENUM) {
-        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName
-            + " = Enum.FALSE;" + RT);
+      switch (dtInfo.getKata()) {
+        case ENUM -> sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ")
+            + fieldName + " = Enum.FALSE;" + RT);
 
-      } else if (dtInfo.getKata() == DataTypeKataEnum.BOOLEAN) {
-        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = false;"
-            + RT);
+        case BOOLEAN -> sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ")
+            + fieldName + " = false;" + RT);
 
-      } else if (dtInfo.getKata() == DataTypeKataEnum.TIMESTAMP
-          || dtInfo.getKata() == DataTypeKataEnum.DATE_TIME) {
-        String kataName = code.getJavaKata(ci);
-        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = "
-            + kataName + ".now();" + RT);
+        case TIMESTAMP, DATE_TIME -> {
+          String kataName = code.getJavaKata(ci);
+          sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = "
+              + kataName + ".now();" + RT);
+        }
 
-      } else if (dtInfo.getKata() == DataTypeKataEnum.SHORT
-          || dtInfo.getKata() == DataTypeKataEnum.INTEGER
-          || dtInfo.getKata() == DataTypeKataEnum.LONG) {
-        sb.append(T2 + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = 1"
+        case SHORT, INTEGER, LONG -> sb.append(T2
+            + (isForced ? "" : "if (" + fieldName + " == null) ") + fieldName + " = 1"
             + ((dtInfo.getKata() == DataTypeKataEnum.LONG) ? "L" : "") + ";" + RT);
 
-      } else {
-        new Violations().add(new BusinessViolation("MSG_ERR_IMPOSSIBLE")).throwIfAny();
+        default -> new Violations().add(new BusinessViolation("MSG_ERR_IMPOSSIBLE")).throwIfAny();
       }
     }
 

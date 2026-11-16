@@ -131,7 +131,10 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     sb.append(T1 + "public void setIds(String idCsv) {" + RT);
     sb.append(T2 + "super.setIds(idCsv);" + RT);
     sb.append(T2 + "String[] ids = idCsv.split(\",\", -1);" + RT);
-    sb.append(T2 + "if (ids.length < 1) return;" + RT2);
+    // An empty segment must not clear the id: the splib-web form always posts "<record>.ids"
+    // (empty unless the record was built from an entity), and it is bound after "<record>.id"
+    // since request parameters are bound in name order.
+    sb.append(T2 + "if (ids[0].isEmpty()) return;" + RT2);
     DbOrClassColumnInfo setIdsPkCi = ti.getPkColumn();
     String pkSet = code.generateString(setIdsPkCi, ColFormat.SET, "ids[0]");
     if (setIdsPkCi.isRelation()) {
@@ -172,11 +175,14 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
     sb.append(T1 + "public void setOptimisticLockVersions(String verCsv) {" + RT);
     sb.append(T2 + "super.setOptimisticLockVersions(verCsv);" + RT);
     sb.append(T2 + "String[] vers = verCsv.split(\",\", -1);" + RT);
-    sb.append(T2 + "if (vers.length < 1) return;" + RT2);
+    sb.append(RT);
 
+    // Same as setIds(): an empty segment must not clear an already-set version.
     DbOrClassColumnInfo ownVerCi = ti.getVersionColumnIncludingAppCommon();
     String ownVerSet = code.generateString(ownVerCi, ColFormat.SET, "vers[0]");
-    sb.append(T2 + ownVerSet + ";" + RT);
+    sb.append(T2 + "if (!vers[0].isEmpty()) {" + RT);
+    sb.append(T3 + ownVerSet + ";" + RT);
+    sb.append(T2 + "}" + RT);
 
     int v = 0;
     while (relColList.size() > v) {
@@ -187,7 +193,8 @@ public class PerTableBaseRecordGen extends AbstractBaseRecordGen {
           getInfo().getTableInfo(ci.getRelationRefTable()).getVersionColumnIncludingAppCommon();
       String relVerSet = code.generateString(relVerCi, ColFormat.SET, "vers[" + index + "]");
 
-      sb.append(T2 + "if (get" + relField + "() != null && vers.length > " + index + ") {" + RT);
+      sb.append(T2 + "if (get" + relField + "() != null && vers.length > " + index + " && !vers["
+          + index + "].isEmpty()) {" + RT);
       sb.append(T3 + "get" + relField + "()." + relVerSet + ";" + RT);
       sb.append(T2 + "}" + RT);
 

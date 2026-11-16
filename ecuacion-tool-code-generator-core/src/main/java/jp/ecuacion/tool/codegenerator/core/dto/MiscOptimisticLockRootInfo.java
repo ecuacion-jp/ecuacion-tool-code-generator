@@ -18,6 +18,7 @@ package jp.ecuacion.tool.codegenerator.core.dto;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.tool.codegenerator.core.enums.DataKindEnum;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * An instance of this class is always created and registered in the system map even when no
@@ -42,7 +43,9 @@ public class MiscOptimisticLockRootInfo extends AbstractColAttrRootInfo {
 
   @Override
   public void consistencyCheckAndComplementData() {
-    if (!isDefined()) {
+    // dataTypeName is checked here too, since leaving it empty would otherwise surface later as
+    // a confusing "data type differs" error (MSG_ERR_DT_OF_COL_FOR_OPT_LOCK_DIFFER).
+    if (!isDefined() || StringUtils.isEmpty(getDataTypeName())) {
       new Violations().add(new BusinessViolation("MSG_ERR_OPTIMISTIC_LOCK_COLUMN_REQUIRED"))
           .throwIfAny();
     }
