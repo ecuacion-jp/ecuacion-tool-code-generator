@@ -348,7 +348,8 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
       DataTypeStringDataPtnEnum dataPtnEnum = DataTypeStringDataPtnEnum.valueOf(stringDataPtn);
       if (PatternGen.needsValidatorPattern1(dataPtnEnum)) {
         String regEx1 = Constants.getStringDataPtnRegExMap(dataPtnEnum.toString());
-        validatorForBothList.add(new PatternGen(this, regEx1, getPatternDescriptionId()));
+        validatorForBothList
+            .add(new PatternGen(this, regEx1, dataPtnEnum.getPatternDescriptionKey()));
       }
     }
 
