@@ -112,9 +112,9 @@ public class Constants {
   /** Half-width digits, lowercase letters, and underscore. */
   private static final String REG_EX_HAN_NUM_LC_US = "^[0-9a-z_]*$";
   /** ASCII letters (upper and lower). */
-  private static final String REG_EX_HAN_NUM_UC_LC = "^[a-zA-Z]*$";
+  private static final String REG_EX_HAN_UC_LC = "^[a-zA-Z]*$";
   /** ASCII letters (upper and lower) and underscore. */
-  private static final String REG_EX_HAN_NUM_UC_LC_US = "^[a-zA-Z_]*$";
+  private static final String REG_EX_HAN_UC_LC_US = "^[a-zA-Z_]*$";
   /** Full-width characters; expressed as "not half-width" in regex terms. */
   private static final String REG_EX_ZEN = "^[^ -~｡-ﾟ]*$";
 
@@ -132,8 +132,8 @@ public class Constants {
     stringDataPtnRegExMap.put("REG_EX_HAN_NUM_UC_US", REG_EX_HAN_NUM_UC_US);
     stringDataPtnRegExMap.put("REG_EX_HAN_NUM_LC", REG_EX_HAN_NUM_LC);
     stringDataPtnRegExMap.put("REG_EX_HAN_NUM_LC_US", REG_EX_HAN_NUM_LC_US);
-    stringDataPtnRegExMap.put("REG_EX_HAN_NUM_UC_LC", REG_EX_HAN_NUM_UC_LC);
-    stringDataPtnRegExMap.put("REG_EX_HAN_NUM_UC_LC_US", REG_EX_HAN_NUM_UC_LC_US);
+    stringDataPtnRegExMap.put("REG_EX_HAN_UC_LC", REG_EX_HAN_UC_LC);
+    stringDataPtnRegExMap.put("REG_EX_HAN_UC_LC_US", REG_EX_HAN_UC_LC_US);
     stringDataPtnRegExMap.put("REG_EX_ZEN", REG_EX_ZEN);
   }
 

@@ -31,67 +31,67 @@ public enum DataTypeStringDataPtnEnum {
   REG_EX_ALL("001"),
 
   /**
-   * Full-width characters only.
+   * Half-width ASCII characters only.
    */
   REG_EX_HAN("100"),
 
   /**
-   * Half-width characters only.
+   * Half-width digits only.
    */
   REG_EX_HAN_NUM("101"),
 
   /**
-   * Half-width digits only.
+   * Uppercase ASCII letters only.
    */
   REG_EX_HAN_UC("102"),
 
   /**
-   * Uppercase ASCII letters only.
+   * Uppercase ASCII letters and underscore.
    */
   REG_EX_HAN_UC_US("103"),
 
   /**
-   * Uppercase ASCII letters and underscore.
+   * Lowercase ASCII letters only.
    */
   REG_EX_HAN_LC("104"),
 
   /**
-   * Lowercase ASCII letters only.
+   * Lowercase ASCII letters and underscore.
    */
   REG_EX_HAN_LC_US("105"),
 
   /**
-   * Lowercase ASCII letters and underscore.
+   * Half-width digits and uppercase letters.
    */
   REG_EX_HAN_NUM_UC("106"),
 
   /**
-   * Half-width digits and uppercase letters.
+   * Half-width digits, uppercase letters, and underscore.
    */
   REG_EX_HAN_NUM_UC_US("107"),
 
   /**
-   * Half-width digits, uppercase letters, and underscore.
+   * Half-width digits and lowercase letters.
    */
   REG_EX_HAN_NUM_LC("108"),
 
   /**
-   * Half-width digits and lowercase letters.
+   * Half-width digits, lowercase letters, and underscore.
    */
   REG_EX_HAN_NUM_LC_US("109"),
 
   /**
-   * Half-width digits, lowercase letters, and underscore.
-   */
-  REG_EX_HAN_NUM_UC_LC("110"),
-
-  /**
    * ASCII letters (upper and lower).
    */
-  REG_EX_HAN_NUM_UC_LC_US("111"),
+  REG_EX_HAN_UC_LC("110"),
 
   /**
    * ASCII letters (upper and lower) and underscore.
+   */
+  REG_EX_HAN_UC_LC_US("111"),
+
+  /**
+   * Full-width characters only.
    */
   REG_EX_ZEN("112");
 
