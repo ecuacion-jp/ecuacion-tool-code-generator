@@ -19,10 +19,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.tool.codegenerator.core.dto.DataTypeInfo;
+import jp.ecuacion.tool.codegenerator.core.enums.DataTypeStringDataPtnEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.AbstractGen;
+import jp.ecuacion.tool.codegenerator.core.generator.annotation.validator.PatternGen;
 
 /**
  * Generates ValidationMessagesPatternDescriptions properties files containing regex pattern
@@ -50,6 +53,17 @@ public class ValidationMessagesPatternDescriptionsGen extends AbstractGen {
         propMap.put("prohibitedChars", prohibitedCharsDesc);
       }
 
+      // Messages for data patterns.
+      // All of them are always output, not only the ones used in the dataTypes,
+      // so that hand-written code can also refer to them.
+      Locale locale = toLocale(lang.isEmpty() ? getInfo().getSysCmnRootInfo().getDefaultLang()
+          : lang);
+      for (DataTypeStringDataPtnEnum dataPtn : DataTypeStringDataPtnEnum.values()) {
+        if (PatternGen.needsValidatorPattern1(dataPtn)) {
+          propMap.put(dataPtn.getPatternDescriptionKey(), dataPtn.getDisplayName(locale));
+        }
+      }
+
       // Messages for dataType
       for (DataTypeInfo dtInfo : getInfo().getDataTypeRootInfo().dataTypeList) {
         String desc = dtInfo.getStringRegExDesc(
@@ -62,5 +76,14 @@ public class ValidationMessagesPatternDescriptionsGen extends AbstractGen {
 
       gen.writeMapToPropFile(propMap, "ValidationMessagesPatternDescriptions", lang);
     }
+  }
+
+  /*
+   * Only the language part is used (like "ja" from "ja_JP"),
+   * since the display names of data patterns are prepared per language.
+   * Languages without prepared display names fall back to English (the base bundle).
+   */
+  static Locale toLocale(String lang) {
+    return Locale.of(lang.split("[_-]")[0]);
   }
 }

@@ -16,8 +16,10 @@
 package jp.ecuacion.tool.codegenerator.core.enums;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Locale;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -64,5 +66,51 @@ public class DataTypeStringDataPtnEnumTest {
       assertThat(DataTypeStringDataPtnEnum.hasEnumFromName(name)).isFalse();
     }
 
+  }
+
+  @Nested
+  @DisplayName("getPatternDescriptionKey()")
+  class GetPatternDescriptionKey {
+
+    @Test
+    @DisplayName("is the name prefixed with \"dataPattern.\"")
+    void prefixedName() {
+      assertThat(DataTypeStringDataPtnEnum.REG_EX_HAN.getPatternDescriptionKey())
+          .isEqualTo("dataPattern.REG_EX_HAN");
+    }
+  }
+
+  @Nested
+  @DisplayName("getDisplayName(Locale)")
+  class GetDisplayName {
+
+    @ParameterizedTest
+    @EnumSource(DataTypeStringDataPtnEnum.class)
+    @DisplayName("every constant has display names in English and Japanese")
+    void allConstantsHaveDisplayNames(DataTypeStringDataPtnEnum ptn) {
+      String key = DataTypeStringDataPtnEnum.class.getSimpleName() + "." + ptn.getName();
+      String en = ptn.getDisplayName(Locale.ENGLISH);
+      String ja = ptn.getDisplayName(Locale.JAPANESE);
+
+      assertThat(en).isNotEqualTo(key);
+      assertThat(ja).isNotEqualTo(key);
+      assertThat(ja).isNotEqualTo(en);
+    }
+
+    @Test
+    @DisplayName("returns the expected names")
+    void expectedNames() {
+      assertThat(DataTypeStringDataPtnEnum.REG_EX_HAN_UC_LC.getDisplayName(Locale.ENGLISH))
+          .isEqualTo("Alphabetic");
+      assertThat(DataTypeStringDataPtnEnum.REG_EX_HAN_UC_LC.getDisplayName(Locale.JAPANESE))
+          .isEqualTo("半角英字");
+    }
+
+    @Test
+    @DisplayName("a language without prepared names falls back to English")
+    void fallsBackToEnglish() {
+      assertThat(DataTypeStringDataPtnEnum.REG_EX_ZEN.getDisplayName(Locale.CHINESE))
+          .isEqualTo("Full-width");
+    }
   }
 }

@@ -118,6 +118,16 @@ public enum DataTypeStringDataPtnEnum {
   }
 
   /**
+   * Returns the key of {@code ValidationMessagesPatternDescriptions} that describes this pattern,
+   *     used as {@code description} of the generated {@code @PatternWithDescription}.
+   *
+   * <p>It contains a dot so that it never conflicts with the keys derived from dataType names.</p>
+   */
+  public String getPatternDescriptionKey() {
+    return "dataPattern." + getName();
+  }
+
+  /**
    * Returns the display name for use on screen. This name can be retrieved but cannot be used
    * to look up the enum value. Returned in the localized language.
    * Many sites are clearly built as Japanese-only, and in that case this approach is simpler.
