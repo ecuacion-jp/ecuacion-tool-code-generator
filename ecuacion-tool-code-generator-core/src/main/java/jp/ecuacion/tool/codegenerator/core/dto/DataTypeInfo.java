@@ -85,8 +85,10 @@ import org.jspecify.annotations.Nullable;
     conditionOperator = NOT_EQUAL_TO, conditionValueString = {"DATE_TIME", "TIMESTAMP"})
 @NotEmptyWhen(propertyPath = "binaryMaxSizeMb", conditionPropertyPath = "kata",
     conditionValueString = "BINARY", emptyWhenConditionNotSatisfied = true)
-@NotEmptyWhen(propertyPath = "stringRegExDescLangDefault", conditionPropertyPath = "stringRegEx",
-    conditionValueState = ConditionValueState.NOT_EMPTY, emptyWhenConditionNotSatisfied = true)
+// The description is optional (the regex itself is shown when omitted), but meaningless without
+// the regex.
+@EmptyWhen(propertyPath = "stringRegExDescLangDefault", conditionPropertyPath = "stringRegEx",
+    conditionValueState = ConditionValueState.EMPTY)
 @ReturnTrue(methodName = "isStringRegExDescLangSupport01Valid",
     propertyPath = "stringRegExDescLangSupport01", message = DataTypeInfo.RETURN_TRUE_MSG,
     groups = CrossSheetConsistencyCheckGroup.class)
@@ -304,11 +306,15 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
 
   /**
    * Returns {@code true} when {@code stringRegExDescLangSupport01} is present exactly when both
-   * {@code stringRegEx} and support language 1 are configured.
+   * {@code stringRegExDescLangDefault} and support language 1 are configured.
    *
-   * <p>This can't be expressed with a single {@code @NotEmptyWhen} (unlike {@code
-   * stringRegExDescLangDefault}, gated on {@code stringRegEx} alone) because it depends on two
-   * independent conditions at once, so {@code @ReturnTrue} is used instead.</p>
+   * <p>The description is optional, but whether it is used must not differ by language:
+   *     otherwise the description would be shown in some languages and the regex itself in the
+   *     others. So the descriptions of the support languages follow that of the default
+   *     language.</p>
+   *
+   * <p>This can't be expressed with a single {@code @NotEmptyWhen} because it depends on two
+   *     independent conditions at once, so {@code @ReturnTrue} is used instead.</p>
    */
   public boolean isStringRegExDescLangSupport01Valid() {
     return isLangDescriptionValid(stringRegExDescLangSupport01, sysCmnRootInfo.getSupportLang1());
@@ -325,7 +331,8 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
   }
 
   private boolean isLangDescriptionValid(@Nullable String desc, @Nullable String supportLang) {
-    boolean needsDesc = !StringUtils.isEmpty(stringRegEx) && !StringUtils.isEmpty(supportLang);
+    boolean needsDesc = !StringUtils.isEmpty(stringRegExDescLangDefault)
+        && !StringUtils.isEmpty(supportLang);
     return needsDesc == !StringUtils.isEmpty(desc);
   }
 
@@ -355,7 +362,11 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
 
     if (PatternGen.needsValidatorPattern2(stringRegEx)) {
       String regEx2 = stringRegEx;
-      validatorForBothList.add(new PatternGen(this, regEx2, getPatternDescriptionId()));
+      // Without the description, "description" is omitted and the regex itself is shown
+      // (ADR-0022 of ecuacion-lib).
+      @Nullable String descId =
+          StringUtils.isEmpty(stringRegExDescLangDefault) ? null : getPatternDescriptionId();
+      validatorForBothList.add(new PatternGen(this, regEx2, descId));
     }
 
     String regEx3 = changeNgCharsToRegEx(sysCmnRootInfo.getProhibitedChars());

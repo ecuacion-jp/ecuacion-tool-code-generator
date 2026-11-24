@@ -22,6 +22,7 @@ import jp.ecuacion.tool.codegenerator.core.enums.DataTypeKataEnum;
 import jp.ecuacion.tool.codegenerator.core.enums.DataTypeStringDataPtnEnum;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamGenWithSingleValue;
 import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListGen;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Generator for the {@code @PatternWithDescription} validator annotation using a regular
@@ -30,13 +31,16 @@ import jp.ecuacion.tool.codegenerator.core.generator.annotation.param.ParamListG
 public class PatternGen extends ValidatorGen {
 
   private String regEx;
-  private String descriptionId;
+  private @Nullable String descriptionId;
 
   /**
    * Constructs a PatternGen with the given data type, regular expression, and description
    * identifier.
+   *
+   * @param descriptionId the key of {@code ValidationMessagesPatternDescriptions},
+   *     or {@code null} to omit {@code description} so that the regex itself is shown
    */
-  public PatternGen(DataTypeInfo dtInfo, String regEx, String descriptionId) {
+  public PatternGen(DataTypeInfo dtInfo, String regEx, @Nullable String descriptionId) {
     super("PatternWithDescription", dtInfo);
     this.regEx = regEx;
     this.descriptionId = descriptionId;
@@ -70,8 +74,10 @@ public class PatternGen extends ValidatorGen {
   @Override
   protected void getParamGenWithoutFieldId(ParamListGen plistGen) {
     plistGen.add(new ParamGenWithSingleValue("regexp", regEx, DataTypeKataEnum.STRING));
-    plistGen
-        .add(new ParamGenWithSingleValue("description", descriptionId, DataTypeKataEnum.STRING));
+    String descId = descriptionId;
+    if (descId != null) {
+      plistGen.add(new ParamGenWithSingleValue("description", descId, DataTypeKataEnum.STRING));
+    }
   }
 
   @Override

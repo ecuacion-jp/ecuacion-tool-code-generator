@@ -68,7 +68,8 @@ public class ValidationMessagesPatternDescriptionsGen extends AbstractGen {
       for (DataTypeInfo dtInfo : getInfo().getDataTypeRootInfo().dataTypeList) {
         String desc = dtInfo.getStringRegExDesc(
             getInfo().getSysCmnRootInfo().getSupportedLangArr(), lang);
-        if (desc != null) {
+        // No key is output without the description, since "description" is omitted then.
+        if (desc != null && !desc.isEmpty()) {
           propMap.put(StringUtil.getLowerCamelFromSnake(
               dtInfo.getDataTypeName().substring(3)), desc);
         }
