@@ -110,7 +110,7 @@ public class DataTypeInfo extends StringExcelTableBean implements LangsHolder {
   public static final List<String> HEADER_LABELS_JA =
       List.of("DataType名", "型", "長さ最小", "長さ最大", "データパターン（日本語）", "データパターン", "禁則文字チェック除外", "正規表現",
           "最小値", "最大値", "整数部桁数", "小数部桁数", "コードの長さ", "timezoneなし", "最大バイト数[MB]", "備考",
-          "パターン説明（デフォルト言語）", "パターン説明（追加言語1）", "パターン説明（追加言語2）", "パターン説明（追加言語）");
+          "パターン説明（デフォルト言語）", "パターン説明（追加言語1）", "パターン説明（追加言語2）", "パターン説明（追加言語3）");
 
   public static final List<String> HEADER_LABELS_EN =
       List.of("DataType Name", "Type", "Min Length", "Max Length", "Data Pattern (display name)",
