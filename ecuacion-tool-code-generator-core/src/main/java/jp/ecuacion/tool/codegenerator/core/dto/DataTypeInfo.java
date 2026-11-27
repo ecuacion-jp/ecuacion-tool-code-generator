@@ -84,7 +84,7 @@ import org.jspecify.annotations.Nullable;
 @EmptyWhen(propertyPath = {"notNeedsTimezone"}, conditionPropertyPath = "kata",
     conditionOperator = NOT_EQUAL_TO, conditionValueString = {"DATE_TIME", "TIMESTAMP"})
 @NotEmptyWhen(propertyPath = "binaryMaxSizeMb", conditionPropertyPath = "kata",
-    conditionValueString = "BINARY", emptyWhenConditionNotSatisfied = true)
+    conditionValueString = "BINARY", oppositeWhenConditionNotSatisfied = true)
 // The description is optional (the regex itself is shown when omitted), but meaningless without
 // the regex.
 @EmptyWhen(propertyPath = "stringRegExDescLangDefault", conditionPropertyPath = "stringRegEx",

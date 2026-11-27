@@ -36,13 +36,13 @@ import org.jspecify.annotations.Nullable;
 /** Holds table display name information for each language, as read from the table-list sheet. */
 @NotEmptyWhen(propertyPath = "dispNameLang1", conditionPropertyPath = "sysCmnRootInfo.supportLang1",
     conditionValueState = NOT_EMPTY, conditionOperator = EQUAL_TO,
-    emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
+    oppositeWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "dispNameLang2", conditionPropertyPath = "sysCmnRootInfo.supportLang2",
     conditionValueState = NOT_EMPTY, conditionOperator = EQUAL_TO,
-    emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
+    oppositeWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "dispNameLang3", conditionPropertyPath = "sysCmnRootInfo.supportLang3",
     conditionValueState = NOT_EMPTY, conditionOperator = EQUAL_TO,
-    emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
+    oppositeWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
 public class TableListInfo extends StringExcelTableBean implements LangsHolder {
 
