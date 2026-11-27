@@ -52,7 +52,7 @@ import org.jspecify.annotations.Nullable;
 @NotEmptyWhen(
     propertyPath = {"relationDirection", "relationFieldName", "relationRefTable", "relationRefCol"},
     conditionPropertyPath = "relationKind", conditionValueState = EMPTY,
-    conditionOperator = NOT_EQUAL_TO, emptyWhenConditionNotSatisfied = true)
+    conditionOperator = NOT_EQUAL_TO, oppositeWhenConditionNotSatisfied = true)
 @EmptyWhen(propertyPath = "relationItemNameKeyClass", conditionPropertyPath = "relationKind",
     conditionValueState = EMPTY)
 @EmptyWhen(propertyPath = {"relationRefFieldName", "relationRefItemNameKeyClass"},
@@ -65,13 +65,13 @@ import org.jspecify.annotations.Nullable;
     conditionValueState = NOT_EMPTY)
 @NotEmptyWhen(propertyPath = "supportedLang1",
     conditionPropertyPath = "sysCmnRootInfo.supportLang1", conditionValueState = NOT_EMPTY,
-    emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
+    oppositeWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "supportedLang2",
     conditionPropertyPath = "sysCmnRootInfo.supportLang2", conditionValueState = NOT_EMPTY,
-    emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
+    oppositeWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "supportedLang3",
     conditionPropertyPath = "sysCmnRootInfo.supportLang3", conditionValueState = NOT_EMPTY,
-    emptyWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
+    oppositeWhenConditionNotSatisfied = true, groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
 public class DbOrClassColumnInfo extends StringExcelTableBean implements LangsHolder {
 

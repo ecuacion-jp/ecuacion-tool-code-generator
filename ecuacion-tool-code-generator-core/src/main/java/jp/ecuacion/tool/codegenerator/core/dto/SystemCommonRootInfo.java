@@ -35,7 +35,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @NotEmptyWhen(propertyPath = "prohibitedCharsDescDefaultLang",
     conditionPropertyPath = "prohibitedChars", conditionOperator = ConditionOperator.EQUAL_TO,
-    conditionValueState = ConditionValueState.NOT_EMPTY, emptyWhenConditionNotSatisfied = true)
+    conditionValueState = ConditionValueState.NOT_EMPTY, oppositeWhenConditionNotSatisfied = true)
 public class SystemCommonRootInfo extends AbstractRootInfo {
 
   @NotEmpty

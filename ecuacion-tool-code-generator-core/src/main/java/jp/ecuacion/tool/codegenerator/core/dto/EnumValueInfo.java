@@ -36,13 +36,13 @@ import org.jspecify.annotations.Nullable;
  * language.
  */
 @NotEmptyWhen(propertyPath = "dispNameLang1", conditionPropertyPath = "sysCmnRootInfo.supportLang1",
-    conditionValueState = NOT_EMPTY, emptyWhenConditionNotSatisfied = true,
+    conditionValueState = NOT_EMPTY, oppositeWhenConditionNotSatisfied = true,
     groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "dispNameLang2", conditionPropertyPath = "sysCmnRootInfo.supportLang2",
-    conditionValueState = NOT_EMPTY, emptyWhenConditionNotSatisfied = true,
+    conditionValueState = NOT_EMPTY, oppositeWhenConditionNotSatisfied = true,
     groups = CrossSheetConsistencyCheckGroup.class)
 @NotEmptyWhen(propertyPath = "dispNameLang3", conditionPropertyPath = "sysCmnRootInfo.supportLang3",
-    conditionValueState = NOT_EMPTY, emptyWhenConditionNotSatisfied = true,
+    conditionValueState = NOT_EMPTY, oppositeWhenConditionNotSatisfied = true,
     groups = CrossSheetConsistencyCheckGroup.class)
 @SuppressWarnings("NullAway.Init")
 public class EnumValueInfo extends StringExcelTableBean implements LangsHolder {
